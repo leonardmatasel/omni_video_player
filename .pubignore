@@ -11,6 +11,10 @@ example/macos/
 example/lib/custom_widgets/
 example/lib/tabs/
 example/lib/main.dart
+example/README.md
+example/example.iml
+example/flutter_launcher_icons.yaml
+example/pubspec.yaml
 
 test/
 devtools_options.yaml
