@@ -56,43 +56,39 @@ class ProgressBarState extends State<ProgressBar> {
 
         return GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onHorizontalDragStart:
-              widget.allowSeeking
-                  ? (details) {
-                    widget.onChangeStart?.call(_dragValue ?? widget.value);
-                  }
-                  : null,
-          onHorizontalDragUpdate:
-              widget.allowSeeking
-                  ? (details) {
-                    _updateValue(details.localPosition, constraints);
-                  }
-                  : null,
-          onHorizontalDragEnd:
-              widget.allowSeeking
-                  ? (details) {
-                    widget.onChangeEnd?.call(_dragValue ?? widget.value);
-                    setState(() {
-                      _dragValue = null;
-                    });
-                  }
-                  : null,
-          onTapDown:
-              widget.allowSeeking
-                  ? (details) {
-                    final tapPosition =
-                        (details.localPosition.dx / constraints.maxWidth) *
-                        widget.max;
-                    final clampedTapPos =
-                        tapPosition.clamp(0, widget.max).toDouble();
-                    widget.onChangeStart?.call(clampedTapPos);
-                    widget.onChanged?.call(clampedTapPos);
-                    widget.onChangeEnd?.call(clampedTapPos);
-                    setState(() {
-                      _dragValue = null;
-                    });
-                  }
-                  : null,
+          onHorizontalDragStart: widget.allowSeeking
+              ? (details) {
+                  widget.onChangeStart?.call(_dragValue ?? widget.value);
+                }
+              : null,
+          onHorizontalDragUpdate: widget.allowSeeking
+              ? (details) {
+                  _updateValue(details.localPosition, constraints);
+                }
+              : null,
+          onHorizontalDragEnd: widget.allowSeeking
+              ? (details) {
+                  widget.onChangeEnd?.call(_dragValue ?? widget.value);
+                  setState(() {
+                    _dragValue = null;
+                  });
+                }
+              : null,
+          onTapDown: widget.allowSeeking
+              ? (details) {
+                  final tapPosition =
+                      (details.localPosition.dx / constraints.maxWidth) *
+                          widget.max;
+                  final clampedTapPos =
+                      tapPosition.clamp(0, widget.max).toDouble();
+                  widget.onChangeStart?.call(clampedTapPos);
+                  widget.onChanged?.call(clampedTapPos);
+                  widget.onChangeEnd?.call(clampedTapPos);
+                  setState(() {
+                    _dragValue = null;
+                  });
+                }
+              : null,
           child: SizedBox(
             height: 2 * thumbRadius,
             child: Stack(

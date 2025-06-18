@@ -147,7 +147,7 @@ class PlayerUIVisibilityOptions {
           showGradientBottomControl ?? this.showGradientBottomControl,
       showRefreshButtonInErrorPlaceholder:
           showRefreshButtonInErrorPlaceholder ??
-          this.showRefreshButtonInErrorPlaceholder,
+              this.showRefreshButtonInErrorPlaceholder,
     );
   }
 }

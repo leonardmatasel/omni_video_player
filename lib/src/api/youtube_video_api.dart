@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 /// Represents the URLs for both video and audio streams.
@@ -200,7 +201,7 @@ class YouTubeService {
               : '',
         );
       } catch (error) {
-        print('YOUTUBE VIDEO ERROR: $error');
+        logger.e('YOUTUBE VIDEO ERROR: $error');
         rethrow;
       }
     }();

@@ -21,15 +21,15 @@ class VideoPlaybackController extends VideoPlayerController {
   /// are forwarded to it. Set [isLive] to true for live streams,
   /// which affects buffering logic.
   VideoPlaybackController.uri(super.url, {this.isLive = false})
-    : super.networkUrl(
-        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-      );
+      : super.networkUrl(
+          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+        );
 
   /// Creates a controller for an asset video.
   ///
   /// Live flag is irrelevant for assets, defaults to false.
   VideoPlaybackController.asset(super.dataSource, {this.isLive = false})
-    : super.asset();
+      : super.asset();
 
   @override
   Future<void> play() async {

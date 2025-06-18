@@ -19,9 +19,6 @@ class AssetInitializer implements IVideoPlayerInitializerStrategy {
 
   @override
   Future<OmniPlaybackController?> initialize() async {
-    print(
-      "AssetInitializer ${options.videoSourceConfiguration.videoSourceType} ${options.videoSourceConfiguration.videoDataSource}",
-    );
     try {
       final controller = await DefaultPlaybackController.create(
         videoUrl: null,

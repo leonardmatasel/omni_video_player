@@ -157,8 +157,9 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
   }
 
   ImageProvider<Object>? _getThumbnail() {
-    if (!widget.options.playerUIVisibilityOptions.showThumbnailAtStart)
+    if (!widget.options.playerUIVisibilityOptions.showThumbnailAtStart) {
       return null;
+    }
 
     switch (widget.options.videoSourceConfiguration.videoSourceType) {
       case VideoSourceType.youtube:

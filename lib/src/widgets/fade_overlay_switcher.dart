@@ -36,15 +36,14 @@ class FadeOverlaySwitcher extends StatelessWidget {
       reverseDuration: duration,
       duration: duration,
       child: child,
-      layoutBuilder:
-          (currentChild, previousChildren) => Stack(
-            alignment: Alignment.center,
-            fit: fit,
-            children: <Widget>[
-              ...previousChildren,
-              if (currentChild != null) currentChild,
-            ],
-          ),
+      layoutBuilder: (currentChild, previousChildren) => Stack(
+        alignment: Alignment.center,
+        fit: fit,
+        children: <Widget>[
+          ...previousChildren,
+          if (currentChild != null) currentChild,
+        ],
+      ),
     );
   }
 }

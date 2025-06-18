@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 
@@ -12,10 +13,14 @@ class YT extends StatelessWidget {
         child: OmniVideoPlayer(
           callbacks: VideoPlayerCallbacks(
             onSeekStart: (position) {
-              print('OMNI PLAYER: Seek started at: $position');
+              if (kDebugMode) {
+                print('OMNI PLAYER: Seek started at: $position');
+              }
             },
             onSeekEnd: (position) {
-              print('OMNI PLAYER: Seek ended at: $position');
+              if (kDebugMode) {
+                print('OMNI PLAYER: Seek ended at: $position');
+              }
             },
             onControllerCreated: (controller) {
               // For more details, see example/lib/example.dart or refer to the "Sync UI" section in the README.
