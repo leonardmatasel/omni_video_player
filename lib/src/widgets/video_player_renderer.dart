@@ -45,6 +45,18 @@ class VideoPlayerRenderer extends StatefulWidget {
 
 class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
   @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onControllerChanged);
+  }
+
+  void _onControllerChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = OmniVideoPlayerTheme.of(context)!;
 
@@ -121,6 +133,12 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChanged);
+    super.dispose();
   }
 }
 

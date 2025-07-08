@@ -21,7 +21,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  youtube_explode_dart: ^2.4.1
+  youtube_explode_dart: ^2.5.1
   video_player: ^2.9.5
   wakelock_plus: ^1.3.2
   built_collection: ^5.1.1
