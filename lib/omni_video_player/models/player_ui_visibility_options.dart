@@ -53,6 +53,15 @@ class PlayerUIVisibilityOptions {
   /// Whether to display a gradient overlay behind the bottom control bar.
   final bool showGradientBottomControl;
 
+  /// Whether to allow gesture-based fast-forward.
+  final bool enableForwardGesture;
+
+  /// Whether to allow gesture-based rewind.
+  final bool enableBackwardGesture;
+
+  /// Whether to allow exiting fullscreen via a vertical swipe down.
+  final bool enableExitFullscreenOnVerticalSwipe;
+
   /// Creates a new instance of [PlayerUIVisibilityOptions].
   ///
   /// All options default to `true` except:
@@ -74,42 +83,13 @@ class PlayerUIVisibilityOptions {
     this.useSafeAreaForBottomControls = false,
     this.showGradientBottomControl = true,
     this.showRefreshButtonInErrorPlaceholder = true,
+    this.enableForwardGesture = true,
+    this.enableBackwardGesture = true,
+    this.enableExitFullscreenOnVerticalSwipe = true,
   });
 
-  /// Returns a copy of this [PlayerUIVisibilityOptions] but with
+  /// Returns a copy of this [PlayerUIVisibilityOptions] with
   /// the given fields replaced by the new values.
-  ///
-  /// Parameters:
-  ///
-  /// - [showSeekBar]: Whether to display the seek bar.
-  ///
-  /// - [showCurrentTime]: Whether to show the current playback time.
-  ///
-  /// - [showDurationTime]: Whether to show the total video duration.
-  ///
-  /// - [showRemainingTime]: Whether to show the remaining playback time.
-  ///
-  /// - [showLiveIndicator]: Whether to show a live indicator for livestreams.
-  ///
-  /// - [showLoadingWidget]: Whether to show the loading widget during buffering.
-  ///
-  /// - [showErrorPlaceholder]: Whether to show the error placeholder on failure.
-  ///
-  /// - [showReplayButton]: Whether to show the replay button after video ends.
-  ///
-  /// - [showThumbnailAtStart]: Whether to show the thumbnail before playback starts.
-  ///
-  /// - [showVideoBottomControlsBar]: Whether to show the bottom control bar.
-  ///
-  /// - [showFullScreenButton]: Whether to show the fullscreen toggle button.
-  ///
-  /// - [showMuteUnMuteButton]: Whether to show the mute/unmute button.
-  ///
-  /// - [useSafeAreaForBottomControls]: Whether to wrap bottom controls in a [SafeArea].
-  ///
-  /// - [showGradientBottomControl]: Whether to display a gradient behind the bottom controls.
-  ///
-  /// - [showRefreshButtonInErrorPlaceholder]: Whether to show a refresh button in the error placeholder.
   PlayerUIVisibilityOptions copyWith({
     bool? showSeekBar,
     bool? showCurrentTime,
@@ -126,6 +106,9 @@ class PlayerUIVisibilityOptions {
     bool? useSafeAreaForBottomControls,
     bool? showGradientBottomControl,
     bool? showRefreshButtonInErrorPlaceholder,
+    bool? enableForwardGesture,
+    bool? enableBackwardGesture,
+    bool? enableExitFullscreenOnVerticalSwipe,
   }) {
     return PlayerUIVisibilityOptions(
       showSeekBar: showSeekBar ?? this.showSeekBar,
@@ -148,6 +131,12 @@ class PlayerUIVisibilityOptions {
       showRefreshButtonInErrorPlaceholder:
           showRefreshButtonInErrorPlaceholder ??
               this.showRefreshButtonInErrorPlaceholder,
+      enableForwardGesture: enableForwardGesture ?? this.enableForwardGesture,
+      enableBackwardGesture:
+          enableBackwardGesture ?? this.enableBackwardGesture,
+      enableExitFullscreenOnVerticalSwipe:
+          enableExitFullscreenOnVerticalSwipe ??
+              this.enableExitFullscreenOnVerticalSwipe,
     );
   }
 }

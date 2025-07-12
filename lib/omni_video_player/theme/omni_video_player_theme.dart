@@ -228,6 +228,24 @@ class VideoPlayerIconTheme {
   /// Icon shown on playback error.
   final IconData error;
 
+  /// Icon for forwarding 5 seconds.
+  final IconData forward5;
+
+  /// Icon for forwarding 10 seconds.
+  final IconData forward10;
+
+  /// Icon for forwarding 30 seconds.
+  final IconData forward30;
+
+  /// Icon for replaying 5 seconds.
+  final IconData replay5;
+
+  /// Icon for replaying 10 seconds.
+  final IconData replay10;
+
+  /// Icon for replaying 30 seconds.
+  final IconData replay30;
+
   const VideoPlayerIconTheme({
     this.exitFullScreen = Icons.fullscreen_exit,
     this.fullScreen = Icons.fullscreen,
@@ -236,6 +254,12 @@ class VideoPlayerIconTheme {
     this.replay = Icons.replay,
     this.playPause = AnimatedIcons.play_pause,
     this.error = Icons.error,
+    this.forward5 = Icons.forward_5,
+    this.forward10 = Icons.forward_10,
+    this.forward30 = Icons.forward_30,
+    this.replay5 = Icons.replay_5,
+    this.replay10 = Icons.replay_10,
+    this.replay30 = Icons.replay_30,
   });
 
   /// Creates a copy of this icon theme with selective overrides.
@@ -247,6 +271,12 @@ class VideoPlayerIconTheme {
     IconData? replay,
     AnimatedIconData? playPause,
     IconData? error,
+    IconData? forward5,
+    IconData? forward10,
+    IconData? forward30,
+    IconData? replay5,
+    IconData? replay10,
+    IconData? replay30,
   }) {
     return VideoPlayerIconTheme(
       exitFullScreen: exitFullScreen ?? this.exitFullScreen,
@@ -256,6 +286,12 @@ class VideoPlayerIconTheme {
       replay: replay ?? this.replay,
       playPause: playPause ?? this.playPause,
       error: error ?? this.error,
+      forward5: forward5 ?? this.forward5,
+      forward10: forward10 ?? this.forward10,
+      forward30: forward30 ?? this.forward30,
+      replay5: replay5 ?? this.replay5,
+      replay10: replay10 ?? this.replay10,
+      replay30: replay30 ?? this.replay30,
     );
   }
 }

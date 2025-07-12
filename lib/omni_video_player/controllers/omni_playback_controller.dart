@@ -42,7 +42,7 @@ abstract class OmniPlaybackController with ChangeNotifier {
   /// - [onToggle] is called with `true` when entering and `false` when exiting fullscreen.
   Future<void> switchFullScreenMode(
     BuildContext context, {
-    required Widget Function(BuildContext) pageBuilder,
+    required Widget Function(BuildContext)? pageBuilder,
     void Function(bool)? onToggle,
   });
 

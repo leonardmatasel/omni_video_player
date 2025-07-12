@@ -271,7 +271,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
   @override
   Future<void> switchFullScreenMode(
     BuildContext context, {
-    required Widget Function(BuildContext) pageBuilder,
+    required Widget Function(BuildContext)? pageBuilder,
     void Function(bool)? onToggle,
   }) async {
     if (_isFullScreen) {
@@ -287,7 +287,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
       await Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (_, __, ___) => pageBuilder(context),
+          pageBuilder: (_, __, ___) => pageBuilder!(context),
           transitionsBuilder: (_, animation, __, Widget child) {
             return FadeTransition(opacity: animation, child: child);
           },
