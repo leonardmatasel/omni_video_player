@@ -56,15 +56,11 @@ class DefaultPlaybackController extends OmniPlaybackController {
     this._globalController,
     initialPosition,
     initialVolume,
-    autoPlay,
     this.callbacks,
   ) {
     seekTo(initialPosition, skipHasPlaybackStarted: true);
     if (initialVolume != null) {
       volume = initialVolume;
-    }
-    if (autoPlay) {
-      play();
     }
     videoController.addListener(_onControllerUpdate);
     audioController?.addListener(_onControllerUpdate);
@@ -80,7 +76,6 @@ class DefaultPlaybackController extends OmniPlaybackController {
     GlobalPlaybackController? globalController,
     initialPosition = Duration.zero,
     initialVolume,
-    autoPlay = false,
     required VideoPlayerCallbacks callbacks,
     required VideoSourceType type,
   }) async {
@@ -105,7 +100,6 @@ class DefaultPlaybackController extends OmniPlaybackController {
       globalController,
       initialPosition,
       initialVolume,
-      autoPlay,
       callbacks,
     );
   }

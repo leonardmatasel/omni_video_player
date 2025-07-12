@@ -56,7 +56,6 @@ class VimeoPlaybackController extends OmniPlaybackController {
     this._globalController,
     Duration initialPosition,
     double? initialVolume,
-    bool autoPlay,
     this.duration,
     this.size,
     this.callbacks,
@@ -65,9 +64,6 @@ class VimeoPlaybackController extends OmniPlaybackController {
       seekTo(initialPosition, skipHasPlaybackStarted: true);
       if (initialVolume != null) {
         volume = initialVolume;
-      }
-      if (autoPlay) {
-        play();
       }
     });
   }
@@ -78,7 +74,6 @@ class VimeoPlaybackController extends OmniPlaybackController {
     required GlobalPlaybackController? globalController,
     required Duration initialPosition,
     double? initialVolume,
-    required bool autoPlay,
     required Duration duration,
     required Size size,
     required VideoPlayerCallbacks callbacks,
@@ -88,7 +83,6 @@ class VimeoPlaybackController extends OmniPlaybackController {
       globalController,
       initialPosition,
       initialVolume,
-      autoPlay,
       duration,
       size,
       callbacks,

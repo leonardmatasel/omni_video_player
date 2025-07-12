@@ -32,7 +32,6 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
       globalController: globalController,
       initialPosition: options.videoSourceConfiguration.initialPosition,
       initialVolume: options.videoSourceConfiguration.initialVolume,
-      autoPlay: options.videoSourceConfiguration.autoPlay,
       duration: vimeoVideoInfo.duration,
       size: Size(
         vimeoVideoInfo.width.toDouble(),

@@ -102,6 +102,11 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
                         !widget.controller.isFullScreen) {
                       widget.controller.pause();
                     }
+                    if (!widget.controller.hasStarted &&
+                        widget.options.videoSourceConfiguration.autoPlay &&
+                        visibilityInfo.visibleFraction == 1) {
+                      widget.controller.play();
+                    }
                   },
                   child: RouteAwareListener(
                     onPopNext: (route) {

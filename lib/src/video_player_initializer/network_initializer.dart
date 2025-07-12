@@ -28,7 +28,6 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
         globalController: globalController,
         initialPosition: options.videoSourceConfiguration.initialPosition,
         initialVolume: options.videoSourceConfiguration.initialVolume,
-        autoPlay: options.videoSourceConfiguration.autoPlay,
         callbacks: callbacks,
         type: options.videoSourceConfiguration.videoSourceType,
       );
