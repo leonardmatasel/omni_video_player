@@ -11,6 +11,7 @@ import 'package:omni_video_player/omni_video_player/models/video_player_callback
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 
 import 'indicators/animated_skip_indicator.dart';
+import 'indicators/loader_indicator.dart';
 
 /// A widget that overlays video playback controls on top of a video display.
 ///
@@ -299,6 +300,7 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
                             ),
                   ),
 
+                  if (widget.controller.isSeeking) LoaderIndicator(),
                   // Central play/pause button with auto-hide logic.
                   AutoHidePlayPauseButton(
                     isVisible: isVisibleButton,

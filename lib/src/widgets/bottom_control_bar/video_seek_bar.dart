@@ -67,7 +67,13 @@ class VideoSeekBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return controller.isLive
         ? (showLiveIndicator ? _buildLiveIndicator() : const SizedBox.shrink())
-        : (showSeekBar ? _buildSeekBar() : const SizedBox.shrink());
+        : (showSeekBar
+            ? AnimatedBuilder(
+                animation: controller,
+                builder: (BuildContext context, Widget? child) {
+                  return _buildSeekBar();
+                })
+            : const SizedBox.shrink());
   }
 
   /// Builds the UI for live stream playback indicator.

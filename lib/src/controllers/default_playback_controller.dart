@@ -215,8 +215,8 @@ class DefaultPlaybackController extends OmniPlaybackController {
       return await _globalController.requestPlay(this);
     } else {
       await Future.wait([
-        videoController.play(),
         if (audioController != null) audioController!.play(),
+        videoController.play(),
       ]);
     }
   }
@@ -231,8 +231,8 @@ class DefaultPlaybackController extends OmniPlaybackController {
       return await _globalController.requestPause();
     } else {
       await Future.wait([
-        videoController.pause(),
         if (audioController != null) audioController!.pause(),
+        videoController.pause(),
       ]);
     }
   }
@@ -292,10 +292,27 @@ class DefaultPlaybackController extends OmniPlaybackController {
       if (position.inMicroseconds != 0 && !skipHasPlaybackStarted) {
         _hasStarted = true;
       }
+
       await Future.wait([
-        videoController.seekTo(position),
         if (audioController != null) audioController!.seekTo(position),
+        videoController.seekTo(position),
       ]);
+
+      // Aspetta che l'audio smetta di fare buffering
+      if (audioController != null) {
+        while (
+            (audioController != null && audioController!.isActuallyBuffering) ||
+                videoController.isActuallyBuffering) {
+          await Future.delayed(Duration(milliseconds: 50));
+        }
+      }
+
+      if (wasPlayingBeforeSeek) {
+        await Future.wait([
+          if (audioController != null) audioController!.play(),
+          videoController.play(),
+        ]);
+      }
     } else {
       throw ArgumentError('Seek position exceeds duration');
     }

@@ -1,3 +1,7 @@
+# 1.0.6
+
+- Fixed a bug where seeking in long YouTube videos caused noticeable delays
+
 # 1.0.5
 
 * Improvement: autoplay is now managed correctly for better user experience
