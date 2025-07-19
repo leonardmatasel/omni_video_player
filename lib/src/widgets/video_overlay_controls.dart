@@ -137,6 +137,159 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
               areOverlayControlsVisible,
             );
 
+            List<Widget> layers = [
+              widget.child,
+
+              // Transparent layer to ensure tap detection on web (e.g., InAppWebView).
+              Container(
+                color: Colors.transparent,
+                width: double.infinity,
+                height: double.infinity,
+              ),
+
+              // Tap area for double tap (left = backward, right = forward).
+              Positioned.fill(
+                child: Row(
+                  children: [
+                    // Left side double-tap to rewind.
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onDoubleTap: () {
+                          if (!widget.options.playerUIVisibilityOptions
+                              .enableBackwardGesture) {
+                            return;
+                          }
+                          int skipSeconds = 5;
+
+                          if (_skipDirection == SkipDirection.backward &&
+                              _tapState ==
+                                  _TapInteractionState.doubleTapBackward) {
+                            switch (_skipSeconds) {
+                              case 5:
+                                skipSeconds = 10;
+                                break;
+                              default:
+                                skipSeconds = 30;
+                            }
+                          }
+
+                          final currentPosition =
+                              widget.controller.currentPosition;
+                          final targetPosition =
+                              currentPosition - Duration(seconds: skipSeconds);
+                          widget.controller.seekTo(
+                            targetPosition > Duration.zero
+                                ? targetPosition
+                                : Duration.zero,
+                          );
+                          _showSkip(SkipDirection.backward, skipSeconds);
+                        },
+                        child: const SizedBox.expand(),
+                      ),
+                    ),
+
+                    // Right side double-tap to fast-forward.
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onDoubleTap: () {
+                          if (!widget.options.playerUIVisibilityOptions
+                              .enableForwardGesture) {
+                            return;
+                          }
+                          int skipSeconds = 5;
+
+                          if (_skipDirection == SkipDirection.forward &&
+                              _tapState ==
+                                  _TapInteractionState.doubleTapForward) {
+                            switch (_skipSeconds) {
+                              case 5:
+                                skipSeconds = 10;
+                                break;
+                              case 10:
+                                skipSeconds = 30;
+                                break;
+                              default:
+                                skipSeconds = 30;
+                            }
+                          }
+
+                          final currentPosition =
+                              widget.controller.currentPosition;
+                          final targetPosition =
+                              currentPosition + Duration(seconds: skipSeconds);
+                          widget.controller.seekTo(targetPosition);
+                          _showSkip(SkipDirection.forward, skipSeconds);
+                        },
+                        child: const SizedBox.expand(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Skip indicator shown in the center with fade out animation.
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 500),
+                child: _skipDirection != null &&
+                        (_tapState == _TapInteractionState.doubleTapForward ||
+                            _tapState == _TapInteractionState.doubleTapBackward)
+                    ? AnimatedSkipIndicator(
+                        skipDirection: _skipDirection!,
+                        skipSeconds: _skipSeconds,
+                      )
+                    : const SizedBox.shrink(),
+              ),
+
+              // Gradient bottom bar with playback controls.
+              GradientBottomControlBar(
+                isVisible: areOverlayControlsVisible,
+                padding: widget.playerBarPadding,
+                useSafeAreaForBottomControls: widget.options
+                    .playerUIVisibilityOptions.useSafeAreaForBottomControls,
+                showGradientBottomControl: widget.options
+                    .playerUIVisibilityOptions.showGradientBottomControl,
+                child: widget.options.customPlayerWidgets.bottomControlsBar ??
+                    VideoPlaybackControlBar(
+                      controller: widget.controller,
+                      options: widget.options,
+                      callbacks: widget.callbacks,
+                    ),
+              ),
+
+              if (widget.controller.isSeeking) LoaderIndicator(),
+              // Central play/pause button with auto-hide logic.
+              AutoHidePlayPauseButton(
+                isVisible: isVisibleButton,
+                controller: widget.controller,
+                options: widget.options,
+                callbacks: widget.callbacks,
+              ),
+            ];
+
+            if (widget.options.customPlayerWidgets.customOverlayLayer != null &&
+                areOverlayControlsVisible) {
+              final customOverlay =
+                  widget.options.customPlayerWidgets.customOverlayLayer!;
+              final rotation = widget.controller.rotationCorrection;
+              final size = widget.controller.size;
+
+              final aspectRatio = (rotation == 90 || rotation == 270)
+                  ? size.height / size.width
+                  : size.width / size.height;
+
+              layers.insert(
+                customOverlay.level,
+                Center(
+                  child: AspectRatio(
+                    aspectRatio: aspectRatio,
+                    child: customOverlay.widget,
+                  ),
+                ),
+              );
+            }
+
             return GestureDetector(
               onTap: () {
                 if (!widget.controller.isPlaying &&
@@ -176,139 +329,7 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
               },
               behavior: HitTestBehavior.opaque,
               child: Stack(
-                children: [
-                  widget.child,
-
-                  // Transparent layer to ensure tap detection on web (e.g., InAppWebView).
-                  Container(
-                    color: Colors.transparent,
-                    width: double.infinity,
-                    height: double.infinity,
-                  ),
-
-                  // Tap area for double tap (left = backward, right = forward).
-                  Positioned.fill(
-                    child: Row(
-                      children: [
-                        // Left side double-tap to rewind.
-                        Expanded(
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.translucent,
-                            onDoubleTap: () {
-                              if (!widget.options.playerUIVisibilityOptions
-                                  .enableBackwardGesture) {
-                                return;
-                              }
-                              int skipSeconds = 5;
-
-                              if (_skipDirection == SkipDirection.backward &&
-                                  _tapState ==
-                                      _TapInteractionState.doubleTapBackward) {
-                                switch (_skipSeconds) {
-                                  case 5:
-                                    skipSeconds = 10;
-                                    break;
-                                  default:
-                                    skipSeconds = 30;
-                                }
-                              }
-
-                              final currentPosition =
-                                  widget.controller.currentPosition;
-                              final targetPosition = currentPosition -
-                                  Duration(seconds: skipSeconds);
-                              widget.controller.seekTo(
-                                targetPosition > Duration.zero
-                                    ? targetPosition
-                                    : Duration.zero,
-                              );
-                              _showSkip(SkipDirection.backward, skipSeconds);
-                            },
-                            child: const SizedBox.expand(),
-                          ),
-                        ),
-
-                        // Right side double-tap to fast-forward.
-                        Expanded(
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.translucent,
-                            onDoubleTap: () {
-                              if (!widget.options.playerUIVisibilityOptions
-                                  .enableForwardGesture) {
-                                return;
-                              }
-                              int skipSeconds = 5;
-
-                              if (_skipDirection == SkipDirection.forward &&
-                                  _tapState ==
-                                      _TapInteractionState.doubleTapForward) {
-                                switch (_skipSeconds) {
-                                  case 5:
-                                    skipSeconds = 10;
-                                    break;
-                                  case 10:
-                                    skipSeconds = 30;
-                                    break;
-                                  default:
-                                    skipSeconds = 30;
-                                }
-                              }
-
-                              final currentPosition =
-                                  widget.controller.currentPosition;
-                              final targetPosition = currentPosition +
-                                  Duration(seconds: skipSeconds);
-                              widget.controller.seekTo(targetPosition);
-                              _showSkip(SkipDirection.forward, skipSeconds);
-                            },
-                            child: const SizedBox.expand(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Skip indicator shown in the center with fade out animation.
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 500),
-                    child: _skipDirection != null &&
-                            (_tapState ==
-                                    _TapInteractionState.doubleTapForward ||
-                                _tapState ==
-                                    _TapInteractionState.doubleTapBackward)
-                        ? AnimatedSkipIndicator(
-                            skipDirection: _skipDirection!,
-                            skipSeconds: _skipSeconds,
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-
-                  // Gradient bottom bar with playback controls.
-                  GradientBottomControlBar(
-                    isVisible: areOverlayControlsVisible,
-                    padding: widget.playerBarPadding,
-                    useSafeAreaForBottomControls: widget.options
-                        .playerUIVisibilityOptions.useSafeAreaForBottomControls,
-                    showGradientBottomControl: widget.options
-                        .playerUIVisibilityOptions.showGradientBottomControl,
-                    child:
-                        widget.options.customPlayerWidgets.bottomControlsBar ??
-                            VideoPlaybackControlBar(
-                              controller: widget.controller,
-                              options: widget.options,
-                              callbacks: widget.callbacks,
-                            ),
-                  ),
-
-                  if (widget.controller.isSeeking) LoaderIndicator(),
-                  // Central play/pause button with auto-hide logic.
-                  AutoHidePlayPauseButton(
-                    isVisible: isVisibleButton,
-                    controller: widget.controller,
-                    options: widget.options,
-                    callbacks: widget.callbacks,
-                  ),
-                ],
+                children: layers,
               ),
             );
           },

@@ -1,3 +1,11 @@
+# 2.0.1
+
+✨ **New Features**
+
+- **Custom Overlay Layering Support**:
+  - Introduced `CustomOverlayLayer`, allowing insertion of custom widgets into the video player's visual stack.
+  - Each overlay can now specify a `level`, which determines its rendering order relative to built-in player elements.
+
 # 2.0.0
 
 ⚠️ **Breaking Change**

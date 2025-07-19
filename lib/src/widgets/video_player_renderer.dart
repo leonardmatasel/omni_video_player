@@ -125,13 +125,23 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
           if (widget.options.customPlayerWidgets.thumbnail != null &&
               widget.options.playerUIVisibilityOptions.showThumbnailAtStart &&
               !widget.controller.hasStarted)
-            Positioned.fill(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
-                child: VideoPlayerThumbnailPreview(
-                  imageProvider: widget.options.customPlayerWidgets.thumbnail!,
-                  fit: widget.options.customPlayerWidgets.thumbnailFit,
-                  backgroundColor: theme.colors.backgroundThumbnail,
+            Center(
+              child: AspectRatio(
+                aspectRatio: (widget.controller.rotationCorrection == 90 ||
+                        widget.controller.rotationCorrection == 270)
+                    ? widget.controller.size.height /
+                        widget.controller.size.width
+                    : widget.controller.size.width /
+                        widget.controller.size.height,
+                child: ClipRRect(
+                  borderRadius:
+                      BorderRadius.circular(theme.shapes.borderRadius),
+                  child: VideoPlayerThumbnailPreview(
+                    imageProvider:
+                        widget.options.customPlayerWidgets.thumbnail!,
+                    fit: widget.options.customPlayerWidgets.thumbnailFit,
+                    backgroundColor: theme.colors.backgroundThumbnail,
+                  ),
                 ),
               ),
             ),

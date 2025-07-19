@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:omni_video_player/omni_video_player/models/custom_overlay_layer.dart';
 
 /// Defines custom UI components for the video player, allowing you to override
 /// default widgets like loading indicators, error placeholders, and control bar elements.
@@ -43,6 +44,12 @@ class CustomPlayerWidgets {
   /// Widget used to replace the default remaining time indicator.
   final Widget? customRemainingTimeDisplay;
 
+  /// Widget shown above the video content while controls are visible.
+  ///
+  /// Use this to show interactive overlays such as titles, branding, or context menus.
+  /// This widget automatically hides when the player's controls are hidden.
+  final CustomOverlayLayer? customOverlayLayer;
+
   /// Optional thumbnail image displayed before playback starts.
   ///
   /// This is commonly used to preview the video content. The thumbnail is removed
@@ -69,6 +76,7 @@ class CustomPlayerWidgets {
     this.customRemainingTimeDisplay,
     this.thumbnail,
     this.thumbnailFit = BoxFit.cover,
+    this.customOverlayLayer,
   });
 
   /// Returns a new [CustomPlayerWidgets] instance with the specified fields overridden.
@@ -93,6 +101,7 @@ class CustomPlayerWidgets {
     Widget? customRemainingTimeDisplay,
     ImageProvider<Object>? thumbnail,
     BoxFit? thumbnailFit,
+    CustomOverlayLayer? customOverlayLayer,
   }) {
     return CustomPlayerWidgets(
       loadingWidget: loadingWidget ?? this.loadingWidget,
@@ -108,6 +117,7 @@ class CustomPlayerWidgets {
           customRemainingTimeDisplay ?? this.customRemainingTimeDisplay,
       thumbnail: thumbnail ?? this.thumbnail,
       thumbnailFit: thumbnailFit ?? this.thumbnailFit,
+      customOverlayLayer: customOverlayLayer ?? this.customOverlayLayer,
     );
   }
 }
