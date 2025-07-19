@@ -141,7 +141,7 @@ VideoSourceConfiguration.network(
 ```dart
 VideoSourceConfiguration.youtube(
   videoUrl: Uri.parse('https://youtu.be/xyz'),
-  preferredQualities: [720, 480],
+  preferredQualities: [OmniVideoQuality.high720, OmniVideoQuality.low144],
 );
 ```
 
@@ -150,7 +150,7 @@ VideoSourceConfiguration.youtube(
 ```dart
 VideoSourceConfiguration.vimeo(
   videoId: '123456789',
-  preferredQualities: [1080],
+  preferredQualities: [OmniVideoQuality.high720],
 );
 ```
 
