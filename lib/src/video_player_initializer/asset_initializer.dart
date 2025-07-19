@@ -30,6 +30,7 @@ class AssetInitializer implements IVideoPlayerInitializerStrategy {
         initialVolume: options.videoSourceConfiguration.initialVolume,
         callbacks: callbacks,
         type: options.videoSourceConfiguration.videoSourceType,
+        globalKeyPlayer: options.globalKeyPlayer,
       );
 
       controller.sharedPlayerNotifier.value = Hero(

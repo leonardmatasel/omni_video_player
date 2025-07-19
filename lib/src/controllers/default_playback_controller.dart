@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:video_player/video_player.dart';
-
 import 'audio_playback_controller.dart';
 import 'video_playback_controller.dart';
 
@@ -17,6 +16,12 @@ class DefaultPlaybackController extends OmniPlaybackController {
   late AudioPlaybackController? audioController;
 
   final VideoPlayerCallbacks callbacks;
+  final GlobalKey globalKeyPlayer;
+
+  VideoSourceType type;
+  Map<OmniVideoQuality, Uri>? qualityUrls;
+  @override
+  OmniVideoQuality? currentVideoQuality;
 
   @override
   late final Uri? videoUrl;
@@ -48,16 +53,19 @@ class DefaultPlaybackController extends OmniPlaybackController {
   bool _isNotifyPending = false;
 
   DefaultPlaybackController._(
-    this.videoController,
-    this.audioController,
-    this.videoUrl,
-    this.videoDataSource,
-    this.isLive,
-    this._globalController,
-    initialPosition,
-    initialVolume,
-    this.callbacks,
-  ) {
+      this.videoController,
+      this.audioController,
+      this.videoUrl,
+      this.videoDataSource,
+      this.isLive,
+      this._globalController,
+      initialPosition,
+      initialVolume,
+      this.callbacks,
+      this.type,
+      this.qualityUrls,
+      this.currentVideoQuality,
+      this.globalKeyPlayer) {
     seekTo(initialPosition, skipHasPlaybackStarted: true);
     if (initialVolume != null) {
       volume = initialVolume;
@@ -68,17 +76,19 @@ class DefaultPlaybackController extends OmniPlaybackController {
   }
 
   /// Creates and initializes a new [OmniPlaybackController] instance.
-  static Future<DefaultPlaybackController> create({
-    required Uri? videoUrl,
-    required String? dataSource,
-    Uri? audioUrl,
-    bool isLive = false,
-    GlobalPlaybackController? globalController,
-    initialPosition = Duration.zero,
-    initialVolume,
-    required VideoPlayerCallbacks callbacks,
-    required VideoSourceType type,
-  }) async {
+  static Future<DefaultPlaybackController> create(
+      {required Uri? videoUrl,
+      required String? dataSource,
+      Uri? audioUrl,
+      bool isLive = false,
+      GlobalPlaybackController? globalController,
+      initialPosition = Duration.zero,
+      initialVolume,
+      required VideoPlayerCallbacks callbacks,
+      required VideoSourceType type,
+      Map<OmniVideoQuality, Uri>? qualityUrls,
+      OmniVideoQuality? currentVideoQuality,
+      required GlobalKey globalKeyPlayer}) async {
     final videoController =
         (type == VideoSourceType.asset && dataSource != null)
             ? VideoPlaybackController.asset(dataSource)
@@ -92,16 +102,64 @@ class DefaultPlaybackController extends OmniPlaybackController {
     }
 
     return DefaultPlaybackController._(
-      videoController,
-      audioController,
-      videoUrl,
-      dataSource,
-      isLive,
-      globalController,
-      initialPosition,
-      initialVolume,
-      callbacks,
+        videoController,
+        audioController,
+        videoUrl,
+        dataSource,
+        isLive,
+        globalController,
+        initialPosition,
+        initialVolume,
+        callbacks,
+        type,
+        qualityUrls,
+        currentVideoQuality,
+        globalKeyPlayer);
+  }
+
+  @override
+  Future<void> switchQuality(OmniVideoQuality newQuality) async {
+    if (currentVideoQuality == null ||
+        qualityUrls == null ||
+        newQuality == currentVideoQuality) {
+      return;
+    }
+    print("SONO QUI $qualityUrls");
+    final newUrl = qualityUrls![newQuality];
+    if (newUrl == null) return;
+    print("SONO QUI");
+
+    final wasPlaying = isPlaying;
+    final currentPos = currentPosition;
+
+    await pause(useGlobalController: false);
+
+    final newController = VideoPlaybackController.uri(newUrl, isLive: isLive);
+    await newController.initialize();
+
+    videoController.removeListener(_onControllerUpdate);
+
+    newController.addListener(_onControllerUpdate);
+
+    currentVideoQuality = newQuality;
+
+    sharedPlayerNotifier.value = Hero(
+      tag: globalKeyPlayer,
+      child: VideoPlayer(
+        key: globalKeyPlayer,
+        newController,
+      ),
     );
+
+    await videoController.dispose();
+    videoController = newController;
+    await seekTo(currentPos);
+
+    if (wasPlaying) {
+      await play(useGlobalController: false);
+    }
+
+    notifyListeners();
   }
 
   void _onControllerUpdate() {
@@ -371,4 +429,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
     audioController?.dispose();
     super.dispose();
   }
+
+  @override
+  Map<OmniVideoQuality, Uri>? get videoQualityUrls => qualityUrls;
 }

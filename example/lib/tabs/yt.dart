@@ -31,7 +31,10 @@ class YT extends StatelessWidget {
               videoUrl: Uri.parse(
                 'https://www.youtube.com/watch?v=QN1odfjtMoo',
               ),
-              preferredQualities: [720, 480],
+              preferredQualities: [
+                OmniVideoQuality.high720,
+                OmniVideoQuality.medium480,
+              ],
             ),
             playerUIVisibilityOptions: PlayerUIVisibilityOptions().copyWith(
               useSafeAreaForBottomControls: true,

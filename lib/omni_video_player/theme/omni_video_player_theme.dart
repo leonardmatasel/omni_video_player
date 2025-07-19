@@ -127,6 +127,18 @@ class VideoPlayerColorScheme {
   /// Default text color for labels and messages.
   final Color? textDefault;
 
+  /// Background color of the quality dropdown menu.
+  final Color menuBackground;
+
+  /// Text color for unselected quality options.
+  final Color menuText;
+
+  /// Text color for the selected quality option.
+  final Color menuTextSelected;
+
+  /// Icon color for the selected quality checkmark.
+  final Color menuIconSelected;
+
   const VideoPlayerColorScheme({
     this.active = Colors.redAccent,
     this.thumb,
@@ -139,6 +151,10 @@ class VideoPlayerColorScheme {
     this.backgroundError = Colors.black,
     this.textError = Colors.white,
     this.textDefault = Colors.white,
+    this.menuBackground = const Color(0xFF212121),
+    this.menuText = Colors.white,
+    this.menuTextSelected = Colors.redAccent,
+    this.menuIconSelected = Colors.redAccent,
   });
 
   /// Creates a copy of this color scheme overriding
@@ -155,6 +171,10 @@ class VideoPlayerColorScheme {
     Color? backgroundError,
     Color? textError,
     Color? textDefault,
+    Color? menuBackground,
+    Color? menuText,
+    Color? menuTextSelected,
+    Color? menuIconSelected,
   }) {
     return VideoPlayerColorScheme(
       active: active ?? this.active,
@@ -168,6 +188,10 @@ class VideoPlayerColorScheme {
       backgroundError: backgroundError ?? this.backgroundError,
       textError: textError ?? this.textError,
       textDefault: textDefault ?? this.textDefault,
+      menuBackground: menuBackground ?? this.menuBackground,
+      menuText: menuText ?? this.menuText,
+      menuTextSelected: menuTextSelected ?? this.menuTextSelected,
+      menuIconSelected: menuIconSelected ?? this.menuIconSelected,
     );
   }
 }
@@ -246,6 +270,12 @@ class VideoPlayerIconTheme {
   /// Icon for replaying 30 seconds.
   final IconData replay30;
 
+  /// Icon used for the quality change button.
+  final IconData qualityChangeButton;
+
+  /// Icon used to indicate the selected quality option.
+  final IconData qualitySelectedCheck;
+
   const VideoPlayerIconTheme({
     this.exitFullScreen = Icons.fullscreen_exit,
     this.fullScreen = Icons.fullscreen,
@@ -260,6 +290,8 @@ class VideoPlayerIconTheme {
     this.replay5 = Icons.replay_5,
     this.replay10 = Icons.replay_10,
     this.replay30 = Icons.replay_30,
+    this.qualityChangeButton = Icons.high_quality,
+    this.qualitySelectedCheck = Icons.check,
   });
 
   /// Creates a copy of this icon theme with selective overrides.
@@ -277,6 +309,8 @@ class VideoPlayerIconTheme {
     IconData? replay5,
     IconData? replay10,
     IconData? replay30,
+    qualityChangeButton,
+    qualitySelectedCheck,
   }) {
     return VideoPlayerIconTheme(
       exitFullScreen: exitFullScreen ?? this.exitFullScreen,
@@ -292,6 +326,8 @@ class VideoPlayerIconTheme {
       replay5: replay5 ?? this.replay5,
       replay10: replay10 ?? this.replay10,
       replay30: replay30 ?? this.replay30,
+      qualityChangeButton: qualityChangeButton ?? this.qualityChangeButton,
+      qualitySelectedCheck: qualitySelectedCheck ?? this.qualitySelectedCheck,
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/src/api/vimeo_video_api.dart';
-import 'package:omni_video_player/src/api/youtube_video_api.dart';
 import 'package:omni_video_player/src/controllers/global_volume_synchronizer.dart';
 import 'package:omni_video_player/src/models/vimeo_video_info.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
@@ -59,7 +58,6 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
       _isLoading = true;
       _hasError = false;
     });
-    YouTubeService.clearCache();
     await _initialize();
   }
 

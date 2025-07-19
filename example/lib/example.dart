@@ -68,7 +68,15 @@ class _VideoScreenState extends State<VideoScreen> {
                   videoUrl: Uri.parse(
                     'https://www.youtube.com/watch?v=cuqZPx0H7a0',
                   ),
-                  preferredQualities: [720, 480],
+                  preferredQualities: [
+                    OmniVideoQuality.high720,
+                    OmniVideoQuality.low144,
+                  ],
+                  availableQualities: [
+                    OmniVideoQuality.high1080,
+                    OmniVideoQuality.high720,
+                    OmniVideoQuality.low144,
+                  ],
                 ),
                 playerTheme: OmniVideoPlayerThemeData().copyWith(
                   icons: VideoPlayerIconTheme().copyWith(error: Icons.warning),

@@ -21,6 +21,11 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
 
   @override
   Future<OmniPlaybackController?> initialize() async {
+    Uri videoUrl;
+    Uri? audioUrl;
+    Map<OmniVideoQuality, Uri>? qualityUrls;
+    OmniVideoQuality? currentVideoQuality;
+
     final videoId = VideoId(
       options.videoSourceConfiguration.videoUrl!.toString(),
     );
@@ -28,19 +33,18 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
       final ytVideo = await YouTubeService.getVideoYoutubeDetails(videoId);
       final isLive = ytVideo.isLive;
 
-      Uri videoUrl;
-      Uri? audioUrl;
-
       if (isLive) {
         videoUrl = Uri.parse(await YouTubeService.fetchLiveStreamUrl(videoId));
       } else {
-        final urls = await YouTubeService.fetchVideoAndAudioUrls(
-          videoId,
-          preferredQualities:
-              options.videoSourceConfiguration.preferredQualities,
-        );
+        final urls = await YouTubeService.fetchVideoAndAudioUrls(videoId,
+            preferredQualities:
+                options.videoSourceConfiguration.preferredQualities,
+            availableQualities:
+                options.videoSourceConfiguration.availableQualities);
         videoUrl = Uri.parse(urls.videoStreamUrl);
         audioUrl = Uri.parse(urls.audioStreamUrl);
+        qualityUrls = urls.videoQualityUrls;
+        currentVideoQuality = urls.currentQuality;
       }
 
       final controller = await DefaultPlaybackController.create(
@@ -53,6 +57,9 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
         initialVolume: options.videoSourceConfiguration.initialVolume,
         callbacks: callbacks,
         type: options.videoSourceConfiguration.videoSourceType,
+        globalKeyPlayer: options.globalKeyPlayer,
+        qualityUrls: qualityUrls,
+        currentVideoQuality: currentVideoQuality,
       );
 
       controller.sharedPlayerNotifier.value = Hero(

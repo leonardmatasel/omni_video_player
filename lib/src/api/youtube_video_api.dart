@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
 import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
@@ -7,20 +8,15 @@ import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 class YouTubeStreamUrls {
   final String videoStreamUrl;
   final String audioStreamUrl;
+  final Map<OmniVideoQuality, Uri> videoQualityUrls;
+  final OmniVideoQuality currentQuality;
 
   YouTubeStreamUrls({
     required this.videoStreamUrl,
     required this.audioStreamUrl,
+    required this.videoQualityUrls,
+    required this.currentQuality,
   });
-}
-
-class _TimedCacheEntry<T> {
-  final Future<T> future;
-  final DateTime timestamp;
-
-  _TimedCacheEntry(this.future) : timestamp = DateTime.now();
-
-  bool get isExpired => DateTime.now().difference(timestamp).inMinutes >= 5;
 }
 
 /// This service is inspired by the [`pod_player`](https://pub.dev/packages/pod_player) plugin.
@@ -35,26 +31,10 @@ class _TimedCacheEntry<T> {
 class YouTubeService {
   static YoutubeExplode yt = YoutubeExplode();
 
-  /// Clears all cached video and live stream URLs.
-  static void clearCache() {
-    _videoCache.clear();
-    _liveStreamCache.clear();
-  }
-
-  static final Map<VideoId, _TimedCacheEntry<YouTubeStreamUrls>> _videoCache =
-      {};
-  static final Map<VideoId, _TimedCacheEntry<String>> _liveStreamCache = {};
-
   /// Fetches the HLS URL for a live YouTube stream.
   /// Errors from the underlying `youtube_explode_dart` are rethrown
   /// and should be handled by the caller. No internal logging is performed.
   static Future<String> fetchLiveStreamUrl(VideoId videoId) async {
-    final cached = _liveStreamCache[videoId];
-
-    if (cached != null && !cached.isExpired) {
-      return cached.future;
-    }
-
     final future = () async {
       try {
         return await retry(() => _getQuietLiveUrl(videoId));
@@ -63,7 +43,6 @@ class YouTubeService {
       }
     }();
 
-    _liveStreamCache[videoId] = _TimedCacheEntry(future);
     return future;
   }
 
@@ -75,16 +54,11 @@ class YouTubeService {
   /// - [preferredAudioFormats]: A list of preferred audio formats (e.g., mp4a, opus).
   static Future<YouTubeStreamUrls> fetchVideoAndAudioUrls(
     VideoId videoId, {
-    List<int>? preferredQualities,
+    List<OmniVideoQuality>? preferredQualities,
+    List<OmniVideoQuality>? availableQualities,
     List<String>? preferredVideoFormats,
     List<String>? preferredAudioFormats,
   }) async {
-    final cached = _videoCache[videoId];
-
-    if (cached != null && !cached.isExpired) {
-      return cached.future;
-    }
-
     final future = () async {
       try {
         final StreamManifest manifest = await retry(
@@ -124,12 +98,16 @@ class YouTubeService {
                 'url': stream.url.toString(),
                 'format': stream.container.name,
                 'videoCodec': stream.codec.parameters['codecs'].toString(),
-                'quality': int.tryParse(stream.qualityLabel.split('p')[0]) ?? 0,
+                'quality': omniVideoQualityFromString(stream.qualityLabel),
                 'size': stream.size.totalMegaBytes,
               },
             )
-            .where((Map<String, Object> it) => (it['quality']! as int) != 0)
+            .where((Map<String, Object> it) =>
+                (it['quality']! as OmniVideoQuality) !=
+                OmniVideoQuality.unknown)
             .toList();
+
+        availableVideoStreams.sort(_sortByQuality);
 
         // Convert audio streams to a list of maps with relevant details
         final List<Map<String, dynamic>> availableAudioStreams = audioStreams
@@ -143,9 +121,29 @@ class YouTubeService {
             )
             .toList();
 
+        // Build a map of quality → Uri for all available qualities
+        final Map<OmniVideoQuality, Uri> allQualityMap = {};
+        for (final video in availableVideoStreams) {
+          try {
+            final quality = video['quality'] as OmniVideoQuality;
+            final uri = Uri.parse(video['url'] as String);
+            allQualityMap[quality] = uri;
+          } catch (e) {
+            logger.w('Skipping video stream due to error: $e\n');
+          }
+        }
+
+        // Filter the map to keep only the requested qualities (preferredQualities)
+        Map<OmniVideoQuality, Uri> filteredQualityMap = allQualityMap;
+        if (availableQualities != null) {
+          filteredQualityMap = {
+            for (final q in availableQualities)
+              if (allQualityMap.containsKey(q)) q: allQualityMap[q]!,
+          };
+        }
+
         // Sorting video streams: first by size, then by quality, and finally by user preferences
         availableVideoStreams.sort(_sortBySize);
-        availableVideoStreams.sort(_sortByQuality);
         availableVideoStreams.sort(
           (a, b) => _sortByQualityPreference(a, b, preferredQualities),
         );
@@ -199,13 +197,15 @@ class YouTubeService {
           audioStreamUrl: availableAudioStreams.isNotEmpty
               ? availableAudioStreams.first['url'] as String
               : '',
+          currentQuality:
+              availableVideoStreams.first['quality'] as OmniVideoQuality,
+          videoQualityUrls: filteredQualityMap,
         );
-      } catch (error) {
-        logger.e('YOUTUBE VIDEO ERROR: $error');
+      } catch (error, st) {
+        logger.e('YOUTUBE VIDEO ERROR: $error', error: error, stackTrace: st);
         rethrow;
       }
     }();
-    _videoCache[videoId] = _TimedCacheEntry(future);
     return future;
   }
 
@@ -228,8 +228,8 @@ class YouTubeService {
 
   /// Helper method to sort streams by video quality.
   static int _sortByQuality(Map<String, dynamic> a, Map<String, dynamic> b) {
-    final int qualityA = a['quality'] as int;
-    final int qualityB = b['quality'] as int;
+    final OmniVideoQuality qualityA = a['quality'] as OmniVideoQuality;
+    final OmniVideoQuality qualityB = b['quality'] as OmniVideoQuality;
     return qualityA.compareTo(qualityB);
   }
 
@@ -237,18 +237,36 @@ class YouTubeService {
   static int _sortByQualityPreference(
     Map<String, dynamic> a,
     Map<String, dynamic> b,
-    List<int>? qualities,
+    List<OmniVideoQuality>? qualities,
   ) {
-    final int qualityA = a['quality'] as int;
-    final int qualityB = b['quality'] as int;
+    final OmniVideoQuality qualityA = a['quality'] as OmniVideoQuality;
+    final OmniVideoQuality qualityB = b['quality'] as OmniVideoQuality;
 
+    // If a preferred quality list is provided
     if (qualities != null && qualities.isNotEmpty) {
-      final bool aPreferred = qualities.contains(qualityA);
-      final bool bPreferred = qualities.contains(qualityB);
-      if (aPreferred && !bPreferred) return -1;
-      if (!aPreferred && bPreferred) return 1;
+      final indexA = qualities.indexOf(qualityA);
+      final indexB = qualities.indexOf(qualityB);
+
+      final isAPreferred = indexA != -1;
+      final isBPreferred = indexB != -1;
+
+      if (isAPreferred && isBPreferred) {
+        // Both qualities are in the preferred list: preserve the given order
+        return indexA.compareTo(indexB);
+      } else if (isAPreferred) {
+        // Only A is preferred: it should come first
+        return -1;
+      } else if (isBPreferred) {
+        // Only B is preferred: it should come first
+        return 1;
+      }
+
+      // Neither is preferred: sort by descending quality (higher index = higher quality)
+      return qualityB.index.compareTo(qualityA.index);
     }
-    return 0;
+
+    // No preference list: sort all by descending quality
+    return qualityB.index.compareTo(qualityA.index);
   }
 
   /// Helper method to prioritize preferred formats.

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
+import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
 
 /// Configuration object used to initialize video playback.
 ///
@@ -55,7 +56,7 @@ import 'package:omni_video_player/omni_video_player/models/video_source_type.dar
 /// - [initialPosition]: The initial playback position (default: Duration.zero).
 /// - [initialVolume]: Initial volume level between 0.0 and 1.0 (default: 1.0).
 /// - [autoMuteOnStart]: Whether playback should start muted (default: false).
-/// - [preferredQualities]: Preferred video quality levels (default: [720]).
+/// - [preferredQualities]: Preferred video quality levels (default: [OmniVideoQuality.medium480]).
 /// - [allowSeeking]: Whether seeking is allowed (default: true).
 /// - [timeoutDuration]: Maximum wait time before considering playback failed (default: 30 seconds).
 @immutable
@@ -86,25 +87,21 @@ class VideoSourceConfiguration {
 
   /// Preferred video quality levels in order of preference.
   ///
-  /// Common values include:
-  /// - 144 (144p, molto bassa qualità)
-  /// - 240 (240p)
-  /// - 360 (360p)
-  /// - 480 (480p, qualità SD)
-  /// - 720 (720p, HD)
-  /// - 1080 (1080p, Full HD)
-  /// - 1440 (1440p, 2K)
-  /// - 2160 (2160p, 4K UHD)
-  ///
   /// The player will try to select the best available quality from this list
   /// according to the order provided.
-  final List<int> preferredQualities;
+  final List<OmniVideoQuality> preferredQualities;
 
   /// Whether the user is allowed to seek the video.
   final bool allowSeeking;
 
   /// Maximum wait time before considering playback failed.
   final Duration timeoutDuration;
+
+  /// The list of available video qualities for this video.
+  ///
+  /// If specified, all entries in [preferredQualities] must also be included here.
+  /// If not specified, all qualities are considered available.
+  final List<OmniVideoQuality>? availableQualities;
 
   /// Private constructor used by factory constructors and [copyWith].
   const VideoSourceConfiguration._({
@@ -116,7 +113,8 @@ class VideoSourceConfiguration {
     this.initialPosition = Duration.zero,
     this.initialVolume = 1.0,
     this.autoMuteOnStart = false,
-    this.preferredQualities = const [720],
+    this.preferredQualities = const [OmniVideoQuality.medium480],
+    this.availableQualities,
     this.allowSeeking = true,
     this.timeoutDuration = const Duration(seconds: 30),
   });
@@ -127,16 +125,18 @@ class VideoSourceConfiguration {
   /// ```dart
   /// VideoSourceConfiguration.vimeo(
   ///   videoId: "123456789",
-  ///   preferredQualities: [720, 480], // Optional
+  ///   preferredQualities: [OmniVideoQuality.high720, OmniVideoQuality.low144,],, // Optional
   /// )
   /// ```
   ///
   /// - [videoId]: the numeric ID from a Vimeo URL (e.g., https://vimeo.com/123456789).
   /// - [preferredQualities]: optional list of preferred video resolutions.
-  ///   Only used for Vimeo sources. Default is [480].
+  ///   Only used for Vimeo sources. Default is [OmniVideoQuality.medium480].
   factory VideoSourceConfiguration.vimeo({
     required String videoId,
-    List<int> preferredQualities = const [480],
+    List<OmniVideoQuality> preferredQualities = const [
+      OmniVideoQuality.medium480
+    ],
   }) {
     return VideoSourceConfiguration._(
       videoId: videoId,
@@ -151,22 +151,45 @@ class VideoSourceConfiguration {
   /// ```dart
   /// VideoSourceConfiguration.youtube(
   ///   videoUrl: Uri.parse("https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
-  ///   preferredQualities: [1080, 720], // Optional
+  ///   preferredQualities: [OmniVideoQuality.high720, OmniVideoQuality.low144,], // Optional
   /// )
   /// ```
   ///
   /// - [videoUrl]: the full URL of a YouTube video.
   /// - [preferredQualities]: optional list of preferred video resolutions.
-  ///   Only used for YouTube sources. Default is [480].
+  ///   Only used for YouTube sources. Default is [OmniVideoQuality.medium480].
   factory VideoSourceConfiguration.youtube({
     required Uri videoUrl,
-    List<int> preferredQualities = const [480],
+    List<OmniVideoQuality> preferredQualities = const [
+      OmniVideoQuality.medium480
+    ],
+    List<OmniVideoQuality>? availableQualities,
   }) {
+    _validatePreferredQualities(
+      preferred: preferredQualities,
+      available: availableQualities,
+    );
+
     return VideoSourceConfiguration._(
       videoUrl: videoUrl,
       videoSourceType: VideoSourceType.youtube,
       preferredQualities: preferredQualities,
+      availableQualities: availableQualities,
     );
+  }
+
+  static void _validatePreferredQualities({
+    required List<OmniVideoQuality> preferred,
+    List<OmniVideoQuality>? available,
+  }) {
+    if (available == null) return;
+
+    final invalid = preferred.where((q) => !available.contains(q)).toList();
+    if (invalid.isNotEmpty) {
+      throw ArgumentError(
+          'The following preferred qualities are not available: $invalid. '
+          'All preferred qualities must be included in availableQualities.');
+    }
   }
 
   /// Factory constructor for network videos.
@@ -200,7 +223,17 @@ class VideoSourceConfiguration {
     bool? autoMuteOnStart,
     bool? allowSeeking,
     Duration? timeoutDuration,
+    List<OmniVideoQuality>? preferredQualities,
+    List<OmniVideoQuality>? availableQualities,
   }) {
+    final newPreferred = preferredQualities ?? this.preferredQualities;
+    final newAvailable = availableQualities ?? this.availableQualities;
+
+    _validatePreferredQualities(
+      preferred: newPreferred,
+      available: newAvailable,
+    );
+
     return VideoSourceConfiguration._(
       videoUrl: videoUrl,
       videoId: videoId,
@@ -210,7 +243,8 @@ class VideoSourceConfiguration {
       initialPosition: initialPosition ?? this.initialPosition,
       initialVolume: initialVolume ?? this.initialVolume,
       autoMuteOnStart: autoMuteOnStart ?? this.autoMuteOnStart,
-      preferredQualities: preferredQualities,
+      preferredQualities: newPreferred,
+      availableQualities: newAvailable,
       allowSeeking: allowSeeking ?? this.allowSeeking,
       timeoutDuration: timeoutDuration ?? this.timeoutDuration,
     );

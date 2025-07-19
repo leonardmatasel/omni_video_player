@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/src/widgets/bottom_control_bar/video_seek_bar.dart';
 import 'package:omni_video_player/src/widgets/controls/audio_toggle_button.dart';
 import 'package:omni_video_player/src/widgets/controls/fullscreen_toggle_button.dart';
+import 'package:omni_video_player/src/widgets/controls/video_quality_menu_button.dart';
 import 'package:omni_video_player/src/widgets/player/fullscreen_video_player.dart';
-import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
-import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
-import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
-import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 
 /// A widget that displays the bottom bar of video player controls.
 ///
@@ -68,6 +66,20 @@ class VideoPlaybackControlBar extends StatelessWidget {
           ),
         ),
         ...options.customPlayerWidgets.trailingBottomButtons,
+        if (options.playerUIVisibilityOptions.showSwitchVideoQuality &&
+            controller.videoSourceType == VideoSourceType.youtube &&
+            controller.currentVideoQuality != null &&
+            controller.videoQualityUrls != null)
+          VideoQualityMenuButton(
+            qualityMap: controller.videoQualityUrls!,
+            currentQuality: controller.currentVideoQuality!,
+            onQualitySelected: (quality) {
+              if (quality == controller.currentVideoQuality) {
+                return;
+              }
+              controller.switchQuality(quality);
+            },
+          ),
         if (options.playerUIVisibilityOptions.showFullScreenButton)
           FullscreenToggleButton(
             controller: controller,

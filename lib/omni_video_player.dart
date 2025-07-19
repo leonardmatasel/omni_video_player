@@ -8,6 +8,7 @@ export 'omni_video_player/models/video_player_callbacks.dart';
 export 'omni_video_player/models/video_player_configuration.dart';
 export 'omni_video_player/models/player_ui_visibility_options.dart';
 export 'omni_video_player/models/video_source_type.dart';
+export 'omni_video_player/models/omni_video_quality.dart';
 
 export 'omni_video_player/theme/omni_video_player_theme.dart';
 

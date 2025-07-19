@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/src/controllers/vimeo_playback_controller.dart';
 
 /// A Vimeo video player widget using [InAppWebView] for embedding the Vimeo iframe player.
@@ -43,7 +44,7 @@ class VimeoVideoPlayer extends StatefulWidget {
 
   final VoidCallback onError;
 
-  final List<int> preferredQualities;
+  final List<OmniVideoQuality> preferredQualities;
 
   /// The [VimeoPlaybackController] that manages interaction with the embedded Vimeo player.
   ///
@@ -154,7 +155,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   String _buildIframeUrl() {
     return 'https://player.vimeo.com/video/${widget.videoId}?'
         'autoplay=${false}'
-        '&max_quality=${_resolutionToLabel(widget.preferredQualities.first)}'
+        '&max_quality=${widget.preferredQualities.first.qualityString}'
         '&loop=${true}'
         '&portrait=${false}'
         '&muted=${false}'
@@ -162,16 +163,6 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
         '&byline=${false}'
         '&controls=${false}'
         '&dnt=${false}';
-  }
-
-  String _resolutionToLabel(int resolution) {
-    if (resolution >= 2000 && resolution < 3000) {
-      return '2k';
-    } else if (resolution >= 3000) {
-      return '4k';
-    } else {
-      return '${resolution}p';
-    }
   }
 
   /// Handles playback-related events received from the embedded Vimeo player.

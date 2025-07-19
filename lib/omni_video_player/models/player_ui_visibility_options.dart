@@ -40,6 +40,9 @@ class PlayerUIVisibilityOptions {
   /// Whether to show the fullscreen toggle button.
   final bool showFullScreenButton;
 
+  /// Whether to show the quality switch button.
+  final bool showSwitchVideoQuality;
+
   /// Whether to show the mute/unmute toggle button.
   final bool showMuteUnMuteButton;
 
@@ -86,6 +89,7 @@ class PlayerUIVisibilityOptions {
     this.enableForwardGesture = true,
     this.enableBackwardGesture = true,
     this.enableExitFullscreenOnVerticalSwipe = true,
+    this.showSwitchVideoQuality = true,
   });
 
   /// Returns a copy of this [PlayerUIVisibilityOptions] with
@@ -109,6 +113,7 @@ class PlayerUIVisibilityOptions {
     bool? enableForwardGesture,
     bool? enableBackwardGesture,
     bool? enableExitFullscreenOnVerticalSwipe,
+    bool? showSwitchVideoQuality,
   }) {
     return PlayerUIVisibilityOptions(
       showSeekBar: showSeekBar ?? this.showSeekBar,
@@ -137,6 +142,8 @@ class PlayerUIVisibilityOptions {
       enableExitFullscreenOnVerticalSwipe:
           enableExitFullscreenOnVerticalSwipe ??
               this.enableExitFullscreenOnVerticalSwipe,
+      showSwitchVideoQuality:
+          showSwitchVideoQuality ?? this.showSwitchVideoQuality,
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
+import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
 import 'package:video_player/video_player.dart';
@@ -325,5 +326,18 @@ class VimeoPlaybackController extends OmniPlaybackController {
   void dispose() {
     _positionTimer?.cancel();
     super.dispose();
+  }
+
+  @override
+  Map<OmniVideoQuality, Uri>? get videoQualityUrls =>
+      null; // FIXME: not implemented
+
+  @override
+  OmniVideoQuality? get currentVideoQuality => null; // FIXME: not implemented
+
+  @override
+  Future<void> switchQuality(OmniVideoQuality quality) {
+    // FIXME: not implemented
+    throw UnimplementedError();
   }
 }

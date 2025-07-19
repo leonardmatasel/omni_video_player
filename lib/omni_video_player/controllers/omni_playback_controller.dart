@@ -130,4 +130,17 @@ abstract class OmniPlaybackController with ChangeNotifier {
 
   /// Updates the flag tracking playback state before seeking.
   set wasPlayingBeforeSeek(bool value);
+
+  /// A map of available video qualities to their corresponding URIs.
+  ///
+  /// This can be used to switch between different video qualities.
+  Map<OmniVideoQuality, Uri>? get videoQualityUrls;
+
+  /// The currently selected video quality.
+  OmniVideoQuality? get currentVideoQuality;
+
+  /// Switches the video playback quality to the specified [quality].
+  ///
+  /// Throws an exception if the specified quality is not available.
+  Future<void> switchQuality(OmniVideoQuality quality);
 }
