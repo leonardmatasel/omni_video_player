@@ -10,7 +10,7 @@
 - **YouTube quality switching**:
     - Added support for changing video quality in YouTube playback.
     - Controlled via the new flag: `showSwitchVideoQuality`.
-    - New parameter: `availableQualities: List<OmniVideoQuality>?` added to `YoutubeVideoConfiguration`.
+    - New parameter: `availableQualities: List<OmniVideoQuality>?` added to `VideoSourceConfiguration` of YouTube videos.
 
 🎨 **Theming Enhancements**
 
