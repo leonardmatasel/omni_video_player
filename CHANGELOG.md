@@ -1,7 +1,7 @@
 
 # 2.0.2
 
-* Added ignoreOverlayControlsVisibility flag to CustomOverlayLayer, this allows custom overlays to remain visible even when player controls are hidden (e.g., during auto-hide).
+* Added `ignoreOverlayControlsVisibility` flag to `CustomOverlayLayer`, this allows custom overlays to remain visible even when player controls are hidden (e.g., during auto-hide).
 
 
 # 2.0.1
