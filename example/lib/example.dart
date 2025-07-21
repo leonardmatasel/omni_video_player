@@ -91,7 +91,7 @@ class _VideoScreenState extends State<VideoScreen> {
                   useSafeAreaForBottomControls: true,
                 ),
                 customPlayerWidgets: CustomPlayerWidgets().copyWith(
-                  thumbnailFit: BoxFit.contain,
+                  thumbnailFit: BoxFit.fitWidth,
                 ),
               ),
             ),
