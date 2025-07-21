@@ -269,7 +269,9 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
             ];
 
             if (widget.options.customPlayerWidgets.customOverlayLayer != null &&
-                areOverlayControlsVisible) {
+                (widget.options.customPlayerWidgets.customOverlayLayer!
+                        .ignoreOverlayControlsVisibility ||
+                    areOverlayControlsVisible)) {
               final customOverlay =
                   widget.options.customPlayerWidgets.customOverlayLayer!;
               final rotation = widget.controller.rotationCorrection;

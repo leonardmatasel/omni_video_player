@@ -1,3 +1,9 @@
+
+# 2.0.2
+
+* Added ignoreOverlayControlsVisibility flag to CustomOverlayLayer, this allows custom overlays to remain visible even when player controls are hidden (e.g., during auto-hide).
+
+
 # 2.0.1
 
 ✨ **New Features**
@@ -32,7 +38,7 @@ New theme properties added to `OmniVideoPlayerTheme`:
 
 # 1.0.6
 
-- Fixed a bug where seeking in long YouTube videos caused noticeable delays
+* Fixed a bug where seeking in long YouTube videos caused noticeable delays
 
 # 1.0.5
 

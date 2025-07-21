@@ -26,11 +26,12 @@ import 'package:flutter/material.dart';
 /// final overlay = CustomOverlayLayer(
 ///   widget: MyCustomOverlayWidget(),
 ///   level: 1,
+///   ignoreOverlayControlsVisibility: true,
 /// );
 /// ```
 ///
-/// In the example above, the custom overlay will be shown  above the video but below
-/// most control elements.
+/// In the example above, the custom overlay will be shown above the video
+/// and rendered regardless of the control visibility state.
 class CustomOverlayLayer {
   /// The widget to display as the overlay.
   final Widget widget;
@@ -42,5 +43,15 @@ class CustomOverlayLayer {
   /// most control elements.
   final int level;
 
-  CustomOverlayLayer({required this.widget, this.level = 1});
+  /// Whether to ignore the visibility of overlay controls.
+  ///
+  /// If set to true, this overlay will be shown even when
+  /// overlay controls are hidden (e.g., auto-hide behavior).
+  final bool ignoreOverlayControlsVisibility;
+
+  CustomOverlayLayer({
+    required this.widget,
+    this.level = 1,
+    this.ignoreOverlayControlsVisibility = false,
+  });
 }
