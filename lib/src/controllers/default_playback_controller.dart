@@ -124,10 +124,9 @@ class DefaultPlaybackController extends OmniPlaybackController {
         newQuality == currentVideoQuality) {
       return;
     }
-    print("SONO QUI $qualityUrls");
+
     final newUrl = qualityUrls![newQuality];
     if (newUrl == null) return;
-    print("SONO QUI");
 
     final wasPlaying = isPlaying;
     final currentPos = currentPosition;

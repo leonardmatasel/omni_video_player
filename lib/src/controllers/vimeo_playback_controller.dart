@@ -300,15 +300,28 @@ class VimeoPlaybackController extends OmniPlaybackController {
     }
   }
 
+  DateTime? _lastTickTime;
+
   void startPositionTimer() {
     _positionTimer?.cancel();
-    _positionTimer = Timer.periodic(Duration(seconds: 1), (_) async {
+    _lastTickTime = DateTime.now();
+
+    _positionTimer = Timer.periodic(Duration(milliseconds: 500), (_) {
       if (_isPlaying) {
-        _currentPosition += Duration(seconds: 1);
-        if (_currentPosition >= duration) {
+        final now = DateTime.now();
+        final elapsed = now.difference(_lastTickTime!);
+        _lastTickTime = now;
+
+        final newPosition = _currentPosition + elapsed;
+
+        if (newPosition > duration) {
           _currentPosition = duration;
-          await pause();
+          _positionTimer?.cancel();
+          pause();
+        } else {
+          _currentPosition = newPosition;
         }
+
         notifyListeners();
       }
     });

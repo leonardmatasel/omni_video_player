@@ -1,3 +1,10 @@
+# 2.0.4
+
+🛠 **Fixes**
+
+* Resolved an issue where **Vimeo videos would not autoplay** as expected.
+* Fixed a bug causing the video to **pause unexpectedly** [Issue #8 on GitHub](https://github.com/leonardmatasel/omni_video_player/issues/8)
+
 # 2.0.3
 
 ⚠️ **Breaking Change**

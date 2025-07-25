@@ -35,6 +35,7 @@ class VimeoVideoPlayer extends StatefulWidget {
     required this.controller,
     required this.preferredQualities,
     required this.onError,
+    required this.autoPlay,
   }) : assert(videoId.isNotEmpty, 'videoId cannot be empty!');
 
   /// The Vimeo video ID to be played.
@@ -51,11 +52,19 @@ class VimeoVideoPlayer extends StatefulWidget {
   /// This is required to access internal controls and state.
   final VimeoPlaybackController controller;
 
+  final bool autoPlay;
+
   @override
   State<VimeoVideoPlayer> createState() => _VimeoVideoPlayerState();
 }
 
 class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
+  @override
+  void dispose() {
+    widget.controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     // NOTE: Known hot-reload issue with WebView ID reuse:
@@ -170,6 +179,9 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     switch (event) {
       case 'onReady':
         widget.controller.isReady = true;
+        if (widget.controller.hasStarted && widget.autoPlay) {
+          widget.controller.play();
+        }
         break;
       case 'onPlay':
         widget.controller.isPlaying = true;
@@ -187,7 +199,6 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
         if (widget.controller.wasPlayingBeforeSeek) {
           widget.controller.isPlaying = true;
           widget.controller.play();
-          widget.controller.startPositionTimer();
         }
         break;
       case 'onError':

@@ -48,6 +48,7 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
         controller: controller,
         onError: onErrorCallback,
         preferredQualities: options.videoSourceConfiguration.preferredQualities,
+        autoPlay: options.videoSourceConfiguration.autoPlay,
       ),
     );
 
