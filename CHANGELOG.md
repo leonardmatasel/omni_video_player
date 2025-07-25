@@ -1,8 +1,16 @@
+# 2.0.3
+
+⚠️ **Breaking Change**
+
+The `customOverlayLayer` field in `CustomPlayerWidgets` has been replaced by `customOverlayLayers`, a list of `CustomOverlayLayer` objects.
+
+This allows adding multiple overlays on top of the video content, with fine-grained control over their rendering order.
+
+Overlays are inserted into the rendering stack based on their level and order into list.
 
 # 2.0.2
 
 * Added `ignoreOverlayControlsVisibility` flag to `CustomOverlayLayer`, this allows custom overlays to remain visible even when player controls are hidden (e.g., during auto-hide).
-
 
 # 2.0.1
 

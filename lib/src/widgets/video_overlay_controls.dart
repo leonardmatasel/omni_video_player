@@ -268,28 +268,27 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
               ),
             ];
 
-            if (widget.options.customPlayerWidgets.customOverlayLayer != null &&
-                (widget.options.customPlayerWidgets.customOverlayLayer!
-                        .ignoreOverlayControlsVisibility ||
-                    areOverlayControlsVisible)) {
-              final customOverlay =
-                  widget.options.customPlayerWidgets.customOverlayLayer!;
-              final rotation = widget.controller.rotationCorrection;
-              final size = widget.controller.size;
+            for (final customOverlay
+                in widget.options.customPlayerWidgets.customOverlayLayers) {
+              if (customOverlay.ignoreOverlayControlsVisibility ||
+                  areOverlayControlsVisible) {
+                final rotation = widget.controller.rotationCorrection;
+                final size = widget.controller.size;
 
-              final aspectRatio = (rotation == 90 || rotation == 270)
-                  ? size.height / size.width
-                  : size.width / size.height;
+                final aspectRatio = (rotation == 90 || rotation == 270)
+                    ? size.height / size.width
+                    : size.width / size.height;
 
-              layers.insert(
-                customOverlay.level,
-                Center(
-                  child: AspectRatio(
-                    aspectRatio: aspectRatio,
-                    child: customOverlay.widget,
+                layers.insert(
+                  customOverlay.level,
+                  Center(
+                    child: AspectRatio(
+                      aspectRatio: aspectRatio,
+                      child: customOverlay.widget,
+                    ),
                   ),
-                ),
-              );
+                );
+              }
             }
 
             return GestureDetector(

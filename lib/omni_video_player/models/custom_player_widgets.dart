@@ -44,11 +44,10 @@ class CustomPlayerWidgets {
   /// Widget used to replace the default remaining time indicator.
   final Widget? customRemainingTimeDisplay;
 
-  /// Widget shown above the video content while controls are visible.
+  /// Widgets shown above the video content.
   ///
-  /// Use this to show interactive overlays such as titles, branding, or context menus.
-  /// This widget automatically hides when the player's controls are hidden.
-  final CustomOverlayLayer? customOverlayLayer;
+  /// The order of the list is important: layers are added in sequence and can cause shifting.
+  final List<CustomOverlayLayer> customOverlayLayers;
 
   /// Optional thumbnail image displayed before playback starts.
   ///
@@ -76,7 +75,7 @@ class CustomPlayerWidgets {
     this.customRemainingTimeDisplay,
     this.thumbnail,
     this.thumbnailFit = BoxFit.cover,
-    this.customOverlayLayer,
+    this.customOverlayLayers = const [],
   });
 
   /// Returns a new [CustomPlayerWidgets] instance with the specified fields overridden.
@@ -101,7 +100,7 @@ class CustomPlayerWidgets {
     Widget? customRemainingTimeDisplay,
     ImageProvider<Object>? thumbnail,
     BoxFit? thumbnailFit,
-    CustomOverlayLayer? customOverlayLayer,
+    List<CustomOverlayLayer>? customOverlayLayers,
   }) {
     return CustomPlayerWidgets(
       loadingWidget: loadingWidget ?? this.loadingWidget,
@@ -117,7 +116,7 @@ class CustomPlayerWidgets {
           customRemainingTimeDisplay ?? this.customRemainingTimeDisplay,
       thumbnail: thumbnail ?? this.thumbnail,
       thumbnailFit: thumbnailFit ?? this.thumbnailFit,
-      customOverlayLayer: customOverlayLayer ?? this.customOverlayLayer,
+      customOverlayLayers: customOverlayLayers ?? this.customOverlayLayers,
     );
   }
 }
