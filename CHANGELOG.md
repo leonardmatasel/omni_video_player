@@ -1,3 +1,13 @@
+# 2.0.5
+
+✨ **New Features**
+
+* **HLS (network) video support**:
+  - The player now supports **HLS streams** (`.m3u8` files).
+  - Allows **quality selection** for network-based HLS videos, just like with YouTube.
+  - Controlled via the same `preferredQualities` and `availableQualities` parameters in `VideoSourceConfiguration.network`.
+  - Automatically selects the best matching stream based on preferences or falls back to the highest quality.
+
 # 2.0.4
 
 🛠 **Fixes**

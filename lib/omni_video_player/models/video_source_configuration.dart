@@ -194,11 +194,43 @@ class VideoSourceConfiguration {
 
   /// Factory constructor for network videos.
   ///
-  /// Requires a [videoUrl].
-  factory VideoSourceConfiguration.network({required Uri videoUrl}) {
+  /// Example:
+  /// ```dart
+  /// VideoSourceConfiguration.network(
+  ///   videoUrl: Uri.parse("https://example.com/video.m3u8"),
+  ///   preferredQualities: [OmniVideoQuality.high720, OmniVideoQuality.low144], // Optional
+  ///   availableQualities: [OmniVideoQuality.low144, OmniVideoQuality.medium360, OmniVideoQuality.high720], // Optional
+  /// )
+  /// ```
+  ///
+  /// - [videoUrl]: the full URL of a network video stream or file (e.g., HLS .m3u8).
+  /// - [preferredQualities]: optional list of preferred video quality levels in order of preference.
+  ///   Only used for HLS (network) sources. Default is [OmniVideoQuality.medium480].
+  /// - [availableQualities]: optional list of all available qualities for this video source.
+  ///   If specified, all entries in [preferredQualities] must also be included here.
+  ///   If not specified, all qualities are considered available.
+  ///
+  /// Note that for network sources (such as HLS streams), quality selection
+  /// depends on the available stream variants and these lists help to control
+  /// which qualities the player should prefer or consider. These quality lists
+  /// are ignored for non-HLS network videos (e.g., direct mp4 URLs).
+  factory VideoSourceConfiguration.network({
+    required Uri videoUrl,
+    List<OmniVideoQuality> preferredQualities = const [
+      OmniVideoQuality.medium480
+    ],
+    List<OmniVideoQuality>? availableQualities,
+  }) {
+    _validatePreferredQualities(
+      preferred: preferredQualities,
+      available: availableQualities,
+    );
+
     return VideoSourceConfiguration._(
       videoUrl: videoUrl,
       videoSourceType: VideoSourceType.network,
+      preferredQualities: preferredQualities,
+      availableQualities: availableQualities,
     );
   }
 

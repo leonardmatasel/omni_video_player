@@ -67,7 +67,6 @@ class VideoPlaybackControlBar extends StatelessWidget {
         ),
         ...options.customPlayerWidgets.trailingBottomButtons,
         if (options.playerUIVisibilityOptions.showSwitchVideoQuality &&
-            controller.videoSourceType == VideoSourceType.youtube &&
             controller.currentVideoQuality != null &&
             controller.videoQualityUrls != null)
           VideoQualityMenuButton(
