@@ -58,16 +58,12 @@ class AutoHideControlsManager extends StatefulWidget {
   /// Callback hooks for video player events.
   final VideoPlayerCallbacks callbacks;
 
-  /// Duration controls remain visible after interaction while video is playing.
-  final Duration controlsPersistence;
-
   const AutoHideControlsManager({
     super.key,
     required this.builder,
     required this.controller,
     required this.options,
     required this.callbacks,
-    required this.controlsPersistence,
   });
 
   @override
@@ -76,26 +72,27 @@ class AutoHideControlsManager extends StatefulWidget {
 }
 
 class _AutoHideControlsManagerState extends State<AutoHideControlsManager>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   bool isShowing = true;
   bool isPlaying = false;
 
-  late AnimationController _hideTimer;
+  late AnimationController _persistenceTimer;
 
   @override
   void initState() {
     super.initState();
-    _hideTimer = AnimationController(
+
+    _persistenceTimer = AnimationController(
       vsync: this,
-      duration: widget.controlsPersistence,
-      value: 0,
+      duration:
+          widget.options.playerUIVisibilityOptions.controlsPersistenceDuration,
     );
 
     isPlaying = widget.controller.isPlaying &&
         !widget.controller.isSeeking &&
         widget.controller.isReady;
     if (isPlaying) {
-      _startHideTimer();
+      _startPersistenceTimer();
     }
   }
 
@@ -118,8 +115,16 @@ class _AutoHideControlsManagerState extends State<AutoHideControlsManager>
     if (widget.controller.isFinished && widget.controller.isSeeking) return;
 
     bool previous = isShowing;
+
+    // Mostro o nascondo subito i controlli
     _setIsShowing(!isShowing);
-    _manageTimer(
+
+    // Avvio reaction timer solo se sto mostrando i controlli (fade-in delay)
+    if (!isShowing) {
+      _persistenceTimer.stop();
+    }
+
+    _manageTimers(
       prevIsPlaying: isPlaying,
       currentIsPlaying: isPlaying,
       prevShowControls: previous,
@@ -127,8 +132,8 @@ class _AutoHideControlsManagerState extends State<AutoHideControlsManager>
     );
   }
 
-  void _startHideTimer() {
-    _hideTimer.forward(from: 0).then((_) {
+  void _startPersistenceTimer() {
+    _persistenceTimer.forward(from: 0).then((_) {
       if (mounted && isShowing) {
         _setIsShowing(false);
       }
@@ -142,7 +147,7 @@ class _AutoHideControlsManagerState extends State<AutoHideControlsManager>
       }
       setState(() => isPlaying = newIsPlaying);
 
-      _manageTimer(
+      _manageTimers(
         prevIsPlaying: !newIsPlaying,
         currentIsPlaying: newIsPlaying,
         prevShowControls: isShowing,
@@ -151,18 +156,35 @@ class _AutoHideControlsManagerState extends State<AutoHideControlsManager>
     }
   }
 
+  void _manageTimers({
+    required bool prevIsPlaying,
+    required bool currentIsPlaying,
+    required bool prevShowControls,
+    required bool currentShowControls,
+  }) {
+    if (currentIsPlaying && !prevShowControls && currentShowControls) {
+      _startPersistenceTimer();
+      return;
+    }
+    if (currentShowControls && !prevIsPlaying && currentIsPlaying) {
+      _startPersistenceTimer();
+      return;
+    }
+    _persistenceTimer.stop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return RouteAwareListener(
       onPopNext: (_) {
         _setIsShowing(true);
-        if (isPlaying) _startHideTimer();
+        if (isPlaying) _startPersistenceTimer();
       },
       child: Listener(
         onPointerHover: (event) {
           if (kIsWeb) {
             _setIsShowing(true);
-            if (isPlaying) _startHideTimer();
+            if (isPlaying) _startPersistenceTimer();
           }
         },
         child: widget.builder(context, isShowing, _toggleIsShowing),
@@ -170,26 +192,9 @@ class _AutoHideControlsManagerState extends State<AutoHideControlsManager>
     );
   }
 
-  void _manageTimer({
-    required bool prevIsPlaying,
-    required bool currentIsPlaying,
-    required bool prevShowControls,
-    required bool currentShowControls,
-  }) {
-    if (currentIsPlaying && !prevShowControls && currentShowControls) {
-      _startHideTimer();
-      return;
-    }
-    if (currentShowControls && !prevIsPlaying && currentIsPlaying) {
-      _startHideTimer();
-      return;
-    }
-    _hideTimer.stop();
-  }
-
   @override
   void dispose() {
-    _hideTimer.dispose();
+    _persistenceTimer.dispose();
     super.dispose();
   }
 }

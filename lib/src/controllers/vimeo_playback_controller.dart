@@ -95,6 +95,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
 
   @override
   set wasPlayingBeforeSeek(bool value) {
+    if (isSeeking) return;
     _wasPlayingBeforeSeek = value;
     notifyListeners();
   }
@@ -247,6 +248,8 @@ class VimeoPlaybackController extends OmniPlaybackController {
     skipHasPlaybackStarted = false,
   }) async {
     if (position <= duration) {
+      wasPlayingBeforeSeek = isPlaying;
+
       if (!skipHasPlaybackStarted) {
         isSeeking = true;
         pause();

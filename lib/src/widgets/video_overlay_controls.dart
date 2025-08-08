@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/src/widgets/auto_hide_controls_manager.dart';
 import 'package:omni_video_player/src/widgets/auto_hide_play_pause_button.dart';
@@ -46,9 +43,6 @@ class VideoOverlayControls extends StatefulWidget {
   final VideoPlayerCallbacks callbacks;
   final EdgeInsets playerBarPadding;
 
-  static const _hideControlsTimerWeb = Duration(milliseconds: 2000);
-  static const _hideControlsTimerMobile = Duration(milliseconds: 2000);
-
   @override
   State<VideoOverlayControls> createState() => _VideoOverlayControlsState();
 }
@@ -63,7 +57,6 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
 
   late final AnimationController _animationController;
 
-  Timer? _tapDebounceTimer;
   _TapInteractionState _tapState = _TapInteractionState.idle;
 
   @override
@@ -106,9 +99,6 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
       animation: widget.controller,
       builder: (context, __) {
         return AutoHideControlsManager(
-          controlsPersistence: kIsWeb
-              ? VideoOverlayControls._hideControlsTimerWeb
-              : VideoOverlayControls._hideControlsTimerMobile,
           controller: widget.controller,
           options: widget.options,
           callbacks: widget.callbacks,
@@ -304,23 +294,12 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
 
             return GestureDetector(
               onTap: () {
-                if (!widget.controller.isPlaying &&
-                    (_tapState == _TapInteractionState.doubleTapBackward ||
-                        _tapState == _TapInteractionState.doubleTapForward)) {
-                  setState(() => _tapState = _TapInteractionState.singleTap);
-                  return;
-                }
-
-                // Wait to determine whether it's a single or double tap.
-                _tapDebounceTimer?.cancel();
-                _tapDebounceTimer =
-                    Timer(const Duration(milliseconds: 300), () {
-                  if ((_tapState != _TapInteractionState.doubleTapBackward &&
-                      _tapState != _TapInteractionState.doubleTapForward)) {
-                    setState(() => _tapState = _TapInteractionState.singleTap);
-                    toggleVisibility();
-                  }
-                });
+                setState(() => _tapState = _TapInteractionState.singleTap);
+                toggleVisibility();
+              },
+              onDoubleTap: () {
+                setState(() => _tapState = _TapInteractionState.idle);
+                toggleVisibility();
               },
               onVerticalDragUpdate: (details) {
                 if (!widget.options.playerUIVisibilityOptions

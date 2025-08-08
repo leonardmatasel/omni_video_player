@@ -73,6 +73,13 @@ class PlayerUIVisibilityOptions {
   /// Defaults to `true`.
   final bool enableOrientationLock;
 
+  /// Duration the controls remain visible after interaction while video is playing.
+  ///
+  /// After this duration without interaction, controls are hidden automatically.
+  ///
+  /// Defaults to 3 seconds.
+  final Duration controlsPersistenceDuration;
+
   /// Creates a new instance of [PlayerUIVisibilityOptions].
   ///
   /// All options default to `true` except:
@@ -99,6 +106,7 @@ class PlayerUIVisibilityOptions {
     this.enableExitFullscreenOnVerticalSwipe = true,
     this.showSwitchVideoQuality = true,
     this.enableOrientationLock = true,
+    this.controlsPersistenceDuration = const Duration(seconds: 3),
   });
 
   /// Returns a copy of this [PlayerUIVisibilityOptions] with
@@ -124,6 +132,7 @@ class PlayerUIVisibilityOptions {
     bool? enableExitFullscreenOnVerticalSwipe,
     bool? showSwitchVideoQuality,
     bool? enableOrientationLock,
+    Duration? controlsPersistenceDuration,
   }) {
     return PlayerUIVisibilityOptions(
       showSeekBar: showSeekBar ?? this.showSeekBar,
@@ -156,6 +165,8 @@ class PlayerUIVisibilityOptions {
           showSwitchVideoQuality ?? this.showSwitchVideoQuality,
       enableOrientationLock:
           enableOrientationLock ?? this.enableOrientationLock,
+      controlsPersistenceDuration:
+          controlsPersistenceDuration ?? this.controlsPersistenceDuration,
     );
   }
 }

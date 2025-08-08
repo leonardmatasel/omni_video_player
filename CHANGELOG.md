@@ -1,4 +1,14 @@
 
+# 2.0.9
+
+✨ **New Features**
+
+* Added `controlsPersistenceDuration` to `PlayerUIVisibilityOptions`.
+
+  - This property controls the duration the video player controls remain visible after user interaction while the video is playing.
+  - After this duration without interaction, the controls are hidden automatically.
+  - Default value is `Duration(seconds: 3)`.
+
 # 2.0.8
 
 ✨ **New Features**
