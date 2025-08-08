@@ -23,8 +23,9 @@
 
 **omni\_video\_player** is a Flutter video player built on top of Flutter’s official `video_player` plugin.
 It supports YouTube (via `youtube_explode_dart` with an **automatic WebView-based fallback** implemented using `webview_flutter`
-to handle cases where YouTube rate-limits requests, temporarily blocking direct extraction), Vimeo videos (currently using `flutter_inappwebview`,
-with a planned migration to `webview_flutter` for improved stability), as well as network and asset videos.
+to handle cases where YouTube rate-limits requests, temporarily blocking direct extraction — see [issue #323](https://github.com/Hexer10/youtube_explode_dart/issues/323)),
+Vimeo videos (currently using `flutter_inappwebview`, with a planned migration to `webview_flutter` for improved stability),
+as well as network and asset videos.
 
 A single unified controller is provided to manage playback across all supported video types seamlessly.
 
