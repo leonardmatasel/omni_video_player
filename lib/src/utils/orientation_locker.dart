@@ -20,11 +20,13 @@ import 'package:flutter/services.dart';
 /// ```
 class OrientationLocker extends StatefulWidget {
   final Orientation orientation;
+  final bool enableOrientationLock;
   final Widget child;
 
   const OrientationLocker({
     super.key,
     required this.orientation,
+    required this.enableOrientationLock,
     required this.child,
   });
 
@@ -36,20 +38,25 @@ class _OrientationLockerState extends State<OrientationLocker> {
   @override
   void initState() {
     super.initState();
-    SystemChrome.setPreferredOrientations([
-      if (widget.orientation == Orientation.portrait) ...[
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ] else ...[
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ],
-    ]);
+    if (widget.enableOrientationLock) {
+      SystemChrome.setPreferredOrientations([
+        if (widget.orientation == Orientation.portrait) ...[
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ] else ...[
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ],
+      ]);
+    }
   }
 
   @override
   void dispose() {
-    SystemChrome.setPreferredOrientations([]); // empty list mean system default
+    if (widget.enableOrientationLock) {
+      SystemChrome.setPreferredOrientations(
+          []); // empty list mean system default
+    }
     super.dispose();
   }
 

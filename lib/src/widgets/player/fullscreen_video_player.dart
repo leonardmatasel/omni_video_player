@@ -56,6 +56,8 @@ class _FullscreenVideoPlayerState extends State<FullscreenVideoPlayer> {
         );
       },
       child: OrientationLocker(
+        enableOrientationLock:
+            widget.options.playerUIVisibilityOptions.enableOrientationLock,
         orientation:
             widget.controller.size.height / widget.controller.size.width > 1
                 ? Orientation.portrait

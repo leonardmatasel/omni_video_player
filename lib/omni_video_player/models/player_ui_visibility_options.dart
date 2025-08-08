@@ -65,6 +65,14 @@ class PlayerUIVisibilityOptions {
   /// Whether to allow exiting fullscreen via a vertical swipe down.
   final bool enableExitFullscreenOnVerticalSwipe;
 
+  /// Whether to lock device orientation to the video orientation in fullscreen.
+  ///
+  /// If `true`, locks orientation to match the video while fullscreen.
+  /// If `false`, does not lock orientation and uses system defaults.
+  ///
+  /// Defaults to `true`.
+  final bool enableOrientationLock;
+
   /// Creates a new instance of [PlayerUIVisibilityOptions].
   ///
   /// All options default to `true` except:
@@ -90,6 +98,7 @@ class PlayerUIVisibilityOptions {
     this.enableBackwardGesture = true,
     this.enableExitFullscreenOnVerticalSwipe = true,
     this.showSwitchVideoQuality = true,
+    this.enableOrientationLock = true,
   });
 
   /// Returns a copy of this [PlayerUIVisibilityOptions] with
@@ -114,6 +123,7 @@ class PlayerUIVisibilityOptions {
     bool? enableBackwardGesture,
     bool? enableExitFullscreenOnVerticalSwipe,
     bool? showSwitchVideoQuality,
+    bool? enableOrientationLock,
   }) {
     return PlayerUIVisibilityOptions(
       showSeekBar: showSeekBar ?? this.showSeekBar,
@@ -144,6 +154,8 @@ class PlayerUIVisibilityOptions {
               this.enableExitFullscreenOnVerticalSwipe,
       showSwitchVideoQuality:
           showSwitchVideoQuality ?? this.showSwitchVideoQuality,
+      enableOrientationLock:
+          enableOrientationLock ?? this.enableOrientationLock,
     );
   }
 }

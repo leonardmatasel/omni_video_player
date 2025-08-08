@@ -1,4 +1,15 @@
 
+# 2.0.8
+
+✨ **New Features**
+
+* Added support for disabling automatic orientation lock in fullscreen mode via
+  `PlayerUIVisibilityOptions.enableOrientationLock` (default: `true`).
+
+* When set to `false`, the player will **not** change or lock the device orientation in fullscreen,
+  allowing manual control over orientation changes (e.g., via your own fullscreen callbacks).
+
+
 # 2.0.7
 
 🛠 **Fix**
