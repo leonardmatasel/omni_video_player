@@ -139,6 +139,12 @@ abstract class OmniPlaybackController with ChangeNotifier {
   /// The currently selected video quality.
   OmniVideoQuality? get currentVideoQuality;
 
+  /// List of selectable video qualities (e.g., 1080p, 720p).
+  ///
+  /// May be `null` if the source doesn't support multiple qualities.
+  /// Useful for building a quality selector UI.
+  List<OmniVideoQuality>? get availableVideoQualities;
+
   /// Switches the video playback quality to the specified [quality].
   ///
   /// Throws an exception if the specified quality is not available.

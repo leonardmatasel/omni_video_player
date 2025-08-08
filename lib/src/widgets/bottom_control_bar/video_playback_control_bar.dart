@@ -66,12 +66,10 @@ class VideoPlaybackControlBar extends StatelessWidget {
           ),
         ),
         ...options.customPlayerWidgets.trailingBottomButtons,
-        if (options.playerUIVisibilityOptions.showSwitchVideoQuality &&
-            controller.currentVideoQuality != null &&
-            controller.videoQualityUrls != null)
+        if (options.playerUIVisibilityOptions.showSwitchVideoQuality)
           VideoQualityMenuButton(
-            qualityMap: controller.videoQualityUrls!,
-            currentQuality: controller.currentVideoQuality!,
+            qualityList: controller.availableVideoQualities,
+            currentQuality: controller.currentVideoQuality,
             onQualitySelected: (quality) {
               if (quality == controller.currentVideoQuality) {
                 return;

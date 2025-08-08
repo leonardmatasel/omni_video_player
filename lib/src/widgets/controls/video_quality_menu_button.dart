@@ -3,13 +3,13 @@ import 'package:omni_video_player/omni_video_player/models/omni_video_quality.da
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 
 class VideoQualityMenuButton extends StatefulWidget {
-  final Map<OmniVideoQuality, Uri> qualityMap;
-  final OmniVideoQuality currentQuality;
+  final List<OmniVideoQuality>? qualityList;
+  final OmniVideoQuality? currentQuality;
   final void Function(OmniVideoQuality selectedQuality) onQualitySelected;
 
   const VideoQualityMenuButton({
     super.key,
-    required this.qualityMap,
+    required this.qualityList,
     required this.currentQuality,
     required this.onQualitySelected,
   });
@@ -21,7 +21,7 @@ class VideoQualityMenuButton extends StatefulWidget {
 class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
-  late OmniVideoQuality selectedQuality;
+  late OmniVideoQuality? selectedQuality;
 
   @override
   void initState() {
@@ -75,7 +75,7 @@ class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
 
   double _menuHeight() {
     const double itemHeight = 48;
-    return widget.qualityMap.length * itemHeight + 16;
+    return (widget.qualityList?.length ?? 1) * itemHeight + 16;
   }
 
   void _removeMenu() {
@@ -91,42 +91,68 @@ class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
       child: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         shrinkWrap: true,
-        children: widget.qualityMap.keys.map((quality) {
-          final isSelected = quality == selectedQuality;
-          return InkWell(
-            onTap: () {
-              setState(() {
-                selectedQuality = quality;
-              });
-              widget.onQualitySelected(quality);
-              _removeMenu();
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    quality.qualityString,
-                    style: TextStyle(
-                      color: isSelected
-                          ? theme.colors.menuTextSelected
-                          : theme.colors.menuText,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
+        children: widget.qualityList == null
+            ? [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        theme.labels.autoQualityLabel,
+                        style: TextStyle(
+                          color: theme.colors.menuTextSelected,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Icon(
+                        theme.icons.qualitySelectedCheck,
+                        color: theme.colors.menuIconSelected,
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                )
+              ]
+            : widget.qualityList!.map((quality) {
+                final isSelected = quality == selectedQuality;
+                return InkWell(
+                  onTap: () {
+                    setState(() {
+                      selectedQuality = quality;
+                    });
+                    widget.onQualitySelected(quality);
+                    _removeMenu();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          quality.qualityString,
+                          style: TextStyle(
+                            color: isSelected
+                                ? theme.colors.menuTextSelected
+                                : theme.colors.menuText,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                        ),
+                        if (isSelected)
+                          Icon(
+                            theme.icons.qualitySelectedCheck,
+                            color: theme.colors.menuIconSelected,
+                            size: 18,
+                          ),
+                      ],
                     ),
                   ),
-                  if (isSelected)
-                    Icon(
-                      theme.icons.qualitySelectedCheck,
-                      color: theme.colors.menuIconSelected,
-                      size: 18,
-                    ),
-                ],
-              ),
-            ),
-          );
-        }).toList(),
+                );
+              }).toList(),
       ),
     );
   }

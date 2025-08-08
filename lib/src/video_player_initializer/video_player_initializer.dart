@@ -78,7 +78,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
       widget.options,
       widget.callbacks,
       widget.globalController,
-      () => setState(() => _hasError = true),
+      () => _hasError = true,
     );
 
     try {

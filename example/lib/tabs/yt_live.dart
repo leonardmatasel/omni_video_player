@@ -23,7 +23,7 @@ class YTLive extends StatelessWidget {
             ),
             customPlayerWidgets: CustomPlayerWidgets().copyWith(
               loadingWidget: CircularProgressIndicator(color: Colors.white),
-              thumbnailFit: BoxFit.contain,
+              thumbnailFit: BoxFit.fitWidth,
             ),
             playerUIVisibilityOptions: PlayerUIVisibilityOptions(
               showLiveIndicator: true,

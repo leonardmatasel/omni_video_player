@@ -357,14 +357,13 @@ class DefaultPlaybackController extends OmniPlaybackController {
 
       // Aspetta che l'audio smetta di fare buffering
       if (audioController != null) {
-        while (
-            (audioController != null && audioController!.isActuallyBuffering) ||
-                videoController.isActuallyBuffering) {
+        while ((audioController!.isActuallyBuffering) ||
+            videoController.isActuallyBuffering) {
           await Future.delayed(Duration(milliseconds: 50));
         }
       }
 
-      if (wasPlayingBeforeSeek) {
+      if (wasPlayingBeforeSeek && !isFinished) {
         await Future.wait([
           if (audioController != null) audioController!.play(),
           videoController.play(),
@@ -431,4 +430,8 @@ class DefaultPlaybackController extends OmniPlaybackController {
 
   @override
   Map<OmniVideoQuality, Uri>? get videoQualityUrls => qualityUrls;
+
+  @override
+  List<OmniVideoQuality>? get availableVideoQualities =>
+      qualityUrls?.keys.toList();
 }

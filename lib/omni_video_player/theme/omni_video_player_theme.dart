@@ -208,10 +208,14 @@ class VideoPlayerLabelTheme {
   /// Label for the action to refresh/reload the player.
   final String refreshLabel;
 
+  /// Label for the 'auto' video quality option.
+  final String autoQualityLabel;
+
   const VideoPlayerLabelTheme({
     this.errorMessage = 'An error occurred while loading the video.',
     this.openExternalLabel = 'Open with external player',
     this.refreshLabel = 'Refresh',
+    this.autoQualityLabel = 'auto',
   });
 
   /// Returns a copy of this label theme overriding only the provided fields.
@@ -219,11 +223,13 @@ class VideoPlayerLabelTheme {
     String? errorMessage,
     String? openExternalLabel,
     String? refreshLabel,
+    String? autoQualityLabel,
   }) {
     return VideoPlayerLabelTheme(
       errorMessage: errorMessage ?? this.errorMessage,
       openExternalLabel: openExternalLabel ?? this.openExternalLabel,
       refreshLabel: refreshLabel ?? this.refreshLabel,
+      autoQualityLabel: autoQualityLabel ?? this.autoQualityLabel,
     );
   }
 }

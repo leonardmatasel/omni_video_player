@@ -2,9 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:omni_video_player/src/api/youtube_video_api.dart';
 import 'package:omni_video_player/src/controllers/default_playback_controller.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
+import 'package:omni_video_player/src/video_player_initializer/youtube_web_view_initializer.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:video_player/video_player.dart' show VideoPlayer;
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+
+import '../utils/logger.dart';
 
 class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
   final VideoPlayerConfiguration options;
@@ -21,60 +24,129 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
 
   @override
   Future<OmniPlaybackController?> initialize() async {
-    Uri videoUrl;
-    Uri? audioUrl;
-    Map<OmniVideoQuality, Uri>? qualityUrls;
-    OmniVideoQuality? currentVideoQuality;
-
     final videoId = VideoId(
       options.videoSourceConfiguration.videoUrl!.toString(),
     );
+
     try {
       final ytVideo = await YouTubeService.getVideoYoutubeDetails(videoId);
       final isLive = ytVideo.isLive;
 
-      if (isLive) {
-        videoUrl = Uri.parse(await YouTubeService.fetchLiveStreamUrl(videoId));
-      } else {
-        final urls = await YouTubeService.fetchVideoAndAudioUrls(videoId,
-            preferredQualities:
-                options.videoSourceConfiguration.preferredQualities,
-            availableQualities:
-                options.videoSourceConfiguration.availableQualities);
-        videoUrl = Uri.parse(urls.videoStreamUrl);
-        audioUrl = Uri.parse(urls.audioStreamUrl);
-        qualityUrls = urls.videoQualityUrls;
-        currentVideoQuality = urls.currentQuality;
-      }
+      final streamData = isLive
+          ? await _loadLiveStream(videoId)
+          : await _loadOnDemandStream(videoId);
 
-      final controller = await DefaultPlaybackController.create(
-        videoUrl: videoUrl,
-        audioUrl: audioUrl,
-        dataSource: null,
+      final controller = await _createController(
+        videoUrl: streamData.videoUrl,
+        audioUrl: streamData.audioUrl,
         isLive: isLive,
-        globalController: globalController,
-        initialPosition: options.videoSourceConfiguration.initialPosition,
-        initialVolume: options.videoSourceConfiguration.initialVolume,
-        callbacks: callbacks,
-        type: options.videoSourceConfiguration.videoSourceType,
-        globalKeyPlayer: options.globalKeyPlayer,
-        qualityUrls: qualityUrls,
-        currentVideoQuality: currentVideoQuality,
+        qualityUrls: streamData.qualityUrls,
+        currentQuality: streamData.currentVideoQuality,
       );
 
-      controller.sharedPlayerNotifier.value = Hero(
-        tag: options.globalKeyPlayer,
-        child: VideoPlayer(
-          key: options.globalKeyPlayer,
-          controller.videoController,
-        ),
-      );
-
+      _setSharedPlayer(controller);
       callbacks.onControllerCreated?.call(controller);
       return controller;
     } catch (e) {
+      if (options.videoSourceConfiguration.enableYoutubeWebViewFallback) {
+        logger.i(
+            "YouTube stream initialization with youtube_explode_dart failed: $e. Proceeding with WebView fallback.");
+        return await _fallbackToWebView(videoId);
+      } else {
+        logger.e(
+            "YouTube stream with youtube_explode_dart initialization failed: $e");
+        onErrorCallback?.call();
+        return null;
+      }
+    }
+  }
+
+  Future<_StreamData> _loadLiveStream(VideoId videoId) async {
+    final liveUrl = await YouTubeService.fetchLiveStreamUrl(videoId);
+    return _StreamData(videoUrl: Uri.parse(liveUrl));
+  }
+
+  Future<_StreamData> _loadOnDemandStream(VideoId videoId) async {
+    final config = options.videoSourceConfiguration;
+    final urls = await YouTubeService.fetchVideoAndAudioUrls(
+      videoId,
+      preferredQualities: config.preferredQualities,
+      availableQualities: config.availableQualities,
+    );
+
+    return _StreamData(
+      videoUrl: Uri.parse(urls.videoStreamUrl),
+      audioUrl: Uri.parse(urls.audioStreamUrl),
+      qualityUrls: urls.videoQualityUrls,
+      currentVideoQuality: urls.currentQuality,
+    );
+  }
+
+  Future<DefaultPlaybackController> _createController({
+    required Uri videoUrl,
+    Uri? audioUrl,
+    required bool isLive,
+    Map<OmniVideoQuality, Uri>? qualityUrls,
+    OmniVideoQuality? currentQuality,
+  }) {
+    final config = options.videoSourceConfiguration;
+
+    return DefaultPlaybackController.create(
+      videoUrl: videoUrl,
+      audioUrl: audioUrl,
+      dataSource: null,
+      isLive: isLive,
+      globalController: globalController,
+      initialPosition: config.initialPosition,
+      initialVolume: config.initialVolume,
+      callbacks: callbacks,
+      type: config.videoSourceType,
+      globalKeyPlayer: options.globalKeyPlayer,
+      qualityUrls: qualityUrls,
+      currentVideoQuality: currentQuality,
+    );
+  }
+
+  void _setSharedPlayer(DefaultPlaybackController controller) {
+    controller.sharedPlayerNotifier.value = Hero(
+      tag: options.globalKeyPlayer,
+      child: VideoPlayer(
+        key: options.globalKeyPlayer,
+        controller.videoController,
+      ),
+    );
+  }
+
+  Future<OmniPlaybackController?> _fallbackToWebView(VideoId videoId) async {
+    try {
+      final ytVideo =
+          await YouTubeService.getVideoYoutubeDetails(videoId); // fallback call
+      return await YouTubeWebViewInitializer(
+        options: options,
+        globalController: globalController,
+        onErrorCallback: onErrorCallback,
+        callbacks: callbacks,
+        videoId: videoId.toString(),
+        ytVideo: ytVideo, // pass already-fetched video
+      ).initialize();
+    } catch (_) {
       onErrorCallback?.call();
       return null;
     }
   }
+}
+
+// Helper class for stream metadata
+class _StreamData {
+  final Uri videoUrl;
+  final Uri? audioUrl;
+  final Map<OmniVideoQuality, Uri>? qualityUrls;
+  final OmniVideoQuality? currentVideoQuality;
+
+  _StreamData({
+    required this.videoUrl,
+    this.audioUrl,
+    this.qualityUrls,
+    this.currentVideoQuality,
+  });
 }

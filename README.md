@@ -19,51 +19,56 @@
   </a>
 </p>
 
-
 ## Introduction
 
-**omni\_video\_player** is a Flutter video player built on top of Flutter’s official `video_player` plugin. It supports YouTube (via `youtube_explode_dart`), Vimeo videos (using `flutter_inappwebview`), as well as network and asset videos. A single unified controller is provided to manage playback across all supported video types seamlessly.
+**omni\_video\_player** is a Flutter video player built on top of Flutter’s official `video_player` plugin.
+It supports YouTube (via `youtube_explode_dart` with an **automatic WebView-based fallback** implemented using `webview_flutter`
+to handle cases where YouTube rate-limits requests, temporarily blocking direct extraction), Vimeo videos (currently using `flutter_inappwebview`,
+with a planned migration to `webview_flutter` for improved stability), as well as network and asset videos.
 
+A single unified controller is provided to manage playback across all supported video types seamlessly.
 
-🎨 Highly customizable — tweak UI, show/hide controls, and easily integrate your own widgets.  
+🎨 Highly customizable — tweak UI, show/hide controls, and easily integrate your own widgets.
 🎮 The controller gives full control over video state and callbacks for smooth video management on mobile and web.
 
-🎯 **Long-term goal:** to create a universal, flexible, and feature-rich video player that works flawlessly across all platforms and video sources, empowering developers with maximum control and customization options.
+🎯 **Long-term goal:** to create a universal, flexible, and feature-rich video player that works flawlessly across all platforms and video sources, using the most robust and actively maintained technologies to ensure consistent behavior over time.
 
 <br>
 
 ## Supported Platforms & Status
 
-| Video Source Type | Android | iOS  |  Web  | Status        |
-|-------------------|---------|------|-------|---------------|
-| YouTube           |   ✅    |  ✅  |  ❌   | ✅ Supported  |
-| Vimeo             |   ✅    |  ✅  |  ❌   | ✅ Supported  |
-| Network           |   ✅    |  ✅  |  ✅   | ✅ Supported  |
-| Asset             |   ✅    |  ✅  |  ✅   | ✅ Supported  |
-| Twitch            |   -    |  -   |   -   | 🔜 Planned    |
-| TikTok            |   -    |  -   |   -   | 🔜 Planned    |
-| Dailymotion       |   -    |  -   |   -   | 🔜 Planned    |
-
+| Video Source Type | Android | iOS | Web | Status                                                                                                                                                                |
+| ----------------- | ------- | --- | --- |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| YouTube           | ✅       | ✅   | ❌   | ✅ Supported — uses `youtube_explode_dart` by default, with WebView fallback (via `webview_flutter`) to bypass temporary rate-limit blocks caused by too many requests |
+| Vimeo             | ✅       | ✅   | ❌   | ✅ Supported — uses `flutter_inappwebview`, planned migration to `webview_flutter` for long-term stability                                                             |
+| Network           | ✅       | ✅   | ✅   | ✅ Supported                                                                                                                                                           |
+| Asset             | ✅       | ✅   | ✅   | ✅ Supported                                                                                                                                                           |
+| Twitch            | -       | -   | -   | 🔜 Planned                                                                                                                                                            |
+| TikTok            | -       | -   | -   | 🔜 Planned                                                                                                                                                            |
+| Dailymotion       | -       | -   | -   | 🔜 Planned                                                                                                                                                            |
 
 <br>
 
 ## ✨ Features
 
-- ✅ Play videos from:
-  - YouTube (support for live and regular videos)
-  - Vimeo (public)
-  - Network video URLs
-  - Flutter app assets
-- 🎛 Customizable player UI (controls, theme, overlays, labels)
-- 🔁 Autoplay, replay, mute/unmute, volume control
-- ⏪ Seek bar & scrubbing
-- 🖼 Thumbnail support (custom or auto-generated for YouTube and Vimeo)
-- 🔊 Global playback & mute sync across players
-- ⛶ Fullscreen player
-- ⚙️ Custom error and loading widgets
-- 🎚️ Quality selection UI:
-  - Supports **YouTube quality switching**
-  - Supports **HLS/network stream quality switching**
+* ✅ Play videos from:
+
+  * YouTube (live and regular videos, with automatic WebView fallback powered by `webview_flutter` to keep playback working even under temporary YouTube rate-limit restrictions)
+  * Vimeo (public — migration to official `webview_flutter` planned for improved maintainability)
+  * Network video URLs
+  * Flutter app assets
+* 🎛 Customizable player UI (controls, theme, overlays, labels)
+* 🔁 Autoplay, replay, mute/unmute, volume control
+* ⏪ Seek bar & scrubbing
+* 🖼 Thumbnail support (custom or auto-generated for YouTube and Vimeo)
+* 🔊 Global playback & mute sync across players
+* ⛶ Fullscreen player
+* ⚙️ Custom error and loading widgets
+* 🎚️ Quality selection UI:
+
+  * Supports **YouTube quality switching**
+  * Supports **HLS/network stream quality switching**
+
 
 <br>
 

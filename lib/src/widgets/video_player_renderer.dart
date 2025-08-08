@@ -124,7 +124,7 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
           // Conditionally show thumbnail preview at start or end of playback
           if (widget.options.customPlayerWidgets.thumbnail != null &&
               widget.options.playerUIVisibilityOptions.showThumbnailAtStart &&
-              !widget.controller.hasStarted)
+              (!widget.controller.hasStarted || widget.controller.isFinished))
             Center(
               child: AspectRatio(
                 aspectRatio: (widget.controller.rotationCorrection == 90 ||

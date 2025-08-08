@@ -196,7 +196,8 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
         break;
       case 'onSeek':
         widget.controller.isSeeking = false;
-        if (widget.controller.wasPlayingBeforeSeek) {
+        if (widget.controller.wasPlayingBeforeSeek &&
+            !widget.controller.isFinished) {
           widget.controller.isPlaying = true;
           widget.controller.play();
         }

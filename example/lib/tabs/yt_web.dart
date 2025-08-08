@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 
-class YT extends StatelessWidget {
-  const YT({super.key});
+class YTWeb extends StatelessWidget {
+  const YTWeb({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +29,13 @@ class YT extends StatelessWidget {
           options: VideoPlayerConfiguration(
             videoSourceConfiguration: VideoSourceConfiguration.youtube(
               videoUrl: Uri.parse(
-                'https://www.youtube.com/watch?v=QN1odfjtMoo',
+                'https://www.youtube.com/watch?v=pt8VYOfr8To',
               ),
               preferredQualities: [
                 OmniVideoQuality.high720,
                 OmniVideoQuality.medium480,
               ],
+              forceYoutubeWebViewOnly: true,
             ),
             playerUIVisibilityOptions: PlayerUIVisibilityOptions().copyWith(
               useSafeAreaForBottomControls: true,

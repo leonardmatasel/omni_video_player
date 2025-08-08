@@ -342,15 +342,16 @@ class VimeoPlaybackController extends OmniPlaybackController {
   }
 
   @override
-  Map<OmniVideoQuality, Uri>? get videoQualityUrls =>
-      null; // FIXME: not implemented
+  Map<OmniVideoQuality, Uri>? get videoQualityUrls => null;
 
   @override
-  OmniVideoQuality? get currentVideoQuality => null; // FIXME: not implemented
+  OmniVideoQuality? get currentVideoQuality => null;
 
   @override
   Future<void> switchQuality(OmniVideoQuality quality) {
-    // FIXME: not implemented
     throw UnimplementedError();
   }
+
+  @override
+  List<OmniVideoQuality>? get availableVideoQualities => null;
 }

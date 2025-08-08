@@ -121,15 +121,16 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
                     _tapState != _TapInteractionState.doubleTapForward &&
                     _tapState != _TapInteractionState.doubleTapBackward;
 
-            bool isVisibleButton = areControlsVisible &&
-                !widget.controller.isBuffering &&
-                !widget.controller.isSeeking &&
-                widget.controller.isReady &&
-                !(widget.controller.isFinished &&
-                    !widget
-                        .options.playerUIVisibilityOptions.showReplayButton) &&
-                _tapState != _TapInteractionState.doubleTapForward &&
-                _tapState != _TapInteractionState.doubleTapBackward;
+            bool isVisibleButton = widget.controller.isFinished ||
+                (areControlsVisible &&
+                    !widget.controller.isBuffering &&
+                    !widget.controller.isSeeking &&
+                    widget.controller.isReady &&
+                    !(widget.controller.isFinished &&
+                        !widget.options.playerUIVisibilityOptions
+                            .showReplayButton) &&
+                    _tapState != _TapInteractionState.doubleTapForward &&
+                    _tapState != _TapInteractionState.doubleTapBackward);
 
             widget.callbacks.onCenterControlsVisibilityChanged
                 ?.call(isVisibleButton);
@@ -157,7 +158,9 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
                         behavior: HitTestBehavior.translucent,
                         onDoubleTap: () {
                           if (!widget.options.playerUIVisibilityOptions
-                              .enableBackwardGesture) {
+                                  .enableBackwardGesture ||
+                              widget.controller.isFinished ||
+                              !widget.controller.hasStarted) {
                             return;
                           }
                           int skipSeconds = 5;
@@ -178,6 +181,9 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
                               widget.controller.currentPosition;
                           final targetPosition =
                               currentPosition - Duration(seconds: skipSeconds);
+
+                          if (targetPosition < Duration.zero) return;
+
                           widget.controller.seekTo(
                             targetPosition > Duration.zero
                                 ? targetPosition
@@ -195,7 +201,9 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
                         behavior: HitTestBehavior.translucent,
                         onDoubleTap: () {
                           if (!widget.options.playerUIVisibilityOptions
-                              .enableForwardGesture) {
+                                  .enableForwardGesture ||
+                              widget.controller.isFinished ||
+                              !widget.controller.hasStarted) {
                             return;
                           }
                           int skipSeconds = 5;
@@ -219,6 +227,9 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
                               widget.controller.currentPosition;
                           final targetPosition =
                               currentPosition + Duration(seconds: skipSeconds);
+                          if (targetPosition > widget.controller.duration) {
+                            return;
+                          }
                           widget.controller.seekTo(targetPosition);
                           _showSkip(SkipDirection.forward, skipSeconds);
                         },

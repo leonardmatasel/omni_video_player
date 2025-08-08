@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:ui';
 
 import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
 import 'package:omni_video_player/src/utils/logger.dart';
@@ -307,6 +310,38 @@ class YouTubeService {
         },
       ),
     );
+  }
+
+  static Future<Size?> fetchYouTubeVideoSize(String videoId) async {
+    final url = Uri.parse(
+        'https://noembed.com/embed?url=https://www.youtube.com/watch?v=$videoId');
+
+    final httpClient = HttpClient();
+
+    try {
+      final request = await httpClient.getUrl(url);
+      final response = await request.close();
+
+      if (response.statusCode == 200) {
+        final responseBody = await response.transform(utf8.decoder).join();
+        final jsonData = jsonDecode(responseBody);
+
+        final width = double.tryParse(jsonData['width'].toString());
+        final height = double.tryParse(jsonData['height'].toString());
+
+        if (width != null && height != null) {
+          return Size(width, height);
+        }
+      } else {
+        logger.w('Request of size failed with status: ${response.statusCode}');
+      }
+    } catch (e) {
+      logger.e('Error fetching video size: $e');
+    } finally {
+      httpClient.close();
+    }
+
+    return null;
   }
 }
 

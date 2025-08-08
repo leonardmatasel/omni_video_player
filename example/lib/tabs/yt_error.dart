@@ -16,6 +16,7 @@ class YTError extends StatelessWidget {
         options: VideoPlayerConfiguration(
           videoSourceConfiguration: VideoSourceConfiguration.youtube(
             videoUrl: Uri.parse('https://www.youtube.com/watch?v=ysz5S6PUM-U'),
+            enableYoutubeWebViewFallback: false,
           ),
           playerTheme: OmniVideoPlayerThemeData().copyWith(
             colors: VideoPlayerColorScheme().copyWith(

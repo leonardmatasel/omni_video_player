@@ -1,3 +1,26 @@
+# 2.0.6
+
+✨ **New Features**
+
+* **YouTube WebView Fallback & Forced Mode**
+
+  * Added two new parameters **inside** `VideoSourceConfiguration.youtube` to improve robustness of YouTube playback:
+
+    * `enableYoutubeWebViewFallback` *(default: `true`)* — enables an **automatic fallback** to a WebView-based YouTube player (via [`webview_flutter`](https://pub.dev/packages/webview_flutter)) when native playback using `youtube_explode_dart` fails.
+    * `forceYoutubeWebViewOnly` *(default: `false`)* — skips native extraction entirely and plays YouTube videos **only** through the WebView player.
+
+💡 **Why this change?**
+The [`youtube_explode_dart`](https://github.com/Hexer10/youtube_explode_dart) library, used by default to extract YouTube stream URLs, can be temporarily blocked due to **YouTube’s rate-limiting** mechanism when too many requests are made.
+When this happens:
+
+* Extraction fails for all videos (even those not previously blocked).
+* The issue typically resolves after waiting several hours.
+* Using a VPN does not bypass the block.
+
+With this update:
+
+* If **fallback is enabled**, the player transparently switches to the WebView-based implementation, ensuring playback continues without waiting for the rate-limit block to expire.
+
 # 2.0.5
 
 ✨ **New Features**

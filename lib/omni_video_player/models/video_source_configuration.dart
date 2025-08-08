@@ -103,6 +103,27 @@ class VideoSourceConfiguration {
   /// If not specified, all qualities are considered available.
   final List<OmniVideoQuality>? availableQualities;
 
+  /// Whether to automatically fallback to a WebView-based YouTube player
+  /// if native playback initialization fails.
+  ///
+  /// This is especially useful because `youtube_explode_dart`, the package used
+  /// to extract YouTube stream URLs, can occasionally break due to changes in
+  /// YouTube's encryption or internal APIs. When this occurs, native stream playback may fail.
+  ///
+  /// Enabling this fallback allows playback to continue using a standard embedded
+  /// YouTube WebView, ensuring more robust behavior even if native stream extraction fails.
+  ///
+  /// Defaults to `true`.
+  final bool enableYoutubeWebViewFallback;
+
+  /// Forces the use of the WebView player for YouTube, skipping native stream initialization.
+  ///
+  /// This can be useful in scenarios where native playback via `youtube_explode_dart`
+  /// is known to fail or is not desired.
+  ///
+  /// Defaults to `false`.
+  final bool forceYoutubeWebViewOnly;
+
   /// Private constructor used by factory constructors and [copyWith].
   const VideoSourceConfiguration._({
     this.videoUrl,
@@ -116,6 +137,8 @@ class VideoSourceConfiguration {
     this.preferredQualities = const [OmniVideoQuality.medium480],
     this.availableQualities,
     this.allowSeeking = true,
+    this.enableYoutubeWebViewFallback = true,
+    this.forceYoutubeWebViewOnly = false,
     this.timeoutDuration = const Duration(seconds: 30),
   });
 
@@ -164,6 +187,8 @@ class VideoSourceConfiguration {
       OmniVideoQuality.medium480
     ],
     List<OmniVideoQuality>? availableQualities,
+    bool enableYoutubeWebViewFallback = true,
+    bool forceYoutubeWebViewOnly = false,
   }) {
     _validatePreferredQualities(
       preferred: preferredQualities,
@@ -175,6 +200,8 @@ class VideoSourceConfiguration {
       videoSourceType: VideoSourceType.youtube,
       preferredQualities: preferredQualities,
       availableQualities: availableQualities,
+      enableYoutubeWebViewFallback: enableYoutubeWebViewFallback,
+      forceYoutubeWebViewOnly: forceYoutubeWebViewOnly,
     );
   }
 
@@ -257,6 +284,8 @@ class VideoSourceConfiguration {
     Duration? timeoutDuration,
     List<OmniVideoQuality>? preferredQualities,
     List<OmniVideoQuality>? availableQualities,
+    bool? enableYoutubeWebViewFallback,
+    bool? forceYoutubeWebViewOnly,
   }) {
     final newPreferred = preferredQualities ?? this.preferredQualities;
     final newAvailable = availableQualities ?? this.availableQualities;
@@ -279,6 +308,10 @@ class VideoSourceConfiguration {
       availableQualities: newAvailable,
       allowSeeking: allowSeeking ?? this.allowSeeking,
       timeoutDuration: timeoutDuration ?? this.timeoutDuration,
+      enableYoutubeWebViewFallback:
+          enableYoutubeWebViewFallback ?? this.enableYoutubeWebViewFallback,
+      forceYoutubeWebViewOnly:
+          forceYoutubeWebViewOnly ?? this.forceYoutubeWebViewOnly,
     );
   }
 }
