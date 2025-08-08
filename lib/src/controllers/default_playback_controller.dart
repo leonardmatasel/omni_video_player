@@ -189,6 +189,9 @@ class DefaultPlaybackController extends OmniPlaybackController {
 
   @override
   set wasPlayingBeforeSeek(bool value) {
+    if (isSeeking) {
+      return;
+    }
     _wasPlayingBeforeSeek = value;
     notifyListeners();
   }
@@ -349,6 +352,11 @@ class DefaultPlaybackController extends OmniPlaybackController {
       if (position.inMicroseconds != 0 && !skipHasPlaybackStarted) {
         _hasStarted = true;
       }
+
+      await Future.wait([
+        if (audioController != null) audioController!.pause(),
+        videoController.pause(),
+      ]);
 
       await Future.wait([
         if (audioController != null) audioController!.seekTo(position),

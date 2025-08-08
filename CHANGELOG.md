@@ -1,3 +1,10 @@
+
+# 2.0.7
+
+🛠 **Fix**
+
+* Fixed audio-video sync issue when seeking in YouTube and network videos.
+
 # 2.0.6
 
 ✨ **New Features**
