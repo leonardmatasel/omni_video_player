@@ -143,7 +143,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
     );
   }
 
-  String get playerId => 'Youtube${key ?? hashCode}';
+  String get playerId => 'Youtube$hashCode';
 
   Future<void> init() async {
     await load(
@@ -156,7 +156,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
 
   Future<void> load({
     String? baseUrl,
-    String id = 'player',
+    required String id,
   }) async {
     final platform = kIsWeb ? 'web' : defaultTargetPlatform.name.toLowerCase();
     final Map<String, String> playerData = {

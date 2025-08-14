@@ -1,4 +1,12 @@
 
+# 2.0.11
+
+🛠 **Fix**
+
+* Fixed a problem where some **YouTube videos failed to play** due to no compatible streams being found
+  or WebView initialization timing out.
+  - See issue: [#13](https://github.com/leonardmatasel/omni_video_player/issues/13)
+
 # 2.0.10
 
 🛠 **Fix**

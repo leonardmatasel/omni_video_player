@@ -80,7 +80,8 @@ class YouTubeService {
                   !it.codec.parameters['codecs'].toString().contains(
                         'vp09',
                       ) &&
-                  it.videoCodec.contains('mp4a'),
+                  (it.videoCodec.contains('mp4a') ||
+                      it.videoCodec.contains('avc')),
             )
             .toList();
 
