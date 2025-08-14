@@ -1,4 +1,12 @@
 
+# 2.0.10
+
+🛠 **Fix**
+
+* Fixed an issue where the `onControllerCreated` callback was invoked **before** the video controller was fully constructed.
+
+  * This caused incorrect initialization behavior for **WebView videos**.
+
 # 2.0.9
 
 ✨ **New Features**
