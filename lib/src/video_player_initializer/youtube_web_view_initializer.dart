@@ -55,10 +55,10 @@ class YouTubeWebViewInitializer implements IVideoPlayerInitializerStrategy {
           ),
         );
         controller.init();
-        callbacks.onControllerCreated?.call(controller);
       });
 
       await _waitUntilReady(controller);
+      callbacks.onControllerCreated?.call(controller);
       return controller;
     } catch (e, st) {
       logger.e('YouTube WebView Init Error: $e', stackTrace: st);
