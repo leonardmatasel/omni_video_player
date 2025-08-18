@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/src/api/vimeo_video_api.dart';
 import 'package:omni_video_player/src/controllers/global_volume_synchronizer.dart';
-import 'package:omni_video_player/src/models/vimeo_video_info.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
 import 'package:omni_video_player/src/widgets/player/video_player_error_placeholder.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
@@ -12,6 +11,7 @@ import 'package:omni_video_player/omni_video_player/models/video_source_type.dar
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:omni_video_player/src/utils/logger.dart';
+import '../../vimeo/model/vimeo_video_info.dart';
 
 class VideoPlayerInitializer extends StatefulWidget {
   const VideoPlayerInitializer({

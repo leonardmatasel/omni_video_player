@@ -208,9 +208,10 @@ class YoutubePlaybackController extends OmniPlaybackController {
   }
 
   /// Disposes the resources created by [YoutubePlayerController].
-  Future<void> close() async {
-    await pause();
-    await webViewController.removeJavaScriptChannel('youtube-$hashCode');
+  @override
+  Future<void> dispose() async {
+    super.dispose();
+    await webViewController.removeJavaScriptChannel(playerId);
   }
 
   Future<void> run(

@@ -1,3 +1,10 @@
+# 2.1.0
+
+✨ **Improvements**
+
+* **Vimeo WebView Migration**
+
+  * Replaced `flutter_inappwebview` with `webview_flutter` for Vimeo playback.
 
 # 2.0.11
 

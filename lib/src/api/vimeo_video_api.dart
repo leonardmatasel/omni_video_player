@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:omni_video_player/src/models/vimeo_video_info.dart';
 import 'package:omni_video_player/src/utils/logger.dart';
+import '../../vimeo/model/vimeo_video_info.dart';
 
 class VimeoVideoApi {
   static Future<VimeoVideoInfo?> fetchVimeoVideoInfo(String videoId) async {

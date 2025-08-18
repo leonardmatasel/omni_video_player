@@ -26,7 +26,7 @@
 It supports **YouTube** (via `youtube_explode_dart` with an **automatic WebView-based fallback** implemented using `webview_flutter`
 to handle cases where YouTube rate-limits requests, temporarily blocking direct extraction — see [issue #323](https://github.com/Hexer10/youtube_explode_dart/issues/323)),
 
-**Vimeo** videos (currently using `flutter_inappwebview`, with a planned migration to `webview_flutter` for improved stability),
+**Vimeo** videos (now using `webview_flutter` for improved stability and maintainability),
 as well as network and asset videos.
 
 A single unified controller is provided to manage playback across all supported video types seamlessly.
@@ -40,15 +40,15 @@ A single unified controller is provided to manage playback across all supported 
 
 ## Supported Platforms & Status
 
-| Video Source Type | Android | iOS | Web | Status                                                                                                                                                                |
-| ----------------- | ------- | --- | --- |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Video Source Type | Android | iOS | Web | Status                                                                                                                                                              |
+| ----------------- | ------- | --- | --- |---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | YouTube           | ✅       | ✅   | ❌   | ✅ Supported — uses `youtube_explode_dart` by default, with WebView fallback (via `webview_flutter`) to bypass temporary rate-limit blocks caused by too many requests |
-| Vimeo             | ✅       | ✅   | ❌   | ✅ Supported — uses `flutter_inappwebview`, planned migration to `webview_flutter` for long-term stability                                                             |
-| Network           | ✅       | ✅   | ✅   | ✅ Supported                                                                                                                                                           |
-| Asset             | ✅       | ✅   | ✅   | ✅ Supported                                                                                                                                                           |
-| Twitch            | -       | -   | -   | 🔜 Planned                                                                                                                                                            |
-| TikTok            | -       | -   | -   | 🔜 Planned                                                                                                                                                            |
-| Dailymotion       | -       | -   | -   | 🔜 Planned                                                                                                                                                            |
+| Vimeo             | ✅       | ✅   | ❌   | ✅ Supported — uses `webview_flutter`                                                            |
+| Network           | ✅       | ✅   | ✅   | ✅ Supported                                                                                                                                                         |
+| Asset             | ✅       | ✅   | ✅   | ✅ Supported                                                                                                                                                         |
+| Twitch            | -       | -   | -   | 🔜 Planned                                                                                                                                                          |
+| TikTok            | -       | -   | -   | 🔜 Planned                                                                                                                                                          |
+| Dailymotion       | -       | -   | -   | 🔜 Planned                                                                                                                                                          |
 
 <br>
 
@@ -57,7 +57,7 @@ A single unified controller is provided to manage playback across all supported 
 * ✅ Play videos from:
 
   * YouTube (live and regular videos, with automatic WebView fallback powered by `webview_flutter` to keep playback working even under temporary YouTube rate-limit restrictions)
-  * Vimeo (public — migration to official `webview_flutter` planned for improved maintainability)
+  * Vimeo (public — now using official `webview_flutter` for stable playback)
   * Network video URLs
   * Flutter app assets
 * 🎛 Customizable player UI (controls, theme, overlays, labels)

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <style>
+        html, body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          background-color: black;
+        }
+
+        .embed-container iframe,
+        .embed-container object,
+        .embed-container embed {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100% !important;
+          height: 100% !important;
+          pointer-events: inherit;
+          border: none;
+        }
+    </style>
+    <!-- https://developer.vimeo.com/player/sdk/reference#events-for-playback-controls -->
+    <script src="https://player.vimeo.com/api/player.js"></script>
+    <title>Vimeo Player</title>
+</head>
+<body>
+<div class="embed-container">
+    <!-- https://help.vimeo.com/hc/en-us/articles/12426260232977-About-Player-Parameters -->
+    <iframe
+            id="<<playerId>>"
+            src="https://player.vimeo.com/video/<<videoId>>?autoplay=false&loop=true&portrait=false&muted=false&title=false&byline=false&controls=false&dnt=false"
+            allow="autoplay; fullscreen"
+            allowfullscreen
+    ></iframe>
+</div>
+
+<script>
+    var platform = '<<platform>>';
+    var playerId = '<<playerId>>';
+    var iframe = document.getElementById(playerId);
+    var player;
+
+    window.addEventListener('load', function () {
+      iframe = document.getElementById(playerId);
+      player = new Vimeo.Player(iframe);
+
+      var timerId = null;
+
+      player.ready().then(function() {
+        sendMessage('onReady', {});
+      });
+
+      player.on('play', function() {
+        clearInterval(timerId);
+        sendMessage('onPlay', {});
+        timerId = setInterval(async function() {
+          try {
+            var currentTime = await player.getCurrentTime();
+            var duration = await player.getDuration();
+            var buffered = await player.getBuffered();
+            var state = {
+              'currentTime': currentTime,
+              'duration': duration,
+              'buffered': buffered
+            };
+            sendMessage('VideoState', state);
+          } catch (e) {}
+        }, 100);
+      });
+
+      player.on('pause', function() {
+        clearInterval(timerId);
+        sendMessage('onPause', {});
+      });
+
+      player.on('ended', function() {
+        clearInterval(timerId);
+        sendMessage('onFinish', {});
+      });
+
+      player.on('seeked', function() {
+        sendMessage('onSeek', {});
+      });
+
+      player.on('bufferend', function() {
+        sendMessage('onBufferEnd', {});
+      });
+
+      player.on('bufferstart', function() {
+        sendMessage('onBufferStart', {});
+      });
+
+      player.on('timeupdate', function(data) {
+          // data = { seconds: 3.034, duration: 61.857, percent: 0.049 }
+          var state = {
+            seconds: data.seconds,
+            duration: data.duration
+          };
+          sendMessage('onTimeUpdate', state);
+        });
+
+      player.on('error', function(error) {
+        clearInterval(timerId);
+        sendMessage('onError', { message: error.name || 'unknown' });
+      });
+    });
+
+    function sendPlatformMessage(message) {
+      switch(platform) {
+        case 'android':
+          <<playerId>>.postMessage(message);
+          break;
+        case 'ios':
+          <<playerId>>.postMessage(message, '*');
+          break;
+        case 'web':
+          window.parent.postMessage(message, '*');
+          break;
+      }
+    }
+
+    function sendMessage(key, data) {
+      var message = {};
+      message[key] = data;
+      message['playerId'] = playerId;
+      var messageString = JSON.stringify(message);
+      sendPlatformMessage(messageString);
+    }
+</script>
+</body>
+</html>
