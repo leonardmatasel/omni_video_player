@@ -1,3 +1,10 @@
+
+# 2.1.1
+
+🛠 **Fix**
+
+* Fixed an issue on **iOS** where the **Vimeo player failed to initialize**.
+
 # 2.1.0
 
 ✨ **Improvements**

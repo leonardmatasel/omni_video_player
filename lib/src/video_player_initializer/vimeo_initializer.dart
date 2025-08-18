@@ -41,18 +41,16 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
         callbacks: callbacks,
       );
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        controller.sharedPlayerNotifier.value = Hero(
-          tag: options.globalKeyPlayer,
-          child: WebViewWidget(
-            key: options.globalKeyPlayer,
-            controller: controller.webViewController,
-          ),
-        );
-        controller.init();
-      });
+      controller.sharedPlayerNotifier.value = Hero(
+        tag: options.globalKeyPlayer,
+        child: WebViewWidget(
+          key: options.globalKeyPlayer,
+          controller: controller.webViewController,
+        ),
+      );
+      await controller.init();
 
-      await _waitUntilReady(controller);
+      _waitUntilReady(controller);
       callbacks.onControllerCreated?.call(controller);
       return controller;
     } catch (e, st) {
@@ -62,35 +60,26 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
     }
   }
 
-  Future<void> _waitUntilReady(VimeoPlaybackController controller) async {
-    const timeout = Duration(seconds: 30);
-    const pollInterval = Duration(milliseconds: 100);
-    final stopwatch = Stopwatch()..start();
+  void _waitUntilReady(VimeoPlaybackController controller) {
+    controller.runOnReady(() {
+      final config = options.videoSourceConfiguration;
 
-    while (!controller.isReady) {
-      if (stopwatch.elapsed > timeout) {
-        throw Exception('WebView controller initialization timed out.');
+      if (!config.autoPlay) {
+        controller.pause();
+        controller.hasStarted = false;
       }
-      await Future.delayed(pollInterval);
-    }
 
-    final config = options.videoSourceConfiguration;
+      if (config.initialPosition.inSeconds > 0) {
+        controller.seekTo(config.initialPosition);
+      }
 
-    if (!config.autoPlay) {
-      controller.pause();
-      controller.hasStarted = false;
-    }
+      controller.unMute();
 
-    if (config.initialPosition.inSeconds > 0) {
-      controller.seekTo(config.initialPosition);
-    }
-
-    controller.unMute();
-
-    if (config.autoMuteOnStart) {
-      controller.mute();
-    } else {
-      controller.volume = config.initialVolume;
-    }
+      if (config.autoMuteOnStart) {
+        controller.mute();
+      } else {
+        controller.volume = config.initialVolume;
+      }
+    });
   }
 }

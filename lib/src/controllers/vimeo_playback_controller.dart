@@ -352,6 +352,14 @@ class VimeoPlaybackController extends OmniPlaybackController {
     }
   }
 
+  void runOnReady(VoidCallback action) {
+    if (isReady) {
+      action();
+    } else {
+      _onReadyQueue.add(action);
+    }
+  }
+
   Future<void> _evaluate(String js) async {
     await _initCompleter.future;
 
