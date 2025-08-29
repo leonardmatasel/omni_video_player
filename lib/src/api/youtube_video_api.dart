@@ -72,18 +72,12 @@ class YouTubeService {
         // working with videoPlayer: [avc1, av01, mp4a]
         // NOT working with videoPlayer: [vp09]
         // NOTE: mp4a is the fastest and the ones with a single encoding should be preferred
-        final List<VideoStreamInfo> videoStreams = manifest.streams
-            .whereType<VideoStreamInfo>()
-            .where(
-              (VideoStreamInfo it) =>
-                  it.videoCodec.isNotEmpty &&
-                  !it.codec.parameters['codecs'].toString().contains(
-                        'vp09',
-                      ) &&
-                  (it.videoCodec.contains('mp4a') ||
-                      it.videoCodec.contains('avc')),
-            )
-            .toList();
+        final List<VideoStreamInfo> videoStreams =
+            manifest.streams.whereType<VideoStreamInfo>().where(
+          (VideoStreamInfo it) {
+            return it.videoCodec.isNotEmpty && it.videoCodec.contains('avc');
+          },
+        ).toList();
 
         // Filter audio streams based on codec compatibility
         // working with videoPlayer: [mp4a]
@@ -101,6 +95,8 @@ class YouTubeService {
               (VideoStreamInfo stream) => <String, Object>{
                 'url': stream.url.toString(),
                 'format': stream.container.name,
+                'framerate': stream.framerate,
+                'bitrate': stream.bitrate,
                 'videoCodec': stream.codec.parameters['codecs'].toString(),
                 'quality': omniVideoQualityFromString(stream.qualityLabel),
                 'size': stream.size.totalMegaBytes,
@@ -116,13 +112,18 @@ class YouTubeService {
         // Convert audio streams to a list of maps with relevant details
         final List<Map<String, dynamic>> availableAudioStreams = audioStreams
             .map(
-              (AudioStreamInfo stream) => <String, Object>{
-                'url': stream.url.toString(),
-                'format': stream.container.name,
-                'audioCodec': stream.codec.parameters['codecs'].toString(),
-                'size': stream.size.totalMegaBytes,
+              (AudioStreamInfo stream) {
+                return <String, Object>{
+                  'url': stream.url.toString(),
+                  'format': stream.container.name,
+                  'audioCodec': stream.codec.parameters['codecs'].toString(),
+                  'bitrate': stream.bitrate,
+                  'size': stream.size.totalMegaBytes,
+                };
               },
             )
+            .where((Map<String, Object> it) =>
+                (it['audioCodec']! as String).contains("mp4a"))
             .toList();
 
         // Build a map of quality → Uri for all available qualities
@@ -168,31 +169,20 @@ class YouTubeService {
             preferredAudioFormats,
           ),
         );
-        /*
-        ONLY FOR DEBUG
-        print('==============================================');
-        print('            Video Stream Information          ');
-        print('==============================================');
-        print('URL:           ${availableVideoStreams.first['url']}');
-        print('Format:        ${availableVideoStreams.first['format']}');
-        print('Video Codec:   ${availableVideoStreams.first['videoCodec']}');
-        print('Quality:       ${availableVideoStreams.first['quality']}');
-        print('Size:          ${availableVideoStreams.first['size']} MB');
-        print('==============================================');
 
-        print('==============================================');
-        print('            Audio Stream Information          ');
-        print('==============================================');
-        print('URL:           ${availableAudioStreams.first['url']}');
-        print('Format:        ${availableAudioStreams.first['format']}');
-        print('Audio Codec:   ${availableAudioStreams.first['audioCodec']}');
-        print('Size:          ${availableAudioStreams.first['size']} MB');
-        print('==============================================');
-        */
-
-        if (availableVideoStreams.isEmpty || availableAudioStreams.isEmpty) {
-          throw Exception('No compatible YouTube streams found.');
+        if (availableVideoStreams.isEmpty) {
+          throw Exception('No compatible YouTube video streams found.');
         }
+
+        logger.d(
+            "Youtube video stream: ${availableVideoStreams.first['quality']} ${availableVideoStreams.first['videoCodec']} ${availableVideoStreams.first['size']} MB ${availableVideoStreams.first['bitrate']} ${availableVideoStreams.first['framerate']}");
+
+        if (availableAudioStreams.isEmpty) {
+          throw Exception('No compatible YouTube audio streams found.');
+        }
+
+        logger.d(
+            "Youtube audio stream: ${availableAudioStreams.first['bitrate']} ${availableAudioStreams.first['audioCodec']} ${availableAudioStreams.first['size']} MB");
 
         return YouTubeStreamUrls(
           videoStreamUrl: availableVideoStreams.isNotEmpty

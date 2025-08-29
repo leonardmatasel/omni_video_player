@@ -1,3 +1,9 @@
+# 2.1.2
+
+🛠 **Fix**
+
+* Updated supported video codecs to prevent playback errors on Android devices.
+  - See issue: [#17](https://github.com/leonardmatasel/omni_video_player/issues/17)
 
 # 2.1.1
 
