@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/src/controllers/youtube_playback_controller.dart';
 import 'package:omni_video_player/src/utils/logger.dart';
@@ -31,17 +32,19 @@ class YouTubeWebViewInitializer implements IVideoPlayerInitializerStrategy {
       videoId = videoId ??
           VideoId(options.videoSourceConfiguration.videoUrl!.toString())
               .toString();
-      // Usa ytVideo se disponibile, altrimenti chiamata web
-      final videoInfo = ytVideo ??
-          await YouTubeService.getVideoYoutubeDetails(VideoId(videoId!));
       final videoSize = await YouTubeService.fetchYouTubeVideoSize(videoId!);
+      final Video? videoInfo = kIsWeb
+          ? null
+          : ytVideo ??
+              await YouTubeService.getVideoYoutubeDetails(VideoId(videoId!));
 
       final controller = YoutubePlaybackController.fromVideoId(
         videoId: videoId!,
-        duration: videoInfo.duration! - Duration(seconds: 1),
-        isLive: videoInfo.isLive,
+        duration: Duration(seconds: 1),
+        isLive: kIsWeb ? false : videoInfo?.isLive ?? false,
         size: videoSize!,
         callbacks: callbacks,
+        options: options,
         globalController: globalController,
         autoPlay: options.videoSourceConfiguration.autoPlay,
       );
@@ -57,45 +60,11 @@ class YouTubeWebViewInitializer implements IVideoPlayerInitializerStrategy {
         controller.init();
       });
 
-      await _waitUntilReady(controller);
-      callbacks.onControllerCreated?.call(controller);
       return controller;
     } catch (e, st) {
       logger.e('YouTube WebView Init Error: $e', stackTrace: st);
       onErrorCallback?.call();
       return null;
-    }
-  }
-
-  Future<void> _waitUntilReady(YoutubePlaybackController controller) async {
-    const timeout = Duration(seconds: 30);
-    const pollInterval = Duration(milliseconds: 100);
-    final stopwatch = Stopwatch()..start();
-
-    while (!controller.isReady) {
-      if (stopwatch.elapsed > timeout) {
-        throw Exception('WebView controller initialization timed out.');
-      }
-      await Future.delayed(pollInterval);
-    }
-
-    final config = options.videoSourceConfiguration;
-
-    if (!config.autoPlay) {
-      controller.pause();
-      controller.hasStarted = false;
-    }
-
-    if (config.initialPosition.inSeconds > 0) {
-      controller.seekTo(config.initialPosition);
-    }
-
-    controller.run('unMute');
-
-    if (config.autoMuteOnStart) {
-      controller.mute();
-    } else {
-      controller.volume = config.initialVolume;
     }
   }
 }

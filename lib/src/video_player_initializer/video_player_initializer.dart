@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:omni_video_player/src/api/vimeo_video_api.dart';
 import 'package:omni_video_player/src/controllers/global_volume_synchronizer.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
@@ -45,6 +46,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
   bool _isLoading = true;
   bool _hasError = false;
   VimeoVideoInfo? _vimeoVideoInfo;
+  ImageProvider<Object>? thumbnail;
 
   @override
   void initState() {
@@ -82,6 +84,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
     );
 
     try {
+      thumbnail = await _getThumbnail();
       _controller = await strategy.initialize();
       if (_controller == null) {
         throw Exception('Failed to initialize video player');
@@ -141,9 +144,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
     final child = widget.buildPlayer(
       context,
       _controller!,
-      widget.options.playerUIVisibilityOptions.showThumbnailAtStart
-          ? _getThumbnail()
-          : null,
+      thumbnail,
     );
 
     return widget.options.globalPlaybackControlSettings
@@ -154,7 +155,23 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
         : child;
   }
 
-  ImageProvider<Object>? _getThumbnail() {
+  Future<ImageProvider<Object>?> _getYoutubeThumbnail(String? url) async {
+    if (url == null) return null;
+
+    try {
+      final response = await http.head(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        return NetworkImage(url);
+      } else {
+        return null; // non creo l'immagine se non esiste
+      }
+    } catch (e) {
+      return null; // errore di rete → niente thumbnail
+    }
+  }
+
+  Future<ImageProvider<Object>?> _getThumbnail() async {
     if (!widget.options.playerUIVisibilityOptions.showThumbnailAtStart) {
       return null;
     }
@@ -164,7 +181,8 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
         final videoId = VideoId(
           widget.options.videoSourceConfiguration.videoUrl!.toString(),
         ).value;
-        return NetworkImage("https://i3.ytimg.com/vi/$videoId/sddefault.jpg");
+        return await _getYoutubeThumbnail(
+            "https://i3.ytimg.com/vi/$videoId/sddefault.jpg");
 
       case VideoSourceType.vimeo:
         return _vimeoVideoInfo != null

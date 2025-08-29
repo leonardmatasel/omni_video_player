@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/src/widgets/auto_hide_controls_manager.dart';
 import 'package:omni_video_player/src/widgets/auto_hide_play_pause_button.dart';
@@ -245,7 +246,8 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
 
               // Gradient bottom bar with playback controls.
               GradientBottomControlBar(
-                isVisible: areOverlayControlsVisible,
+                isVisible: (areOverlayControlsVisible && !kIsWeb) ||
+                    (kIsWeb && widget.controller.isPlaying),
                 padding: widget.playerBarPadding,
                 useSafeAreaForBottomControls: widget.options
                     .playerUIVisibilityOptions.useSafeAreaForBottomControls,

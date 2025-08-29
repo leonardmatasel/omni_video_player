@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:omni_video_player/src/video_player_initializer/asset_initializer.dart';
 import 'package:omni_video_player/src/video_player_initializer/network_initializer.dart';
 import 'package:omni_video_player/src/video_player_initializer/vimeo_initializer.dart';
@@ -25,7 +26,8 @@ class VideoPlayerInitializerFactory {
   ) {
     switch (sourceType) {
       case VideoSourceType.youtube:
-        if (options.videoSourceConfiguration.forceYoutubeWebViewOnly) {
+        if (options.videoSourceConfiguration.forceYoutubeWebViewOnly ||
+            kIsWeb) {
           return YouTubeWebViewInitializer(
             options: options,
             globalController: globalController,

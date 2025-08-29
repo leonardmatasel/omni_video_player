@@ -17,6 +17,7 @@ import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import '../../omni_video_player/controllers/global_playback_controller.dart';
+import '../../omni_video_player/models/video_player_configuration.dart';
 
 typedef YoutubeWebResourceError = WebResourceError;
 
@@ -26,6 +27,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
   late final WebViewController webViewController;
 
   final VideoPlayerCallbacks callbacks;
+  final VideoPlayerConfiguration options;
 
   final Completer<void> _initCompleter = Completer();
 
@@ -57,10 +59,11 @@ class YoutubePlaybackController extends OmniPlaybackController {
   final Size size;
 
   YoutubePlaybackController({
-    required duration,
-    required isLive,
+    required Duration duration,
+    required bool isLive,
     required this.size,
     required this.callbacks,
+    required this.options,
     required String videoId,
     required GlobalPlaybackController? globalController,
     ValueChanged<YoutubeWebResourceError>? onWebResourceError,
@@ -70,7 +73,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
     _isLive = isLive;
     _videoId = videoId;
     _globalController = globalController;
-    _eventHandler = YoutubePlayerEventHandler(this);
+    _eventHandler = YoutubePlayerEventHandler(this, options, callbacks);
 
     late final PlatformWebViewControllerCreationParams webViewParams;
     if (WebViewPlatform.instance is WebKitWebViewPlatform) {
@@ -104,6 +107,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
     required bool isLive,
     required Size size,
     required VideoPlayerCallbacks callbacks,
+    required VideoPlayerConfiguration options,
     required GlobalPlaybackController? globalController,
     bool autoPlay = false,
     double? startSeconds,
@@ -111,6 +115,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
   }) {
     final controller = YoutubePlaybackController(
       callbacks: callbacks,
+      options: options,
       duration: duration,
       isLive: isLive,
       size: size,
@@ -336,6 +341,11 @@ class YoutubePlaybackController extends OmniPlaybackController {
   @override
   bool get isLive => _isLive;
 
+  set isLive(bool value) {
+    _isLive = value;
+    notifyListeners();
+  }
+
   @override
   bool get isPlaying => _isPlaying;
   set isPlaying(bool value) {
@@ -368,7 +378,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
     Duration position,
   ) async {
     if (position <= duration) {
-      if (position.inMicroseconds != 0) {
+      if (position.inSeconds != 0) {
         hasStarted = true;
       }
 
@@ -420,7 +430,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
 
   @override
   set volume(double value) {
-    if (Platform.isAndroid) _eval('player.setVolume(${value * 100})');
+    if (kIsWeb || Platform.isAndroid) _eval('player.setVolume(${value * 100})');
     _volume = value;
     notifyListeners();
   }

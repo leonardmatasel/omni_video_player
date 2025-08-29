@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
 import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
@@ -32,7 +33,7 @@ class YouTubeStreamUrls {
 /// The applied modifications aim to ensure greater stability and compatibility
 /// with the latest versions of the `youtube_explode_dart` package.
 class YouTubeService {
-  static YoutubeExplode yt = YoutubeExplode();
+  static YoutubeExplode? yt = kIsWeb ? null : YoutubeExplode();
 
   /// Fetches the HLS URL for a live YouTube stream.
   /// Errors from the underlying `youtube_explode_dart` are rethrown
@@ -204,12 +205,12 @@ class YouTubeService {
   }
 
   static Future<bool> isLiveVideoYoutube(VideoId videoId) async {
-    final videoMetaData = await retry(() => yt.videos.get(videoId));
+    final videoMetaData = await retry(() => yt!.videos.get(videoId));
     return videoMetaData.isLive;
   }
 
   static Future<Video> getVideoYoutubeDetails(VideoId videoId) async {
-    return await yt.videos.get(videoId);
+    return await yt!.videos.get(videoId);
   }
 
   /// Helper method to sort streams by file size.
@@ -280,7 +281,7 @@ class YouTubeService {
 
   static Future<String> _getQuietLiveUrl(VideoId id) {
     return runZoned(
-      () => yt.videos.streamsClient.getHttpLiveStreamUrl(id),
+      () => yt!.videos.streamsClient.getHttpLiveStreamUrl(id),
       zoneSpecification: ZoneSpecification(
         print: (self, parent, zone, line) {
           // drop any lines that look like retry‑logs
@@ -293,7 +294,7 @@ class YouTubeService {
 
   static Future<StreamManifest> _getQuietManifest(VideoId videoId) {
     return runZoned(
-      () => yt.videos.streamsClient.getManifest(videoId),
+      () => yt!.videos.streamsClient.getManifest(videoId),
       zoneSpecification: ZoneSpecification(
         print: (self, parent, zone, line) {
           if (line.toLowerCase().contains('retry')) return;
@@ -307,15 +308,11 @@ class YouTubeService {
     final url = Uri.parse(
         'https://noembed.com/embed?url=https://www.youtube.com/watch?v=$videoId');
 
-    final httpClient = HttpClient();
-
     try {
-      final request = await httpClient.getUrl(url);
-      final response = await request.close();
+      final response = await http.get(url);
 
       if (response.statusCode == 200) {
-        final responseBody = await response.transform(utf8.decoder).join();
-        final jsonData = jsonDecode(responseBody);
+        final jsonData = jsonDecode(response.body);
 
         final width = double.tryParse(jsonData['width'].toString());
         final height = double.tryParse(jsonData['height'].toString());
@@ -328,8 +325,6 @@ class YouTubeService {
       }
     } catch (e) {
       logger.e('Error fetching video size: $e');
-    } finally {
-      httpClient.close();
     }
 
     return null;

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 
+import 'video_control_icon_button.dart';
+
 class VideoQualityMenuButton extends StatefulWidget {
   final List<OmniVideoQuality>? qualityList;
   final OmniVideoQuality? currentQuality;
@@ -169,12 +171,9 @@ class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
 
     return CompositedTransformTarget(
       link: _layerLink,
-      child: GestureDetector(
-        onTap: _toggleMenu,
-        child: Icon(
-          theme.icons.qualityChangeButton,
-          color: theme.colors.icon,
-        ),
+      child: VideoControlIconButton(
+        onPressed: _toggleMenu,
+        icon: theme.icons.qualityChangeButton,
       ),
     );
   }

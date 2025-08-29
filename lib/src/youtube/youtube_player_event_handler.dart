@@ -2,13 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/src/controllers/youtube_playback_controller.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import '../../omni_video_player/models/video_player_configuration.dart';
 import '../utils/logger.dart';
 import 'model/youtube_player_state.dart';
 
 class YoutubePlayerEventHandler {
-  YoutubePlayerEventHandler(this.controller) {
+  YoutubePlayerEventHandler(this.controller, this.options, this.callbacks) {
     _events = {
       'Ready': onReady,
       'StateChange': onStateChange,
@@ -22,6 +24,8 @@ class YoutubePlayerEventHandler {
   }
 
   final YoutubePlaybackController controller;
+  final VideoPlayerConfiguration options;
+  final VideoPlayerCallbacks callbacks;
 
   final Completer<void> _readyCompleter = Completer();
   late final Map<String, ValueChanged<Object>> _events;
@@ -54,28 +58,64 @@ class YoutubePlayerEventHandler {
     controller.isReady = true;
     controller.isBuffering = false;
 
-    if (playerState == YoutubePlayerState.playing &&
-        controller.hasStarted == false) {
-      controller.isReady = true;
-    }
+    if ((controller.duration == Duration(seconds: 1) ||
+        controller.duration == Duration.zero)) {
+      final String duration = await controller.runWithResult("getDuration");
+      final int? seconds = double.tryParse(duration)?.round();
 
-    if (controller.isSeeking == true) {
-      controller.isSeeking = false;
-      if (controller.wasPlayingBeforeSeek && !controller.isFinished) {
-        controller.isPlaying = true;
-        controller.play();
+      if (seconds != null && seconds > 0) {
+        // corrisponde a circa 11 giorni
+        controller.isLive = seconds > 1000000 && kIsWeb;
+        controller.duration = Duration(seconds: (seconds - 2));
+      } else {
+        return;
       }
-    }
 
-    if (playerState == YoutubePlayerState.playing) {
-      controller.isPlaying = true;
-      controller.hasStarted = true;
-    } else if (playerState == YoutubePlayerState.paused &&
-        controller.wasPlayingBeforeGoOnFullScreen == true) {
-      controller.play();
-      controller.wasPlayingBeforeGoOnFullScreen = null;
-    } else if (playerState == YoutubePlayerState.paused) {
-      controller.isPlaying = false;
+      final config = options.videoSourceConfiguration;
+
+      if (!config.autoPlay) {
+        controller.pause();
+        controller.hasStarted = false;
+      }
+
+      if (config.initialPosition.inSeconds >= 0) {
+        await controller.seekTo(config.initialPosition);
+        controller.hasStarted = false;
+      }
+
+      controller.run('unMute');
+
+      if (config.autoMuteOnStart) {
+        controller.mute();
+      } else {
+        controller.volume = config.initialVolume;
+      }
+
+      callbacks.onControllerCreated?.call(controller);
+    } else {
+      if (playerState == YoutubePlayerState.playing &&
+          controller.hasStarted == false) {
+        controller.isReady = true;
+      }
+
+      if (controller.isSeeking == true) {
+        controller.isSeeking = false;
+        if (controller.wasPlayingBeforeSeek && !controller.isFinished) {
+          controller.isPlaying = true;
+          controller.play();
+        }
+      }
+
+      if (playerState == YoutubePlayerState.playing) {
+        controller.isPlaying = true;
+        controller.hasStarted = true;
+      } else if (playerState == YoutubePlayerState.paused &&
+          controller.wasPlayingBeforeGoOnFullScreen == true) {
+        controller.play();
+        controller.wasPlayingBeforeGoOnFullScreen = null;
+      } else if (playerState == YoutubePlayerState.paused) {
+        controller.isPlaying = false;
+      }
     }
   }
 
@@ -94,8 +134,17 @@ class YoutubePlayerEventHandler {
   void onVideoState(Object data) {
     final json = jsonDecode(data.toString());
 
-    controller.currentPosition =
-        Duration(seconds: (json['currentTime'] ?? 0).truncate());
+    final seconds = (json['currentTime'] ?? 0).truncate();
+
+    if (seconds == 0) {
+      return;
+    }
+    controller.currentPosition = Duration(seconds: seconds);
+
+    if (controller.currentPosition >= controller.duration) {
+      controller.pause();
+      controller.seekTo(Duration.zero);
+    }
   }
 
   void onAutoplayBlocked(Object data) {
