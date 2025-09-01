@@ -1,3 +1,9 @@
+# 2.1.4
+
+🛠 **Fix**
+
+* Fixed some imports
+  
 # 2.1.3
 
 🛠 **Fix**
