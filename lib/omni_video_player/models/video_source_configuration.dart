@@ -55,6 +55,7 @@ import 'package:omni_video_player/omni_video_player/models/omni_video_quality.da
 /// - [autoPlay]: Whether playback should start automatically (default: false).
 /// - [initialPosition]: The initial playback position (default: Duration.zero).
 /// - [initialVolume]: Initial volume level between 0.0 and 1.0 (default: 1.0).
+/// - [initialPlaybackSpeed]: The initial playback speed for the video (default: 1.0).
 /// - [autoMuteOnStart]: Whether playback should start muted (default: false).
 /// - [preferredQualities]: Preferred video quality levels (default: [OmniVideoQuality.medium480]).
 /// - [allowSeeking]: Whether seeking is allowed (default: true).
@@ -81,6 +82,17 @@ class VideoSourceConfiguration {
 
   /// Initial volume level (range 0.0 to 1.0).
   final double initialVolume;
+
+  /// The initial playback speed for the video.
+  ///
+  /// Default is `1.0` (normal speed). Values < 1.0 slow down playback,
+  /// values > 1.0 speed it up.
+  final double initialPlaybackSpeed;
+
+  /// List of available playback speeds for the user to select from.
+  ///
+  /// Defaults to `[0.5, 1.0, 1.25, 1.5, 2.0]` if not specified.
+  final List<double> availablePlaybackSpeed;
 
   /// Whether playback should start muted.
   final bool autoMuteOnStart;
@@ -133,6 +145,8 @@ class VideoSourceConfiguration {
     this.autoPlay = false,
     this.initialPosition = Duration.zero,
     this.initialVolume = 1.0,
+    this.initialPlaybackSpeed = 1.0,
+    this.availablePlaybackSpeed = const [0.5, 1.0, 1.25, 1.5, 2.0],
     this.autoMuteOnStart = false,
     this.preferredQualities = const [OmniVideoQuality.medium480],
     this.availableQualities,
@@ -279,6 +293,8 @@ class VideoSourceConfiguration {
     bool? autoPlay,
     Duration? initialPosition,
     double? initialVolume,
+    double? initialPlaybackSpeed,
+    List<double>? availablePlaybackSpeed,
     bool? autoMuteOnStart,
     bool? allowSeeking,
     Duration? timeoutDuration,
@@ -303,6 +319,9 @@ class VideoSourceConfiguration {
       autoPlay: autoPlay ?? this.autoPlay,
       initialPosition: initialPosition ?? this.initialPosition,
       initialVolume: initialVolume ?? this.initialVolume,
+      initialPlaybackSpeed: initialPlaybackSpeed ?? this.initialPlaybackSpeed,
+      availablePlaybackSpeed:
+          availablePlaybackSpeed ?? this.availablePlaybackSpeed,
       autoMuteOnStart: autoMuteOnStart ?? this.autoMuteOnStart,
       preferredQualities: newPreferred,
       availableQualities: newAvailable,

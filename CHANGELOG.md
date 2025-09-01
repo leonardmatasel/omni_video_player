@@ -1,3 +1,16 @@
+# 2.2.0
+
+✨ **New Features**
+
+* Added playback speed support to `VideoSourceConfiguration` and the player UI.
+
+  - New properties: `initialPlaybackSpeed` (default `1.0`) and `availablePlaybackSpeed` (e.g., `[0.5, 1, 1.5, 2]`).
+  - Added `showPlaybackSpeedButton` to `PlayerUIVisibilityOptions` to toggle visibility of the speed button.
+  - Added `playbackSpeedButton` icon in `VideoPlayerIconTheme` for customization.
+  - See issue: [#16](https://github.com/leonardmatasel/omni_video_player/issues/16)
+  
+* YouTube videos are now playable on web platforms, in addition to mobile.
+
 # 2.1.5
 
 🛠 **Fix**

@@ -31,6 +31,14 @@ class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
     selectedQuality = widget.currentQuality;
   }
 
+  @override
+  void didUpdateWidget(covariant VideoQualityMenuButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentQuality != widget.currentQuality) {
+      selectedQuality = widget.currentQuality;
+    }
+  }
+
   void _toggleMenu() {
     if (_overlayEntry == null) {
       _showMenu();

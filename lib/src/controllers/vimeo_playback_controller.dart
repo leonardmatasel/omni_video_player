@@ -36,6 +36,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
   bool _isBuffering = false;
   Duration _currentPosition = Duration.zero;
   Duration _duration = Duration.zero;
+  double _playbackSpeed = 1.0;
 
   @override
   Duration get duration => _duration;
@@ -101,7 +102,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
     required String videoId,
     required GlobalPlaybackController? globalController,
     required Duration initialPosition,
-    double? initialVolume,
+    required double? initialVolume,
     required Size size,
     required VideoPlayerCallbacks callbacks,
   }) {
@@ -383,4 +384,17 @@ class VimeoPlaybackController extends OmniPlaybackController {
 
   @override
   List<OmniVideoQuality>? get availableVideoQualities => null;
+
+  @override
+  double get playbackSpeed => _playbackSpeed;
+
+  @override
+  set playbackSpeed(double speed) {
+    if (speed <= 0) {
+      throw ArgumentError('Playback speed must be greater than 0');
+    }
+    _playbackSpeed = speed;
+    _evaluate("player.setPlaybackRate($speed);");
+    notifyListeners();
+  }
 }

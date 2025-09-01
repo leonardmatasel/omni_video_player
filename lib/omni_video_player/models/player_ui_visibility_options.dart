@@ -43,6 +43,12 @@ class PlayerUIVisibilityOptions {
   /// Whether to show the quality switch button.
   final bool showSwitchVideoQuality;
 
+  /// Whether to show the playback speed button in the UI.
+  ///
+  /// **Not applicable for live videos.**
+  /// Default is `false`.
+  final bool showPlaybackSpeedButton;
+
   /// Whether to show the mute/unmute toggle button.
   final bool showMuteUnMuteButton;
 
@@ -105,6 +111,7 @@ class PlayerUIVisibilityOptions {
     this.enableBackwardGesture = true,
     this.enableExitFullscreenOnVerticalSwipe = true,
     this.showSwitchVideoQuality = true,
+    this.showPlaybackSpeedButton = false,
     this.enableOrientationLock = true,
     this.controlsPersistenceDuration = const Duration(seconds: 3),
   });
@@ -131,6 +138,7 @@ class PlayerUIVisibilityOptions {
     bool? enableBackwardGesture,
     bool? enableExitFullscreenOnVerticalSwipe,
     bool? showSwitchVideoQuality,
+    bool? showPlaybackSpeedButton,
     bool? enableOrientationLock,
     Duration? controlsPersistenceDuration,
   }) {
@@ -163,6 +171,8 @@ class PlayerUIVisibilityOptions {
               this.enableExitFullscreenOnVerticalSwipe,
       showSwitchVideoQuality:
           showSwitchVideoQuality ?? this.showSwitchVideoQuality,
+      showPlaybackSpeedButton:
+          showPlaybackSpeedButton ?? this.showPlaybackSpeedButton,
       enableOrientationLock:
           enableOrientationLock ?? this.enableOrientationLock,
       controlsPersistenceDuration:

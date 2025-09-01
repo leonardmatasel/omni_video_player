@@ -80,6 +80,8 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
       } else {
         controller.volume = config.initialVolume;
       }
+
+      controller.playbackSpeed = config.initialPlaybackSpeed;
     });
   }
 }

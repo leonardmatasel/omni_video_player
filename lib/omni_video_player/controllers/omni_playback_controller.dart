@@ -149,4 +149,17 @@ abstract class OmniPlaybackController with ChangeNotifier {
   ///
   /// Throws an exception if the specified quality is not available.
   Future<void> switchQuality(OmniVideoQuality quality);
+
+  /// Gets the current playback speed of the video.
+  ///
+  /// Returns `1.0` for normal speed, `0.5` for half speed, `2.0` for double speed, etc.
+  double get playbackSpeed;
+
+  /// Sets the playback speed for both video and audio (if present).
+  ///
+  /// - [speed] must be greater than 0.0.
+  /// - Typical values: 0.5 (half speed), 1.0 (normal), 1.5, 2.0 (double speed).
+  ///
+  /// Implementations should ensure that video and audio remain synchronized.
+  set playbackSpeed(double speed);
 }

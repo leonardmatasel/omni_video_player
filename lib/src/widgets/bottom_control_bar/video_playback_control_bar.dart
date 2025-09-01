@@ -6,6 +6,8 @@ import 'package:omni_video_player/src/widgets/controls/fullscreen_toggle_button.
 import 'package:omni_video_player/src/widgets/controls/video_quality_menu_button.dart';
 import 'package:omni_video_player/src/widgets/player/fullscreen_video_player.dart';
 
+import '../controls/playback_speed_menu_button.dart';
+
 /// A widget that displays the bottom bar of video player controls.
 ///
 /// [VideoPlaybackControlBar] includes mute/unmute button, seek bar,
@@ -65,6 +67,18 @@ class VideoPlaybackControlBar extends StatelessWidget {
                 options.customPlayerWidgets.customRemainingTimeDisplay,
           ),
         ),
+        if (options.playerUIVisibilityOptions.showPlaybackSpeedButton &&
+            !controller.isLive)
+          PlaybackSpeedMenuButton(
+            speedList: options.videoSourceConfiguration.availablePlaybackSpeed,
+            currentSpeed: controller.playbackSpeed,
+            onSpeedSelected: (speed) {
+              if (speed == controller.playbackSpeed) {
+                return;
+              }
+              controller.playbackSpeed = speed;
+            },
+          ),
         ...options.customPlayerWidgets.trailingBottomButtons,
         if (options.playerUIVisibilityOptions.showSwitchVideoQuality)
           VideoQualityMenuButton(

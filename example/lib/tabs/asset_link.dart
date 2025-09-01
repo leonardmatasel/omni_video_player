@@ -21,6 +21,7 @@ class AssetLink extends StatelessWidget {
             ),
             playerUIVisibilityOptions: PlayerUIVisibilityOptions(
               useSafeAreaForBottomControls: true,
+              showPlaybackSpeedButton: true,
             ),
             globalPlaybackControlSettings: GlobalPlaybackControlSettings()
                 .copyWith(useGlobalPlaybackController: true),

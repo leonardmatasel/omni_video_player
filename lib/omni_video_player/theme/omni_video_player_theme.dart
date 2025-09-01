@@ -282,6 +282,9 @@ class VideoPlayerIconTheme {
   /// Icon used to indicate the selected quality option.
   final IconData qualitySelectedCheck;
 
+  /// Icon used for the playback speed change button.
+  final IconData playbackSpeedButton;
+
   const VideoPlayerIconTheme({
     this.exitFullScreen = Icons.fullscreen_exit,
     this.fullScreen = Icons.fullscreen,
@@ -298,6 +301,7 @@ class VideoPlayerIconTheme {
     this.replay30 = Icons.replay_30,
     this.qualityChangeButton = Icons.high_quality,
     this.qualitySelectedCheck = Icons.check,
+    this.playbackSpeedButton = Icons.speed,
   });
 
   /// Creates a copy of this icon theme with selective overrides.
@@ -315,8 +319,9 @@ class VideoPlayerIconTheme {
     IconData? replay5,
     IconData? replay10,
     IconData? replay30,
-    qualityChangeButton,
-    qualitySelectedCheck,
+    IconData? qualityChangeButton,
+    IconData? qualitySelectedCheck,
+    IconData? playbackSpeedButton,
   }) {
     return VideoPlayerIconTheme(
       exitFullScreen: exitFullScreen ?? this.exitFullScreen,
@@ -334,6 +339,7 @@ class VideoPlayerIconTheme {
       replay30: replay30 ?? this.replay30,
       qualityChangeButton: qualityChangeButton ?? this.qualityChangeButton,
       qualitySelectedCheck: qualitySelectedCheck ?? this.qualitySelectedCheck,
+      playbackSpeedButton: playbackSpeedButton ?? this.playbackSpeedButton,
     );
   }
 }

@@ -48,6 +48,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
   double _volume = 100;
   double _previousVolume = 100;
   Duration _duration = Duration.zero;
+  double _playbackSpeed = 1.0;
   Duration _currentPosition = Duration.zero;
   OmniVideoQuality? _currentVideoQuality;
   List<OmniVideoQuality>? _availableVideoQualities;
@@ -467,4 +468,17 @@ class YoutubePlaybackController extends OmniPlaybackController {
 
   @override
   Uri? get videoUrl => null;
+
+  @override
+  double get playbackSpeed => _playbackSpeed;
+
+  @override
+  set playbackSpeed(double speed) {
+    if (speed <= 0) {
+      throw ArgumentError('Playback speed must be greater than 0');
+    }
+    _playbackSpeed = speed;
+    _eval('player.setPlaybackRate($speed);');
+    notifyListeners();
+  }
 }

@@ -99,6 +99,7 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
       globalController: globalController,
       initialPosition: config.initialPosition,
       initialVolume: config.initialVolume,
+      initialPlaybackSpeed: config.initialPlaybackSpeed,
       callbacks: callbacks,
       type: config.videoSourceType,
       globalKeyPlayer: options.globalKeyPlayer,

@@ -79,7 +79,10 @@ class _VideoScreenState extends State<VideoScreen> {
                   ],
                 ),
                 playerTheme: OmniVideoPlayerThemeData().copyWith(
-                  icons: VideoPlayerIconTheme().copyWith(error: Icons.warning),
+                  icons: VideoPlayerIconTheme().copyWith(
+                    error: Icons.warning,
+                    playbackSpeedButton: Icons.speed,
+                  ),
                   overlays: VideoPlayerOverlayTheme().copyWith(
                     backgroundColor: Colors.white,
                     alpha: 25,
@@ -89,6 +92,7 @@ class _VideoScreenState extends State<VideoScreen> {
                   showMuteUnMuteButton: true,
                   showFullScreenButton: true,
                   useSafeAreaForBottomControls: true,
+                  showPlaybackSpeedButton: true,
                 ),
                 customPlayerWidgets: CustomPlayerWidgets().copyWith(
                   thumbnailFit: BoxFit.fitWidth,

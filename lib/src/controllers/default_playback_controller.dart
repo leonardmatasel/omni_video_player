@@ -59,8 +59,9 @@ class DefaultPlaybackController extends OmniPlaybackController {
       this.videoDataSource,
       this.isLive,
       this._globalController,
-      initialPosition,
-      initialVolume,
+      Duration initialPosition,
+      double? initialVolume,
+      double? initialPlaybackSpeed,
       this.callbacks,
       this.type,
       this.qualityUrls,
@@ -69,6 +70,9 @@ class DefaultPlaybackController extends OmniPlaybackController {
     seekTo(initialPosition, skipHasPlaybackStarted: true);
     if (initialVolume != null) {
       volume = initialVolume;
+    }
+    if (initialPlaybackSpeed != null) {
+      playbackSpeed = initialPlaybackSpeed;
     }
     videoController.addListener(_onControllerUpdate);
     audioController?.addListener(_onControllerUpdate);
@@ -83,7 +87,8 @@ class DefaultPlaybackController extends OmniPlaybackController {
       bool isLive = false,
       GlobalPlaybackController? globalController,
       initialPosition = Duration.zero,
-      initialVolume,
+      double? initialVolume,
+      required double? initialPlaybackSpeed,
       required VideoPlayerCallbacks callbacks,
       required VideoSourceType type,
       Map<OmniVideoQuality, Uri>? qualityUrls,
@@ -110,6 +115,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
         globalController,
         initialPosition,
         initialVolume,
+        initialPlaybackSpeed,
         callbacks,
         type,
         qualityUrls,
@@ -442,4 +448,18 @@ class DefaultPlaybackController extends OmniPlaybackController {
   @override
   List<OmniVideoQuality>? get availableVideoQualities =>
       qualityUrls?.keys.toList();
+
+  @override
+  double get playbackSpeed => videoController.value.playbackSpeed;
+
+  @override
+  set playbackSpeed(double speed) {
+    if (speed <= 0) {
+      throw ArgumentError('Playback speed must be greater than 0');
+    }
+
+    videoController.setPlaybackSpeed(speed);
+    audioController?.setPlaybackSpeed(speed);
+    notifyListeners();
+  }
 }

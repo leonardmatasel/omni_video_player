@@ -91,6 +91,8 @@ class YoutubePlayerEventHandler {
         controller.volume = config.initialVolume;
       }
 
+      controller.playbackSpeed = config.initialPlaybackSpeed;
+
       callbacks.onControllerCreated?.call(controller);
     } else {
       if (playerState == YoutubePlayerState.playing &&

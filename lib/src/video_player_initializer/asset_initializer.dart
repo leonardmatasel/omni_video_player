@@ -28,6 +28,8 @@ class AssetInitializer implements IVideoPlayerInitializerStrategy {
         globalController: globalController,
         initialPosition: options.videoSourceConfiguration.initialPosition,
         initialVolume: options.videoSourceConfiguration.initialVolume,
+        initialPlaybackSpeed:
+            options.videoSourceConfiguration.initialPlaybackSpeed,
         callbacks: callbacks,
         type: options.videoSourceConfiguration.videoSourceType,
         globalKeyPlayer: options.globalKeyPlayer,
