@@ -1,3 +1,11 @@
+# 2.1.5
+
+🛠 **Fix**
+
+* Fixed a bug where toggling back from fullscreen caused the status bar to turn black.
+
+  * See issue: [#20](https://github.com/leonardmatasel/omni_video_player/issues/20)
+
 # 2.1.4
 
 🛠 **Fix**
