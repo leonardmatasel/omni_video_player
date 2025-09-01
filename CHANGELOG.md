@@ -1,3 +1,10 @@
+# 2.1.3
+
+🛠 **Fix**
+
+* Fixed an aspect ratio issue.
+  - See issue: [#17](https://github.com/leonardmatasel/omni_video_player/issues/17)
+
 # 2.1.2
 
 🛠 **Fix**

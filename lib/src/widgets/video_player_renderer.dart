@@ -60,6 +60,11 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
   Widget build(BuildContext context) {
     final theme = OmniVideoPlayerTheme.of(context)!;
 
+    final aspectRatio = (widget.controller.rotationCorrection == 90 ||
+            widget.controller.rotationCorrection == 270)
+        ? widget.controller.size.height / widget.controller.size.width
+        : widget.controller.size.width / widget.controller.size.height;
+
     return VideoOverlayControls(
       controller: widget.controller,
       options: widget.options,
@@ -127,12 +132,7 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
               (!widget.controller.hasStarted || widget.controller.isFinished))
             Center(
               child: AspectRatio(
-                aspectRatio: (widget.controller.rotationCorrection == 90 ||
-                        widget.controller.rotationCorrection == 270)
-                    ? widget.controller.size.height /
-                        widget.controller.size.width
-                    : widget.controller.size.width /
-                        widget.controller.size.height,
+                aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
                 child: ClipRRect(
                   borderRadius:
                       BorderRadius.circular(theme.shapes.borderRadius),

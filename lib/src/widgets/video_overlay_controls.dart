@@ -286,7 +286,7 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
                   customOverlay.level,
                   Center(
                     child: AspectRatio(
-                      aspectRatio: aspectRatio,
+                      aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
                       child: customOverlay.widget,
                     ),
                   ),

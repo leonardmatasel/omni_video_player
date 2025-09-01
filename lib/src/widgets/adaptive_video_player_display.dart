@@ -47,7 +47,7 @@ class AdaptiveVideoPlayerDisplay extends StatelessWidget {
 
         return Center(
           child: AspectRatio(
-            aspectRatio: aspectRatio,
+            aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
             child: shouldRender
                 ? (player ?? const SizedBox.shrink())
                 : const SizedBox.shrink(),
