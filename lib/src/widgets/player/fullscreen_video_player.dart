@@ -37,7 +37,7 @@ class FullscreenVideoPlayer extends StatefulWidget {
 }
 
 class _FullscreenVideoPlayerState extends State<FullscreenVideoPlayer> {
-  late final _aspectRatio;
+  late final double _aspectRatio;
   @override
   void initState() {
     super.initState();
