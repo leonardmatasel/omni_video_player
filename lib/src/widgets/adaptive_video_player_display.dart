@@ -20,19 +20,17 @@ class AdaptiveVideoPlayerDisplay extends StatelessWidget {
 
   final bool isFullScreenDisplay;
 
+  final double aspectRatio;
+
   const AdaptiveVideoPlayerDisplay({
     super.key,
     required this.controller,
     required this.isFullScreenDisplay,
+    required this.aspectRatio,
   });
 
   @override
   Widget build(BuildContext context) {
-    final aspectRatio = (controller.rotationCorrection == 90 ||
-            controller.rotationCorrection == 270)
-        ? controller.size.height / controller.size.width
-        : controller.size.width / controller.size.height;
-
     return AnimatedBuilder(
       animation: Listenable.merge([
         controller,

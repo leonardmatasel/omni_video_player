@@ -1,3 +1,17 @@
+# 2.2.1
+
+✨ **New Features**
+
+* Added custom aspect ratio support for both normal and fullscreen modes.
+
+  - New properties in `PlayerUIVisibilityOptions`: `customAspectRatioNormal` and `customAspectRatioFullScreen`.
+  - If not provided, the aspect ratio defaults to the one from the video controller.
+  
+* Added fullscreen orientation support.
+
+  - New property in `PlayerUIVisibilityOptions`: `fullscreenOrientation`.
+  - If `null`, the orientation is inferred from the video size (portrait if height > width, otherwise landscape).
+
 # 2.2.0
 
 ✨ **New Features**

@@ -278,9 +278,11 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
                 final rotation = widget.controller.rotationCorrection;
                 final size = widget.controller.size;
 
-                final aspectRatio = (rotation == 90 || rotation == 270)
-                    ? size.height / size.width
-                    : size.width / size.height;
+                final aspectRatio = widget.options.playerUIVisibilityOptions
+                        .customAspectRatioNormal ??
+                    ((rotation == 90 || rotation == 270)
+                        ? size.height / size.width
+                        : size.width / size.height);
 
                 layers.insert(
                   customOverlay.level,

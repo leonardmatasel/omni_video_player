@@ -86,6 +86,22 @@ class PlayerUIVisibilityOptions {
   /// Defaults to 3 seconds.
   final Duration controlsPersistenceDuration;
 
+  /// Optional custom aspect ratio for normal (non-fullscreen) mode.
+  ///
+  /// If `null`, the aspect ratio from the video controller is used.
+  final double? customAspectRatioNormal;
+
+  /// Optional custom aspect ratio for fullscreen mode.
+  ///
+  /// If `null`, the aspect ratio from the video controller is used.
+  final double? customAspectRatioFullScreen;
+
+  /// Optional orientation to use in fullscreen mode.
+  ///
+  /// If `null`, the orientation is inferred from the video size:
+  /// portrait if height > width, otherwise landscape.
+  final Orientation? fullscreenOrientation;
+
   /// Creates a new instance of [PlayerUIVisibilityOptions].
   ///
   /// All options default to `true` except:
@@ -114,6 +130,9 @@ class PlayerUIVisibilityOptions {
     this.showPlaybackSpeedButton = false,
     this.enableOrientationLock = true,
     this.controlsPersistenceDuration = const Duration(seconds: 3),
+    this.customAspectRatioNormal,
+    this.customAspectRatioFullScreen,
+    this.fullscreenOrientation,
   });
 
   /// Returns a copy of this [PlayerUIVisibilityOptions] with
@@ -141,6 +160,9 @@ class PlayerUIVisibilityOptions {
     bool? showPlaybackSpeedButton,
     bool? enableOrientationLock,
     Duration? controlsPersistenceDuration,
+    double? customAspectRatioNormal,
+    double? customAspectRatioFullScreen,
+    Orientation? fullscreenOrientation,
   }) {
     return PlayerUIVisibilityOptions(
       showSeekBar: showSeekBar ?? this.showSeekBar,
@@ -177,6 +199,12 @@ class PlayerUIVisibilityOptions {
           enableOrientationLock ?? this.enableOrientationLock,
       controlsPersistenceDuration:
           controlsPersistenceDuration ?? this.controlsPersistenceDuration,
+      customAspectRatioNormal:
+          customAspectRatioNormal ?? this.customAspectRatioNormal,
+      customAspectRatioFullScreen:
+          customAspectRatioFullScreen ?? this.customAspectRatioFullScreen,
+      fullscreenOrientation:
+          fullscreenOrientation ?? this.fullscreenOrientation,
     );
   }
 }

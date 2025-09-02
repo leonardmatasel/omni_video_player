@@ -37,11 +37,20 @@ class FullscreenVideoPlayer extends StatefulWidget {
 }
 
 class _FullscreenVideoPlayerState extends State<FullscreenVideoPlayer> {
+  late final _aspectRatio;
   @override
   void initState() {
     super.initState();
     // Enter immersive full-screen mode hiding system UI overlays.
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    final rotation = widget.controller.rotationCorrection;
+    final size = widget.controller.size;
+
+    _aspectRatio =
+        widget.options.playerUIVisibilityOptions.customAspectRatioFullScreen ??
+            ((rotation == 90 || rotation == 270)
+                ? size.height / size.width
+                : size.width / size.height);
   }
 
   @override
@@ -56,9 +65,10 @@ class _FullscreenVideoPlayerState extends State<FullscreenVideoPlayer> {
       enableOrientationLock:
           widget.options.playerUIVisibilityOptions.enableOrientationLock,
       orientation:
-          widget.controller.size.height / widget.controller.size.width > 1
-              ? Orientation.portrait
-              : Orientation.landscape,
+          widget.options.playerUIVisibilityOptions.fullscreenOrientation ??
+              (widget.controller.size.height / widget.controller.size.width > 1
+                  ? Orientation.portrait
+                  : Orientation.landscape),
       child: Material(
         color: Colors.black,
         child: Column(
@@ -75,6 +85,7 @@ class _FullscreenVideoPlayerState extends State<FullscreenVideoPlayer> {
                 child: AdaptiveVideoPlayerDisplay(
                   controller: widget.controller,
                   isFullScreenDisplay: true,
+                  aspectRatio: _aspectRatio,
                 ),
               ),
             ),
