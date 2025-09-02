@@ -67,11 +67,12 @@ A single unified controller is provided to manage playback across all supported 
 * 🔊 Global playback & mute sync across players
 * ⛶ Fullscreen player
 * ⚙️ Custom error and loading widgets
+* ⏱ Playback Speed
 * 🎚️ Quality selection UI:
 
   * Supports **YouTube quality switching**
   * Supports **HLS/network stream quality switching**
-
+  
 
 <br>
 

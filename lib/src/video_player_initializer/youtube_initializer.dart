@@ -7,6 +7,7 @@ import 'package:omni_video_player/omni_video_player.dart';
 import 'package:video_player/video_player.dart' show VideoPlayer;
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
+import '../api/hls_video_api.dart';
 import '../utils/logger.dart';
 
 class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
@@ -31,17 +32,29 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
     try {
       final ytVideo = await YouTubeService.getVideoYoutubeDetails(videoId);
       final isLive = ytVideo.isLive;
+      Map<OmniVideoQuality, Uri>? qualitiesMap;
+      MapEntry<OmniVideoQuality, Uri>? currentQualityEntry;
 
       final streamData = isLive
           ? await _loadLiveStream(videoId)
           : await _loadOnDemandStream(videoId);
 
+      if (isLive) {
+        qualitiesMap = await HlsVideoApi.extractHlsVariantsByQuality(
+            streamData.videoUrl,
+            options.videoSourceConfiguration.availableQualities);
+        currentQualityEntry = HlsVideoApi.selectBestQualityVariant(qualitiesMap,
+            preferredQualities:
+                options.videoSourceConfiguration.preferredQualities);
+      }
+
       final controller = await _createController(
         videoUrl: streamData.videoUrl,
         audioUrl: streamData.audioUrl,
         isLive: isLive,
-        qualityUrls: streamData.qualityUrls,
-        currentQuality: streamData.currentVideoQuality,
+        qualityUrls: isLive ? qualitiesMap : streamData.qualityUrls,
+        currentQuality:
+            isLive ? currentQualityEntry?.key : streamData.currentVideoQuality,
       );
 
       _setSharedPlayer(controller);

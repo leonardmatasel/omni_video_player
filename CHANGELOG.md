@@ -1,3 +1,10 @@
+# 2.2.2
+
+🛠 **Fix**
+
+* Show HQ quality options for Live YouTube videos that not use `webview`.
+  - See issue: [#22](https://github.com/leonardmatasel/omni_video_player/issues/22)
+  
 # 2.2.1
 
 ✨ **New Features**
