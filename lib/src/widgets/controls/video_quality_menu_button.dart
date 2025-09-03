@@ -50,13 +50,24 @@ class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
   void _showMenu() {
     final RenderBox buttonRenderBox = context.findRenderObject()! as RenderBox;
     final position = buttonRenderBox.localToGlobal(Offset.zero);
+    final size = buttonRenderBox.size;
+
+    final menuHeight = _menuHeight();
+
     final theme = OmniVideoPlayerTheme.of(context)!;
+
+    // Decidiamo se mostrare sopra o sotto
+    final bool showAbove = position.dy >= menuHeight;
+
+    final Offset offset = showAbove
+        ? Offset(-60, -menuHeight) // sopra
+        : Offset(-60, size.height); // sotto
 
     _overlayEntry = OverlayEntry(
       builder: (overlayContext) {
         return Stack(
           children: [
-            // Transparent barrier to dismiss menu when tapping outside
+            // Trasparente per chiudere quando si tocca fuori
             Positioned.fill(
               child: GestureDetector(
                 onTap: _removeMenu,
@@ -66,12 +77,14 @@ class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
             ),
             Positioned(
               left: position.dx,
-              top: position.dy - _menuHeight(),
+              top: showAbove
+                  ? position.dy - menuHeight
+                  : position.dy + size.height,
               width: 120,
               child: CompositedTransformFollower(
                 link: _layerLink,
                 showWhenUnlinked: false,
-                offset: Offset(-60, -_menuHeight()),
+                offset: offset,
                 child: _buildMenu(theme),
               ),
             ),

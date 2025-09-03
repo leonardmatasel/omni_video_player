@@ -1,3 +1,10 @@
+# 2.2.4
+
+🛠 **Fix**
+
+* Ensure quality menu is always visible, positioned above or below the video depending on available space.
+  - See issue: [#22](https://github.com/leonardmatasel/omni_video_player/issues/22)
+
 # 2.2.3
 
 🛠 **Clean code**
