@@ -57,6 +57,13 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
             isLive ? currentQualityEntry?.key : streamData.currentVideoQuality,
       );
 
+      final duration = _parseYoutubeDuration(streamData.videoUrl.toString());
+
+      if (duration != controller.videoController.value.duration.inSeconds &&
+          duration != null) {
+        controller.duration = Duration(seconds: duration.toInt());
+      }
+
       _setSharedPlayer(controller);
       callbacks.onControllerCreated?.call(controller);
       return controller;
@@ -93,6 +100,15 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
       qualityUrls: urls.videoQualityUrls,
       currentVideoQuality: urls.currentQuality,
     );
+  }
+
+  double? _parseYoutubeDuration(String url) {
+    final regex = RegExp(r'dur=([\d\.]+)');
+    final match = regex.firstMatch(url);
+    if (match != null) {
+      return double.tryParse(match.group(1)!);
+    }
+    return null;
   }
 
   Future<DefaultPlaybackController> _createController({

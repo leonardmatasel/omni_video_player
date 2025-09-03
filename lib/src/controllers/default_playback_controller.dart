@@ -52,6 +52,8 @@ class DefaultPlaybackController extends OmniPlaybackController {
   double _previousVolume = 1.0;
   bool _isNotifyPending = false;
 
+  Duration _duration = Duration.zero;
+
   DefaultPlaybackController._(
       this.videoController,
       this.audioController,
@@ -67,6 +69,8 @@ class DefaultPlaybackController extends OmniPlaybackController {
       this.qualityUrls,
       this.currentVideoQuality,
       this.globalKeyPlayer) {
+    duration = videoController.value.duration;
+
     seekTo(initialPosition, skipHasPlaybackStarted: true);
     if (initialVolume != null) {
       volume = initialVolume;
@@ -256,7 +260,12 @@ class DefaultPlaybackController extends OmniPlaybackController {
 
   /// Returns the total duration of the video.
   @override
-  Duration get duration => videoController.value.duration;
+  Duration get duration => _duration;
+
+  set duration(Duration value) {
+    _duration = value;
+    notifyListeners();
+  }
 
   /// Returns the rotation correction to be applied to the video.
   @override

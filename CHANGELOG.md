@@ -1,3 +1,10 @@
+# 2.2.6
+
+🛠 **Fix**
+
+* Fixed incorrect duration display for YouTube videos in the video player
+  - See issue: [#15](https://github.com/leonardmatasel/omni_video_player/issues/15)
+
 # 2.2.5
 
 🛠 **Fix**
