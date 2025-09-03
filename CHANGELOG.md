@@ -1,3 +1,9 @@
+# 2.2.5
+
+🛠 **Fix**
+
+* Fixed autoplay issue with Vimeo videos
+
 # 2.2.4
 
 🛠 **Fix**

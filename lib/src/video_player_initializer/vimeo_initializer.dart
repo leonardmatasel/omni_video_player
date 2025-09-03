@@ -64,11 +64,6 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
     controller.runOnReady(() {
       final config = options.videoSourceConfiguration;
 
-      if (!config.autoPlay) {
-        controller.pause();
-        controller.hasStarted = false;
-      }
-
       if (config.initialPosition.inSeconds > 0) {
         controller.seekTo(config.initialPosition);
       }
@@ -82,6 +77,13 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
       }
 
       controller.playbackSpeed = config.initialPlaybackSpeed;
+
+      if (!config.autoPlay) {
+        controller.pause();
+        controller.hasStarted = false;
+      } else {
+        controller.play();
+      }
     });
   }
 }
