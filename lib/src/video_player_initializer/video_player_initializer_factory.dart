@@ -10,6 +10,8 @@ import 'package:omni_video_player/omni_video_player/models/video_player_configur
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
 import 'package:omni_video_player/src/video_player_initializer/youtube_web_view_initializer.dart';
 
+import 'file_initializer.dart';
+
 abstract class IVideoPlayerInitializerStrategy {
   Future<OmniPlaybackController?> initialize();
 }
@@ -57,6 +59,13 @@ class VideoPlayerInitializerFactory {
         );
       case VideoSourceType.asset:
         return AssetInitializer(
+          options: options,
+          globalController: globalController,
+          onErrorCallback: onErrorCallback,
+          callbacks: callbacks,
+        );
+      case VideoSourceType.file:
+        return FileInitializer(
           options: options,
           globalController: globalController,
           onErrorCallback: onErrorCallback,

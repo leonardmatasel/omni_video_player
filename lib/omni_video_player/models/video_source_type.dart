@@ -8,6 +8,7 @@
 /// - [vimeo] — Videos from Vimeo.
 /// - [network] — Generic network-based video URLs (e.g., MP4 files).
 /// - [asset] — Local asset files bundled with the application.
+/// - [file] — Video files stored locally on the device.
 ///
 /// ### Planned Support
 /// - [twitch] — *(Planned)* Twitch stream playback.
@@ -15,4 +16,4 @@
 /// - [dailymotion] — *(Planned)* Dailymotion videos.
 /// - [streamable] — *(Planned)* Streamable-hosted videos.
 ///
-enum VideoSourceType { youtube, vimeo, network, asset }
+enum VideoSourceType { youtube, vimeo, network, asset, file }

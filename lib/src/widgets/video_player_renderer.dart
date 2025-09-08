@@ -62,10 +62,7 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
 
     final aspectRatio =
         widget.options.playerUIVisibilityOptions.customAspectRatioNormal ??
-            ((widget.controller.rotationCorrection == 90 ||
-                    widget.controller.rotationCorrection == 270)
-                ? widget.controller.size.height / widget.controller.size.width
-                : widget.controller.size.width / widget.controller.size.height);
+            widget.controller.size.width / widget.controller.size.height;
 
     return VideoOverlayControls(
       controller: widget.controller,

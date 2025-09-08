@@ -23,6 +23,7 @@ class AssetInitializer implements IVideoPlayerInitializerStrategy {
       final controller = await DefaultPlaybackController.create(
         videoUrl: null,
         dataSource: options.videoSourceConfiguration.videoDataSource!,
+        file: null,
         audioUrl: null,
         isLive: false,
         globalController: globalController,

@@ -124,6 +124,7 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
       videoUrl: videoUrl,
       audioUrl: audioUrl,
       dataSource: null,
+      file: null,
       isLive: isLive,
       globalController: globalController,
       initialPosition: config.initialPosition,

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
 import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
@@ -71,6 +73,9 @@ class VideoSourceConfiguration {
   /// The asset or file path (for asset or local file videos).
   final String? videoDataSource;
 
+  /// The file
+  final File? videoFile;
+
   /// Defines the source type, must match the appropriate data source field.
   final VideoSourceType videoSourceType;
 
@@ -141,6 +146,7 @@ class VideoSourceConfiguration {
     this.videoUrl,
     this.videoId,
     this.videoDataSource,
+    this.videoFile,
     required this.videoSourceType,
     this.autoPlay = false,
     this.initialPosition = Duration.zero,
@@ -282,6 +288,16 @@ class VideoSourceConfiguration {
     return VideoSourceConfiguration._(
       videoDataSource: videoDataSource,
       videoSourceType: VideoSourceType.asset,
+    );
+  }
+
+  /// Factory constructor for file videos.
+  ///
+  /// Requires a [videoFile].
+  factory VideoSourceConfiguration.file({required File videoFile}) {
+    return VideoSourceConfiguration._(
+      videoFile: videoFile,
+      videoSourceType: VideoSourceType.file,
     );
   }
 

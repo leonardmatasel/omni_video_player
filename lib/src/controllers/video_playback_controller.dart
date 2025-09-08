@@ -31,6 +31,12 @@ class VideoPlaybackController extends VideoPlayerController {
   VideoPlaybackController.asset(super.dataSource, {this.isLive = false})
       : super.asset();
 
+  /// Creates a controller for an file video.
+  ///
+  /// Live flag is irrelevant for assets, defaults to false.
+  VideoPlaybackController.file(super.file, {this.isLive = false})
+      : super.file();
+
   @override
   Future<void> play() async {
     if (_mounted) await super.play();

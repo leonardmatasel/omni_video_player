@@ -194,6 +194,9 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
 
       case VideoSourceType.asset:
         return widget.options.customPlayerWidgets.thumbnail;
+
+      case VideoSourceType.file:
+        return widget.options.customPlayerWidgets.thumbnail;
     }
   }
 }

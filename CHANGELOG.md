@@ -1,3 +1,11 @@
+# 2.3.0
+
+✨ **New Features**
+
+* Added support for playing videos from the device's **local file system**
+  - New factory: `VideoSourceConfiguration.file`
+  - See issue: [#18](https://github.com/leonardmatasel/omni_video_player/issues/18)
+
 # 2.2.6
 
 🛠 **Fix**

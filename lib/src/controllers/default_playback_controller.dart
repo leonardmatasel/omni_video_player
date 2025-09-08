@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -87,6 +88,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
   static Future<DefaultPlaybackController> create(
       {required Uri? videoUrl,
       required String? dataSource,
+      required File? file,
       Uri? audioUrl,
       bool isLive = false,
       GlobalPlaybackController? globalController,
@@ -101,7 +103,9 @@ class DefaultPlaybackController extends OmniPlaybackController {
     final videoController =
         (type == VideoSourceType.asset && dataSource != null)
             ? VideoPlaybackController.asset(dataSource)
-            : VideoPlaybackController.uri(videoUrl!, isLive: isLive);
+            : (type == VideoSourceType.file && file != null)
+                ? VideoPlaybackController.file(file)
+                : VideoPlaybackController.uri(videoUrl!, isLive: isLive);
     await videoController.initialize();
 
     AudioPlaybackController? audioController;
