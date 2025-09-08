@@ -61,6 +61,7 @@ A single unified controller is provided to manage playback across all supported 
   * Vimeo (public — now using official `webview_flutter` for stable playback)
   * Network video URLs
   * Flutter app assets
+  * File from device
 * 🎛 Customizable player UI (controls, theme, overlays, labels)
 * 🔁 Autoplay, replay, mute/unmute, volume control
 * ⏪ Seek bar & scrubbing
