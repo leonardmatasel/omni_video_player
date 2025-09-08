@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/src/controllers/youtube_playback_controller.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import '../../omni_video_player/models/omni_video_quality.dart';
 import '../../omni_video_player/models/video_player_configuration.dart';
 import '../utils/logger.dart';
 import 'model/youtube_player_state.dart';
@@ -121,7 +122,12 @@ class YoutubePlayerEventHandler {
     }
   }
 
-  void onPlaybackQualityChange(Object data) {}
+  void onPlaybackQualityChange(Object data) {
+    if (data is String) {
+      final quality = omniVideoQualityFromYouTube(data);
+      controller.currentVideoQuality = quality;
+    }
+  }
 
   void onPlaybackRateChange(Object data) {}
 

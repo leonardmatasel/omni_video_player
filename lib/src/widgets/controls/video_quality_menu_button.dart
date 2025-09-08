@@ -36,6 +36,11 @@ class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentQuality != widget.currentQuality) {
       selectedQuality = widget.currentQuality;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {});
+        }
+      });
     }
   }
 
@@ -51,17 +56,24 @@ class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
     final RenderBox buttonRenderBox = context.findRenderObject()! as RenderBox;
     final position = buttonRenderBox.localToGlobal(Offset.zero);
     final size = buttonRenderBox.size;
+    final theme = OmniVideoPlayerTheme.of(context)!;
+
+    final valueString = widget.qualityList == null
+        ? selectedQuality != null
+            ? "${theme.labels.autoQualityLabel} (${selectedQuality!.qualityString})"
+            : theme.labels.autoQualityLabel
+        : null;
+
+    final double width = 18.0 + 16 + 16 + (9.0 * (valueString?.length ?? 6.0));
 
     final menuHeight = _menuHeight();
-
-    final theme = OmniVideoPlayerTheme.of(context)!;
 
     // Decidiamo se mostrare sopra o sotto
     final bool showAbove = position.dy >= menuHeight;
 
     final Offset offset = showAbove
-        ? Offset(-60, -menuHeight) // sopra
-        : Offset(-60, size.height); // sotto
+        ? Offset(-width / 2, -menuHeight) // sopra
+        : Offset(-width / 2, size.height); // sotto
 
     _overlayEntry = OverlayEntry(
       builder: (overlayContext) {
@@ -80,7 +92,7 @@ class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
               top: showAbove
                   ? position.dy - menuHeight
                   : position.dy + size.height,
-              width: 120,
+              width: width,
               child: CompositedTransformFollower(
                 link: _layerLink,
                 showWhenUnlinked: false,
@@ -123,7 +135,9 @@ class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        theme.labels.autoQualityLabel,
+                        selectedQuality != null
+                            ? "${theme.labels.autoQualityLabel} (${selectedQuality!.qualityString})"
+                            : theme.labels.autoQualityLabel,
                         style: TextStyle(
                           color: theme.colors.menuTextSelected,
                           fontWeight: FontWeight.bold,

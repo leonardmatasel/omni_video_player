@@ -265,12 +265,14 @@ class YoutubePlaybackController extends OmniPlaybackController {
 
   set availableVideoQualities(List<OmniVideoQuality>? value) {
     _availableVideoQualities = value;
+    notifyListeners();
   }
 
   @override
   OmniVideoQuality? get currentVideoQuality => _currentVideoQuality;
   set currentVideoQuality(OmniVideoQuality? value) {
     _currentVideoQuality = value;
+    notifyListeners();
   }
 
   @override

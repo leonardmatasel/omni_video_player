@@ -66,11 +66,11 @@ class _PlaybackSpeedMenuButtonState extends State<PlaybackSpeedMenuButton> {
             Positioned(
               left: position.dx,
               top: position.dy - _menuHeight(),
-              width: 120,
+              width: 100,
               child: CompositedTransformFollower(
                 link: _layerLink,
                 showWhenUnlinked: false,
-                offset: Offset(-60, -_menuHeight()),
+                offset: Offset(-50, -_menuHeight()),
                 child: _buildMenu(theme),
               ),
             ),

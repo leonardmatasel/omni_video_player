@@ -1,3 +1,10 @@
+# 2.3.1
+
+✨ **New Features**
+
+* On YouTube WebView, in addition to showing "auto", the player now also displays the **current playback quality**
+  - See issue: [#22](https://github.com/leonardmatasel/omni_video_player/issues/22)
+  
 # 2.3.0
 
 ✨ **New Features**

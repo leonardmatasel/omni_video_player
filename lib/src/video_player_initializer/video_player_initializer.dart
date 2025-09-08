@@ -12,7 +12,7 @@ import 'package:omni_video_player/omni_video_player/models/video_source_type.dar
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:omni_video_player/src/utils/logger.dart';
-import '../../vimeo/model/vimeo_video_info.dart';
+import '../vimeo/model/vimeo_video_info.dart';
 
 class VideoPlayerInitializer extends StatefulWidget {
   const VideoPlayerInitializer({

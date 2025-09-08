@@ -120,3 +120,22 @@ OmniVideoQuality omniVideoQualityFromString(String qualityStr) {
       return OmniVideoQuality.unknown;
   }
 }
+
+OmniVideoQuality omniVideoQualityFromYouTube(String qualityStr) {
+  switch (qualityStr) {
+    case 'small': // 240p
+      return OmniVideoQuality.low240;
+    case 'medium': // 360p
+      return OmniVideoQuality.medium360;
+    case 'large': // 480p
+      return OmniVideoQuality.medium480;
+    case 'hd720':
+      return OmniVideoQuality.high720;
+    case 'hd1080':
+      return OmniVideoQuality.high1080;
+    case 'highres': // YouTube lo usava per >1080p, mappiamo a 1440p
+      return OmniVideoQuality.high1440;
+    default:
+      return OmniVideoQuality.unknown;
+  }
+}
