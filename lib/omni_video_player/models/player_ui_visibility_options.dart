@@ -43,6 +43,14 @@ class PlayerUIVisibilityOptions {
   /// Whether to show the quality switch button.
   final bool showSwitchVideoQuality;
 
+  /// Whether to show the switch quality button when only 'Auto' is available.
+  ///
+  /// - If `true`: the button is shown even when [availableVideoQualities] is empty,
+  ///   and pressing it will open the dialog containing only the "auto" option.
+  /// - If `false`: the button is hidden when [availableVideoQualities] is empty,
+  ///   so the user cannot open a dialog that only contains "auto".
+  final bool showSwitchWhenOnlyAuto;
+
   /// Whether to show the playback speed button in the UI.
   ///
   /// **Not applicable for live videos.**
@@ -127,6 +135,7 @@ class PlayerUIVisibilityOptions {
     this.enableBackwardGesture = true,
     this.enableExitFullscreenOnVerticalSwipe = true,
     this.showSwitchVideoQuality = true,
+    this.showSwitchWhenOnlyAuto = true,
     this.showPlaybackSpeedButton = false,
     this.enableOrientationLock = true,
     this.controlsPersistenceDuration = const Duration(seconds: 3),
@@ -157,6 +166,7 @@ class PlayerUIVisibilityOptions {
     bool? enableBackwardGesture,
     bool? enableExitFullscreenOnVerticalSwipe,
     bool? showSwitchVideoQuality,
+    bool? showSwitchWhenOnlyAuto,
     bool? showPlaybackSpeedButton,
     bool? enableOrientationLock,
     Duration? controlsPersistenceDuration,
@@ -193,6 +203,8 @@ class PlayerUIVisibilityOptions {
               this.enableExitFullscreenOnVerticalSwipe,
       showSwitchVideoQuality:
           showSwitchVideoQuality ?? this.showSwitchVideoQuality,
+      showSwitchWhenOnlyAuto:
+          showSwitchWhenOnlyAuto ?? this.showSwitchWhenOnlyAuto,
       showPlaybackSpeedButton:
           showPlaybackSpeedButton ?? this.showPlaybackSpeedButton,
       enableOrientationLock:

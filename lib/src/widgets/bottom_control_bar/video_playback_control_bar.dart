@@ -80,7 +80,19 @@ class VideoPlaybackControlBar extends StatelessWidget {
             },
           ),
         ...options.customPlayerWidgets.trailingBottomButtons,
-        if (options.playerUIVisibilityOptions.showSwitchVideoQuality)
+
+        /// Mostra il bottone per cambiare qualità video.
+        ///
+        /// - Viene mostrato solo se [showSwitchVideoQuality] è `true`.
+        /// - Se [controller.availableVideoQualities] non è vuoto, il bottone apre
+        ///   la dialog con le qualità disponibili.
+        /// - Se [controller.availableVideoQualities] è vuoto:
+        ///   - Se [showSwitchWhenOnlyAuto] è `true`, viene comunque mostrato il bottone
+        ///     che apre la dialog con la sola opzione "Auto".
+        ///   - Se [showSwitchWhenOnlyAuto] è `false`, il bottone non viene mostrato.
+        if (options.playerUIVisibilityOptions.showSwitchVideoQuality &&
+            (controller.availableVideoQualities?.isNotEmpty == true ||
+                options.playerUIVisibilityOptions.showSwitchWhenOnlyAuto))
           VideoQualityMenuButton(
             qualityList: controller.availableVideoQualities,
             currentQuality: controller.currentVideoQuality,

@@ -1,3 +1,13 @@
+# 2.3.2
+
+✨ **New Features**
+
+* Added `showSwitchWhenOnlyAuto` flag to `PlayerUIVisibilityOptions`.
+  - Controls whether the **Switch Quality** button is displayed when no qualities are available and only the "Auto" option would appear in the dialog.
+  - Default: `true` (button is still shown with "Auto").
+  - If set to `false`, the button will be hidden when only "Auto" is available.
+  - See issue: [#22](https://github.com/leonardmatasel/omni_video_player/issues/22)
+
 # 2.3.1
 
 ✨ **New Features**
