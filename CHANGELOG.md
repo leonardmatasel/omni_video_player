@@ -1,3 +1,12 @@
+# 2.3.3
+
+✨ **New Features**
+
+* Added **keyboard arrow key support** for web.
+  - Users can now use the **left (←)** and **right (→)** arrow keys to skip backward and forward during playback.
+  - Skip duration follows the same logic as double-tap gestures (5s, 10s, 30s depending on consecutive presses).
+  - See issue: [#23](https://github.com/leonardmatasel/omni_video_player/issues/23)
+
 # 2.3.2
 
 ✨ **New Features**

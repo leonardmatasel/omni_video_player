@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:omni_video_player/src/widgets/auto_hide_controls_manager.dart';
 import 'package:omni_video_player/src/widgets/auto_hide_play_pause_button.dart';
 import 'package:omni_video_player/src/widgets/bottom_control_bar/gradient_bottom_control_bar.dart';
@@ -88,6 +89,61 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
     });
   }
 
+  void handleDoubleTap(SkipDirection direction) {
+    final isBackward = direction == SkipDirection.backward;
+
+    // Controlli iniziali
+    if ((isBackward &&
+            !widget.options.playerUIVisibilityOptions.enableBackwardGesture) ||
+        (!isBackward &&
+            !widget.options.playerUIVisibilityOptions.enableForwardGesture) ||
+        widget.controller.isFinished ||
+        !widget.controller.hasStarted) {
+      return;
+    }
+
+    int skipSeconds = 5;
+
+    // Incremento progressivo
+    if (_skipDirection == direction &&
+        (_tapState ==
+            (isBackward
+                ? _TapInteractionState.doubleTapBackward
+                : _TapInteractionState.doubleTapForward))) {
+      switch (_skipSeconds) {
+        case 5:
+          skipSeconds = 10;
+          break;
+        case 10:
+          skipSeconds = 30;
+          break;
+        default:
+          skipSeconds = 30;
+      }
+    }
+
+    final currentPosition = widget.controller.currentPosition;
+    final targetPosition = isBackward
+        ? currentPosition - Duration(seconds: skipSeconds)
+        : currentPosition + Duration(seconds: skipSeconds);
+
+    // Limiti
+    if ((isBackward && targetPosition < Duration.zero) ||
+        (!isBackward && targetPosition > widget.controller.duration)) {
+      return;
+    }
+
+    widget.controller.seekTo(
+      targetPosition < Duration.zero
+          ? Duration.zero
+          : (targetPosition > widget.controller.duration
+              ? widget.controller.duration
+              : targetPosition),
+    );
+
+    _showSkip(direction, skipSeconds);
+  }
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -141,93 +197,45 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
 
               // Tap area for double tap (left = backward, right = forward).
               Positioned.fill(
-                child: Row(
-                  children: [
-                    // Left side double-tap to rewind.
-                    Expanded(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        onDoubleTap: () {
-                          if (!widget.options.playerUIVisibilityOptions
-                                  .enableBackwardGesture ||
-                              widget.controller.isFinished ||
-                              !widget.controller.hasStarted) {
-                            return;
-                          }
-                          int skipSeconds = 5;
-
-                          if (_skipDirection == SkipDirection.backward &&
-                              _tapState ==
-                                  _TapInteractionState.doubleTapBackward) {
-                            switch (_skipSeconds) {
-                              case 5:
-                                skipSeconds = 10;
-                                break;
-                              default:
-                                skipSeconds = 30;
-                            }
-                          }
-
-                          final currentPosition =
-                              widget.controller.currentPosition;
-                          final targetPosition =
-                              currentPosition - Duration(seconds: skipSeconds);
-
-                          if (targetPosition < Duration.zero) return;
-
-                          widget.controller.seekTo(
-                            targetPosition > Duration.zero
-                                ? targetPosition
-                                : Duration.zero,
-                          );
-                          _showSkip(SkipDirection.backward, skipSeconds);
-                        },
-                        child: const SizedBox.expand(),
+                child: KeyboardListener(
+                  focusNode: FocusNode()..requestFocus(),
+                  onKeyEvent: (KeyEvent event) {
+                    if (event is KeyDownEvent) {
+                      if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+                        // Skip forward
+                        handleDoubleTap(SkipDirection.forward);
+                      } else if (event.logicalKey ==
+                          LogicalKeyboardKey.arrowLeft) {
+                        // Skip backward
+                        handleDoubleTap(SkipDirection.backward);
+                      }
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      // Left side double-tap to rewind.
+                      Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onDoubleTap: () {
+                            handleDoubleTap(SkipDirection.backward);
+                          },
+                          child: const SizedBox.expand(),
+                        ),
                       ),
-                    ),
 
-                    // Right side double-tap to fast-forward.
-                    Expanded(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        onDoubleTap: () {
-                          if (!widget.options.playerUIVisibilityOptions
-                                  .enableForwardGesture ||
-                              widget.controller.isFinished ||
-                              !widget.controller.hasStarted) {
-                            return;
-                          }
-                          int skipSeconds = 5;
-
-                          if (_skipDirection == SkipDirection.forward &&
-                              _tapState ==
-                                  _TapInteractionState.doubleTapForward) {
-                            switch (_skipSeconds) {
-                              case 5:
-                                skipSeconds = 10;
-                                break;
-                              case 10:
-                                skipSeconds = 30;
-                                break;
-                              default:
-                                skipSeconds = 30;
-                            }
-                          }
-
-                          final currentPosition =
-                              widget.controller.currentPosition;
-                          final targetPosition =
-                              currentPosition + Duration(seconds: skipSeconds);
-                          if (targetPosition > widget.controller.duration) {
-                            return;
-                          }
-                          widget.controller.seekTo(targetPosition);
-                          _showSkip(SkipDirection.forward, skipSeconds);
-                        },
-                        child: const SizedBox.expand(),
+                      // Right side double-tap to fast-forward.
+                      Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onDoubleTap: () {
+                            handleDoubleTap(SkipDirection.forward);
+                          },
+                          child: const SizedBox.expand(),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
 
