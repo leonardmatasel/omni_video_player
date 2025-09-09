@@ -174,7 +174,11 @@ class YoutubePlaybackController extends OmniPlaybackController {
         'cc_load_policy': 0,
         'color': 'white',
         'controls': 0,
-        'disablekb': 1,
+        'disablekb': kIsWeb &&
+                options.playerUIVisibilityOptions.enableForwardGesture &&
+                options.playerUIVisibilityOptions.enableBackwardGesture
+            ? 0
+            : 1,
         'enablejsapi': 1,
         'fs': 0,
         'hl': 'en',

@@ -58,7 +58,7 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
   int _skipSeconds = 0;
 
   late final AnimationController _animationController;
-
+  late final FocusNode _focusKeyboard = FocusNode();
   _TapInteractionState _tapState = _TapInteractionState.idle;
 
   @override
@@ -69,6 +69,8 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
       vsync: this,
       duration: const Duration(seconds: 2, milliseconds: 500),
     );
+
+    _focusKeyboard.requestFocus();
   }
 
   /// Triggers the skip indicator with the given direction and duration.
@@ -198,7 +200,8 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
               // Tap area for double tap (left = backward, right = forward).
               Positioned.fill(
                 child: KeyboardListener(
-                  focusNode: FocusNode()..requestFocus(),
+                  focusNode: _focusKeyboard,
+                  autofocus: true,
                   onKeyEvent: (KeyEvent event) {
                     if (event is KeyDownEvent) {
                       if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
