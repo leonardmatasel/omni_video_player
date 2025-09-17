@@ -1,14 +1,22 @@
+# 2.3.6
+
+🛠 **Fix**
+
+* Fixed CHANGELOG
+  
 # 2.3.5
 
 ✨ **New Features**
 
 * Added **video finish callback** support.
-  - Introduced `onVideoFinished` in `VideoPlayerCallbacks`.
+  - Introduced `onFinished` in `VideoPlayerCallbacks`.
   - Triggered **once** when a video reaches the end of playback.
 
 * Added **replay callback** support.
   - Introduced `onReplay` in `VideoPlayerCallbacks`.
   - Triggered when the user presses the replay button after video completion.
+
+* See issue: [#25](https://github.com/leonardmatasel/omni_video_player/issues/25)
 
 # 2.3.4
 
