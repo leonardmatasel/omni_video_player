@@ -99,7 +99,12 @@
 
       window.addEventListener('message', (event) => {
         try {
+
+          if (typeof event.data !== 'string') return;
+
           var data = JSON.parse(event.data);
+
+          if (!data) return;
 
           if(data.function){
             var rawFunction = data.function.replaceAll('<<quote>>', '"');
