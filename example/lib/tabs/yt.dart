@@ -25,6 +25,26 @@ class YT extends StatelessWidget {
             onControllerCreated: (controller) {
               // For more details, see example/lib/example.dart or refer to the "Sync UI" section in the README.
             },
+            onFullScreenToggled: (isFullScreen) {
+              if (kDebugMode) {
+                print('OMNI PLAYER: Fullscreen toggled: $isFullScreen');
+              }
+            },
+            onMuteToggled: (isMuted) {
+              if (kDebugMode) {
+                print('OMNI PLAYER: Mute toggled: $isMuted');
+              }
+            },
+            onFinished: () {
+              if (kDebugMode) {
+                print('OMNI PLAYER: Video finished');
+              }
+            },
+            onReplay: () {
+              if (kDebugMode) {
+                print('OMNI PLAYER: Video replayed');
+              }
+            },
           ),
           options: VideoPlayerConfiguration(
             videoSourceConfiguration: VideoSourceConfiguration.youtube(

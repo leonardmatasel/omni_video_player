@@ -1,3 +1,15 @@
+# 2.3.5
+
+✨ **New Features**
+
+* Added **video finish callback** support.
+  - Introduced `onVideoFinished` in `VideoPlayerCallbacks`.
+  - Triggered **once** when a video reaches the end of playback.
+
+* Added **replay callback** support.
+  - Introduced `onReplay` in `VideoPlayerCallbacks`.
+  - Triggered when the user presses the replay button after video completion.
+
 # 2.3.4
 
 🛠 **Fix**

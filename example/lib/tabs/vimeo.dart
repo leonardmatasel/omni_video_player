@@ -40,6 +40,16 @@ class _VimeoState extends State<Vimeo> {
                 print('OMNI PLAYER: Seek ended at: $position');
               }
             },
+            onFinished: () {
+              if (kDebugMode) {
+                print('OMNI PLAYER: Video finished');
+              }
+            },
+            onReplay: () {
+              if (kDebugMode) {
+                print('OMNI PLAYER: Video replayed');
+              }
+            },
           ),
           options: VideoPlayerConfiguration(
             videoSourceConfiguration: VideoSourceConfiguration.vimeo(

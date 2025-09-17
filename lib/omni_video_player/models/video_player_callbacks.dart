@@ -30,6 +30,8 @@ class VideoPlayerCallbacks {
     this.onMuteToggled,
     this.onSeekStart,
     this.onSeekEnd,
+    this.onFinished,
+    this.onReplay,
   });
 
   /// Called once when the internal [OmniPlaybackController] is created and ready.
@@ -67,6 +69,14 @@ class VideoPlayerCallbacks {
   /// [currentPosition] is the final playback position after seeking.
   final void Function(Duration currentPosition)? onSeekEnd;
 
+  /// Called when the video reaches the end of playback.
+  ///
+  /// This callback is triggered **once per video finish**.
+  final VoidCallback? onFinished;
+
+  /// Called when the user presses the replay button after the video has finished.
+  final VoidCallback? onReplay;
+
   /// Returns a new [VideoPlayerCallbacks] instance with specified callbacks overridden.
   ///
   /// Useful to update specific callback handlers without redefining all.
@@ -94,6 +104,8 @@ class VideoPlayerCallbacks {
     void Function(bool isMute)? onMuteToggled,
     void Function(Duration currentPosition)? onSeekStart,
     void Function(Duration currentPosition)? onSeekEnd,
+    VoidCallback? onFinished,
+    VoidCallback? onReplay,
   }) {
     return VideoPlayerCallbacks(
       onControllerCreated: onControllerCreated ?? this.onControllerCreated,
@@ -105,6 +117,8 @@ class VideoPlayerCallbacks {
       onMuteToggled: onMuteToggled ?? this.onMuteToggled,
       onSeekStart: onSeekStart ?? this.onSeekStart,
       onSeekEnd: onSeekEnd ?? this.onSeekEnd,
+      onFinished: onFinished ?? this.onFinished,
+      onReplay: onReplay ?? this.onReplay,
     );
   }
 }

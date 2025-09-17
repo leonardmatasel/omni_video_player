@@ -50,6 +50,8 @@ class AutoHidePlayPauseButton extends StatelessWidget {
             showReplayButton:
                 options.playerUIVisibilityOptions.showReplayButton,
             autoMuteOnStart: options.videoSourceConfiguration.autoMuteOnStart,
+            onReplay: callbacks.onReplay,
+            onFinished: callbacks.onFinished,
           ),
         );
       },
