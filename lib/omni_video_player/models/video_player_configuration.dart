@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:omni_video_player/src/video_player_initializer/video_player_initializer.dart';
 import 'package:omni_video_player/omni_video_player/models/custom_player_widgets.dart';
 import 'package:omni_video_player/omni_video_player/models/global_playback_control_settings.dart';
-import 'package:omni_video_player/omni_video_player/models/video_source_configuration.dart';
 import 'package:omni_video_player/omni_video_player/models/player_ui_visibility_options.dart';
+import 'package:omni_video_player/omni_video_player/models/video_source_configuration.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
+import 'package:omni_video_player/src/video_player_initializer/video_player_initializer.dart';
 
 /// Configuration options for customizing the appearance and behavior of a video player.
 ///

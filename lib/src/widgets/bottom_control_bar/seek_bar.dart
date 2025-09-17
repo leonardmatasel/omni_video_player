@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
+import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 import 'package:omni_video_player/src/widgets/bottom_control_bar/progress_bar.dart';
 import 'package:omni_video_player/src/widgets/indicators/playback_time_display.dart';
 import 'package:omni_video_player/src/widgets/indicators/remaining_playback_time.dart';
-import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
-import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 
 /// A customizable seek bar widget for video playback control using a custom progress bar.
 ///

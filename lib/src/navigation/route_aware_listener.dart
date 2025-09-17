@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'custom_route_observer.dart';
 import 'global_routes_observer.dart';
 

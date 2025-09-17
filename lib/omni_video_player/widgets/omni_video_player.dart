@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:omni_video_player/src/utils/logger.dart';
-import 'package:omni_video_player/src/video_player_initializer/video_player_initializer.dart';
-import 'package:omni_video_player/src/widgets/video_player_renderer.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
+import 'package:omni_video_player/src/utils/logger.dart';
+import 'package:omni_video_player/src/video_player_initializer/video_player_initializer.dart';
+import 'package:omni_video_player/src/widgets/video_player_renderer.dart';
 
 /// A universal and configurable video player widget supporting multiple video sources.
 ///

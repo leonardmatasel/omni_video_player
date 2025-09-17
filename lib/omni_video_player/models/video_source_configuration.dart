@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
 import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
+import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
 
 /// Configuration object used to initialize video playback.
 ///

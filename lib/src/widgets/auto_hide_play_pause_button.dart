@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:omni_video_player/src/widgets/controls/video_play_pause_button.dart';
-import 'package:omni_video_player/src/widgets/fade_visibility.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
+import 'package:omni_video_player/src/widgets/controls/video_play_pause_button.dart';
+import 'package:omni_video_player/src/widgets/fade_visibility.dart';
 
 /// A play/pause button widget that automatically hides itself based on playback state.
 ///

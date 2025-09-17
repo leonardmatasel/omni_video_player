@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:synchronized/synchronized.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
+import 'package:synchronized/synchronized.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 /// Manages global video-player behavior to ensure a single active playback,

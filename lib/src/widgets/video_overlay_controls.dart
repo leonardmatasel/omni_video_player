@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
+import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
+import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/src/widgets/auto_hide_controls_manager.dart';
 import 'package:omni_video_player/src/widgets/auto_hide_play_pause_button.dart';
 import 'package:omni_video_player/src/widgets/bottom_control_bar/gradient_bottom_control_bar.dart';
 import 'package:omni_video_player/src/widgets/bottom_control_bar/video_playback_control_bar.dart';
-import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
-import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
-import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 
 import 'indicators/animated_skip_indicator.dart';
 import 'indicators/loader_indicator.dart';

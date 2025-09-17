@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:omni_video_player/src/controllers/vimeo_playback_controller.dart';
-import 'package:omni_video_player/src/api/vimeo_video_api.dart';
-import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
 import 'package:omni_video_player/omni_video_player.dart';
+import 'package:omni_video_player/src/api/vimeo_video_api.dart';
+import 'package:omni_video_player/src/controllers/vimeo_playback_controller.dart';
+import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+
 import '../utils/logger.dart';
 
 class VimeoInitializer implements IVideoPlayerInitializerStrategy {

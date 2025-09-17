@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:omni_video_player/src/widgets/controls/video_control_icon_button.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
+import 'package:omni_video_player/src/widgets/controls/video_control_icon_button.dart';
 
 /// A button that toggles between mute and unmute states in a video player.
 ///

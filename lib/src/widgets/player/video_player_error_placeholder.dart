@@ -1,10 +1,10 @@
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer.dart';
-import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:android_intent_plus/android_intent.dart';
 
 /// A default error placeholder widget for the video player.
 ///

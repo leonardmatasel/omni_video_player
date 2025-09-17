@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:omni_video_player/src/utils/orientation_locker.dart';
-import 'package:omni_video_player/src/widgets/adaptive_video_player_display.dart';
-import 'package:omni_video_player/src/widgets/video_overlay_controls.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
+import 'package:omni_video_player/src/utils/orientation_locker.dart';
+import 'package:omni_video_player/src/widgets/adaptive_video_player_display.dart';
+import 'package:omni_video_player/src/widgets/video_overlay_controls.dart';
 
 /// A full-screen video player widget that manages system UI, device orientation,
 /// and overlays interactive video controls.

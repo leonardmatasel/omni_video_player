@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/src/widgets/bottom_control_bar/seek_bar.dart';
 import 'package:omni_video_player/src/widgets/indicators/live_status_indicator.dart';
-import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 
 /// A widget that displays the seek bar and playback timing information
 /// for a video, with support for both live and non-live streams.

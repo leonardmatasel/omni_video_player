@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:omni_video_player/src/navigation/route_aware_listener.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
+import 'package:omni_video_player/src/navigation/route_aware_listener.dart';
 
 /// A widget that manages automatic show/hide behavior of video playback controls.
 ///

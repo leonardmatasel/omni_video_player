@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/src/api/youtube_video_api.dart';
 import 'package:omni_video_player/src/controllers/default_playback_controller.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
 import 'package:omni_video_player/src/video_player_initializer/youtube_web_view_initializer.dart';
-import 'package:omni_video_player/omni_video_player.dart';
 import 'package:video_player/video_player.dart' show VideoPlayer;
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 

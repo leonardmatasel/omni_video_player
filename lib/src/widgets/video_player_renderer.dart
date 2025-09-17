@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
+import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
+import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
+import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 import 'package:omni_video_player/src/navigation/route_aware_listener.dart';
 import 'package:omni_video_player/src/widgets/adaptive_video_player_display.dart';
 import 'package:omni_video_player/src/widgets/fade_overlay_switcher.dart';
 import 'package:omni_video_player/src/widgets/player/video_player_thumbnail_preview.dart';
 import 'package:omni_video_player/src/widgets/video_overlay_controls.dart';
-import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
-import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
-import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
-import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 /// A comprehensive video player widget that manages video rendering,
