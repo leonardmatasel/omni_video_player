@@ -1,3 +1,10 @@
+# 2.3.4
+
+🛠 **Fix**
+
+* Fixed window.onMessage handling by checking if data is String before casting
+  - See issue: [#24](https://github.com/leonardmatasel/omni_video_player/issues/24)
+
 # 2.3.3
 
 ✨ **New Features**
