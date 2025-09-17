@@ -68,6 +68,12 @@ abstract class OmniPlaybackController with ChangeNotifier {
   /// This can be used to transfer the player across widget trees (e.g., fullscreen transitions).
   ValueNotifier<Widget?> get sharedPlayerNotifier;
 
+  /// Whether the video is private.
+  ///
+  /// ⚠️ **Note:** This flag is only supported for Vimeo sources.
+  /// Other implementations will always return `false`.
+  bool get isPrivate;
+
   // ──────────────── Playback Status ────────────────
 
   /// Whether the video is fully initialized and ready to play.

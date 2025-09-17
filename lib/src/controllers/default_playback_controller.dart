@@ -476,4 +476,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
     audioController?.setPlaybackSpeed(speed);
     notifyListeners();
   }
+
+  @override
+  bool get isPrivate => false;
 }

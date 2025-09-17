@@ -38,6 +38,8 @@ class VimeoPlaybackController extends OmniPlaybackController {
   Duration _currentPosition = Duration.zero;
   Duration _duration = Duration.zero;
   double _playbackSpeed = 1.0;
+  bool _isPrivate = false;
+  String? hash;
 
   @override
   Duration get duration => _duration;
@@ -64,6 +66,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
 
   VimeoPlaybackController._(
     this.videoId,
+    this.hash,
     this._globalController,
     Duration initialPosition,
     double? initialVolume,
@@ -71,6 +74,8 @@ class VimeoPlaybackController extends OmniPlaybackController {
     this.callbacks,
   ) {
     _eventHandler = VimeoPlayerEventHandler(this);
+
+    if (hash != null) isPrivate = true;
 
     late final PlatformWebViewControllerCreationParams webViewParams;
     if (WebViewPlatform.instance is WebKitWebViewPlatform) {
@@ -101,6 +106,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
   /// Creates and initializes a new [OmniPlaybackController] instance.
   static VimeoPlaybackController create({
     required String videoId,
+    required String? hash,
     required GlobalPlaybackController? globalController,
     required Duration initialPosition,
     required double? initialVolume,
@@ -109,6 +115,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
   }) {
     return VimeoPlaybackController._(
       videoId,
+      hash,
       globalController,
       initialPosition,
       initialVolume,
@@ -125,6 +132,8 @@ class VimeoPlaybackController extends OmniPlaybackController {
         'videoId': videoId,
         'platform': platform,
         'playerId': playerId,
+        'hash': hash ?? '',
+        'controls': hash?.isNotEmpty == true ? 'true' : 'false',
       }),
       baseUrl: kIsWeb ? Uri.base.origin : "https://player.vimeo.com",
     );
@@ -396,6 +405,14 @@ class VimeoPlaybackController extends OmniPlaybackController {
     }
     _playbackSpeed = speed;
     _evaluate("player.setPlaybackRate($speed);");
+    notifyListeners();
+  }
+
+  @override
+  bool get isPrivate => _isPrivate;
+
+  set isPrivate(bool value) {
+    _isPrivate = value;
     notifyListeners();
   }
 }

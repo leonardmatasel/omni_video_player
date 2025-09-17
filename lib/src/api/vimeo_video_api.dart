@@ -20,4 +20,33 @@ class VimeoVideoApi {
       return null;
     }
   }
+
+  static Future<Map<String, dynamic>> getSignedUrl(
+      String videoId, String token) async {
+    final response = await http.get(
+      Uri.parse("https://api.vimeo.com/videos/$videoId"),
+      headers: {
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      final hash = Uri.parse(json['player_embed_url']).queryParameters['h'];
+      final width = json['width'];
+      final height = json['height'];
+
+      if (hash == null) {
+        throw Exception("Hash Vimeo not found into response: ${response.body}");
+      }
+
+      return {
+        "hash": hash,
+        "width": width,
+        "height": height,
+      };
+    } else {
+      throw Exception("Error Vimeo API: ${response.body}");
+    }
+  }
 }

@@ -487,4 +487,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
     _eval('player.setPlaybackRate($speed);');
     notifyListeners();
   }
+
+  @override
+  bool get isPrivate => false;
 }

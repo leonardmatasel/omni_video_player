@@ -8,6 +8,7 @@ import 'package:omni_video_player/src/widgets/adaptive_video_player_display.dart
 import 'package:omni_video_player/src/widgets/fade_overlay_switcher.dart';
 import 'package:omni_video_player/src/widgets/player/video_player_thumbnail_preview.dart';
 import 'package:omni_video_player/src/widgets/video_overlay_controls.dart';
+import 'package:omni_video_player/src/widgets/wrap_when.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 /// A comprehensive video player widget that manages video rendering,
@@ -64,10 +65,14 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
         widget.options.playerUIVisibilityOptions.customAspectRatioNormal ??
             widget.controller.size.width / widget.controller.size.height;
 
-    return VideoOverlayControls(
-      controller: widget.controller,
-      options: widget.options,
-      callbacks: widget.callbacks,
+    return WrapWhen(
+      condition: !widget.controller.isPrivate,
+      wrapper: (child) => VideoOverlayControls(
+        controller: widget.controller,
+        options: widget.options,
+        callbacks: widget.callbacks,
+        child: child,
+      ),
       child: Stack(
         children: [
           // Blurred circular background overlay

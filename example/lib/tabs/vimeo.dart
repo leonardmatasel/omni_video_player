@@ -43,7 +43,8 @@ class _VimeoState extends State<Vimeo> {
           ),
           options: VideoPlayerConfiguration(
             videoSourceConfiguration: VideoSourceConfiguration.vimeo(
-              videoId: '1017406920',
+              videoId: '1114477319',
+              vimeoAccessToken: 'af12e352e1fcc1ac15fde43baaff0868',
             ).copyWith(initialVolume: 0.8),
             playerUIVisibilityOptions: PlayerUIVisibilityOptions(
               useSafeAreaForBottomControls: true,

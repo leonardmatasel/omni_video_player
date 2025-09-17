@@ -117,13 +117,15 @@ class _OmniVideoPlayerState extends State<OmniVideoPlayer> {
           child: Stack(
             children: [
               if (_options.playerUIVisibilityOptions.showLoadingWidget &&
-                  !controller.isReady)
+                  !controller.isReady &&
+                  !controller.isPrivate)
                 Center(child: _options.customPlayerWidgets.loadingWidget),
               VideoPlayerRenderer(
                 options: _options.copyWith(
                   customPlayerWidgets: _options.customPlayerWidgets.copyWith(
-                    thumbnail:
-                        _options.customPlayerWidgets.thumbnail ?? thumbnail,
+                    thumbnail: !controller.isPrivate
+                        ? _options.customPlayerWidgets.thumbnail ?? thumbnail
+                        : null,
                   ),
                 ),
                 callbacks: _callbacks,

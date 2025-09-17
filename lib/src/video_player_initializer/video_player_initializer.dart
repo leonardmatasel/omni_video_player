@@ -6,7 +6,6 @@ import 'package:omni_video_player/omni_video_player/models/video_player_callback
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
-import 'package:omni_video_player/src/api/vimeo_video_api.dart';
 import 'package:omni_video_player/src/controllers/global_volume_synchronizer.dart';
 import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
@@ -66,15 +65,6 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
 
   Future<void> _initialize() async {
     final type = widget.options.videoSourceConfiguration.videoSourceType;
-    if (type == VideoSourceType.vimeo) {
-      _vimeoVideoInfo = await VimeoVideoApi.fetchVimeoVideoInfo(
-        widget.options.videoSourceConfiguration.videoId!,
-      );
-
-      if (_vimeoVideoInfo == null) {
-        throw Exception('Failed to fetch Vimeo video info');
-      }
-    }
 
     final strategy = VideoPlayerInitializerFactory.getStrategy(
       type,

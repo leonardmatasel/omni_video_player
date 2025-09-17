@@ -24,20 +24,37 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
   Future<OmniPlaybackController?> initialize() async {
     try {
       final videoId = options.videoSourceConfiguration.videoId!;
-      final vimeoVideoInfo = await VimeoVideoApi.fetchVimeoVideoInfo(videoId);
+      int? width;
+      int? height;
 
-      if (vimeoVideoInfo == null) {
+      String? hash;
+      if (options.videoSourceConfiguration.vimeoAccessToken != null) {
+        final result = await VimeoVideoApi.getSignedUrl(
+          videoId,
+          options.videoSourceConfiguration.vimeoAccessToken!,
+        );
+        hash = result['hash'];
+        width = result['width'];
+        height = result['height'];
+      } else {
+        final result = await VimeoVideoApi.fetchVimeoVideoInfo(videoId);
+        width = result?.width;
+        height = result?.height;
+      }
+
+      if (width == null || height == null) {
         throw Exception('Failed to fetch Vimeo video info');
       }
 
       final controller = VimeoPlaybackController.create(
         videoId: videoId,
+        hash: hash,
         globalController: globalController,
         initialPosition: options.videoSourceConfiguration.initialPosition,
         initialVolume: options.videoSourceConfiguration.initialVolume,
         size: Size(
-          vimeoVideoInfo.width.toDouble(),
-          vimeoVideoInfo.height.toDouble(),
+          width.toDouble(),
+          height.toDouble(),
         ),
         callbacks: callbacks,
       );

@@ -141,6 +141,11 @@ class VideoSourceConfiguration {
   /// Defaults to `false`.
   final bool forceYoutubeWebViewOnly;
 
+  /// An optional access token used only for private Vimeo videos.
+  ///
+  /// ⚠️ Ignored for all other video sources.
+  final String? vimeoAccessToken;
+
   /// Private constructor used by factory constructors and [copyWith].
   const VideoSourceConfiguration._({
     this.videoUrl,
@@ -160,6 +165,7 @@ class VideoSourceConfiguration {
     this.enableYoutubeWebViewFallback = true,
     this.forceYoutubeWebViewOnly = false,
     this.timeoutDuration = const Duration(seconds: 30),
+    this.vimeoAccessToken,
   });
 
   /// Factory constructor for Vimeo videos.
@@ -180,11 +186,13 @@ class VideoSourceConfiguration {
     List<OmniVideoQuality> preferredQualities = const [
       OmniVideoQuality.medium480
     ],
+    String? vimeoAccessToken,
   }) {
     return VideoSourceConfiguration._(
       videoId: videoId,
       videoSourceType: VideoSourceType.vimeo,
       preferredQualities: preferredQualities,
+      vimeoAccessToken: vimeoAccessToken,
     );
   }
 
@@ -347,6 +355,7 @@ class VideoSourceConfiguration {
           enableYoutubeWebViewFallback ?? this.enableYoutubeWebViewFallback,
       forceYoutubeWebViewOnly:
           forceYoutubeWebViewOnly ?? this.forceYoutubeWebViewOnly,
+      vimeoAccessToken: vimeoAccessToken,
     );
   }
 }
