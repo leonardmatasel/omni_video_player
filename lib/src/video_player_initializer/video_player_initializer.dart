@@ -11,6 +11,7 @@ import 'package:omni_video_player/src/controllers/global_volume_synchronizer.dar
 import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
 import 'package:omni_video_player/src/widgets/player/video_player_error_placeholder.dart';
+import 'package:omni_video_player/src/widgets/player/video_player_thumbnail_preview.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../vimeo/model/vimeo_video_info.dart';
@@ -86,6 +87,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
 
     try {
       thumbnail = await _getThumbnail();
+      setState(() {});
       _controller = await strategy.initialize();
       if (_controller == null) {
         throw Exception('Failed to initialize video player');
@@ -119,10 +121,40 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
     super.build(context);
     final theme = OmniVideoPlayerTheme.of(context)!;
 
+    final aspectRatio =
+        widget.options.playerUIVisibilityOptions.customAspectRatioNormal ??
+            (_controller != null
+                ? (_controller!.size.width / _controller!.size.height)
+                : 16 / 9);
+
     if (_isLoading) {
-      return widget.options.playerUIVisibilityOptions.showLoadingWidget
-          ? widget.options.customPlayerWidgets.loadingWidget
-          : const SizedBox.shrink();
+      return Stack(
+        children: [
+          if ((widget.options.customPlayerWidgets.thumbnail != null ||
+                  thumbnail != null) &&
+              widget.options.playerUIVisibilityOptions.showThumbnailAtStart)
+            Center(
+              child: AspectRatio(
+                aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
+                child: ClipRRect(
+                  borderRadius:
+                      BorderRadius.circular(theme.shapes.borderRadius),
+                  child: VideoPlayerThumbnailPreview(
+                    imageProvider:
+                        widget.options.customPlayerWidgets.thumbnail ??
+                            thumbnail!,
+                    fit: widget.options.customPlayerWidgets.thumbnailFit,
+                    backgroundColor: theme.colors.backgroundThumbnail,
+                  ),
+                ),
+              ),
+            ),
+          if (widget.options.playerUIVisibilityOptions.showLoadingWidget)
+            widget.options.customPlayerWidgets.loadingWidget
+          else
+            const SizedBox.shrink(),
+        ],
+      );
     }
 
     if (_hasError || _controller == null) {

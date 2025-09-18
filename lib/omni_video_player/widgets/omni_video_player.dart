@@ -6,6 +6,7 @@ import 'package:omni_video_player/omni_video_player/models/video_player_configur
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer.dart';
+import 'package:omni_video_player/src/widgets/player/video_player_error_placeholder.dart';
 import 'package:omni_video_player/src/widgets/video_player_renderer.dart';
 
 /// A universal and configurable video player widget supporting multiple video sources.
@@ -107,31 +108,83 @@ class _OmniVideoPlayerState extends State<OmniVideoPlayer> {
 
     return OmniVideoPlayerTheme(
       data: _options.playerTheme,
-      child: VideoPlayerInitializer(
-        key: _options.globalKeyInitializer,
-        options: _options,
-        callbacks: _callbacks,
-        globalController: globalController,
-        buildPlayer: (context, controller, thumbnail) => Container(
-          alignment: Alignment.center,
-          child: Stack(
-            children: [
-              if (_options.playerUIVisibilityOptions.showLoadingWidget &&
-                  !controller.isReady)
-                Center(child: _options.customPlayerWidgets.loadingWidget),
-              VideoPlayerRenderer(
-                options: _options.copyWith(
-                  customPlayerWidgets: _options.customPlayerWidgets.copyWith(
-                    thumbnail:
-                        _options.customPlayerWidgets.thumbnail ?? thumbnail,
-                  ),
+      child: Stack(
+        children: [
+          // Blurred circular background overlay
+          if (_options.playerTheme.overlays.backgroundColor != null &&
+              _options.playerTheme.overlays.alpha != null)
+            Positioned.fill(
+              child: widget.options.enableBackgroundOverlayClip == true
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(
+                        _options.playerTheme.shapes.borderRadius,
+                      ),
+                      child: MovingBlurredCircleBackground(
+                        color: widget
+                            .options.playerTheme.overlays.backgroundColor!,
+                        alpha: _options.playerTheme.overlays.alpha!,
+                      ),
+                    )
+                  : MovingBlurredCircleBackground(
+                      color:
+                          widget.options.playerTheme.overlays.backgroundColor!,
+                      alpha: _options.playerTheme.overlays.alpha!,
+                    ),
+            ),
+          VideoPlayerInitializer(
+            key: _options.globalKeyInitializer,
+            options: _options,
+            callbacks: _callbacks,
+            globalController: globalController,
+            buildPlayer: (context, controller, thumbnail) => AnimatedBuilder(
+              animation: controller,
+              builder: (context, child) => Container(
+                alignment: Alignment.center,
+                child: Stack(
+                  children: [
+                    if (_options.playerUIVisibilityOptions.showLoadingWidget &&
+                        !controller.isReady &&
+                        !controller.hasError)
+                      _options.customPlayerWidgets.loadingWidget,
+                    if (!controller.hasError)
+                      VideoPlayerRenderer(
+                        options: _options.copyWith(
+                          customPlayerWidgets:
+                              _options.customPlayerWidgets.copyWith(
+                            thumbnail: _options.customPlayerWidgets.thumbnail ??
+                                thumbnail,
+                          ),
+                        ),
+                        callbacks: _callbacks,
+                        controller: controller,
+                      )
+                    else
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                            widget.options.playerTheme.shapes.borderRadius),
+                        child: widget.options.playerUIVisibilityOptions
+                                .showErrorPlaceholder
+                            ? widget.options.customPlayerWidgets
+                                    .errorPlaceholder ??
+                                VideoPlayerErrorPlaceholder(
+                                  playerGlobalKey:
+                                      widget.options.globalKeyInitializer,
+                                  showRefreshButton: widget
+                                      .options
+                                      .playerUIVisibilityOptions
+                                      .showRefreshButtonInErrorPlaceholder,
+                                  videoUrlToOpenExternally: widget
+                                      .options.videoSourceConfiguration.videoUrl
+                                      .toString(),
+                                )
+                            : const SizedBox.shrink(),
+                      ),
+                  ],
                 ),
-                callbacks: _callbacks,
-                controller: controller,
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

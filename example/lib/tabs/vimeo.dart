@@ -62,7 +62,9 @@ class _VimeoState extends State<Vimeo> {
             globalPlaybackControlSettings: GlobalPlaybackControlSettings()
                 .copyWith(useGlobalPlaybackController: true),
             customPlayerWidgets: CustomPlayerWidgets().copyWith(
-              loadingWidget: CircularProgressIndicator(color: Colors.red),
+              loadingWidget: Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              ),
             ),
             playerTheme: OmniVideoPlayerThemeData().copyWith(
               overlays: VideoPlayerOverlayTheme().copyWith(

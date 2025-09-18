@@ -137,6 +137,8 @@ class YoutubePlayerEventHandler {
   void onFullscreenButtonPressed(Object data) {}
 
   void onError(Object data) {
+    logger.e(
+        "YouTube API ErrorCode: $data, message: ${(data == 150 || data == 101) ? 'Embedding not allowed: usually happens with official music videos, copyrighted content (movies, sports, live events), videos with geographic restrictions, or when the uploader has disabled embedding in YouTube Studio' : 'Unknown error'}");
     controller.hasError = true;
   }
 

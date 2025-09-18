@@ -1,3 +1,11 @@
+# 2.3.7
+
+✨ **New Features**
+
+* Show **YouTube video thumbnail** while controller initializes.
+  - Thumbnail is displayed immediately when available
+  - See issue: [#28](https://github.com/leonardmatasel/omni_video_player/issues/28)
+
 # 2.3.6
 
 🛠 **Fix**

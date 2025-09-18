@@ -70,27 +70,6 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
       callbacks: widget.callbacks,
       child: Stack(
         children: [
-          // Blurred circular background overlay
-          if (theme.overlays.backgroundColor != null &&
-              theme.overlays.alpha != null)
-            Positioned.fill(
-              child: widget.options.enableBackgroundOverlayClip == true
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        theme.shapes.borderRadius,
-                      ),
-                      child: MovingBlurredCircleBackground(
-                        color: widget
-                            .options.playerTheme.overlays.backgroundColor!,
-                        alpha: theme.overlays.alpha!,
-                      ),
-                    )
-                  : MovingBlurredCircleBackground(
-                      color:
-                          widget.options.playerTheme.overlays.backgroundColor!,
-                      alpha: theme.overlays.alpha!,
-                    ),
-            ),
           // Video player with fade transition and visibility detection
           Positioned.fill(
             child: ClipRRect(
