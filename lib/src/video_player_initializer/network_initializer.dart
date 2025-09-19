@@ -10,48 +10,48 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
   final VideoPlayerCallbacks callbacks;
   final GlobalPlaybackController? globalController;
   final void Function()? onErrorCallback;
+  final VideoSourceConfiguration videoSourceConfiguration;
 
   NetworkInitializer({
     required this.options,
     required this.callbacks,
     this.globalController,
     this.onErrorCallback,
+    required this.videoSourceConfiguration,
   });
 
   @override
   Future<OmniPlaybackController?> initialize() async {
     try {
-      final isHlsVideo = await HlsVideoApi.isHlsUri(
-          options.videoSourceConfiguration.videoUrl!);
+      final isHlsVideo =
+          await HlsVideoApi.isHlsUri(videoSourceConfiguration.videoUrl!);
 
       Map<OmniVideoQuality, Uri>? qualitiesMap;
       MapEntry<OmniVideoQuality, Uri>? currentQualityEntry;
 
       if (isHlsVideo) {
         qualitiesMap = await HlsVideoApi.extractHlsVariantsByQuality(
-            options.videoSourceConfiguration.videoUrl!,
-            options.videoSourceConfiguration.availableQualities);
+            videoSourceConfiguration.videoUrl!,
+            videoSourceConfiguration.availableQualities);
         currentQualityEntry = HlsVideoApi.selectBestQualityVariant(qualitiesMap,
-            preferredQualities:
-                options.videoSourceConfiguration.preferredQualities);
+            preferredQualities: videoSourceConfiguration.preferredQualities);
       }
 
       final controller = await DefaultPlaybackController.create(
         videoUrl: (currentQualityEntry != null)
             ? currentQualityEntry.value
-            : options.videoSourceConfiguration.videoUrl!,
+            : videoSourceConfiguration.videoUrl!,
         dataSource: null,
         file: null,
         audioUrl: null,
         isLive: false,
         globalController: globalController,
-        initialPosition: options.videoSourceConfiguration.initialPosition,
-        initialVolume: options.videoSourceConfiguration.initialVolume,
-        initialPlaybackSpeed:
-            options.videoSourceConfiguration.initialPlaybackSpeed,
+        initialPosition: videoSourceConfiguration.initialPosition,
+        initialVolume: videoSourceConfiguration.initialVolume,
+        initialPlaybackSpeed: videoSourceConfiguration.initialPlaybackSpeed,
         callbacks: callbacks,
-        type: options.videoSourceConfiguration.videoSourceType,
-        globalKeyPlayer: options.globalKeyPlayer,
+        type: videoSourceConfiguration.videoSourceType,
+        globalKeyPlayer: options.globalKeyInitializer,
         qualityUrls: qualitiesMap,
         currentVideoQuality:
             (currentQualityEntry != null) ? currentQualityEntry.key : null,

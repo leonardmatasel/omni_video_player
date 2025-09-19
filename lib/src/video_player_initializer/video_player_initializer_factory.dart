@@ -3,6 +3,7 @@ import 'package:omni_video_player/omni_video_player/controllers/global_playback_
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
+import 'package:omni_video_player/omni_video_player/models/video_source_configuration.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
 import 'package:omni_video_player/src/video_player_initializer/asset_initializer.dart';
 import 'package:omni_video_player/src/video_player_initializer/network_initializer.dart';
@@ -19,6 +20,7 @@ abstract class IVideoPlayerInitializerStrategy {
 class VideoPlayerInitializerFactory {
   static IVideoPlayerInitializerStrategy getStrategy(
     VideoSourceType sourceType,
+    VideoSourceConfiguration videoSourceConfiguration,
     VideoPlayerConfiguration options,
     VideoPlayerCallbacks callbacks,
     GlobalPlaybackController? globalController,
@@ -26,13 +28,13 @@ class VideoPlayerInitializerFactory {
   ) {
     switch (sourceType) {
       case VideoSourceType.youtube:
-        if (options.videoSourceConfiguration.forceYoutubeWebViewOnly ||
-            kIsWeb) {
+        if (videoSourceConfiguration.forceYoutubeWebViewOnly || kIsWeb) {
           return YouTubeWebViewInitializer(
             options: options,
             globalController: globalController,
             onErrorCallback: onErrorCallback,
             callbacks: callbacks,
+            videoSourceConfiguration: videoSourceConfiguration,
           );
         } else {
           return YouTubeInitializer(
@@ -40,6 +42,7 @@ class VideoPlayerInitializerFactory {
             globalController: globalController,
             onErrorCallback: onErrorCallback,
             callbacks: callbacks,
+            videoSourceConfiguration: videoSourceConfiguration,
           );
         }
 
@@ -49,6 +52,7 @@ class VideoPlayerInitializerFactory {
           globalController: globalController,
           onErrorCallback: onErrorCallback,
           callbacks: callbacks,
+          videoSourceConfiguration: videoSourceConfiguration,
         );
       case VideoSourceType.network:
         return NetworkInitializer(
@@ -56,6 +60,7 @@ class VideoPlayerInitializerFactory {
           globalController: globalController,
           onErrorCallback: onErrorCallback,
           callbacks: callbacks,
+          videoSourceConfiguration: videoSourceConfiguration,
         );
       case VideoSourceType.asset:
         return AssetInitializer(
@@ -63,6 +68,7 @@ class VideoPlayerInitializerFactory {
           globalController: globalController,
           onErrorCallback: onErrorCallback,
           callbacks: callbacks,
+          videoSourceConfiguration: videoSourceConfiguration,
         );
       case VideoSourceType.file:
         return FileInitializer(
@@ -70,6 +76,7 @@ class VideoPlayerInitializerFactory {
           globalController: globalController,
           onErrorCallback: onErrorCallback,
           callbacks: callbacks,
+          videoSourceConfiguration: videoSourceConfiguration,
         );
     }
   }

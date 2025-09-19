@@ -1,3 +1,12 @@
+# 2.3.9
+
+✨ **New Features**
+
+* Add support for **dynamically changing the video source** after player initialization.
+  - Introduced `loadVideoSource(VideoSourceConfiguration configuration)` in `OmniPlaybackController`
+  - Lets you seamlessly switch between YouTube, Vimeo, network, or asset sources without rebuilding the widget — or simply load a different video
+  - See issue: [#26](https://github.com/leonardmatasel/omni_video_player/issues/26)
+
 # 2.3.8
 
 🛠 **Fix**

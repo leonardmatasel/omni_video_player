@@ -14,6 +14,7 @@ import 'package:omni_video_player/src/widgets/player/video_player_error_placehol
 import 'package:omni_video_player/src/widgets/player/video_player_thumbnail_preview.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
+import '../../omni_video_player/models/video_source_configuration.dart';
 import '../vimeo/model/vimeo_video_info.dart';
 
 class VideoPlayerInitializer extends StatefulWidget {
@@ -48,7 +49,9 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
   bool _isLoading = true;
   bool _hasError = false;
   VimeoVideoInfo? _vimeoVideoInfo;
-  ImageProvider<Object>? thumbnail;
+  ImageProvider<Object>? _thumbnail;
+  late VideoSourceConfiguration _videoSourceConfiguration =
+      widget.options.videoSourceConfiguration;
 
   @override
   void initState() {
@@ -56,20 +59,24 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
     _initialize();
   }
 
-  Future<void> refresh() async {
+  Future<void> refresh(
+      {VideoSourceConfiguration? videoSourceConfiguration}) async {
     setState(() {
       _controller = null;
       _isLoading = true;
       _hasError = false;
+      if (videoSourceConfiguration != null) {
+        _videoSourceConfiguration = videoSourceConfiguration;
+      }
     });
     await _initialize();
   }
 
   Future<void> _initialize() async {
-    final type = widget.options.videoSourceConfiguration.videoSourceType;
+    final type = _videoSourceConfiguration.videoSourceType;
     if (type == VideoSourceType.vimeo) {
       _vimeoVideoInfo = await VimeoVideoApi.fetchVimeoVideoInfo(
-        widget.options.videoSourceConfiguration.videoId!,
+        _videoSourceConfiguration.videoId!,
       );
 
       if (_vimeoVideoInfo == null) {
@@ -79,6 +86,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
 
     final strategy = VideoPlayerInitializerFactory.getStrategy(
       type,
+      _videoSourceConfiguration,
       widget.options,
       widget.callbacks,
       widget.globalController,
@@ -86,7 +94,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
     );
 
     try {
-      thumbnail = await _getThumbnail();
+      _thumbnail = await _getThumbnail();
       setState(() {});
       _controller = await strategy.initialize();
       if (_controller == null) {
@@ -106,7 +114,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
   }
 
   void _startReadyTimeout(OmniPlaybackController controller) {
-    Future.delayed(widget.options.videoSourceConfiguration.timeoutDuration, () {
+    Future.delayed(_videoSourceConfiguration.timeoutDuration, () {
       if (mounted && !controller.isReady) {
         setState(() {
           _hasError = true;
@@ -131,7 +139,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
       return Stack(
         children: [
           if ((widget.options.customPlayerWidgets.thumbnail != null ||
-                  thumbnail != null) &&
+                  _thumbnail != null) &&
               widget.options.playerUIVisibilityOptions.showThumbnailAtStart)
             Center(
               child: AspectRatio(
@@ -142,7 +150,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
                   child: VideoPlayerThumbnailPreview(
                     imageProvider:
                         widget.options.customPlayerWidgets.thumbnail ??
-                            thumbnail!,
+                            _thumbnail!,
                     fit: widget.options.customPlayerWidgets.thumbnailFit,
                     backgroundColor: theme.colors.backgroundThumbnail,
                   ),
@@ -177,7 +185,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
     final child = widget.buildPlayer(
       context,
       _controller!,
-      thumbnail,
+      _thumbnail,
     );
 
     return widget.options.globalPlaybackControlSettings
@@ -209,10 +217,10 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
       return null;
     }
 
-    switch (widget.options.videoSourceConfiguration.videoSourceType) {
+    switch (_videoSourceConfiguration.videoSourceType) {
       case VideoSourceType.youtube:
         final videoId = VideoId(
-          widget.options.videoSourceConfiguration.videoUrl!.toString(),
+          _videoSourceConfiguration.videoUrl!.toString(),
         ).value;
         return await _getYoutubeThumbnail(
             "https://i3.ytimg.com/vi/$videoId/sddefault.jpg");

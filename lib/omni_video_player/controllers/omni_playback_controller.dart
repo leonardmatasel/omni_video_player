@@ -162,4 +162,9 @@ abstract class OmniPlaybackController with ChangeNotifier {
   ///
   /// Implementations should ensure that video and audio remain synchronized.
   set playbackSpeed(double speed);
+
+  /// Loads a new video source dynamically, replacing the current one.
+  ///
+  /// - [videoSourceConfiguration] defines the new source (e.g., Vimeo, YouTube, Network).
+  void loadVideoSource(VideoSourceConfiguration videoSourceConfiguration);
 }

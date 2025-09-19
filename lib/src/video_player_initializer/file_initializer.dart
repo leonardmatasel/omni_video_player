@@ -11,12 +11,14 @@ class FileInitializer implements IVideoPlayerInitializerStrategy {
   final VideoPlayerCallbacks callbacks;
   final GlobalPlaybackController? globalController;
   final void Function()? onErrorCallback;
+  final VideoSourceConfiguration videoSourceConfiguration;
 
   FileInitializer({
     required this.options,
     required this.callbacks,
     this.globalController,
     this.onErrorCallback,
+    required this.videoSourceConfiguration,
   });
 
   @override
@@ -31,17 +33,16 @@ class FileInitializer implements IVideoPlayerInitializerStrategy {
       final controller = await DefaultPlaybackController.create(
         videoUrl: null,
         dataSource: null,
-        file: options.videoSourceConfiguration.videoFile,
+        file: videoSourceConfiguration.videoFile,
         audioUrl: null,
         isLive: false,
         globalController: globalController,
-        initialPosition: options.videoSourceConfiguration.initialPosition,
-        initialVolume: options.videoSourceConfiguration.initialVolume,
-        initialPlaybackSpeed:
-            options.videoSourceConfiguration.initialPlaybackSpeed,
+        initialPosition: videoSourceConfiguration.initialPosition,
+        initialVolume: videoSourceConfiguration.initialVolume,
+        initialPlaybackSpeed: videoSourceConfiguration.initialPlaybackSpeed,
         callbacks: callbacks,
-        type: options.videoSourceConfiguration.videoSourceType,
-        globalKeyPlayer: options.globalKeyPlayer,
+        type: videoSourceConfiguration.videoSourceType,
+        globalKeyPlayer: options.globalKeyInitializer,
       );
 
       controller.sharedPlayerNotifier.value = Hero(

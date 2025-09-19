@@ -9,12 +9,14 @@ class AssetInitializer implements IVideoPlayerInitializerStrategy {
   final VideoPlayerCallbacks callbacks;
   final GlobalPlaybackController? globalController;
   final void Function()? onErrorCallback;
+  final VideoSourceConfiguration videoSourceConfiguration;
 
   AssetInitializer({
     required this.options,
     required this.callbacks,
     this.globalController,
     this.onErrorCallback,
+    required this.videoSourceConfiguration,
   });
 
   @override
@@ -22,18 +24,17 @@ class AssetInitializer implements IVideoPlayerInitializerStrategy {
     try {
       final controller = await DefaultPlaybackController.create(
         videoUrl: null,
-        dataSource: options.videoSourceConfiguration.videoDataSource!,
+        dataSource: videoSourceConfiguration.videoDataSource!,
         file: null,
         audioUrl: null,
         isLive: false,
         globalController: globalController,
-        initialPosition: options.videoSourceConfiguration.initialPosition,
-        initialVolume: options.videoSourceConfiguration.initialVolume,
-        initialPlaybackSpeed:
-            options.videoSourceConfiguration.initialPlaybackSpeed,
+        initialPosition: videoSourceConfiguration.initialPosition,
+        initialVolume: videoSourceConfiguration.initialVolume,
+        initialPlaybackSpeed: videoSourceConfiguration.initialPlaybackSpeed,
         callbacks: callbacks,
-        type: options.videoSourceConfiguration.videoSourceType,
-        globalKeyPlayer: options.globalKeyPlayer,
+        type: videoSourceConfiguration.videoSourceType,
+        globalKeyPlayer: options.globalKeyInitializer,
       );
 
       controller.sharedPlayerNotifier.value = Hero(

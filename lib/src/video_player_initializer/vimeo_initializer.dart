@@ -12,18 +12,20 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
   final VideoPlayerCallbacks callbacks;
   final GlobalPlaybackController? globalController;
   final void Function() onErrorCallback;
+  final VideoSourceConfiguration videoSourceConfiguration;
 
   VimeoInitializer({
     required this.options,
     this.globalController,
     required this.onErrorCallback,
     required this.callbacks,
+    required this.videoSourceConfiguration,
   });
 
   @override
   Future<OmniPlaybackController?> initialize() async {
     try {
-      final videoId = options.videoSourceConfiguration.videoId!;
+      final videoId = videoSourceConfiguration.videoId!;
       final vimeoVideoInfo = await VimeoVideoApi.fetchVimeoVideoInfo(videoId);
 
       if (vimeoVideoInfo == null) {
@@ -33,13 +35,14 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
       final controller = VimeoPlaybackController.create(
         videoId: videoId,
         globalController: globalController,
-        initialPosition: options.videoSourceConfiguration.initialPosition,
-        initialVolume: options.videoSourceConfiguration.initialVolume,
+        initialPosition: videoSourceConfiguration.initialPosition,
+        initialVolume: videoSourceConfiguration.initialVolume,
         size: Size(
           vimeoVideoInfo.width.toDouble(),
           vimeoVideoInfo.height.toDouble(),
         ),
         callbacks: callbacks,
+        globalKeyPlayer: options.globalKeyInitializer,
       );
 
       controller.sharedPlayerNotifier.value = Hero(
@@ -63,7 +66,7 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
 
   void _waitUntilReady(VimeoPlaybackController controller) {
     controller.runOnReady(() {
-      final config = options.videoSourceConfiguration;
+      final config = videoSourceConfiguration;
 
       if (config.initialPosition.inSeconds > 0) {
         controller.seekTo(config.initialPosition);

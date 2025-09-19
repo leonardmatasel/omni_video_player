@@ -3,11 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
-import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
-import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
-import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
-import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
+import 'package:omni_video_player/omni_video_player.dart';
 import 'package:video_player/video_player.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
@@ -39,6 +35,8 @@ class VimeoPlaybackController extends OmniPlaybackController {
   Duration _duration = Duration.zero;
   double _playbackSpeed = 1.0;
 
+  GlobalKey<VideoPlayerInitializerState> globalKeyPlayer;
+
   @override
   Duration get duration => _duration;
 
@@ -69,6 +67,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
     double? initialVolume,
     this.size,
     this.callbacks,
+    this.globalKeyPlayer,
   ) {
     _eventHandler = VimeoPlayerEventHandler(this);
 
@@ -106,6 +105,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
     required double? initialVolume,
     required Size size,
     required VideoPlayerCallbacks callbacks,
+    required GlobalKey<VideoPlayerInitializerState> globalKeyPlayer,
   }) {
     return VimeoPlaybackController._(
       videoId,
@@ -114,6 +114,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
       initialVolume,
       size,
       callbacks,
+      globalKeyPlayer,
     );
   }
 
@@ -397,5 +398,11 @@ class VimeoPlaybackController extends OmniPlaybackController {
     _playbackSpeed = speed;
     _evaluate("player.setPlaybackRate($speed);");
     notifyListeners();
+  }
+
+  @override
+  void loadVideoSource(VideoSourceConfiguration videoSourceConfiguration) {
+    globalKeyPlayer.currentState
+        ?.refresh(videoSourceConfiguration: videoSourceConfiguration);
   }
 }

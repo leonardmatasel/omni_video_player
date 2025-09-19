@@ -18,7 +18,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
   late AudioPlaybackController? audioController;
 
   final VideoPlayerCallbacks callbacks;
-  final GlobalKey globalKeyPlayer;
+  final GlobalKey<VideoPlayerInitializerState> globalKeyPlayer;
 
   VideoSourceType type;
   Map<OmniVideoQuality, Uri>? qualityUrls;
@@ -57,20 +57,21 @@ class DefaultPlaybackController extends OmniPlaybackController {
   Duration _duration = Duration.zero;
 
   DefaultPlaybackController._(
-      this.videoController,
-      this.audioController,
-      this.videoUrl,
-      this.videoDataSource,
-      this.isLive,
-      this._globalController,
-      Duration initialPosition,
-      double? initialVolume,
-      double? initialPlaybackSpeed,
-      this.callbacks,
-      this.type,
-      this.qualityUrls,
-      this.currentVideoQuality,
-      this.globalKeyPlayer) {
+    this.videoController,
+    this.audioController,
+    this.videoUrl,
+    this.videoDataSource,
+    this.isLive,
+    this._globalController,
+    Duration initialPosition,
+    double? initialVolume,
+    double? initialPlaybackSpeed,
+    this.callbacks,
+    this.type,
+    this.qualityUrls,
+    this.currentVideoQuality,
+    this.globalKeyPlayer,
+  ) {
     duration = videoController.value.duration;
 
     seekTo(initialPosition, skipHasPlaybackStarted: true);
@@ -100,7 +101,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
       required VideoSourceType type,
       Map<OmniVideoQuality, Uri>? qualityUrls,
       OmniVideoQuality? currentVideoQuality,
-      required GlobalKey globalKeyPlayer}) async {
+      required GlobalKey<VideoPlayerInitializerState> globalKeyPlayer}) async {
     final videoController =
         (type == VideoSourceType.asset && dataSource != null)
             ? VideoPlaybackController.asset(dataSource)
@@ -116,20 +117,21 @@ class DefaultPlaybackController extends OmniPlaybackController {
     }
 
     return DefaultPlaybackController._(
-        videoController,
-        audioController,
-        videoUrl,
-        dataSource,
-        isLive,
-        globalController,
-        initialPosition,
-        initialVolume,
-        initialPlaybackSpeed,
-        callbacks,
-        type,
-        qualityUrls,
-        currentVideoQuality,
-        globalKeyPlayer);
+      videoController,
+      audioController,
+      videoUrl,
+      dataSource,
+      isLive,
+      globalController,
+      initialPosition,
+      initialVolume,
+      initialPlaybackSpeed,
+      callbacks,
+      type,
+      qualityUrls,
+      currentVideoQuality,
+      globalKeyPlayer,
+    );
   }
 
   @override
@@ -475,5 +477,11 @@ class DefaultPlaybackController extends OmniPlaybackController {
     videoController.setPlaybackSpeed(speed);
     audioController?.setPlaybackSpeed(speed);
     notifyListeners();
+  }
+
+  @override
+  void loadVideoSource(VideoSourceConfiguration videoSourceConfiguration) {
+    globalKeyPlayer.currentState
+        ?.refresh(videoSourceConfiguration: videoSourceConfiguration);
   }
 }

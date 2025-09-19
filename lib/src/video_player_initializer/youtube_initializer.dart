@@ -15,10 +15,12 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
   final VideoPlayerCallbacks callbacks;
   final GlobalPlaybackController? globalController;
   final void Function()? onErrorCallback;
+  final VideoSourceConfiguration videoSourceConfiguration;
 
   YouTubeInitializer({
     required this.options,
     required this.callbacks,
+    required this.videoSourceConfiguration,
     this.globalController,
     this.onErrorCallback,
   });
@@ -26,7 +28,7 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
   @override
   Future<OmniPlaybackController?> initialize() async {
     final videoId = VideoId(
-      options.videoSourceConfiguration.videoUrl!.toString(),
+      videoSourceConfiguration.videoUrl!.toString(),
     );
 
     try {
@@ -41,11 +43,9 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
 
       if (isLive) {
         qualitiesMap = await HlsVideoApi.extractHlsVariantsByQuality(
-            streamData.videoUrl,
-            options.videoSourceConfiguration.availableQualities);
+            streamData.videoUrl, videoSourceConfiguration.availableQualities);
         currentQualityEntry = HlsVideoApi.selectBestQualityVariant(qualitiesMap,
-            preferredQualities:
-                options.videoSourceConfiguration.preferredQualities);
+            preferredQualities: videoSourceConfiguration.preferredQualities);
       }
 
       final controller = await _createController(
@@ -68,7 +68,7 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
       callbacks.onControllerCreated?.call(controller);
       return controller;
     } catch (e) {
-      if (options.videoSourceConfiguration.enableYoutubeWebViewFallback) {
+      if (videoSourceConfiguration.enableYoutubeWebViewFallback) {
         logger.i(
             "YouTube stream initialization with youtube_explode_dart failed: $e. Proceeding with WebView fallback.");
         return await _fallbackToWebView(videoId);
@@ -87,7 +87,7 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
   }
 
   Future<_StreamData> _loadOnDemandStream(VideoId videoId) async {
-    final config = options.videoSourceConfiguration;
+    final config = videoSourceConfiguration;
     final urls = await YouTubeService.fetchVideoAndAudioUrls(
       videoId,
       preferredQualities: config.preferredQualities,
@@ -118,7 +118,7 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
     Map<OmniVideoQuality, Uri>? qualityUrls,
     OmniVideoQuality? currentQuality,
   }) {
-    final config = options.videoSourceConfiguration;
+    final config = videoSourceConfiguration;
 
     return DefaultPlaybackController.create(
       videoUrl: videoUrl,
@@ -132,7 +132,7 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
       initialPlaybackSpeed: config.initialPlaybackSpeed,
       callbacks: callbacks,
       type: config.videoSourceType,
-      globalKeyPlayer: options.globalKeyPlayer,
+      globalKeyPlayer: options.globalKeyInitializer,
       qualityUrls: qualityUrls,
       currentVideoQuality: currentQuality,
     );
@@ -158,6 +158,7 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
         onErrorCallback: onErrorCallback,
         callbacks: callbacks,
         videoId: videoId.toString(),
+        videoSourceConfiguration: videoSourceConfiguration,
         ytVideo: ytVideo, // pass already-fetched video
       ).initialize();
     } catch (_) {

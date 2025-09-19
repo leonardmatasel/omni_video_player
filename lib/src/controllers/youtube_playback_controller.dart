@@ -5,19 +5,13 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
-import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
-import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
-import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
+import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:omni_video_player/src/youtube/youtube_player_event_handler.dart';
 import 'package:video_player/video_player.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
-
-import '../../omni_video_player/controllers/global_playback_controller.dart';
-import '../../omni_video_player/models/video_player_configuration.dart';
 
 typedef YoutubeWebResourceError = WebResourceError;
 
@@ -55,6 +49,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
   bool _isFullScreen = false;
   late final String _videoId;
   late final GlobalPlaybackController? _globalController;
+  GlobalKey<VideoPlayerInitializerState> globalKeyPlayer;
 
   @override
   final Size size;
@@ -67,6 +62,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
     required this.options,
     required String videoId,
     required GlobalPlaybackController? globalController,
+    required this.globalKeyPlayer,
     ValueChanged<YoutubeWebResourceError>? onWebResourceError,
     this.key,
   }) {
@@ -110,6 +106,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
     required VideoPlayerCallbacks callbacks,
     required VideoPlayerConfiguration options,
     required GlobalPlaybackController? globalController,
+    required GlobalKey<VideoPlayerInitializerState> globalKeyPlayer,
     bool autoPlay = false,
     double? startSeconds,
     double? endSeconds,
@@ -122,6 +119,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
       size: size,
       videoId: videoId,
       globalController: globalController,
+      globalKeyPlayer: globalKeyPlayer,
       key: videoId,
     );
 
@@ -486,5 +484,11 @@ class YoutubePlaybackController extends OmniPlaybackController {
     _playbackSpeed = speed;
     _eval('player.setPlaybackRate($speed);');
     notifyListeners();
+  }
+
+  @override
+  void loadVideoSource(VideoSourceConfiguration videoSourceConfiguration) {
+    globalKeyPlayer.currentState
+        ?.refresh(videoSourceConfiguration: videoSourceConfiguration);
   }
 }

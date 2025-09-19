@@ -16,9 +16,11 @@ class YouTubeWebViewInitializer implements IVideoPlayerInitializerStrategy {
   final void Function()? onErrorCallback;
   String? videoId;
   final Video? ytVideo;
+  final VideoSourceConfiguration videoSourceConfiguration;
 
   YouTubeWebViewInitializer({
     required this.options,
+    required this.videoSourceConfiguration,
     required this.callbacks,
     this.videoId,
     this.globalController,
@@ -30,8 +32,7 @@ class YouTubeWebViewInitializer implements IVideoPlayerInitializerStrategy {
   Future<OmniPlaybackController?> initialize() async {
     try {
       videoId = videoId ??
-          VideoId(options.videoSourceConfiguration.videoUrl!.toString())
-              .toString();
+          VideoId(videoSourceConfiguration.videoUrl!.toString()).toString();
       final videoSize = await YouTubeService.fetchYouTubeVideoSize(videoId!);
       final Video? videoInfo = kIsWeb
           ? null
@@ -46,7 +47,8 @@ class YouTubeWebViewInitializer implements IVideoPlayerInitializerStrategy {
         callbacks: callbacks,
         options: options,
         globalController: globalController,
-        autoPlay: options.videoSourceConfiguration.autoPlay,
+        autoPlay: videoSourceConfiguration.autoPlay,
+        globalKeyPlayer: options.globalKeyInitializer,
       );
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
