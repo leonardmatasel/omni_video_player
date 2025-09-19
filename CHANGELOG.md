@@ -1,3 +1,9 @@
+# 2.3.8
+
+🛠 **Fix**
+
+* Fixed Youtube WebView Error
+
 # 2.3.7
 
 ✨ **New Features**

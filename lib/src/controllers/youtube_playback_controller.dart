@@ -188,8 +188,8 @@ class YoutubePlaybackController extends OmniPlaybackController {
           'origin': Uri.base.origin,
           'widget_referrer': Uri.base.origin,
         } else ...{
-          'origin': 'https://www.youtube.com',
-          'widget_referrer': "https://www.youtube.com",
+          'origin': 'https://www.youtube-nocookie.com',
+          'widget_referrer': "https://www.youtube-nocookie.com",
         },
         'showinfo': 0,
         'autohide': 1,
