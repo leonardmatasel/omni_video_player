@@ -34,6 +34,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
   Duration _currentPosition = Duration.zero;
   Duration _duration = Duration.zero;
   double _playbackSpeed = 1.0;
+  bool _isFullyVisible = false;
 
   GlobalKey<VideoPlayerInitializerState> globalKeyPlayer;
 
@@ -369,7 +370,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
     try {
       await webViewController.runJavaScript(js);
     } catch (e) {
-      logger.w('Error evaluating JS: $js\n$e');
+      logger.d('Error evaluating JS: $js\n$e');
     }
   }
 
@@ -404,5 +405,14 @@ class VimeoPlaybackController extends OmniPlaybackController {
   void loadVideoSource(VideoSourceConfiguration videoSourceConfiguration) {
     globalKeyPlayer.currentState
         ?.refresh(videoSourceConfiguration: videoSourceConfiguration);
+  }
+
+  @override
+  bool get isFullyVisible => _isFullyVisible;
+
+  @override
+  set isFullyVisible(bool value) {
+    _isFullyVisible = value;
+    notifyListeners();
   }
 }

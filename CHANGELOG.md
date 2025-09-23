@@ -1,3 +1,18 @@
+# 2.3.10
+
+🛠 **Fix**
+
+* Fixed an issue where autoplay videos would start even when the player was no longer visible on screen.
+  - See issue: [#29](https://github.com/leonardmatasel/omni_video_player/issues/29)
+
+✨ **New Features**
+
+* Added `timeoutDuration` parameter to `VideoSourceConfiguration`
+  - Maximum wait time before considering playback failed
+  - Defaults to 6 seconds
+  - In the case of YouTube, the player will proceed with the fallback if enabled (default)
+  - See issue: [#33](https://github.com/leonardmatasel/omni_video_player/issues/33)
+
 # 2.3.9
 
 ✨ **New Features**

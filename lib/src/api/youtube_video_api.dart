@@ -38,10 +38,11 @@ class YouTubeService {
   /// Fetches the HLS URL for a live YouTube stream.
   /// Errors from the underlying `youtube_explode_dart` are rethrown
   /// and should be handled by the caller. No internal logging is performed.
-  static Future<String> fetchLiveStreamUrl(VideoId videoId) async {
+  static Future<String> fetchLiveStreamUrl(
+      VideoId videoId, Duration timeout) async {
     final future = () async {
       try {
-        return await retry(() => _getQuietLiveUrl(videoId));
+        return await retry(() => _getQuietLiveUrl(videoId), timeout: timeout);
       } catch (_) {
         rethrow;
       }
@@ -58,148 +59,144 @@ class YouTubeService {
   /// - [preferredAudioFormats]: A list of preferred audio formats (e.g., mp4a, opus).
   static Future<YouTubeStreamUrls> fetchVideoAndAudioUrls(
     VideoId videoId, {
+    required Duration timeout,
     List<OmniVideoQuality>? preferredQualities,
     List<OmniVideoQuality>? availableQualities,
     List<String>? preferredVideoFormats,
     List<String>? preferredAudioFormats,
   }) async {
     final future = () async {
-      try {
-        final StreamManifest manifest = await retry(
-          () => _getQuietManifest(videoId),
-        );
+      logger.d(
+          'Fetching YouTube video and audio streams with youtube_explode_dart...');
+      final StreamManifest manifest =
+          await retry(() => _getQuietManifest(videoId), timeout: timeout);
 
-        // Filter video streams based on codec compatibility
-        // working with videoPlayer: [avc1, av01, mp4a]
-        // NOT working with videoPlayer: [vp09]
-        // NOTE: mp4a is the fastest and the ones with a single encoding should be preferred
-        final List<VideoStreamInfo> videoStreams =
-            manifest.streams.whereType<VideoStreamInfo>().where(
-          (VideoStreamInfo it) {
-            return it.videoCodec.isNotEmpty && it.videoCodec.contains('avc');
-          },
-        ).toList();
+      // Filter video streams based on codec compatibility
+      // working with videoPlayer: [avc1, av01, mp4a]
+      // NOT working with videoPlayer: [vp09]
+      // NOTE: mp4a is the fastest and the ones with a single encoding should be preferred
+      final List<VideoStreamInfo> videoStreams =
+          manifest.streams.whereType<VideoStreamInfo>().where(
+        (VideoStreamInfo it) {
+          return it.videoCodec.isNotEmpty && it.videoCodec.contains('avc');
+        },
+      ).toList();
 
-        // Filter audio streams based on codec compatibility
-        // working with videoPlayer: [mp4a]
-        // not working with videoPlayer: [opus]
-        // NOTE: prefer mp4a and those with a single encoding
-        final List<AudioStreamInfo> audioStreams = manifest.streams
-            .whereType<AudioStreamInfo>()
-            .where((AudioStreamInfo it) => it.audioCodec.isNotEmpty)
-            .where((AudioStreamInfo it) => it.audioCodec.contains('mp4a'))
-            .toList();
+      // Filter audio streams based on codec compatibility
+      // working with videoPlayer: [mp4a]
+      // not working with videoPlayer: [opus]
+      // NOTE: prefer mp4a and those with a single encoding
+      final List<AudioStreamInfo> audioStreams = manifest.streams
+          .whereType<AudioStreamInfo>()
+          .where((AudioStreamInfo it) => it.audioCodec.isNotEmpty)
+          .where((AudioStreamInfo it) => it.audioCodec.contains('mp4a'))
+          .toList();
 
-        // Convert video streams to a list of maps with relevant details
-        final List<Map<String, dynamic>> availableVideoStreams = videoStreams
-            .map(
-              (VideoStreamInfo stream) => <String, Object>{
+      // Convert video streams to a list of maps with relevant details
+      final List<Map<String, dynamic>> availableVideoStreams = videoStreams
+          .map(
+            (VideoStreamInfo stream) => <String, Object>{
+              'url': stream.url.toString(),
+              'format': stream.container.name,
+              'framerate': stream.framerate,
+              'bitrate': stream.bitrate,
+              'videoCodec': stream.codec.parameters['codecs'].toString(),
+              'quality': omniVideoQualityFromString(stream.qualityLabel),
+              'size': stream.size.totalMegaBytes,
+            },
+          )
+          .where((Map<String, Object> it) =>
+              (it['quality']! as OmniVideoQuality) != OmniVideoQuality.unknown)
+          .toList();
+
+      availableVideoStreams.sort(_sortByQuality);
+
+      // Convert audio streams to a list of maps with relevant details
+      final List<Map<String, dynamic>> availableAudioStreams = audioStreams
+          .map(
+            (AudioStreamInfo stream) {
+              return <String, Object>{
                 'url': stream.url.toString(),
                 'format': stream.container.name,
-                'framerate': stream.framerate,
+                'audioCodec': stream.codec.parameters['codecs'].toString(),
                 'bitrate': stream.bitrate,
-                'videoCodec': stream.codec.parameters['codecs'].toString(),
-                'quality': omniVideoQualityFromString(stream.qualityLabel),
                 'size': stream.size.totalMegaBytes,
-              },
-            )
-            .where((Map<String, Object> it) =>
-                (it['quality']! as OmniVideoQuality) !=
-                OmniVideoQuality.unknown)
-            .toList();
+              };
+            },
+          )
+          .where((Map<String, Object> it) =>
+              (it['audioCodec']! as String).contains("mp4a"))
+          .toList();
 
-        availableVideoStreams.sort(_sortByQuality);
-
-        // Convert audio streams to a list of maps with relevant details
-        final List<Map<String, dynamic>> availableAudioStreams = audioStreams
-            .map(
-              (AudioStreamInfo stream) {
-                return <String, Object>{
-                  'url': stream.url.toString(),
-                  'format': stream.container.name,
-                  'audioCodec': stream.codec.parameters['codecs'].toString(),
-                  'bitrate': stream.bitrate,
-                  'size': stream.size.totalMegaBytes,
-                };
-              },
-            )
-            .where((Map<String, Object> it) =>
-                (it['audioCodec']! as String).contains("mp4a"))
-            .toList();
-
-        // Build a map of quality → Uri for all available qualities
-        final Map<OmniVideoQuality, Uri> allQualityMap = {};
-        for (final video in availableVideoStreams) {
-          try {
-            final quality = video['quality'] as OmniVideoQuality;
-            final uri = Uri.parse(video['url'] as String);
-            allQualityMap[quality] = uri;
-          } catch (e) {
-            logger.w('Skipping video stream due to error: $e\n');
-          }
+      // Build a map of quality → Uri for all available qualities
+      final Map<OmniVideoQuality, Uri> allQualityMap = {};
+      for (final video in availableVideoStreams) {
+        try {
+          final quality = video['quality'] as OmniVideoQuality;
+          final uri = Uri.parse(video['url'] as String);
+          allQualityMap[quality] = uri;
+        } catch (e) {
+          logger.w('Skipping video stream due to error: $e\n');
         }
-
-        // Filter the map to keep only the requested qualities (preferredQualities)
-        Map<OmniVideoQuality, Uri> filteredQualityMap = allQualityMap;
-        if (availableQualities != null) {
-          filteredQualityMap = {
-            for (final q in availableQualities)
-              if (allQualityMap.containsKey(q)) q: allQualityMap[q]!,
-          };
-        }
-
-        // Sorting video streams: first by size, then by quality, and finally by user preferences
-        availableVideoStreams.sort(_sortBySize);
-        availableVideoStreams.sort(
-          (a, b) => _sortByQualityPreference(a, b, preferredQualities),
-        );
-        availableVideoStreams.sort(
-          (a, b) => _sortByFormatPreference(
-            a['format'] as String,
-            b['format'] as String,
-            preferredVideoFormats,
-          ),
-        );
-
-        // Sorting audio streams by size and preferred formats
-        availableAudioStreams.sort(_sortBySize);
-        availableAudioStreams.sort(
-          (a, b) => _sortByFormatPreference(
-            a['format'] as String,
-            b['format'] as String,
-            preferredAudioFormats,
-          ),
-        );
-
-        if (availableVideoStreams.isEmpty) {
-          throw Exception('No compatible YouTube video streams found.');
-        }
-
-        logger.d(
-            "Youtube video stream: ${availableVideoStreams.first['quality']} ${availableVideoStreams.first['videoCodec']} ${availableVideoStreams.first['size']} MB ${availableVideoStreams.first['bitrate']} ${availableVideoStreams.first['framerate']}");
-
-        if (availableAudioStreams.isEmpty) {
-          throw Exception('No compatible YouTube audio streams found.');
-        }
-
-        logger.d(
-            "Youtube audio stream: ${availableAudioStreams.first['bitrate']} ${availableAudioStreams.first['audioCodec']} ${availableAudioStreams.first['size']} MB");
-
-        return YouTubeStreamUrls(
-          videoStreamUrl: availableVideoStreams.isNotEmpty
-              ? availableVideoStreams.first['url'] as String
-              : '',
-          audioStreamUrl: availableAudioStreams.isNotEmpty
-              ? availableAudioStreams.first['url'] as String
-              : '',
-          currentQuality:
-              availableVideoStreams.first['quality'] as OmniVideoQuality,
-          videoQualityUrls: filteredQualityMap,
-        );
-      } catch (error, st) {
-        logger.e('YOUTUBE VIDEO ERROR: $error', error: error, stackTrace: st);
-        rethrow;
       }
+
+      // Filter the map to keep only the requested qualities (preferredQualities)
+      Map<OmniVideoQuality, Uri> filteredQualityMap = allQualityMap;
+      if (availableQualities != null) {
+        filteredQualityMap = {
+          for (final q in availableQualities)
+            if (allQualityMap.containsKey(q)) q: allQualityMap[q]!,
+        };
+      }
+
+      // Sorting video streams: first by size, then by quality, and finally by user preferences
+      availableVideoStreams.sort(_sortBySize);
+      availableVideoStreams.sort(
+        (a, b) => _sortByQualityPreference(a, b, preferredQualities),
+      );
+      availableVideoStreams.sort(
+        (a, b) => _sortByFormatPreference(
+          a['format'] as String,
+          b['format'] as String,
+          preferredVideoFormats,
+        ),
+      );
+
+      // Sorting audio streams by size and preferred formats
+      availableAudioStreams.sort(_sortBySize);
+      availableAudioStreams.sort(
+        (a, b) => _sortByFormatPreference(
+          a['format'] as String,
+          b['format'] as String,
+          preferredAudioFormats,
+        ),
+      );
+
+      if (availableVideoStreams.isEmpty) {
+        throw Exception('No compatible YouTube video streams found.');
+      }
+
+      logger.d(
+          "Youtube video stream: ${availableVideoStreams.first['quality']} ${availableVideoStreams.first['videoCodec']} ${availableVideoStreams.first['size']} MB ${availableVideoStreams.first['bitrate']} ${availableVideoStreams.first['framerate']}");
+
+      if (availableAudioStreams.isEmpty) {
+        throw Exception('No compatible YouTube audio streams found.');
+      }
+
+      logger.d(
+          "Youtube audio stream: ${availableAudioStreams.first['bitrate']} ${availableAudioStreams.first['audioCodec']} ${availableAudioStreams.first['size']} MB");
+
+      return YouTubeStreamUrls(
+        videoStreamUrl: availableVideoStreams.isNotEmpty
+            ? availableVideoStreams.first['url'] as String
+            : '',
+        audioStreamUrl: availableAudioStreams.isNotEmpty
+            ? availableAudioStreams.first['url'] as String
+            : '',
+        currentQuality:
+            availableVideoStreams.first['quality'] as OmniVideoQuality,
+        videoQualityUrls: filteredQualityMap,
+      );
     }();
     return future;
   }
@@ -334,16 +331,27 @@ class YouTubeService {
 Future<T> retry<T>(
   Future<T> Function() action, {
   int retries = 3,
-  Duration delay = const Duration(seconds: 2),
+  Duration delay = const Duration(milliseconds: 200),
+  Duration timeout = const Duration(seconds: 5),
 }) async {
   int attempt = 0;
-  while (true) {
-    try {
-      return await action();
-    } catch (e) {
-      attempt++;
-      if (attempt >= retries) rethrow;
-      await Future.delayed(delay * attempt);
+
+  final future = () async {
+    while (true) {
+      try {
+        return await action();
+      } catch (e) {
+        attempt++;
+        if (attempt >= retries) rethrow;
+        await Future.delayed(delay * attempt);
+      }
     }
-  }
+  }();
+
+  return future.timeout(
+    timeout,
+    onTimeout: () => throw TimeoutException(
+      "Retry block timed out after ${timeout.inSeconds} seconds",
+    ),
+  );
 }

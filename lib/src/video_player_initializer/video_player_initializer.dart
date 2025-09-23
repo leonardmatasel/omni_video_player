@@ -114,7 +114,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
   }
 
   void _startReadyTimeout(OmniPlaybackController controller) {
-    Future.delayed(_videoSourceConfiguration.timeoutDuration, () {
+    Future.delayed(Duration(seconds: 30), () {
       if (mounted && !controller.isReady) {
         setState(() {
           _hasError = true;

@@ -159,7 +159,7 @@ class VideoSourceConfiguration {
     this.allowSeeking = true,
     this.enableYoutubeWebViewFallback = true,
     this.forceYoutubeWebViewOnly = false,
-    this.timeoutDuration = const Duration(seconds: 30),
+    this.timeoutDuration = const Duration(seconds: 6),
   });
 
   /// Factory constructor for Vimeo videos.

@@ -75,7 +75,8 @@ class YoutubePlayerEventHandler {
 
       final config = options.videoSourceConfiguration;
 
-      if (!config.autoPlay) {
+      if (!config.autoPlay ||
+          (!controller.isFullyVisible && controller.hasStarted == false)) {
         controller.pause();
         controller.hasStarted = false;
       }

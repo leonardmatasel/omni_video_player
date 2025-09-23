@@ -8,7 +8,7 @@ import 'package:video_player/video_player.dart' show VideoPlayer;
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../api/hls_video_api.dart';
-import '../utils/logger.dart';
+import 'package:omni_video_player/src/utils/logger.dart';
 
 class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
   final VideoPlayerConfiguration options;
@@ -38,8 +38,10 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
       MapEntry<OmniVideoQuality, Uri>? currentQualityEntry;
 
       final streamData = isLive
-          ? await _loadLiveStream(videoId)
-          : await _loadOnDemandStream(videoId);
+          ? await _loadLiveStream(
+              videoId, videoSourceConfiguration.timeoutDuration)
+          : await _loadOnDemandStream(
+              videoId, videoSourceConfiguration.timeoutDuration);
 
       if (isLive) {
         qualitiesMap = await HlsVideoApi.extractHlsVariantsByQuality(
@@ -67,29 +69,32 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
       _setSharedPlayer(controller);
       callbacks.onControllerCreated?.call(controller);
       return controller;
-    } catch (e) {
+    } catch (e, _) {
       if (videoSourceConfiguration.enableYoutubeWebViewFallback) {
-        logger.i(
-            "YouTube stream initialization with youtube_explode_dart failed: $e. Proceeding with WebView fallback.");
+        logger.d(
+            'YouTube stream initialization with youtube_explode_dart failed: ${e.toString()}');
+        logger.d("Proceeding with WebView fallback...");
         return await _fallbackToWebView(videoId);
       } else {
         logger.e(
-            "YouTube stream with youtube_explode_dart initialization failed: $e");
+            "YouTube stream with youtube_explode_dart initialization failed: ${e.toString()}");
         onErrorCallback?.call();
         return null;
       }
     }
   }
 
-  Future<_StreamData> _loadLiveStream(VideoId videoId) async {
-    final liveUrl = await YouTubeService.fetchLiveStreamUrl(videoId);
+  Future<_StreamData> _loadLiveStream(VideoId videoId, Duration timeout) async {
+    final liveUrl = await YouTubeService.fetchLiveStreamUrl(videoId, timeout);
     return _StreamData(videoUrl: Uri.parse(liveUrl));
   }
 
-  Future<_StreamData> _loadOnDemandStream(VideoId videoId) async {
+  Future<_StreamData> _loadOnDemandStream(
+      VideoId videoId, Duration timeout) async {
     final config = videoSourceConfiguration;
     final urls = await YouTubeService.fetchVideoAndAudioUrls(
       videoId,
+      timeout: timeout,
       preferredQualities: config.preferredQualities,
       availableQualities: config.availableQualities,
     );
@@ -103,7 +108,7 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
   }
 
   double? _parseYoutubeDuration(String url) {
-    final regex = RegExp(r'dur=([\d\.]+)');
+    final regex = RegExp(r"dur=([\d.]+)");
     final match = regex.firstMatch(url);
     if (match != null) {
       return double.tryParse(match.group(1)!);

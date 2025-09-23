@@ -79,6 +79,13 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
                 child: VisibilityDetector(
                   key: Key(hashCode.toString()),
                   onVisibilityChanged: (visibilityInfo) {
+                    if (visibilityInfo.visibleFraction == 1 &&
+                        !widget.controller.isFullyVisible) {
+                      widget.controller.isFullyVisible = true;
+                    } else {
+                      widget.controller.isFullyVisible = false;
+                    }
+
                     // Automatically pause video when not visible and not fullscreen
                     if (visibilityInfo.visibleFraction == 0.0 &&
                         widget.controller.isPlaying &&

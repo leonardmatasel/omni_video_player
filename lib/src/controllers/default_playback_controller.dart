@@ -46,6 +46,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
   Duration _lastPosition = Duration.zero;
   Timer? _positionWatcher;
   bool _wasPlayingBeforeSeek = false;
+  bool _isFullyVisible = false;
 
   bool _isSeeking = false;
   bool _isFullScreen = false;
@@ -483,5 +484,14 @@ class DefaultPlaybackController extends OmniPlaybackController {
   void loadVideoSource(VideoSourceConfiguration videoSourceConfiguration) {
     globalKeyPlayer.currentState
         ?.refresh(videoSourceConfiguration: videoSourceConfiguration);
+  }
+
+  @override
+  bool get isFullyVisible => _isFullyVisible;
+
+  @override
+  set isFullyVisible(bool value) {
+    _isFullyVisible = value;
+    notifyListeners();
   }
 }

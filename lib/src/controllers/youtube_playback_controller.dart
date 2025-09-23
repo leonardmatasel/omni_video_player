@@ -38,6 +38,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
   bool _isLive = false;
   bool _isSeeking = false;
   bool _isBuffering = false;
+  bool _isFullyVisible = false;
   bool? wasPlayingBeforeGoOnFullScreen;
   double _volume = 100;
   double _previousVolume = 100;
@@ -490,5 +491,14 @@ class YoutubePlaybackController extends OmniPlaybackController {
   void loadVideoSource(VideoSourceConfiguration videoSourceConfiguration) {
     globalKeyPlayer.currentState
         ?.refresh(videoSourceConfiguration: videoSourceConfiguration);
+  }
+
+  @override
+  bool get isFullyVisible => _isFullyVisible;
+
+  @override
+  set isFullyVisible(bool value) {
+    _isFullyVisible = value;
+    notifyListeners();
   }
 }

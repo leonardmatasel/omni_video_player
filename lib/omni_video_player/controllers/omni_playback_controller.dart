@@ -167,4 +167,14 @@ abstract class OmniPlaybackController with ChangeNotifier {
   ///
   /// - [videoSourceConfiguration] defines the new source (e.g., Vimeo, YouTube, Network).
   void loadVideoSource(VideoSourceConfiguration videoSourceConfiguration);
+
+  /// Whether the video player widget is fully visible within the viewport.
+  ///
+  /// - Returns `true` if the entire player is currently visible on screen.
+  /// - Returns `false` if the player is partially visible or not visible at all.
+  ///
+  /// This can be useful for scenarios such as:
+  /// - Pausing videos when scrolled out of view.
+  /// - Auto-playing only when the player is completely visible.
+  bool isFullyVisible = false;
 }
