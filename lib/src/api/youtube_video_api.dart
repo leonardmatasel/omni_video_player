@@ -291,7 +291,11 @@ class YouTubeService {
 
   static Future<StreamManifest> _getQuietManifest(VideoId videoId) {
     return runZoned(
-      () => yt!.videos.streamsClient.getManifest(videoId),
+      () => yt!.videos.streamsClient.getManifest(
+        videoId,
+        // FIX BUG youtube_explode_dart of 23/09/25 https://github.com/Hexer10/youtube_explode_dart/issues/361
+        ytClients: [YoutubeApiClient.androidVr],
+      ),
       zoneSpecification: ZoneSpecification(
         print: (self, parent, zone, line) {
           if (line.toLowerCase().contains('retry')) return;

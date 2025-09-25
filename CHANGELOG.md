@@ -1,3 +1,10 @@
+# 2.3.11
+
+🛠 **Fix**
+
+* Fixed a bug with `youtube_explode_dart` by forcing the use of `YoutubeApiClient.androidVr` when retrieving the video manifest.
+  - See issue: [youtube_explode_dart #361](https://github.com/Hexer10/youtube_explode_dart/issues/361)
+
 # 2.3.10
 
 🛠 **Fix**
