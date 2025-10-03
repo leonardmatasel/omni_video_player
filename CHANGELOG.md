@@ -1,3 +1,11 @@
+# 2.3.12
+
+✨ **New Features**
+
+* Add **`showPlayPauseReplayButton`** option to `PlayerUIVisibilityOptions`
+  - Allows controlling the visibility of the main **play / pause / replay overlay button** (centered on the video)
+  - Defaults to `true`
+  
 # 2.3.11
 
 🛠 **Fix**

@@ -70,6 +70,10 @@ class PlayerUIVisibilityOptions {
   /// Whether to display a gradient overlay behind the bottom control bar.
   final bool showGradientBottomControl;
 
+  /// Whether to show the main play/pause/replay button overlay
+  /// (typically centered on the video).
+  final bool showPlayPauseReplayButton;
+
   /// Whether to allow gesture-based fast-forward.
   final bool enableForwardGesture;
 
@@ -128,6 +132,7 @@ class PlayerUIVisibilityOptions {
     this.showVideoBottomControlsBar = true,
     this.showFullScreenButton = true,
     this.showMuteUnMuteButton = true,
+    this.showPlayPauseReplayButton = true,
     this.useSafeAreaForBottomControls = false,
     this.showGradientBottomControl = true,
     this.showRefreshButtonInErrorPlaceholder = true,
@@ -159,6 +164,7 @@ class PlayerUIVisibilityOptions {
     bool? showVideoBottomControlsBar,
     bool? showFullScreenButton,
     bool? showMuteUnMuteButton,
+    bool? showPlayPauseReplayButton,
     bool? useSafeAreaForBottomControls,
     bool? showGradientBottomControl,
     bool? showRefreshButtonInErrorPlaceholder,
@@ -217,6 +223,8 @@ class PlayerUIVisibilityOptions {
           customAspectRatioFullScreen ?? this.customAspectRatioFullScreen,
       fullscreenOrientation:
           fullscreenOrientation ?? this.fullscreenOrientation,
+      showPlayPauseReplayButton:
+          showPlayPauseReplayButton ?? this.showPlayPauseReplayButton,
     );
   }
 }
