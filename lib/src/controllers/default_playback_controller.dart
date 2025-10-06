@@ -374,6 +374,13 @@ class DefaultPlaybackController extends OmniPlaybackController {
       if (isFinished) {
         pause();
       }
+
+      if (callbacks.onSeekRequest != null &&
+          !callbacks.onSeekRequest!(position)) {
+        isSeeking = false;
+        return;
+      }
+
       wasPlayingBeforeSeek = isPlaying;
       if (position.inMicroseconds != 0 && !skipHasPlaybackStarted) {
         _hasStarted = true;

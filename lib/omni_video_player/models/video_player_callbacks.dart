@@ -30,6 +30,7 @@ class VideoPlayerCallbacks {
     this.onMuteToggled,
     this.onSeekStart,
     this.onSeekEnd,
+    this.onSeekRequest,
     this.onFinished,
     this.onReplay,
   });
@@ -69,6 +70,13 @@ class VideoPlayerCallbacks {
   /// [currentPosition] is the final playback position after seeking.
   final void Function(Duration currentPosition)? onSeekEnd;
 
+  /// Called **before** performing a seek operation.
+  ///
+  /// Return `true` to allow the seek, `false` to cancel it.
+  /// [targetPosition] is the position where the seek is requested.
+  /// **Note:** This callback is available **only for videos that are not rendered inside a WebView**.
+  final bool Function(Duration targetPosition)? onSeekRequest;
+
   /// Called when the video reaches the end of playback.
   ///
   /// This callback is triggered **once per video finish**.
@@ -104,6 +112,7 @@ class VideoPlayerCallbacks {
     void Function(bool isMute)? onMuteToggled,
     void Function(Duration currentPosition)? onSeekStart,
     void Function(Duration currentPosition)? onSeekEnd,
+    bool Function(Duration targetPosition)? onSeekRequest,
     VoidCallback? onFinished,
     VoidCallback? onReplay,
   }) {
@@ -119,6 +128,7 @@ class VideoPlayerCallbacks {
       onSeekEnd: onSeekEnd ?? this.onSeekEnd,
       onFinished: onFinished ?? this.onFinished,
       onReplay: onReplay ?? this.onReplay,
+      onSeekRequest: onSeekRequest ?? this.onSeekRequest,
     );
   }
 }

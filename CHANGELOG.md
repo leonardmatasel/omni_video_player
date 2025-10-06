@@ -1,3 +1,14 @@
+# 2.3.18
+
+✨ **New Features**
+
+* Add **`onSeekRequest`** callback to `VideoPlayerCallbacks`
+
+  * Invoked **before** a seek operation is performed.
+  * Returns a `bool` indicating whether the seek should proceed (`true`) or be cancelled (`false`).
+  * Useful for implementing custom seek restrictions or validations.
+  * ⚠️ *Available only for videos that are **not rendered inside a WebView***
+  
 # 2.3.17
 
 🛠 **Fix**
