@@ -95,7 +95,9 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
 
     try {
       _thumbnail = await _getThumbnail();
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
       _controller = await strategy.initialize();
       if (_controller == null) {
         throw Exception('Failed to initialize video player');

@@ -1,3 +1,9 @@
+# 2.3.20
+
+🛠 **Fix**
+
+* Fix issue with error into initializer
+
 # 2.3.19
 
 ✨ **New Features**
