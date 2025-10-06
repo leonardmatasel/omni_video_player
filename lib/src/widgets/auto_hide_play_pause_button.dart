@@ -45,7 +45,8 @@ class AutoHidePlayPauseButton extends StatelessWidget {
       builder: (context, child) {
         return FadeVisibility(
           isVisible: isVisible &&
-              options.playerUIVisibilityOptions.showPlayPauseReplayButton,
+              (controller.isFullScreen ||
+                  options.playerUIVisibilityOptions.showPlayPauseReplayButton),
           child: VideoPlayPauseButton(
             controller: controller,
             showReplayButton:

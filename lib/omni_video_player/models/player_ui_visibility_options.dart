@@ -72,6 +72,7 @@ class PlayerUIVisibilityOptions {
 
   /// Whether to show the main play/pause/replay button overlay
   /// (typically centered on the video).
+  /// This only applies when the video is **not in full screen**.
   final bool showPlayPauseReplayButton;
 
   /// Whether to allow gesture-based fast-forward.

@@ -1,3 +1,10 @@
+# 2.3.13
+
+🛠 **Fix**
+
+* **`showPlayPauseReplayButton`** option to `PlayerUIVisibilityOptions`
+  - Applies **only when not in full screen**
+
 # 2.3.12
 
 ✨ **New Features**
