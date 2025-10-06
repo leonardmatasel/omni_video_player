@@ -1,3 +1,11 @@
+# 2.3.15
+
+🛠 **Fix**
+
+* Fix issue with seeking when the video has ended
+  - Previously, attempting to seek after the video finished could cause unexpected behavior.
+  - Now, seeking works correctly even when the video is at its end.
+
 # 2.3.14
 
 ✨ **New Features**
