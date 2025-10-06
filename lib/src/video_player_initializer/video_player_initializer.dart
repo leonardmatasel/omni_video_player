@@ -175,8 +175,12 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
                   showRefreshButton: widget.options.playerUIVisibilityOptions
                       .showRefreshButtonInErrorPlaceholder,
                   videoUrlToOpenExternally: widget
-                      .options.videoSourceConfiguration.videoUrl
-                      .toString(),
+                          .options
+                          .playerUIVisibilityOptions
+                          .showOpenExternallyInErrorPlaceholder
+                      ? widget.options.videoSourceConfiguration.videoUrl
+                          .toString()
+                      : null,
                 )
             : const SizedBox.shrink(),
       );

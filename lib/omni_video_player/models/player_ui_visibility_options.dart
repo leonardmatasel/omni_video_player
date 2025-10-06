@@ -66,6 +66,9 @@ class PlayerUIVisibilityOptions {
   /// Whether to show a refresh button inside the error placeholder.
   final bool showRefreshButtonInErrorPlaceholder;
 
+  /// Whether to show a "open externally" button inside the error placeholder.
+  final bool showOpenExternallyInErrorPlaceholder;
+
   /// Whether to wrap the bottom control bar inside a [SafeArea] widget
   /// to avoid overlaps with system UI elements like gesture bars or notches.
   final bool useSafeAreaForBottomControls;
@@ -141,6 +144,7 @@ class PlayerUIVisibilityOptions {
     this.useSafeAreaForBottomControls = false,
     this.showGradientBottomControl = true,
     this.showRefreshButtonInErrorPlaceholder = true,
+    this.showOpenExternallyInErrorPlaceholder = true,
     this.enableForwardGesture = true,
     this.enableBackwardGesture = true,
     this.enableExitFullscreenOnVerticalSwipe = true,
@@ -174,6 +178,7 @@ class PlayerUIVisibilityOptions {
     bool? useSafeAreaForBottomControls,
     bool? showGradientBottomControl,
     bool? showRefreshButtonInErrorPlaceholder,
+    bool? showOpenExternallyInErrorPlaceholder,
     bool? enableForwardGesture,
     bool? enableBackwardGesture,
     bool? enableExitFullscreenOnVerticalSwipe,
@@ -207,6 +212,9 @@ class PlayerUIVisibilityOptions {
       showRefreshButtonInErrorPlaceholder:
           showRefreshButtonInErrorPlaceholder ??
               this.showRefreshButtonInErrorPlaceholder,
+      showOpenExternallyInErrorPlaceholder:
+          showOpenExternallyInErrorPlaceholder ??
+              this.showOpenExternallyInErrorPlaceholder,
       enableForwardGesture: enableForwardGesture ?? this.enableForwardGesture,
       enableBackwardGesture:
           enableBackwardGesture ?? this.enableBackwardGesture,

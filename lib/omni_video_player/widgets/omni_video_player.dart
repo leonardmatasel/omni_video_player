@@ -174,8 +174,13 @@ class _OmniVideoPlayerState extends State<OmniVideoPlayer> {
                                       .playerUIVisibilityOptions
                                       .showRefreshButtonInErrorPlaceholder,
                                   videoUrlToOpenExternally: widget
-                                      .options.videoSourceConfiguration.videoUrl
-                                      .toString(),
+                                          .options
+                                          .playerUIVisibilityOptions
+                                          .showOpenExternallyInErrorPlaceholder
+                                      ? widget.options.videoSourceConfiguration
+                                          .videoUrl
+                                          .toString()
+                                      : null,
                                 )
                             : const SizedBox.shrink(),
                       ),

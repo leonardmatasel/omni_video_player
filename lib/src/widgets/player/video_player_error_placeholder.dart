@@ -28,7 +28,7 @@ class VideoPlayerErrorPlaceholder extends StatelessWidget {
   /// The video URL to open in an external player, if applicable.
   final String? videoUrlToOpenExternally;
 
-  final bool? showRefreshButton;
+  final bool showRefreshButton;
 
   final GlobalKey<VideoPlayerInitializerState> playerGlobalKey;
 
@@ -77,7 +77,7 @@ class VideoPlayerErrorPlaceholder extends StatelessWidget {
                   child: Text(theme.labels.openExternalLabel),
                 ),
               ),
-            if (showRefreshButton != null)
+            if (showRefreshButton)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: OutlinedButton(

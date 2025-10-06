@@ -1,3 +1,13 @@
+# 2.3.19
+
+✨ **New Features**
+
+* Add **`showOpenExternallyInErrorPlaceholder`** option to `PlayerUIVisibilityOptions`
+
+  * When set to `true`, displays a **“Open Externally” button** inside the **error placeholder** if video playback fails.
+  * Defaults to `true`.
+  * Enables users to open the video in an external app or browser when the player encounters an error.
+
 # 2.3.18
 
 ✨ **New Features**
