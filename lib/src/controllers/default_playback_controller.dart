@@ -371,6 +371,9 @@ class DefaultPlaybackController extends OmniPlaybackController {
     skipHasPlaybackStarted = false,
   }) async {
     if (position <= duration) {
+      if (isFinished) {
+        pause();
+      }
       wasPlayingBeforeSeek = isPlaying;
       if (position.inMicroseconds != 0 && !skipHasPlaybackStarted) {
         _hasStarted = true;

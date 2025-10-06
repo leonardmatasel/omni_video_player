@@ -99,7 +99,6 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
       // Trigger the onFinish callback once when video finishes
       if (controller.isFinished && !_hasCalledOnFinish) {
         _hasCalledOnFinish = true;
-        controller.pause();
         widget.onFinished?.call();
       }
 
