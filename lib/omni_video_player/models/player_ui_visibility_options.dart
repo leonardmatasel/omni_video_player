@@ -37,6 +37,9 @@ class PlayerUIVisibilityOptions {
   /// Whether to display the bottom control bar.
   final bool showVideoBottomControlsBar;
 
+  /// Whether to display the bottom control bar in fullscreen **after the video has ended**.
+  final bool showBottomControlsBarOnEndedFullscreen;
+
   /// Whether to show the fullscreen toggle button.
   final bool showFullScreenButton;
 
@@ -131,6 +134,7 @@ class PlayerUIVisibilityOptions {
     this.showReplayButton = true,
     this.showThumbnailAtStart = true,
     this.showVideoBottomControlsBar = true,
+    this.showBottomControlsBarOnEndedFullscreen = false,
     this.showFullScreenButton = true,
     this.showMuteUnMuteButton = true,
     this.showPlayPauseReplayButton = true,
@@ -163,6 +167,7 @@ class PlayerUIVisibilityOptions {
     bool? showReplayButton,
     bool? showThumbnailAtStart,
     bool? showVideoBottomControlsBar,
+    bool? showBottomControlsBarOnEndedFullscreen,
     bool? showFullScreenButton,
     bool? showMuteUnMuteButton,
     bool? showPlayPauseReplayButton,
@@ -226,6 +231,9 @@ class PlayerUIVisibilityOptions {
           fullscreenOrientation ?? this.fullscreenOrientation,
       showPlayPauseReplayButton:
           showPlayPauseReplayButton ?? this.showPlayPauseReplayButton,
+      showBottomControlsBarOnEndedFullscreen:
+          showBottomControlsBarOnEndedFullscreen ??
+              this.showBottomControlsBarOnEndedFullscreen,
     );
   }
 }

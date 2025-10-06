@@ -1,3 +1,11 @@
+# 2.3.14
+
+✨ **New Features**
+
+* Add **`showBottomControlsBarOnEndedFullscreen`** option to `PlayerUIVisibilityOptions`
+  - When set to `true`, the **video bottom controls bar** is displayed in **fullscreen** mode after the video ends.
+  - Defaults to `false`.
+  
 # 2.3.13
 
 🛠 **Fix**

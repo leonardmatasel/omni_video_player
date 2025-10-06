@@ -163,12 +163,16 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
           callbacks: widget.callbacks,
           builder: (context, areControlsVisible, toggleVisibility) {
             bool areOverlayControlsVisible =
-                (widget.controller.isPlaying || widget.controller.isSeeking) &&
-                    widget.options.playerUIVisibilityOptions
-                        .showVideoBottomControlsBar &&
-                    areControlsVisible &&
-                    _tapState != _TapInteractionState.doubleTapForward &&
-                    _tapState != _TapInteractionState.doubleTapBackward;
+                ((widget.controller.isPlaying || widget.controller.isSeeking) &&
+                        widget.options.playerUIVisibilityOptions
+                            .showVideoBottomControlsBar &&
+                        areControlsVisible &&
+                        _tapState != _TapInteractionState.doubleTapForward &&
+                        _tapState != _TapInteractionState.doubleTapBackward) ||
+                    (widget.controller.isFullScreen &&
+                        widget.controller.isFinished &&
+                        widget.options.playerUIVisibilityOptions
+                            .showBottomControlsBarOnEndedFullscreen);
 
             bool isVisibleButton = widget.controller.isFinished ||
                 (areControlsVisible &&
