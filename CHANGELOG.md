@@ -1,3 +1,9 @@
+# 2.3.17
+
+🛠 **Fix**
+
+* Fix issue with swipe to exit from fullscreen
+ 
 # 2.3.16
 
 🛠 **Fix**

@@ -317,23 +317,21 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
                 setState(() => _tapState = _TapInteractionState.idle);
                 toggleVisibility();
               },
-              onVerticalDragUpdate: (details) {
-                if (!widget.options.playerUIVisibilityOptions
-                    .enableExitFullscreenOnVerticalSwipe) {
-                  return;
-                }
-                // Exit fullscreen if the user drags downwards significantly.
-                if (details.primaryDelta != null &&
-                    details.primaryDelta! > 10) {
-                  if (widget.controller.isFullScreen) {
-                    widget.controller.switchFullScreenMode(
-                      context,
-                      pageBuilder: null,
-                      onToggle: widget.callbacks.onFullScreenToggled,
-                    );
-                  }
-                }
-              },
+              onVerticalDragUpdate: widget.options.playerUIVisibilityOptions
+                          .enableExitFullscreenOnVerticalSwipe &&
+                      widget.controller.isFullScreen
+                  ? (details) {
+                      // Exit fullscreen if the user drags downwards significantly.
+                      if (details.primaryDelta != null &&
+                          details.primaryDelta! > 10) {
+                        widget.controller.switchFullScreenMode(
+                          context,
+                          pageBuilder: null,
+                          onToggle: widget.callbacks.onFullScreenToggled,
+                        );
+                      }
+                    }
+                  : null,
               behavior: HitTestBehavior.opaque,
               child: Stack(
                 children: layers,
