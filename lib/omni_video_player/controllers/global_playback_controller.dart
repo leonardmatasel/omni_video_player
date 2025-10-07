@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:volume_controller/volume_controller.dart';
 
 /// Manages global video-player behavior to ensure a single active playback,
 /// consistent audio settings, and appropriate wakelock handling.
@@ -18,13 +19,36 @@ class GlobalPlaybackController extends Cubit<GlobalPlaybackControllerState> {
   /// overlapping calls that could lead to inconsistent state or
   /// multiple videos playing at once.
   final Lock _lock = Lock();
+  double _previousVolumeValue = 1.0;
 
   /// Initializes the manager with a default state (volume=1, no active player).
   ///
   /// Using Cubit allows emitting new immutable states and
   /// subscribing UI components to react to changes (e.g., showing
   /// a different UI when a video starts or stops).
-  GlobalPlaybackController() : super(_initialState);
+  GlobalPlaybackController() : super(_initialState) {
+    _initVolumeListener();
+  }
+
+  /// Initializes the system volume listener and syncs it with the global state.
+  Future<void> _initVolumeListener() async {
+    _previousVolumeValue = await VolumeController.instance.getVolume();
+
+    VolumeController.instance.addListener((volume) {
+      if (volume == 0) {
+        setCurrentVolume(0);
+      } else if (volume > _previousVolumeValue) {
+        setCurrentVolume(1);
+      }
+      _previousVolumeValue = volume;
+    });
+  }
+
+  @override
+  Future<void> close() {
+    VolumeController.instance.removeListener();
+    return super.close();
+  }
 
   /// Updates the current volume setting in the shared state.
   ///

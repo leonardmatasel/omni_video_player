@@ -1,3 +1,13 @@
+# 2.3.22
+
+✨ **New Features**
+
+* **Device volume support** via **`volume_controller`**.
+
+  * GlobalPlaybackController now listens to hardware volume changes.
+  * Automatically updates mute/unmute state based on system volume.
+  * No separate listener widget needed — single `BlocProvider<GlobalPlaybackController>` is enough.
+
 # 2.3.21
 
 🛠 **Fix**
