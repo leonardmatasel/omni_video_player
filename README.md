@@ -172,7 +172,7 @@ VideoSourceConfiguration.vimeo(
 
 ```dart
 VideoSourceConfiguration.asset(
-  videoDataSource: 'assets/video.mp4'),
+  videoDataSource: 'assets/video.mp4',
 );
 ```
 

@@ -14,7 +14,7 @@
 
 * `synchronizeMuteAcrossPlayers` moved to `VideoSourceConfiguration`.
 
-➡️ For migration details, see [MIGRATION_GUIDE.md](https://github.com/leonardmatasel/omni_video_player/blob/main/example/MIGRATION_GUIDE.md)
+➡️ For migration details, see [MIGRATION_GUIDE.md](https://github.com/leonardmatasel/omni_video_player/blob/main/MIGRATION_GUIDE.md)
 
 🧩 **Package Simplification**
 

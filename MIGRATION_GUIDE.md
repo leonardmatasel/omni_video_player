@@ -3,8 +3,6 @@
 Version **3.0.0** brings a major cleanup and internal refactor of `omni_video_player`.
 The goal of this update is to simplify integration, reduce dependencies, and make playback behavior consistent out of the box.
 
----
-
 ## 🎬 1. Global Playback Is Now Built-In
 
 **Before (old setup):**
@@ -32,11 +30,6 @@ void main() {
 The global playback management is now **integrated internally** — no extra controller or provider needed.
 Videos still behave exactly the same: when a new video starts, any other playing video will automatically pause.
 
-🎯 **Why:**
-To remove unnecessary setup code and external dependencies while keeping the same exclusive playback behavior users expect.
-
----
-
 ## ⚙️ 2. Remove Deprecated Global Settings
 
 Remove any references to:
@@ -58,7 +51,7 @@ If you used `synchronizeMuteAcrossPlayers`, it is now defined inside:
 VideoSourceConfiguration(synchronizeMuteAcrossPlayers: true)
 ```
 
----
+
 
 ## 🧩 3. Update Error Placeholders
 
@@ -76,7 +69,7 @@ CustomPlayerWidgets.errorPlaceholder
 
 💡 Example implementation: [Old Video Player Error Placeholder](https://github.com/leonardmatasel/omni_video_player/blob/main/example/lib/custom_widgets/video_player_error_placeholder.dart)
 
----
+
 
 ## 🧹 4. Dependencies Cleanup
 
@@ -92,7 +85,7 @@ built_collection:
 🎯 **Why:**
 These are no longer required — the package is lighter, faster, and more focused.
 
----
+
 
 ## ⚠️ 5. Minimum Flutter & Dart Version
 
@@ -103,7 +96,7 @@ These are no longer required — the package is lighter, faster, and more focuse
 This version guarantees compatibility with the new core playback implementation and all updated dependencies.
 Older Flutter versions may cause build errors on iOS or Android.
 
----
+
 
 ## 🔧 6. Clean Build Recommended
 
@@ -114,7 +107,7 @@ flutter clean
 flutter pub get
 ```
 
----
+
 
 ## ✅ You’re All Set
 
