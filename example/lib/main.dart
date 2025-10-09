@@ -3,7 +3,6 @@ import 'package:example/tabs/file_video.dart';
 import 'package:example/tabs/network_link.dart';
 import 'package:example/tabs/vimeo.dart';
 import 'package:example/tabs/yt.dart';
-import 'package:example/tabs/yt_error.dart';
 import 'package:example/tabs/yt_live.dart';
 import 'package:example/tabs/yt_web.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +11,7 @@ void main() {
   runApp(
     MaterialApp(
       home: DefaultTabController(
-        length: 8,
+        length: 7,
         child: Scaffold(
           appBar: AppBar(
             title: const Text('Omni Video Players'),
@@ -28,7 +27,6 @@ void main() {
                 Tab(text: 'Asset Link'),
                 Tab(text: 'File video'),
                 Tab(text: 'Vimeo'),
-                Tab(text: 'YT Error'),
               ],
             ),
           ),
@@ -41,7 +39,6 @@ void main() {
               AssetLink(),
               FileVideo(),
               Vimeo(),
-              YTError(),
             ],
           ),
         ),
