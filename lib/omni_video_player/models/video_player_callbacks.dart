@@ -119,9 +119,11 @@ class VideoPlayerCallbacks {
     return VideoPlayerCallbacks(
       onControllerCreated: onControllerCreated ?? this.onControllerCreated,
       onFullScreenToggled: onFullScreenToggled ?? this.onFullScreenToggled,
-      onOverlayControlsVisibilityChanged: onOverlayControlsVisibilityChanged ??
+      onOverlayControlsVisibilityChanged:
+          onOverlayControlsVisibilityChanged ??
           this.onOverlayControlsVisibilityChanged,
-      onCenterControlsVisibilityChanged: onCenterControlsVisibilityChanged ??
+      onCenterControlsVisibilityChanged:
+          onCenterControlsVisibilityChanged ??
           this.onCenterControlsVisibilityChanged,
       onMuteToggled: onMuteToggled ?? this.onMuteToggled,
       onSeekStart: onSeekStart ?? this.onSeekStart,

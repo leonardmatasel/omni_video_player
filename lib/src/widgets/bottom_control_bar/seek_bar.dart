@@ -92,7 +92,8 @@ class _SeekBarState extends State<SeekBar> {
           widget.showCurrentTime || widget.showDurationTime
               ? Align(
                   alignment: Alignment.topLeft,
-                  child: widget.customDurationDisplay ??
+                  child:
+                      widget.customDurationDisplay ??
                       PlaybackTimeDisplay(
                         controller: widget.controller,
                         showCurrentTime: widget.showCurrentTime,
@@ -129,10 +130,10 @@ class _SeekBarState extends State<SeekBar> {
           // Optional remaining playback time below the bar
           widget.showRemainingTime
               ? widget.customRemainingTimeDisplay ??
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: RemainingPlaybackTime(duration: _remaining),
-                  )
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: RemainingPlaybackTime(duration: _remaining),
+                    )
               : const SizedBox(height: 18),
         ],
       ),

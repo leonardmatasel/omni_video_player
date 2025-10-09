@@ -39,7 +39,9 @@ class YouTubeService {
   /// Errors from the underlying `youtube_explode_dart` are rethrown
   /// and should be handled by the caller. No internal logging is performed.
   static Future<String> fetchLiveStreamUrl(
-      VideoId videoId, Duration timeout) async {
+    VideoId videoId,
+    Duration timeout,
+  ) async {
     final future = () async {
       try {
         return await retry(() => _getQuietLiveUrl(videoId), timeout: timeout);
@@ -67,20 +69,23 @@ class YouTubeService {
   }) async {
     final future = () async {
       logger.d(
-          'Fetching YouTube video and audio streams with youtube_explode_dart...');
-      final StreamManifest manifest =
-          await retry(() => _getQuietManifest(videoId), timeout: timeout);
+        'Fetching YouTube video and audio streams with youtube_explode_dart...',
+      );
+      final StreamManifest manifest = await retry(
+        () => _getQuietManifest(videoId),
+        timeout: timeout,
+      );
 
       // Filter video streams based on codec compatibility
       // working with videoPlayer: [avc1, av01, mp4a]
       // NOT working with videoPlayer: [vp09]
       // NOTE: mp4a is the fastest and the ones with a single encoding should be preferred
-      final List<VideoStreamInfo> videoStreams =
-          manifest.streams.whereType<VideoStreamInfo>().where(
-        (VideoStreamInfo it) {
-          return it.videoCodec.isNotEmpty && it.videoCodec.contains('avc');
-        },
-      ).toList();
+      final List<VideoStreamInfo> videoStreams = manifest.streams
+          .whereType<VideoStreamInfo>()
+          .where((VideoStreamInfo it) {
+            return it.videoCodec.isNotEmpty && it.videoCodec.contains('avc');
+          })
+          .toList();
 
       // Filter audio streams based on codec compatibility
       // working with videoPlayer: [mp4a]
@@ -105,27 +110,30 @@ class YouTubeService {
               'size': stream.size.totalMegaBytes,
             },
           )
-          .where((Map<String, Object> it) =>
-              (it['quality']! as OmniVideoQuality) != OmniVideoQuality.unknown)
+          .where(
+            (Map<String, Object> it) =>
+                (it['quality']! as OmniVideoQuality) !=
+                OmniVideoQuality.unknown,
+          )
           .toList();
 
       availableVideoStreams.sort(_sortByQuality);
 
       // Convert audio streams to a list of maps with relevant details
       final List<Map<String, dynamic>> availableAudioStreams = audioStreams
-          .map(
-            (AudioStreamInfo stream) {
-              return <String, Object>{
-                'url': stream.url.toString(),
-                'format': stream.container.name,
-                'audioCodec': stream.codec.parameters['codecs'].toString(),
-                'bitrate': stream.bitrate,
-                'size': stream.size.totalMegaBytes,
-              };
-            },
+          .map((AudioStreamInfo stream) {
+            return <String, Object>{
+              'url': stream.url.toString(),
+              'format': stream.container.name,
+              'audioCodec': stream.codec.parameters['codecs'].toString(),
+              'bitrate': stream.bitrate,
+              'size': stream.size.totalMegaBytes,
+            };
+          })
+          .where(
+            (Map<String, Object> it) =>
+                (it['audioCodec']! as String).contains("mp4a"),
           )
-          .where((Map<String, Object> it) =>
-              (it['audioCodec']! as String).contains("mp4a"))
           .toList();
 
       // Build a map of quality → Uri for all available qualities
@@ -177,14 +185,16 @@ class YouTubeService {
       }
 
       logger.d(
-          "Youtube video stream: ${availableVideoStreams.first['quality']} ${availableVideoStreams.first['videoCodec']} ${availableVideoStreams.first['size']} MB ${availableVideoStreams.first['bitrate']} ${availableVideoStreams.first['framerate']}");
+        "Youtube video stream: ${availableVideoStreams.first['quality']} ${availableVideoStreams.first['videoCodec']} ${availableVideoStreams.first['size']} MB ${availableVideoStreams.first['bitrate']} ${availableVideoStreams.first['framerate']}",
+      );
 
       if (availableAudioStreams.isEmpty) {
         throw Exception('No compatible YouTube audio streams found.');
       }
 
       logger.d(
-          "Youtube audio stream: ${availableAudioStreams.first['bitrate']} ${availableAudioStreams.first['audioCodec']} ${availableAudioStreams.first['size']} MB");
+        "Youtube audio stream: ${availableAudioStreams.first['bitrate']} ${availableAudioStreams.first['audioCodec']} ${availableAudioStreams.first['size']} MB",
+      );
 
       return YouTubeStreamUrls(
         videoStreamUrl: availableVideoStreams.isNotEmpty
@@ -307,7 +317,8 @@ class YouTubeService {
 
   static Future<Size?> fetchYouTubeVideoSize(String videoId) async {
     final url = Uri.parse(
-        'https://noembed.com/embed?url=https://www.youtube.com/watch?v=$videoId');
+      'https://noembed.com/embed?url=https://www.youtube.com/watch?v=$videoId',
+    );
 
     try {
       final response = await http.get(url);

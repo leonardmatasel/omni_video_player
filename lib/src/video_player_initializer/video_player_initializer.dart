@@ -34,7 +34,8 @@ class VideoPlayerInitializer extends StatefulWidget {
     BuildContext context,
     OmniPlaybackController controller,
     ImageProvider<Object>? thumbnail,
-  ) buildPlayer;
+  )
+  buildPlayer;
 
   @override
   State<VideoPlayerInitializer> createState() => VideoPlayerInitializerState();
@@ -59,8 +60,9 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
     _initialize();
   }
 
-  Future<void> refresh(
-      {VideoSourceConfiguration? videoSourceConfiguration}) async {
+  Future<void> refresh({
+    VideoSourceConfiguration? videoSourceConfiguration,
+  }) async {
     setState(() {
       _controller = null;
       _isLoading = true;
@@ -133,9 +135,9 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
 
     final aspectRatio =
         widget.options.playerUIVisibilityOptions.customAspectRatioNormal ??
-            (_controller != null
-                ? (_controller!.size.width / _controller!.size.height)
-                : 16 / 9);
+        (_controller != null
+            ? (_controller!.size.width / _controller!.size.height)
+            : 16 / 9);
 
     if (_isLoading) {
       return Stack(
@@ -147,12 +149,13 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
               child: AspectRatio(
                 aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
                 child: ClipRRect(
-                  borderRadius:
-                      BorderRadius.circular(theme.shapes.borderRadius),
+                  borderRadius: BorderRadius.circular(
+                    theme.shapes.borderRadius,
+                  ),
                   child: VideoPlayerThumbnailPreview(
                     imageProvider:
                         widget.options.customPlayerWidgets.thumbnail ??
-                            _thumbnail!,
+                        _thumbnail!,
                     fit: widget.options.customPlayerWidgets.thumbnailFit,
                     backgroundColor: theme.colors.backgroundThumbnail,
                   ),
@@ -172,16 +175,12 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
         borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
         child: widget.options.playerUIVisibilityOptions.showErrorPlaceholder
             ? widget.options.customPlayerWidgets.errorPlaceholder ??
-                VideoPlayerErrorPlaceholder()
+                  VideoPlayerErrorPlaceholder()
             : const SizedBox.shrink(),
       );
     }
 
-    final child = widget.buildPlayer(
-      context,
-      _controller!,
-      _thumbnail,
-    );
+    final child = widget.buildPlayer(context, _controller!, _thumbnail);
 
     return widget.options.videoSourceConfiguration.synchronizeMuteAcrossPlayers
         ? GlobalVolumeSynchronizer(controller: _controller!, child: child)
@@ -215,7 +214,8 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
           _videoSourceConfiguration.videoUrl!.toString(),
         ).value;
         return await _getYoutubeThumbnail(
-            "https://i3.ytimg.com/vi/$videoId/sddefault.jpg");
+          "https://i3.ytimg.com/vi/$videoId/sddefault.jpg",
+        );
 
       case VideoSourceType.vimeo:
         return _vimeoVideoInfo != null

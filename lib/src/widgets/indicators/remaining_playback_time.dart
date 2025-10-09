@@ -21,8 +21,8 @@ class RemainingPlaybackTime extends StatelessWidget {
       child: Text(
         _formatDuration(duration),
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: theme.colors.textDefault?.withValues(alpha: 0.7),
-            ),
+          color: theme.colors.textDefault?.withValues(alpha: 0.7),
+        ),
       ),
     );
   }

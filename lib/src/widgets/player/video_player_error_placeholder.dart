@@ -12,9 +12,7 @@ class VideoPlayerErrorPlaceholder extends StatelessWidget {
   ///
   /// If [videoUrlToOpenExternally] is provided, a button is shown
   /// that allows the user to open the video in an external app.
-  const VideoPlayerErrorPlaceholder({
-    super.key,
-  });
+  const VideoPlayerErrorPlaceholder({super.key});
 
   @override
   Widget build(BuildContext context) {

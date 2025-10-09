@@ -121,13 +121,15 @@ class _PlaybackSpeedMenuButtonState extends State<PlaybackSpeedMenuButton> {
                       color: isSelected
                           ? theme.colors.menuTextSelected
                           : theme.colors.menuText,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                   ),
                   if (isSelected)
                     Icon(
-                      theme.icons
+                      theme
+                          .icons
                           .qualitySelectedCheck, // puoi usare una icona simile
                       color: theme.colors.menuIconSelected,
                       size: 18,

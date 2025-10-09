@@ -34,9 +34,10 @@ class _GlobalVolumeSynchronizerState extends State<GlobalVolumeSynchronizer> {
   @override
   void initState() {
     super.initState();
-    _globalPlaybackController = GlobalPlaybackController(); // 👈 singleton
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _initGlobalVolumeSync());
+    _globalPlaybackController = GlobalPlaybackController();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _initGlobalVolumeSync(),
+    );
   }
 
   @override

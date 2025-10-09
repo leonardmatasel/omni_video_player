@@ -78,9 +78,10 @@ class ProgressBarState extends State<ProgressBar> {
               ? (details) {
                   final tapPosition =
                       (details.localPosition.dx / constraints.maxWidth) *
-                          widget.max;
-                  final clampedTapPos =
-                      tapPosition.clamp(0, widget.max).toDouble();
+                      widget.max;
+                  final clampedTapPos = tapPosition
+                      .clamp(0, widget.max)
+                      .toDouble();
                   widget.onChangeStart?.call(clampedTapPos);
                   widget.onChanged?.call(clampedTapPos);
                   widget.onChangeEnd?.call(clampedTapPos);

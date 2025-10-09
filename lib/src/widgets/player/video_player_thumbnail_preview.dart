@@ -29,7 +29,9 @@ class VideoPlayerThumbnailPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: backgroundColor,
-      child: IgnorePointer(child: Image(image: imageProvider, fit: fit)),
+      child: IgnorePointer(
+        child: Image(image: imageProvider, fit: fit),
+      ),
     );
   }
 }

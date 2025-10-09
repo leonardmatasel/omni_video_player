@@ -32,13 +32,13 @@ class AnimatedSkipIndicator extends StatelessWidget {
   }
 }
 
-enum SkipDirection {
-  forward,
-  backward,
-}
+enum SkipDirection { forward, backward }
 
 IconData _getSkipIcon(
-    SkipDirection direction, int seconds, VideoPlayerIconTheme icons) {
+  SkipDirection direction,
+  int seconds,
+  VideoPlayerIconTheme icons,
+) {
   if (direction == SkipDirection.forward) {
     switch (seconds) {
       case 5:

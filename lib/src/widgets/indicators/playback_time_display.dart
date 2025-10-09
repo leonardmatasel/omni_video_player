@@ -49,8 +49,8 @@ class PlaybackTimeDisplay extends StatelessWidget {
               TextSpan(
                 text: showCurrentTime ? ' / ' : '',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: theme.colors.textDefault?.withValues(alpha: 0.7),
-                    ),
+                  color: theme.colors.textDefault?.withValues(alpha: 0.7),
+                ),
               ),
               TextSpan(
                 text: VideoTimeFormatter.format(
@@ -58,8 +58,8 @@ class PlaybackTimeDisplay extends StatelessWidget {
                   showHours: controller.duration.inHours > 0,
                 ),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: theme.colors.textDefault?.withValues(alpha: 0.7),
-                    ),
+                  color: theme.colors.textDefault?.withValues(alpha: 0.7),
+                ),
               ),
             ],
           ],

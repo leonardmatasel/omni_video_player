@@ -143,8 +143,8 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
       targetPosition < Duration.zero
           ? Duration.zero
           : (targetPosition > widget.controller.duration
-              ? widget.controller.duration
-              : targetPosition),
+                ? widget.controller.duration
+                : targetPosition),
     );
 
     _showSkip(direction, skipSeconds);
@@ -168,29 +168,37 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
           builder: (context, areControlsVisible, toggleVisibility) {
             bool areOverlayControlsVisible =
                 ((widget.controller.isPlaying || widget.controller.isSeeking) &&
-                        widget.options.playerUIVisibilityOptions
-                            .showVideoBottomControlsBar &&
-                        areControlsVisible &&
-                        _tapState != _TapInteractionState.doubleTapForward &&
-                        _tapState != _TapInteractionState.doubleTapBackward) ||
-                    (widget.controller.isFullScreen &&
-                        widget.controller.isFinished &&
-                        widget.options.playerUIVisibilityOptions
-                            .showBottomControlsBarOnEndedFullscreen);
+                    widget
+                        .options
+                        .playerUIVisibilityOptions
+                        .showVideoBottomControlsBar &&
+                    areControlsVisible &&
+                    _tapState != _TapInteractionState.doubleTapForward &&
+                    _tapState != _TapInteractionState.doubleTapBackward) ||
+                (widget.controller.isFullScreen &&
+                    widget.controller.isFinished &&
+                    widget
+                        .options
+                        .playerUIVisibilityOptions
+                        .showBottomControlsBarOnEndedFullscreen);
 
-            bool isVisibleButton = widget.controller.isFinished ||
+            bool isVisibleButton =
+                widget.controller.isFinished ||
                 (areControlsVisible &&
                     !widget.controller.isBuffering &&
                     !widget.controller.isSeeking &&
                     widget.controller.isReady &&
                     !(widget.controller.isFinished &&
-                        !widget.options.playerUIVisibilityOptions
+                        !widget
+                            .options
+                            .playerUIVisibilityOptions
                             .showReplayButton) &&
                     _tapState != _TapInteractionState.doubleTapForward &&
                     _tapState != _TapInteractionState.doubleTapBackward);
 
-            widget.callbacks.onCenterControlsVisibilityChanged
-                ?.call(isVisibleButton);
+            widget.callbacks.onCenterControlsVisibilityChanged?.call(
+              isVisibleButton,
+            );
             widget.callbacks.onOverlayControlsVisibilityChanged?.call(
               areOverlayControlsVisible,
             );
@@ -253,7 +261,8 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
               // Skip indicator shown in the center with fade out animation.
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 500),
-                child: _skipDirection != null &&
+                child:
+                    _skipDirection != null &&
                         (_tapState == _TapInteractionState.doubleTapForward ||
                             _tapState == _TapInteractionState.doubleTapBackward)
                     ? AnimatedSkipIndicator(
@@ -265,14 +274,20 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
 
               // Gradient bottom bar with playback controls.
               GradientBottomControlBar(
-                isVisible: (areOverlayControlsVisible && !kIsWeb) ||
+                isVisible:
+                    (areOverlayControlsVisible && !kIsWeb) ||
                     (kIsWeb && widget.controller.isPlaying),
                 padding: widget.playerBarPadding,
-                useSafeAreaForBottomControls: widget.options
-                    .playerUIVisibilityOptions.useSafeAreaForBottomControls,
-                showGradientBottomControl: widget.options
-                    .playerUIVisibilityOptions.showGradientBottomControl,
-                child: widget.options.customPlayerWidgets.bottomControlsBar ??
+                useSafeAreaForBottomControls: widget
+                    .options
+                    .playerUIVisibilityOptions
+                    .useSafeAreaForBottomControls,
+                showGradientBottomControl: widget
+                    .options
+                    .playerUIVisibilityOptions
+                    .showGradientBottomControl,
+                child:
+                    widget.options.customPlayerWidgets.bottomControlsBar ??
                     VideoPlaybackControlBar(
                       controller: widget.controller,
                       options: widget.options,
@@ -296,7 +311,10 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
                   areOverlayControlsVisible) {
                 final size = widget.controller.size;
 
-                final aspectRatio = widget.options.playerUIVisibilityOptions
+                final aspectRatio =
+                    widget
+                        .options
+                        .playerUIVisibilityOptions
                         .customAspectRatioNormal ??
                     size.width / size.height;
 
@@ -321,7 +339,10 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
                 setState(() => _tapState = _TapInteractionState.idle);
                 toggleVisibility();
               },
-              onVerticalDragUpdate: widget.options.playerUIVisibilityOptions
+              onVerticalDragUpdate:
+                  widget
+                          .options
+                          .playerUIVisibilityOptions
                           .enableExitFullscreenOnVerticalSwipe &&
                       widget.controller.isFullScreen
                   ? (details) {
@@ -337,9 +358,7 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
                     }
                   : null,
               behavior: HitTestBehavior.opaque,
-              child: Stack(
-                children: layers,
-              ),
+              child: Stack(children: layers),
             );
           },
         );

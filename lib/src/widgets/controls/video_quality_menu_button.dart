@@ -60,8 +60,8 @@ class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
 
     final valueString = widget.qualityList == null
         ? selectedQuality != null
-            ? "${theme.labels.autoQualityLabel} (${selectedQuality!.qualityString})"
-            : theme.labels.autoQualityLabel
+              ? "${theme.labels.autoQualityLabel} (${selectedQuality!.qualityString})"
+              : theme.labels.autoQualityLabel
         : null;
 
     final double width = 18.0 + 16 + 16 + (9.0 * (valueString?.length ?? 6.0));
@@ -129,8 +129,10 @@ class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
         children: widget.qualityList == null
             ? [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -150,7 +152,7 @@ class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
                       ),
                     ],
                   ),
-                )
+                ),
               ]
             : widget.qualityList!.map((quality) {
                 final isSelected = quality == selectedQuality;
@@ -164,7 +166,9 @@ class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

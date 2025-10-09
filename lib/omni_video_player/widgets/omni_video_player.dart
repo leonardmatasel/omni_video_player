@@ -104,7 +104,10 @@ class _OmniVideoPlayerState extends State<OmniVideoPlayer> {
                       ),
                       child: MovingBlurredCircleBackground(
                         color: widget
-                            .options.playerTheme.overlays.backgroundColor!,
+                            .options
+                            .playerTheme
+                            .overlays
+                            .backgroundColor!,
                         alpha: _options.playerTheme.overlays.alpha!,
                       ),
                     )
@@ -132,11 +135,12 @@ class _OmniVideoPlayerState extends State<OmniVideoPlayer> {
                     if (!controller.hasError)
                       VideoPlayerRenderer(
                         options: _options.copyWith(
-                          customPlayerWidgets:
-                              _options.customPlayerWidgets.copyWith(
-                            thumbnail: _options.customPlayerWidgets.thumbnail ??
-                                thumbnail,
-                          ),
+                          customPlayerWidgets: _options.customPlayerWidgets
+                              .copyWith(
+                                thumbnail:
+                                    _options.customPlayerWidgets.thumbnail ??
+                                    thumbnail,
+                              ),
                         ),
                         callbacks: _callbacks,
                         controller: controller,
@@ -144,12 +148,18 @@ class _OmniVideoPlayerState extends State<OmniVideoPlayer> {
                     else
                       ClipRRect(
                         borderRadius: BorderRadius.circular(
-                            widget.options.playerTheme.shapes.borderRadius),
-                        child: widget.options.playerUIVisibilityOptions
+                          widget.options.playerTheme.shapes.borderRadius,
+                        ),
+                        child:
+                            widget
+                                .options
+                                .playerUIVisibilityOptions
                                 .showErrorPlaceholder
-                            ? widget.options.customPlayerWidgets
-                                    .errorPlaceholder ??
-                                VideoPlayerErrorPlaceholder()
+                            ? widget
+                                      .options
+                                      .customPlayerWidgets
+                                      .errorPlaceholder ??
+                                  VideoPlayerErrorPlaceholder()
                             : const SizedBox.shrink(),
                       ),
                   ],

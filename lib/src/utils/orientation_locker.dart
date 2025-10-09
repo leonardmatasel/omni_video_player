@@ -55,7 +55,8 @@ class _OrientationLockerState extends State<OrientationLocker> {
   void dispose() {
     if (widget.enableOrientationLock) {
       SystemChrome.setPreferredOrientations(
-          []); // empty list mean system default
+        [],
+      ); // empty list mean system default
     }
     super.dispose();
   }

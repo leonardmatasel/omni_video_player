@@ -62,7 +62,7 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
 
     final aspectRatio =
         widget.options.playerUIVisibilityOptions.customAspectRatioNormal ??
-            widget.controller.size.width / widget.controller.size.height;
+        widget.controller.size.width / widget.controller.size.height;
 
     return VideoOverlayControls(
       controller: widget.controller,
@@ -120,8 +120,9 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
               child: AspectRatio(
                 aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
                 child: ClipRRect(
-                  borderRadius:
-                      BorderRadius.circular(theme.shapes.borderRadius),
+                  borderRadius: BorderRadius.circular(
+                    theme.shapes.borderRadius,
+                  ),
                   child: VideoPlayerThumbnailPreview(
                     imageProvider:
                         widget.options.customPlayerWidgets.thumbnail!,

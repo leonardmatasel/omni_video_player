@@ -25,8 +25,9 @@ class HlsVideoApi {
       final line = lines[i].trim();
 
       if (line.startsWith('#EXT-X-STREAM-INF:')) {
-        final resolutionMatch =
-            RegExp(r'RESOLUTION=(\d+)x(\d+)').firstMatch(line);
+        final resolutionMatch = RegExp(
+          r'RESOLUTION=(\d+)x(\d+)',
+        ).firstMatch(line);
         int? height;
         if (resolutionMatch != null) {
           height = int.tryParse(resolutionMatch.group(2)!);

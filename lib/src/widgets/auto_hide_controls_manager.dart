@@ -47,7 +47,8 @@ class AutoHideControlsManager extends StatefulWidget {
     BuildContext context,
     bool areVisible,
     VoidCallback toggleVisibilityTap,
-  ) builder;
+  )
+  builder;
 
   /// Controller managing video playback state.
   final OmniPlaybackController controller;
@@ -88,7 +89,8 @@ class _AutoHideControlsManagerState extends State<AutoHideControlsManager>
           widget.options.playerUIVisibilityOptions.controlsPersistenceDuration,
     );
 
-    isPlaying = widget.controller.isPlaying &&
+    isPlaying =
+        widget.controller.isPlaying &&
         !widget.controller.isSeeking &&
         widget.controller.isReady;
     if (isPlaying) {

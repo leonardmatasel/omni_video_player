@@ -48,9 +48,9 @@ class _FullscreenVideoPlayerState extends State<FullscreenVideoPlayer> {
 
     _aspectRatio =
         widget.options.playerUIVisibilityOptions.customAspectRatioFullScreen ??
-            ((rotation == 90 || rotation == 270)
-                ? size.height / size.width
-                : size.width / size.height);
+        ((rotation == 90 || rotation == 270)
+            ? size.height / size.width
+            : size.width / size.height);
   }
 
   @override
@@ -66,9 +66,9 @@ class _FullscreenVideoPlayerState extends State<FullscreenVideoPlayer> {
           widget.options.playerUIVisibilityOptions.enableOrientationLock,
       orientation:
           widget.options.playerUIVisibilityOptions.fullscreenOrientation ??
-              (widget.controller.size.height / widget.controller.size.width > 1
-                  ? Orientation.portrait
-                  : Orientation.landscape),
+          (widget.controller.size.height / widget.controller.size.width > 1
+              ? Orientation.portrait
+              : Orientation.landscape),
       child: Material(
         color: Colors.black,
         child: Column(

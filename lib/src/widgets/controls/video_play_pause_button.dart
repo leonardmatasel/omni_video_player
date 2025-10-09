@@ -157,13 +157,14 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
                 FadeTransition(opacity: animation, child: child),
             child: controller.isFinished
                 ? widget.showReplayButton
-                    ? Icon(
-                        theme.icons.replay,
-                        key: const ValueKey('replay'),
-                        color: theme.colors.playPauseIcon ?? theme.colors.icon,
-                        size: 32,
-                      )
-                    : null
+                      ? Icon(
+                          theme.icons.replay,
+                          key: const ValueKey('replay'),
+                          color:
+                              theme.colors.playPauseIcon ?? theme.colors.icon,
+                          size: 32,
+                        )
+                      : null
                 : AnimatedIcon(
                     key: const ValueKey('play_pause'),
                     icon: theme.icons.playPause,

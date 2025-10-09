@@ -186,7 +186,7 @@ class VideoSourceConfiguration {
   factory VideoSourceConfiguration.vimeo({
     required String videoId,
     List<OmniVideoQuality> preferredQualities = const [
-      OmniVideoQuality.medium480
+      OmniVideoQuality.medium480,
     ],
   }) {
     return VideoSourceConfiguration._(
@@ -212,7 +212,7 @@ class VideoSourceConfiguration {
   factory VideoSourceConfiguration.youtube({
     required Uri videoUrl,
     List<OmniVideoQuality> preferredQualities = const [
-      OmniVideoQuality.medium480
+      OmniVideoQuality.medium480,
     ],
     List<OmniVideoQuality>? availableQualities,
     bool enableYoutubeWebViewFallback = true,
@@ -242,8 +242,9 @@ class VideoSourceConfiguration {
     final invalid = preferred.where((q) => !available.contains(q)).toList();
     if (invalid.isNotEmpty) {
       throw ArgumentError(
-          'The following preferred qualities are not available: $invalid. '
-          'All preferred qualities must be included in availableQualities.');
+        'The following preferred qualities are not available: $invalid. '
+        'All preferred qualities must be included in availableQualities.',
+      );
     }
   }
 
@@ -272,7 +273,7 @@ class VideoSourceConfiguration {
   factory VideoSourceConfiguration.network({
     required Uri videoUrl,
     List<OmniVideoQuality> preferredQualities = const [
-      OmniVideoQuality.medium480
+      OmniVideoQuality.medium480,
     ],
     List<OmniVideoQuality>? availableQualities,
   }) {
