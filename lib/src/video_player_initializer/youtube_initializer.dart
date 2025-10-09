@@ -1,5 +1,6 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
+import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/src/api/youtube_video_api.dart';
 import 'package:omni_video_player/src/controllers/default_playback_controller.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
@@ -27,9 +28,7 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
 
   @override
   Future<OmniPlaybackController?> initialize() async {
-    final videoId = VideoId(
-      videoSourceConfiguration.videoUrl!.toString(),
-    );
+    final videoId = VideoId(videoSourceConfiguration.videoUrl!.toString());
 
     try {
       final ytVideo = await YouTubeService.getVideoYoutubeDetails(videoId);
@@ -39,15 +38,23 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
 
       final streamData = isLive
           ? await _loadLiveStream(
-              videoId, videoSourceConfiguration.timeoutDuration)
+              videoId,
+              videoSourceConfiguration.timeoutDuration,
+            )
           : await _loadOnDemandStream(
-              videoId, videoSourceConfiguration.timeoutDuration);
+              videoId,
+              videoSourceConfiguration.timeoutDuration,
+            );
 
       if (isLive) {
         qualitiesMap = await HlsVideoApi.extractHlsVariantsByQuality(
-            streamData.videoUrl, videoSourceConfiguration.availableQualities);
-        currentQualityEntry = HlsVideoApi.selectBestQualityVariant(qualitiesMap,
-            preferredQualities: videoSourceConfiguration.preferredQualities);
+          streamData.videoUrl,
+          videoSourceConfiguration.availableQualities,
+        );
+        currentQualityEntry = HlsVideoApi.selectBestQualityVariant(
+          qualitiesMap,
+          preferredQualities: videoSourceConfiguration.preferredQualities,
+        );
       }
 
       final controller = await _createController(
@@ -55,8 +62,9 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
         audioUrl: streamData.audioUrl,
         isLive: isLive,
         qualityUrls: isLive ? qualitiesMap : streamData.qualityUrls,
-        currentQuality:
-            isLive ? currentQualityEntry?.key : streamData.currentVideoQuality,
+        currentQuality: isLive
+            ? currentQualityEntry?.key
+            : streamData.currentVideoQuality,
       );
 
       final duration = _parseYoutubeDuration(streamData.videoUrl.toString());
@@ -72,12 +80,14 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
     } catch (e, _) {
       if (videoSourceConfiguration.enableYoutubeWebViewFallback) {
         logger.d(
-            'YouTube stream initialization with youtube_explode_dart failed: ${e.toString()}');
+          'YouTube stream initialization with youtube_explode_dart failed: ${e.toString()}',
+        );
         logger.d("Proceeding with WebView fallback...");
         return await _fallbackToWebView(videoId);
       } else {
         logger.e(
-            "YouTube stream with youtube_explode_dart initialization failed: ${e.toString()}");
+          "YouTube stream with youtube_explode_dart initialization failed: ${e.toString()}",
+        );
         onErrorCallback?.call();
         return null;
       }
@@ -90,7 +100,9 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
   }
 
   Future<_StreamData> _loadOnDemandStream(
-      VideoId videoId, Duration timeout) async {
+    VideoId videoId,
+    Duration timeout,
+  ) async {
     final config = videoSourceConfiguration;
     final urls = await YouTubeService.fetchVideoAndAudioUrls(
       videoId,
@@ -155,8 +167,9 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
 
   Future<OmniPlaybackController?> _fallbackToWebView(VideoId videoId) async {
     try {
-      final ytVideo =
-          await YouTubeService.getVideoYoutubeDetails(videoId); // fallback call
+      final ytVideo = await YouTubeService.getVideoYoutubeDetails(
+        videoId,
+      ); // fallback call
       return await YouTubeWebViewInitializer(
         options: options,
         globalController: globalController,

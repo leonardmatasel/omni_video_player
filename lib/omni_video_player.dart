@@ -1,4 +1,3 @@
-export 'omni_video_player/controllers/global_playback_controller.dart';
 export 'omni_video_player/controllers/omni_playback_controller.dart';
 export 'omni_video_player/models/custom_player_widgets.dart';
 export 'omni_video_player/models/omni_video_quality.dart';

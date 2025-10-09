@@ -1,6 +1,7 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:omni_video_player/omni_video_player.dart';
+import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/src/controllers/default_playback_controller.dart';
 import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
@@ -25,7 +26,8 @@ class FileInitializer implements IVideoPlayerInitializerStrategy {
   Future<OmniPlaybackController?> initialize() async {
     if (kIsWeb) {
       logger.w(
-          "File initializer is not supported on web, see DOC: https://pub.dev/packages/video_player_web");
+        "File initializer is not supported on web, see DOC: https://pub.dev/packages/video_player_web",
+      );
       return null;
     }
 

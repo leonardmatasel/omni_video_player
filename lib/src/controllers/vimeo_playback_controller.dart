@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:omni_video_player/omni_video_player.dart';
+import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:video_player/video_player.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
@@ -82,12 +83,14 @@ class VimeoPlaybackController extends OmniPlaybackController {
       webViewParams = const PlatformWebViewControllerCreationParams();
     }
 
-    webViewController = WebViewController.fromPlatformCreationParams(
-      webViewParams,
-    )
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..addJavaScriptChannel(playerId, onMessageReceived: _eventHandler.call)
-      ..enableZoom(false);
+    webViewController =
+        WebViewController.fromPlatformCreationParams(webViewParams)
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          ..addJavaScriptChannel(
+            playerId,
+            onMessageReceived: _eventHandler.call,
+          )
+          ..enableZoom(false);
 
     final webViewPlatform = webViewController.platform;
     if (webViewPlatform is AndroidWebViewController) {
@@ -405,8 +408,9 @@ class VimeoPlaybackController extends OmniPlaybackController {
 
   @override
   void loadVideoSource(VideoSourceConfiguration videoSourceConfiguration) {
-    globalKeyPlayer.currentState
-        ?.refresh(videoSourceConfiguration: videoSourceConfiguration);
+    globalKeyPlayer.currentState?.refresh(
+      videoSourceConfiguration: videoSourceConfiguration,
+    );
   }
 
   @override

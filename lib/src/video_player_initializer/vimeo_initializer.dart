@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
+import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/src/api/vimeo_video_api.dart';
 import 'package:omni_video_player/src/controllers/vimeo_playback_controller.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';

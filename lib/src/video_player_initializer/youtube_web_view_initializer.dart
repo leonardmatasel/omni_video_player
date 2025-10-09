@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
+import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/src/controllers/youtube_playback_controller.dart';
 import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
@@ -31,13 +32,14 @@ class YouTubeWebViewInitializer implements IVideoPlayerInitializerStrategy {
   @override
   Future<OmniPlaybackController?> initialize() async {
     try {
-      videoId = videoId ??
+      videoId =
+          videoId ??
           VideoId(videoSourceConfiguration.videoUrl!.toString()).toString();
       final videoSize = await YouTubeService.fetchYouTubeVideoSize(videoId!);
       final Video? videoInfo = kIsWeb
           ? null
           : ytVideo ??
-              await YouTubeService.getVideoYoutubeDetails(VideoId(videoId!));
+                await YouTubeService.getVideoYoutubeDetails(VideoId(videoId!));
 
       final controller = YoutubePlaybackController.fromVideoId(
         videoId: videoId!,

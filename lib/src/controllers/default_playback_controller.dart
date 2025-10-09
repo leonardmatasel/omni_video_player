@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:omni_video_player/omni_video_player.dart';
+import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:video_player/video_player.dart';
 
 import 'audio_playback_controller.dart';
@@ -88,27 +89,28 @@ class DefaultPlaybackController extends OmniPlaybackController {
   }
 
   /// Creates and initializes a new [OmniPlaybackController] instance.
-  static Future<DefaultPlaybackController> create(
-      {required Uri? videoUrl,
-      required String? dataSource,
-      required File? file,
-      Uri? audioUrl,
-      bool isLive = false,
-      GlobalPlaybackController? globalController,
-      initialPosition = Duration.zero,
-      double? initialVolume,
-      required double? initialPlaybackSpeed,
-      required VideoPlayerCallbacks callbacks,
-      required VideoSourceType type,
-      Map<OmniVideoQuality, Uri>? qualityUrls,
-      OmniVideoQuality? currentVideoQuality,
-      required GlobalKey<VideoPlayerInitializerState> globalKeyPlayer}) async {
+  static Future<DefaultPlaybackController> create({
+    required Uri? videoUrl,
+    required String? dataSource,
+    required File? file,
+    Uri? audioUrl,
+    bool isLive = false,
+    GlobalPlaybackController? globalController,
+    initialPosition = Duration.zero,
+    double? initialVolume,
+    required double? initialPlaybackSpeed,
+    required VideoPlayerCallbacks callbacks,
+    required VideoSourceType type,
+    Map<OmniVideoQuality, Uri>? qualityUrls,
+    OmniVideoQuality? currentVideoQuality,
+    required GlobalKey<VideoPlayerInitializerState> globalKeyPlayer,
+  }) async {
     final videoController =
         (type == VideoSourceType.asset && dataSource != null)
-            ? VideoPlaybackController.asset(dataSource)
-            : (type == VideoSourceType.file && file != null)
-                ? VideoPlaybackController.file(file)
-                : VideoPlaybackController.uri(videoUrl!, isLive: isLive);
+        ? VideoPlaybackController.asset(dataSource)
+        : (type == VideoSourceType.file && file != null)
+        ? VideoPlaybackController.file(file)
+        : VideoPlaybackController.uri(videoUrl!, isLive: isLive);
     await videoController.initialize();
 
     AudioPlaybackController? audioController;
@@ -162,10 +164,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
 
     sharedPlayerNotifier.value = Hero(
       tag: globalKeyPlayer,
-      child: VideoPlayer(
-        key: globalKeyPlayer,
-        newController,
-      ),
+      child: VideoPlayer(key: globalKeyPlayer, newController),
     );
 
     await videoController.dispose();
@@ -493,8 +492,9 @@ class DefaultPlaybackController extends OmniPlaybackController {
 
   @override
   void loadVideoSource(VideoSourceConfiguration videoSourceConfiguration) {
-    globalKeyPlayer.currentState
-        ?.refresh(videoSourceConfiguration: videoSourceConfiguration);
+    globalKeyPlayer.currentState?.refresh(
+      videoSourceConfiguration: videoSourceConfiguration,
+    );
   }
 
   @override

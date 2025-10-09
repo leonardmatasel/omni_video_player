@@ -1,5 +1,6 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
+import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/src/api/hls_video_api.dart';
 import 'package:omni_video_player/src/controllers/default_playback_controller.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
@@ -23,18 +24,22 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
   @override
   Future<OmniPlaybackController?> initialize() async {
     try {
-      final isHlsVideo =
-          await HlsVideoApi.isHlsUri(videoSourceConfiguration.videoUrl!);
+      final isHlsVideo = await HlsVideoApi.isHlsUri(
+        videoSourceConfiguration.videoUrl!,
+      );
 
       Map<OmniVideoQuality, Uri>? qualitiesMap;
       MapEntry<OmniVideoQuality, Uri>? currentQualityEntry;
 
       if (isHlsVideo) {
         qualitiesMap = await HlsVideoApi.extractHlsVariantsByQuality(
-            videoSourceConfiguration.videoUrl!,
-            videoSourceConfiguration.availableQualities);
-        currentQualityEntry = HlsVideoApi.selectBestQualityVariant(qualitiesMap,
-            preferredQualities: videoSourceConfiguration.preferredQualities);
+          videoSourceConfiguration.videoUrl!,
+          videoSourceConfiguration.availableQualities,
+        );
+        currentQualityEntry = HlsVideoApi.selectBestQualityVariant(
+          qualitiesMap,
+          preferredQualities: videoSourceConfiguration.preferredQualities,
+        );
       }
 
       final controller = await DefaultPlaybackController.create(
@@ -53,8 +58,9 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
         type: videoSourceConfiguration.videoSourceType,
         globalKeyPlayer: options.globalKeyInitializer,
         qualityUrls: qualitiesMap,
-        currentVideoQuality:
-            (currentQualityEntry != null) ? currentQualityEntry.key : null,
+        currentVideoQuality: (currentQualityEntry != null)
+            ? currentQualityEntry.key
+            : null,
       );
 
       controller.sharedPlayerNotifier.value = Hero(

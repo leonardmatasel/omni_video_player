@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:omni_video_player/omni_video_player.dart';
+import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:omni_video_player/src/youtube/youtube_player_event_handler.dart';
 import 'package:video_player/video_player.dart';
