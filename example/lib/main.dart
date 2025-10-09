@@ -7,8 +7,6 @@ import 'package:example/tabs/yt_error.dart';
 import 'package:example/tabs/yt_live.dart';
 import 'package:example/tabs/yt_web.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:omni_video_player/omni_video_player.dart';
 
 void main() {
   runApp(
@@ -34,20 +32,17 @@ void main() {
               ],
             ),
           ),
-          body: BlocProvider(
-            create: (_) => GlobalPlaybackController(),
-            child: const TabBarView(
-              children: [
-                YT(),
-                YTLive(),
-                YTWeb(),
-                NetworkLink(),
-                AssetLink(),
-                FileVideo(),
-                Vimeo(),
-                YTError(),
-              ],
-            ),
+          body: const TabBarView(
+            children: [
+              YT(),
+              YTLive(),
+              YTWeb(),
+              NetworkLink(),
+              AssetLink(),
+              FileVideo(),
+              Vimeo(),
+              YTError(),
+            ],
           ),
         ),
       ),

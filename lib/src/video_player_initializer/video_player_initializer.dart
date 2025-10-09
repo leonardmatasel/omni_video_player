@@ -172,18 +172,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
         borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
         child: widget.options.playerUIVisibilityOptions.showErrorPlaceholder
             ? widget.options.customPlayerWidgets.errorPlaceholder ??
-                VideoPlayerErrorPlaceholder(
-                  playerGlobalKey: widget.options.globalKeyInitializer,
-                  showRefreshButton: widget.options.playerUIVisibilityOptions
-                      .showRefreshButtonInErrorPlaceholder,
-                  videoUrlToOpenExternally: widget
-                          .options
-                          .playerUIVisibilityOptions
-                          .showOpenExternallyInErrorPlaceholder
-                      ? widget.options.videoSourceConfiguration.videoUrl
-                          .toString()
-                      : null,
-                )
+                VideoPlayerErrorPlaceholder()
             : const SizedBox.shrink(),
       );
     }
@@ -194,10 +183,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
       _thumbnail,
     );
 
-    return widget.options.globalPlaybackControlSettings
-                .synchronizeMuteAcrossPlayers &&
-            widget.options.globalPlaybackControlSettings
-                .useGlobalPlaybackController
+    return widget.options.videoSourceConfiguration.synchronizeMuteAcrossPlayers
         ? GlobalVolumeSynchronizer(controller: _controller!, child: child)
         : child;
   }

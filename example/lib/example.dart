@@ -1,20 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:omni_video_player/omni_video_player.dart';
 
 /// Entry point of the app.
-/// Wraps the app with a [BlocProvider] for global video playback coordination.
 void main() {
-  runApp(
-    BlocProvider(
-      create: (_) => GlobalPlaybackController(),
-      child: const MyApp(),
-    ),
-  );
+  runApp(MyApp());
 }
 
 /// Main application widget.
-/// Applies a dark theme and launches the [VideoScreen].
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -40,6 +33,15 @@ class _VideoScreenState extends State<VideoScreen> {
   /// Controller that provides playback control (play, pause, etc.).
   OmniPlaybackController? _controller;
 
+  void _update() {
+    // Schedule the UI update after the current build frame completes.
+    // This prevents "setState() called during build" errors and ensures
+    // the widget rebuilds safely once the frame has finished rendering.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() {});
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,12 +56,18 @@ class _VideoScreenState extends State<VideoScreen> {
               // Called when the internal video controller is ready.
               callbacks: VideoPlayerCallbacks(
                 onControllerCreated: (controller) {
-                  _controller = controller;
-
-                  // We call setState to trigger a rebuild so that
-                  // the play/pause button below knows the controller is ready.
-                  setState(() {});
+                  _controller?.removeListener(_update);
+                  _controller = controller..addListener(_update);
                 },
+                onFullScreenToggled: (isFullScreen) {},
+                onOverlayControlsVisibilityChanged: (areVisible) {},
+                onCenterControlsVisibilityChanged: (areVisible) {},
+                onMuteToggled: (isMute) {},
+                onSeekStart: (pos) {},
+                onSeekEnd: (pos) {},
+                onSeekRequest: (target) => true,
+                onFinished: () {},
+                onReplay: () {},
               ),
 
               // Minimal configuration: playing a YouTube video.
@@ -77,6 +85,18 @@ class _VideoScreenState extends State<VideoScreen> {
                     OmniVideoQuality.high720,
                     OmniVideoQuality.low144,
                   ],
+                  enableYoutubeWebViewFallback: true,
+                  forceYoutubeWebViewOnly: false,
+                ).copyWith(
+                  autoPlay: false,
+                  initialPosition: Duration.zero,
+                  initialVolume: 1.0,
+                  initialPlaybackSpeed: 1.0,
+                  availablePlaybackSpeed: [0.5, 1.0, 1.25, 1.5, 2.0],
+                  autoMuteOnStart: false,
+                  allowSeeking: true,
+                  synchronizeMuteAcrossPlayers: true,
+                  timeoutDuration: const Duration(seconds: 30),
                 ),
                 playerTheme: OmniVideoPlayerThemeData().copyWith(
                   icons: VideoPlayerIconTheme().copyWith(
@@ -89,32 +109,61 @@ class _VideoScreenState extends State<VideoScreen> {
                   ),
                 ),
                 playerUIVisibilityOptions: PlayerUIVisibilityOptions().copyWith(
-                  showMuteUnMuteButton: true,
+                  showSeekBar: true,
+                  showCurrentTime: true,
+                  showDurationTime: true,
+                  showRemainingTime: true,
+                  showLiveIndicator: true,
+                  showLoadingWidget: true,
+                  showErrorPlaceholder: true,
+                  showReplayButton: true,
+                  showThumbnailAtStart: true,
+                  showVideoBottomControlsBar: true,
+                  showBottomControlsBarOnEndedFullscreen: true,
                   showFullScreenButton: true,
-                  useSafeAreaForBottomControls: true,
+                  showSwitchVideoQuality: true,
+                  showSwitchWhenOnlyAuto: true,
                   showPlaybackSpeedButton: true,
+                  showMuteUnMuteButton: true,
+                  showPlayPauseReplayButton: true,
+                  useSafeAreaForBottomControls: true,
+                  showGradientBottomControl: true,
+                  enableForwardGesture: true,
+                  enableBackwardGesture: true,
+                  enableExitFullscreenOnVerticalSwipe: true,
+                  enableOrientationLock: true,
+                  controlsPersistenceDuration: const Duration(seconds: 3),
+                  customAspectRatioNormal: null,
+                  customAspectRatioFullScreen: null,
+                  fullscreenOrientation: null,
                 ),
                 customPlayerWidgets: CustomPlayerWidgets().copyWith(
-                  thumbnailFit: BoxFit.fitWidth,
+                  loadingWidget: const Center(
+                    child: CircularProgressIndicator(color: Colors.red),
+                  ),
+                  errorPlaceholder: null,
+                  bottomControlsBar: null,
+                  leadingBottomButtons: null,
+                  trailingBottomButtons: null,
+                  customSeekBar: null,
+                  customDurationDisplay: null,
+                  customRemainingTimeDisplay: null,
+                  thumbnail: null,
+                  thumbnailFit: null,
+                  customOverlayLayers: null,
                 ),
+                liveLabel: "LIVE",
+                enableBackgroundOverlayClip: true,
               ),
             ),
           ),
 
           const SizedBox(height: 16),
 
-          /// A play/pause button that updates dynamically based on the controller state.
-          ///
-          /// [AnimatedBuilder] is used here to listen to the [OmniPlaybackController],
-          /// which is a [Listenable]. When `play`, `pause`, or other playback changes occur,
-          /// the builder function is called, updating the UI automatically.
-          ///
-          /// Using [AnimatedBuilder] avoids manual `setState()` calls for every controller change.
           Padding(
             padding: const EdgeInsets.all(16),
-            child: AnimatedBuilder(
-              animation: Listenable.merge([_controller]),
-              builder: (context, _) {
+            child: Builder(
+              builder: (context) {
                 // If the controller isn't ready yet, show a loading spinner.
                 if (_controller == null) {
                   return const CircularProgressIndicator();

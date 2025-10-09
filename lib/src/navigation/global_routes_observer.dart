@@ -1,4 +1,3 @@
-import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 
 import 'custom_route_observer.dart';
@@ -12,12 +11,12 @@ final globalRouteObserver = GlobalRoutesObserver();
 ///
 /// This observer tracks the navigation stack by listening to route push and pop
 /// events and updates an internal list accordingly. The current stack can be
-/// retrieved as an immutable [BuiltList] via [routeStack].
+/// retrieved as an immutable [List] via [routeStack].
 class GlobalRoutesObserver extends CustomRouteObserver<Route> {
   final List<Route> _routeStack = [];
 
   /// Stack of the opened routes
-  BuiltList<Route> get routeStack => _routeStack.toBuiltList();
+  List<Route> get routeStack => _routeStack.toList();
 
   @override
   void didPop(Route route, Route? previousRoute) {

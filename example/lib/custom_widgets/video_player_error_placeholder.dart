@@ -1,33 +1,23 @@
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:omni_video_player/omni_video_player.dart';
+import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
+import 'package:omni_video_player/src/utils/logger.dart';
+import 'package:omni_video_player/src/video_player_initializer/video_player_initializer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// A fallback widget displayed when video playback fails.
+/// A default error placeholder widget for the video player.
 ///
-/// The [VideoPlayerErrorPlaceholder] provides a user-friendly error UI that includes:
-/// - An error icon and message styled via [OmniVideoPlayerTheme].
-/// - An optional button to open the video URL in an external player app.
-/// - An optional refresh button to retry loading the video using [playerGlobalKey].
+/// [VideoPlayerErrorPlaceholder] is shown when video playback fails due to an error.
+/// It displays a themed icon, error message, and optionally provides a button
+/// to open the video URL in an external video player app.
 ///
-/// This widget is designed to offer graceful error recovery and guidance to the user.
-///
-/// {@tool snippet}
-/// Example usage:
-/// ```dart
-/// VideoPlayerErrorPlaceholder(
-///   playerGlobalKey: playerKey,
-///   videoUrlToOpenExternally: videoUrl,
-///   showRefreshButton: true,
-/// )
-/// ```
-/// {@end-tool}
+/// The appearance and text are styled based on the current [OmniVideoPlayerTheme].
 class VideoPlayerErrorPlaceholder extends StatelessWidget {
-  /// Creates a [VideoPlayerErrorPlaceholder].
+  /// Creates the error placeholder widget.
   ///
-  /// If [videoUrlToOpenExternally] is non-null, an "Open in external player" button is shown.
-  /// If [showRefreshButton] is `true`, a "Refresh" button is also displayed.
+  /// If [videoUrlToOpenExternally] is provided, a button is shown
+  /// that allows the user to open the video in an external app.
   const VideoPlayerErrorPlaceholder({
     super.key,
     required this.playerGlobalKey,
@@ -35,15 +25,11 @@ class VideoPlayerErrorPlaceholder extends StatelessWidget {
     required this.showRefreshButton,
   });
 
-  /// Optional URL to open the video in an external app.
-  ///
-  /// If provided, the widget shows a button that attempts to launch the video externally.
+  /// The video URL to open in an external player, if applicable.
   final String? videoUrlToOpenExternally;
 
-  /// Whether to display a refresh button to retry video playback.
-  final bool? showRefreshButton;
+  final bool showRefreshButton;
 
-  /// A reference to the video player's state, used to trigger refresh actions.
   final GlobalKey<VideoPlayerInitializerState> playerGlobalKey;
 
   @override
@@ -71,23 +57,31 @@ class VideoPlayerErrorPlaceholder extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () async {
                     if (defaultTargetPlatform == TargetPlatform.android) {
-                      final intent = AndroidIntent(
+                      final AndroidIntent intent = AndroidIntent(
                         action: 'action_view',
                         data: videoUrlToOpenExternally!,
                       );
                       await intent.launch();
                     } else {
-                      await launchUrl(Uri.parse(videoUrlToOpenExternally!));
+                      try {
+                        await launchUrl(Uri.parse(videoUrlToOpenExternally!));
+                      } catch (e, s) {
+                        logger.w(
+                          'Failed to launch external video URL',
+                          error: e,
+                          stackTrace: s,
+                        );
+                      }
                     }
                   },
                   child: Text(theme.labels.openExternalLabel),
                 ),
               ),
-            if (showRefreshButton == true)
+            if (showRefreshButton)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: OutlinedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     playerGlobalKey.currentState?.refresh();
                   },
                   child: Text(theme.labels.refreshLabel),

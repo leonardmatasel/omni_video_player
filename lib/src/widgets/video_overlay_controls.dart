@@ -135,6 +135,10 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
       return;
     }
 
+    if (!widget.controller.isSeeking) {
+      widget.controller.wasPlayingBeforeSeek = widget.controller.isPlaying;
+    }
+    if (widget.controller.isReady) widget.controller.isSeeking = true;
     widget.controller.seekTo(
       targetPosition < Duration.zero
           ? Duration.zero

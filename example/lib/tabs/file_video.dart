@@ -62,10 +62,6 @@ class _FileVideoState extends State<FileVideo> {
                             useSafeAreaForBottomControls: true,
                             showPlaybackSpeedButton: true,
                           ),
-                          globalPlaybackControlSettings:
-                              GlobalPlaybackControlSettings().copyWith(
-                                useGlobalPlaybackController: true,
-                              ),
                           customPlayerWidgets: CustomPlayerWidgets().copyWith(
                             loadingWidget: const Center(
                               child: CircularProgressIndicator(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/models/custom_player_widgets.dart';
-import 'package:omni_video_player/omni_video_player/models/global_playback_control_settings.dart';
 import 'package:omni_video_player/omni_video_player/models/player_ui_visibility_options.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_configuration.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
@@ -17,7 +16,6 @@ class VideoPlayerConfiguration {
   /// Creates a new set of configuration options for a video player instance.
   VideoPlayerConfiguration({
     required this.videoSourceConfiguration,
-    this.globalPlaybackControlSettings = const GlobalPlaybackControlSettings(),
     this.playerUIVisibilityOptions = const PlayerUIVisibilityOptions(),
     this.playerTheme = const OmniVideoPlayerThemeData(),
     this.customPlayerWidgets = const CustomPlayerWidgets(),
@@ -43,9 +41,6 @@ class VideoPlayerConfiguration {
 
   /// Defines how the video is loaded and played (URL, autoplay, volume, etc).
   final VideoSourceConfiguration videoSourceConfiguration;
-
-  /// Controls global playback interactions like exclusive playback and mute sync.
-  final GlobalPlaybackControlSettings globalPlaybackControlSettings;
 
   /// Flags that toggle visibility of player UI elements like seek bar, buttons, etc.
   final PlayerUIVisibilityOptions playerUIVisibilityOptions;
@@ -97,7 +92,6 @@ class VideoPlayerConfiguration {
   /// ```
   VideoPlayerConfiguration copyWith({
     VideoSourceConfiguration? videoSourceConfiguration,
-    GlobalPlaybackControlSettings? globalPlaybackControlSettings,
     PlayerUIVisibilityOptions? playerUIVisibilityOptions,
     OmniVideoPlayerThemeData? playerTheme,
     CustomPlayerWidgets? customPlayerWidgets,
@@ -107,8 +101,6 @@ class VideoPlayerConfiguration {
     return VideoPlayerConfiguration(
       videoSourceConfiguration:
           videoSourceConfiguration ?? this.videoSourceConfiguration,
-      globalPlaybackControlSettings:
-          globalPlaybackControlSettings ?? this.globalPlaybackControlSettings,
       playerUIVisibilityOptions:
           playerUIVisibilityOptions ?? this.playerUIVisibilityOptions,
       playerTheme: playerTheme ?? this.playerTheme,

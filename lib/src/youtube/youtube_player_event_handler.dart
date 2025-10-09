@@ -75,14 +75,14 @@ class YoutubePlayerEventHandler {
 
       final config = options.videoSourceConfiguration;
 
-      if (!config.autoPlay ||
-          (!controller.isFullyVisible && controller.hasStarted == false)) {
-        controller.pause();
+      if (config.initialPosition.inSeconds >= 0) {
+        await controller.seekTo(config.initialPosition);
         controller.hasStarted = false;
       }
 
-      if (config.initialPosition.inSeconds >= 0) {
-        await controller.seekTo(config.initialPosition);
+      if (!config.autoPlay ||
+          (!controller.isFullyVisible && controller.hasStarted == false)) {
+        controller.pause(useGlobalController: false);
         controller.hasStarted = false;
       }
 
@@ -90,6 +90,8 @@ class YoutubePlayerEventHandler {
 
       if (config.autoMuteOnStart) {
         controller.mute();
+      } else if (controller.isMuted && !controller.hasStarted) {
+        controller.run('mute');
       } else {
         controller.volume = config.initialVolume;
       }
@@ -139,7 +141,8 @@ class YoutubePlayerEventHandler {
 
   void onError(Object data) {
     logger.e(
-        "YouTube API ErrorCode: $data, message: ${(data == 150 || data == 101) ? 'Embedding not allowed: usually happens with official music videos, copyrighted content (movies, sports, live events), videos with geographic restrictions, or when the uploader has disabled embedding in YouTube Studio' : 'Unknown error'}");
+      "YouTube API ErrorCode: $data, message: ${(data == 150 || data == 101) ? 'Embedding not allowed: usually happens with official music videos, copyrighted content (movies, sports, live events), videos with geographic restrictions, or when the uploader has disabled embedding in YouTube Studio' : 'Unknown error'}",
+    );
     controller.hasError = true;
   }
 

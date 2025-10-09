@@ -59,8 +59,6 @@ class _VimeoState extends State<Vimeo> {
               useSafeAreaForBottomControls: true,
               showPlaybackSpeedButton: true,
             ),
-            globalPlaybackControlSettings: GlobalPlaybackControlSettings()
-                .copyWith(useGlobalPlaybackController: true),
             customPlayerWidgets: CustomPlayerWidgets().copyWith(
               loadingWidget: Center(
                 child: CircularProgressIndicator(color: Colors.white),

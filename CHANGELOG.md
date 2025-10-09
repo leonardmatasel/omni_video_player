@@ -1,3 +1,26 @@
+# 3.0.0
+
+💥 **Breaking Changes**
+
+* Removed **global playback control system** (`GlobalPlaybackControlSettings` and `GlobalPlaybackController` usage).
+  App initialization is now simplified — no `BlocProvider` needed.
+
+* Removed parameters from `PlayerUIVisibilityOptions`:
+  `showRefreshButtonInErrorPlaceholder`, `showOpenExternallyInErrorPlaceholder`.
+
+* **`VideoPlayerErrorPlaceholder`** simplified — now displays only the themed error icon and message.
+  If you want to keep using the previous version, you can pass it through `CustomPlayerWidgets.errorPlaceholder`.
+  The old implementation is available here: [Old Video Player Error Placeholder](https://github.com/leonardmatasel/omni_video_player/blob/main/example/lib/custom_widgets/video_player_error_placeholder.dart).
+
+* `synchronizeMuteAcrossPlayers` moved to `VideoSourceConfiguration`.
+
+➡️ For migration details, see [MIGRATION_GUIDE.md](https://github.com/leonardmatasel/omni_video_player/blob/main/example/MIGRATION_GUIDE.md)
+
+🧩 **Package Simplification**
+
+* Removed dependencies: `flutter_bloc`, `android_intent_plus`, `url_launcher`, `built_collection`.
+
+
 # 2.3.22
 
 ✨ **New Features**

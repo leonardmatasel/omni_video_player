@@ -23,8 +23,6 @@ class AssetLink extends StatelessWidget {
               useSafeAreaForBottomControls: true,
               showPlaybackSpeedButton: true,
             ),
-            globalPlaybackControlSettings: GlobalPlaybackControlSettings()
-                .copyWith(useGlobalPlaybackController: true),
             customPlayerWidgets: CustomPlayerWidgets().copyWith(
               loadingWidget: const Center(
                 child: CircularProgressIndicator(color: Colors.blueAccent),

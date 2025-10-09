@@ -83,12 +83,14 @@ class YoutubePlaybackController extends OmniPlaybackController {
       webViewParams = const PlatformWebViewControllerCreationParams();
     }
 
-    webViewController = WebViewController.fromPlatformCreationParams(
-      webViewParams,
-    )
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..addJavaScriptChannel(playerId, onMessageReceived: _eventHandler.call)
-      ..enableZoom(false);
+    webViewController =
+        WebViewController.fromPlatformCreationParams(webViewParams)
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          ..addJavaScriptChannel(
+            playerId,
+            onMessageReceived: _eventHandler.call,
+          )
+          ..enableZoom(false);
 
     final webViewPlatform = webViewController.platform;
     if (webViewPlatform is AndroidWebViewController) {
@@ -159,10 +161,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
     if (!_initCompleter.isCompleted) _initCompleter.complete();
   }
 
-  Future<void> load({
-    String? baseUrl,
-    required String id,
-  }) async {
+  Future<void> load({String? baseUrl, required String id}) async {
     final platform = kIsWeb ? 'web' : defaultTargetPlatform.name.toLowerCase();
     final Map<String, String> playerData = {
       'playerId': id,
@@ -173,7 +172,8 @@ class YoutubePlaybackController extends OmniPlaybackController {
         'cc_load_policy': 0,
         'color': 'white',
         'controls': 0,
-        'disablekb': kIsWeb &&
+        'disablekb':
+            kIsWeb &&
                 options.playerUIVisibilityOptions.enableForwardGesture &&
                 options.playerUIVisibilityOptions.enableBackwardGesture
             ? 0
@@ -223,10 +223,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
     await webViewController.removeJavaScriptChannel(playerId);
   }
 
-  Future<void> run(
-    String functionName, {
-    Map<String, dynamic>? data,
-  }) async {
+  Future<void> run(String functionName, {Map<String, dynamic>? data}) async {
     await _initCompleter.future;
 
     final varArgs = await _prepareData(data);
@@ -281,7 +278,8 @@ class YoutubePlaybackController extends OmniPlaybackController {
   @override
   Future<void> switchQuality(OmniVideoQuality quality) async {
     logger.i(
-        "Switching quality to $quality: is not available because of the Youtube API. Doc: https://developers.google.com/youtube/iframe_api_reference");
+      "Switching quality to $quality: is not available because of the Youtube API. Doc: https://developers.google.com/youtube/iframe_api_reference",
+    );
   }
 
   @override
@@ -367,22 +365,29 @@ class YoutubePlaybackController extends OmniPlaybackController {
   }
 
   @override
-  Future<void> pause({bool useGlobalController = true}) {
-    return run('pauseVideo');
+  Future<void> pause({bool useGlobalController = true}) async {
+    if (useGlobalController && _globalController != null) {
+      return await _globalController.requestPause();
+    } else {
+      return run('pauseVideo');
+    }
   }
 
   @override
-  Future<void> play({bool useGlobalController = true}) {
-    return run('playVideo');
+  Future<void> play({bool useGlobalController = true}) async {
+    _hasStarted = true;
+    if (useGlobalController && _globalController != null) {
+      return await _globalController.requestPlay(this);
+    } else {
+      return run('playVideo');
+    }
   }
 
   @override
   int get rotationCorrection => 0;
 
   @override
-  Future<void> seekTo(
-    Duration position,
-  ) async {
+  Future<void> seekTo(Duration position) async {
     if (position <= duration) {
       if (position.inSeconds != 0) {
         hasStarted = true;
@@ -395,9 +400,11 @@ class YoutubePlaybackController extends OmniPlaybackController {
   }
 
   @override
-  Future<void> switchFullScreenMode(BuildContext context,
-      {required Widget Function(BuildContext p1)? pageBuilder,
-      void Function(bool p1)? onToggle}) async {
+  Future<void> switchFullScreenMode(
+    BuildContext context, {
+    required Widget Function(BuildContext p1)? pageBuilder,
+    void Function(bool p1)? onToggle,
+  }) async {
     if (_isFullScreen) {
       _isFullScreen = false;
       wasPlayingBeforeGoOnFullScreen = null;
@@ -452,14 +459,14 @@ class YoutubePlaybackController extends OmniPlaybackController {
     _previousVolume = _volume;
     volume = 0;
     run('mute');
-    _globalController?.setCurrentVolume(0);
+    _globalController?.setCurrentVolume(volume);
   }
 
   @override
   void unMute() {
-    volume = _previousVolume;
+    volume = _previousVolume == 0 ? 1 : _previousVolume;
     run('unMute');
-    _globalController?.setCurrentVolume(_previousVolume);
+    _globalController?.setCurrentVolume(volume);
   }
 
   @override
@@ -489,8 +496,9 @@ class YoutubePlaybackController extends OmniPlaybackController {
 
   @override
   void loadVideoSource(VideoSourceConfiguration videoSourceConfiguration) {
-    globalKeyPlayer.currentState
-        ?.refresh(videoSourceConfiguration: videoSourceConfiguration);
+    globalKeyPlayer.currentState?.refresh(
+      videoSourceConfiguration: videoSourceConfiguration,
+    );
   }
 
   @override

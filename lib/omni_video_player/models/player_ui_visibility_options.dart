@@ -63,12 +63,6 @@ class PlayerUIVisibilityOptions {
   /// Whether to show the mute/unmute toggle button.
   final bool showMuteUnMuteButton;
 
-  /// Whether to show a refresh button inside the error placeholder.
-  final bool showRefreshButtonInErrorPlaceholder;
-
-  /// Whether to show a "open externally" button inside the error placeholder.
-  final bool showOpenExternallyInErrorPlaceholder;
-
   /// Whether to wrap the bottom control bar inside a [SafeArea] widget
   /// to avoid overlaps with system UI elements like gesture bars or notches.
   final bool useSafeAreaForBottomControls;
@@ -137,14 +131,12 @@ class PlayerUIVisibilityOptions {
     this.showReplayButton = true,
     this.showThumbnailAtStart = true,
     this.showVideoBottomControlsBar = true,
-    this.showBottomControlsBarOnEndedFullscreen = false,
+    this.showBottomControlsBarOnEndedFullscreen = true,
     this.showFullScreenButton = true,
     this.showMuteUnMuteButton = true,
     this.showPlayPauseReplayButton = true,
     this.useSafeAreaForBottomControls = false,
     this.showGradientBottomControl = true,
-    this.showRefreshButtonInErrorPlaceholder = true,
-    this.showOpenExternallyInErrorPlaceholder = true,
     this.enableForwardGesture = true,
     this.enableBackwardGesture = true,
     this.enableExitFullscreenOnVerticalSwipe = true,
@@ -177,8 +169,6 @@ class PlayerUIVisibilityOptions {
     bool? showPlayPauseReplayButton,
     bool? useSafeAreaForBottomControls,
     bool? showGradientBottomControl,
-    bool? showRefreshButtonInErrorPlaceholder,
-    bool? showOpenExternallyInErrorPlaceholder,
     bool? enableForwardGesture,
     bool? enableBackwardGesture,
     bool? enableExitFullscreenOnVerticalSwipe,
@@ -209,12 +199,6 @@ class PlayerUIVisibilityOptions {
           useSafeAreaForBottomControls ?? this.useSafeAreaForBottomControls,
       showGradientBottomControl:
           showGradientBottomControl ?? this.showGradientBottomControl,
-      showRefreshButtonInErrorPlaceholder:
-          showRefreshButtonInErrorPlaceholder ??
-              this.showRefreshButtonInErrorPlaceholder,
-      showOpenExternallyInErrorPlaceholder:
-          showOpenExternallyInErrorPlaceholder ??
-              this.showOpenExternallyInErrorPlaceholder,
       enableForwardGesture: enableForwardGesture ?? this.enableForwardGesture,
       enableBackwardGesture:
           enableBackwardGesture ?? this.enableBackwardGesture,

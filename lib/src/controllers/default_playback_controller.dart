@@ -357,9 +357,10 @@ class DefaultPlaybackController extends OmniPlaybackController {
   /// Restores the previous volume level.
   @override
   void unMute() {
-    videoController.setVolume(_previousVolume);
-    audioController?.setVolume(_previousVolume);
-    _globalController?.setCurrentVolume(_previousVolume);
+    double tmpVolume = _previousVolume == 0 ? 1 : _previousVolume;
+    videoController.setVolume(tmpVolume);
+    audioController?.setVolume(tmpVolume);
+    _globalController?.setCurrentVolume(tmpVolume);
   }
 
   /// Seeks playback to a specific [position] in the video.
@@ -461,7 +462,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
     audioController?.removeListener(_onControllerUpdate);
     // If this controller is still playing according to the global manager,
     // ensure we pause it before disposing.
-    if (_globalController?.state.currentVideoPlaying == this) {
+    if (_globalController?.currentVideoPlaying == this) {
       _globalController?.requestPause();
     }
     videoController.dispose();

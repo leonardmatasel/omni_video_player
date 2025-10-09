@@ -141,6 +141,13 @@ class VideoSourceConfiguration {
   /// Defaults to `false`.
   final bool forceYoutubeWebViewOnly;
 
+  /// Synchronizes the mute state across all video players controlled globally.
+  ///
+  /// When `true`, muting or unmuting one video will apply the same mute state to
+  /// all other videos using the global playback controller.
+  ///
+  final bool synchronizeMuteAcrossPlayers;
+
   /// Private constructor used by factory constructors and [copyWith].
   const VideoSourceConfiguration._({
     this.videoUrl,
@@ -159,6 +166,7 @@ class VideoSourceConfiguration {
     this.allowSeeking = true,
     this.enableYoutubeWebViewFallback = true,
     this.forceYoutubeWebViewOnly = false,
+    this.synchronizeMuteAcrossPlayers = true,
     this.timeoutDuration = const Duration(seconds: 6),
   });
 
@@ -313,6 +321,7 @@ class VideoSourceConfiguration {
     List<double>? availablePlaybackSpeed,
     bool? autoMuteOnStart,
     bool? allowSeeking,
+    bool? synchronizeMuteAcrossPlayers,
     Duration? timeoutDuration,
     List<OmniVideoQuality>? preferredQualities,
     List<OmniVideoQuality>? availableQualities,
@@ -347,6 +356,8 @@ class VideoSourceConfiguration {
           enableYoutubeWebViewFallback ?? this.enableYoutubeWebViewFallback,
       forceYoutubeWebViewOnly:
           forceYoutubeWebViewOnly ?? this.forceYoutubeWebViewOnly,
+      synchronizeMuteAcrossPlayers:
+          synchronizeMuteAcrossPlayers ?? this.synchronizeMuteAcrossPlayers,
     );
   }
 }

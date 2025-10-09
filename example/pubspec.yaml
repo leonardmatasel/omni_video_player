@@ -33,7 +33,6 @@ dependencies:
 
   omni_video_player:
     path: ./..
-  flutter_bloc: ^9.1.0
   android_intent_plus: ^5.3.0
   url_launcher: ^6.3.1
   flutter_launcher_icons: ^0.14.4

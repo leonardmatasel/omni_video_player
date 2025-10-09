@@ -72,8 +72,6 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
         controller.seekTo(config.initialPosition);
       }
 
-      controller.unMute();
-
       if (config.autoMuteOnStart) {
         controller.mute();
       } else {

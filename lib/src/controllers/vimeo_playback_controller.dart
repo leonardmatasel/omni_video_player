@@ -256,7 +256,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
     if (useGlobalController && _globalController != null) {
       return await _globalController.requestPlay(this);
     } else {
-      await _evaluate("player.play();");
+      return await _evaluate("player.play();");
     }
   }
 
@@ -265,7 +265,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
     if (useGlobalController && _globalController != null) {
       return await _globalController.requestPause();
     } else {
-      await _evaluate("player.pause();");
+      return await _evaluate("player.pause();");
     }
   }
 
@@ -295,13 +295,15 @@ class VimeoPlaybackController extends OmniPlaybackController {
   void mute() {
     _previousVolume = _volume;
     _volume = 0;
-    _globalController?.setCurrentVolume(0);
+    volume = _volume;
+    _globalController?.setCurrentVolume(_volume);
   }
 
   @override
   void unMute() {
-    _volume = _previousVolume;
-    _globalController?.setCurrentVolume(_previousVolume);
+    _volume = _previousVolume == 0 ? 1 : _previousVolume;
+    volume = _volume;
+    _globalController?.setCurrentVolume(_volume);
   }
 
   @override

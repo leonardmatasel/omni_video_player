@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
-import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer.dart';
 import 'package:omni_video_player/src/widgets/player/video_player_error_placeholder.dart';
 import 'package:omni_video_player/src/widgets/video_player_renderer.dart';
@@ -91,21 +89,6 @@ class _OmniVideoPlayerState extends State<OmniVideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    GlobalPlaybackController? globalController;
-    if (_options.globalPlaybackControlSettings.useGlobalPlaybackController) {
-      try {
-        globalController = context.watch<GlobalPlaybackController>();
-      } catch (e) {
-        logger.w(
-            "Global playback control is not enabled because GlobalPlaybackController was not found in the context. "
-            "If you don't intend to use global playback control, set 'useGlobalPlaybackController' to false to suppress this warning. "
-            "Note: Disabling this feature will remove global coordination between videos—for example, automatically pausing other videos when one starts playing.");
-        globalController = null;
-      }
-    } else {
-      globalController = null;
-    }
-
     return OmniVideoPlayerTheme(
       data: _options.playerTheme,
       child: Stack(
@@ -135,7 +118,7 @@ class _OmniVideoPlayerState extends State<OmniVideoPlayer> {
             key: _options.globalKeyInitializer,
             options: _options,
             callbacks: _callbacks,
-            globalController: globalController,
+            globalController: GlobalPlaybackController(),
             buildPlayer: (context, controller, thumbnail) => AnimatedBuilder(
               animation: controller,
               builder: (context, child) => Container(
@@ -166,22 +149,7 @@ class _OmniVideoPlayerState extends State<OmniVideoPlayer> {
                                 .showErrorPlaceholder
                             ? widget.options.customPlayerWidgets
                                     .errorPlaceholder ??
-                                VideoPlayerErrorPlaceholder(
-                                  playerGlobalKey:
-                                      widget.options.globalKeyInitializer,
-                                  showRefreshButton: widget
-                                      .options
-                                      .playerUIVisibilityOptions
-                                      .showRefreshButtonInErrorPlaceholder,
-                                  videoUrlToOpenExternally: widget
-                                          .options
-                                          .playerUIVisibilityOptions
-                                          .showOpenExternallyInErrorPlaceholder
-                                      ? widget.options.videoSourceConfiguration
-                                          .videoUrl
-                                          .toString()
-                                      : null,
-                                )
+                                VideoPlayerErrorPlaceholder()
                             : const SizedBox.shrink(),
                       ),
                   ],

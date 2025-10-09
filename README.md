@@ -176,6 +176,14 @@ VideoSourceConfiguration.asset(
 );
 ```
 
+### File
+
+```dart
+VideoSourceConfiguration.file(
+  videoFile: ...,
+);
+```
+
 <br>
 
 ## 📱 Example App
@@ -183,59 +191,48 @@ VideoSourceConfiguration.asset(
 Explore the [`example/`](https://github.com/leonardmatasel/omni_video_player/tree/main/example) folder for working demos:
 
 * **Full demo** using different video sources: [`main.dart`](https://github.com/leonardmatasel/omni_video_player/blob/main/example/lib/main.dart)
-* **Minimal setup** with controller and play/pause logic: [`example.dart`](https://github.com/leonardmatasel/omni_video_player/blob/main/example/lib/example.dart)
+* **Full YouTube setup** with controller and all available configuration options: [`example.dart`](https://github.com/leonardmatasel/omni_video_player/blob/main/example/lib/example.dart)
 
 > 💡 Great starting points to understand how to integrate and customize the player.
 
 <br>
 
-## 🎯 Sync UI with `AnimatedBuilder`
 
-When using `OmniPlaybackController`, the controller itself is a `Listenable`, meaning it **notifies listeners** when playback state changes (e.g. play, pause, fullscreen).
+## 🎯 Sync UI with Controller Listener
 
-To build dynamic UI that reacts to those changes (like updating a play/pause button), wrap your widgets with `AnimatedBuilder`:
+Observe `OmniPlaybackController` property changes directly and update the UI safely.
 
 ```dart
+OmniPlaybackController? _controller;
+
+void _update() {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (mounted) setState(() {});
+  });
+}
+
 OmniVideoPlayer(
-  options: VideoPlayerConfiguration.youtube(
-    videoUrl: Uri.parse('https://www.youtube.com/watch?v=cuqZPx0H7a0'),
-  ),
   callbacks: VideoPlayerCallbacks(
     onControllerCreated: (controller) {
-      _controller = controller;
-      setState(() {}); // Enables the button below
+      _controller?.removeListener(_update);
+      _controller = controller..addListener(_update);
     },
   ),
-),
-```
-```dart
-AnimatedBuilder(
-  animation: Listenable.merge([controller]),
-  builder: (context, _) {
-    if (controller == null) return const CircularProgressIndicator();
-
-    final isPlaying = controller.isPlaying;
-
-    return ElevatedButton.icon(
-      onPressed: () =>
-          isPlaying ? controller.pause() : controller.play(),
-      icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-      label: Text(isPlaying ? 'Pause' : 'Play'),
-    );
-  },
 );
+
+if (_controller == null)
+  const CircularProgressIndicator();
+else
+  ElevatedButton.icon(
+    onPressed: () => _controller!.isPlaying
+        ? _controller!.pause()
+        : _controller!.play(),
+    icon: Icon(_controller!.isPlaying ? Icons.pause : Icons.play_arrow),
+    label: Text(_controller!.isPlaying ? 'Pause' : 'Play'),
+  );
 ```
-
-### ✅ Why it's needed
-
-Flutter widgets **don’t rebuild** on `Listenable` changes by default. `AnimatedBuilder` lets your UI stay in sync without manually calling `setState()` on every controller update — making your code more efficient and reactive.
-
-> ℹ️ Recommended for **any** UI that depends on the controller (playback state, fullscreen, etc.). It ensures consistent behavior and avoids state mismatch.
-
 
 <br>
-
-
 
 ## 🔮 Future Developments
 
