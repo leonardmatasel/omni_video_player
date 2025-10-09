@@ -35,7 +35,7 @@ enum OmniVideoQuality {
   high3072,
 
   /// High quality (4320p).
-  high4320
+  high4320,
 }
 
 extension QString on OmniVideoQuality {

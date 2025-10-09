@@ -50,10 +50,9 @@ class _VideoScreenState extends State<VideoScreen> {
       // The layout consists of the video player and a control button.
       body: Column(
         children: [
-          // Expands to fill available vertical space.
           Expanded(
             child: OmniVideoPlayer(
-              // Called when the internal video controller is ready.
+              // Callbacks
               callbacks: VideoPlayerCallbacks(
                 onControllerCreated: (controller) {
                   _controller?.removeListener(_update);
@@ -70,7 +69,7 @@ class _VideoScreenState extends State<VideoScreen> {
                 onReplay: () {},
               ),
 
-              // Minimal configuration: playing a YouTube video.
+              // Full configuration: playing a YouTube video.
               options: VideoPlayerConfiguration(
                 videoSourceConfiguration: VideoSourceConfiguration.youtube(
                   videoUrl: Uri.parse(

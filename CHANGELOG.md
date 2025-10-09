@@ -1,3 +1,9 @@
+# 3.0.1
+
+🛠 **Fix**
+
+* Dart formatter
+
 # 3.0.0
 
 💥 **Breaking Changes**

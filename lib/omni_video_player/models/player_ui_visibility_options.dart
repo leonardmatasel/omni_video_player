@@ -204,7 +204,7 @@ class PlayerUIVisibilityOptions {
           enableBackwardGesture ?? this.enableBackwardGesture,
       enableExitFullscreenOnVerticalSwipe:
           enableExitFullscreenOnVerticalSwipe ??
-              this.enableExitFullscreenOnVerticalSwipe,
+          this.enableExitFullscreenOnVerticalSwipe,
       showSwitchVideoQuality:
           showSwitchVideoQuality ?? this.showSwitchVideoQuality,
       showSwitchWhenOnlyAuto:
@@ -225,7 +225,7 @@ class PlayerUIVisibilityOptions {
           showPlayPauseReplayButton ?? this.showPlayPauseReplayButton,
       showBottomControlsBarOnEndedFullscreen:
           showBottomControlsBarOnEndedFullscreen ??
-              this.showBottomControlsBarOnEndedFullscreen,
+          this.showBottomControlsBarOnEndedFullscreen,
     );
   }
 }
