@@ -160,7 +160,7 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: widget.controller,
-      builder: (context, __) {
+      builder: (context, _) {
         return AutoHideControlsManager(
           controller: widget.controller,
           options: widget.options,

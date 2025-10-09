@@ -437,10 +437,10 @@ class DefaultPlaybackController extends OmniPlaybackController {
       await Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (_, __, ___) {
+          pageBuilder: (_, _, _) {
             return pageBuilder!(context);
           },
-          transitionsBuilder: (_, animation, __, Widget child) {
+          transitionsBuilder: (_, animation, _, Widget child) {
             return FadeTransition(opacity: animation, child: child);
           },
         ),

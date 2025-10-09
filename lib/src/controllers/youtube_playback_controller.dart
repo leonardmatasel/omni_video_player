@@ -420,8 +420,8 @@ class YoutubePlaybackController extends OmniPlaybackController {
       await Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (_, __, ___) => pageBuilder!(context),
-          transitionsBuilder: (_, animation, __, Widget child) {
+          pageBuilder: (_, _, _) => pageBuilder!(context),
+          transitionsBuilder: (_, animation, _, Widget child) {
             return FadeTransition(opacity: animation, child: child);
           },
         ),
