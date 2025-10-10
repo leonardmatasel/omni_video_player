@@ -72,7 +72,7 @@ class VideoPlayerErrorPlaceholder extends StatelessWidget {
                       }
                     }
                   },
-                  child: Text(theme.labels.openExternalLabel),
+                  child: Text("Open with external player"),
                 ),
               ),
             if (showRefreshButton)
@@ -82,7 +82,7 @@ class VideoPlayerErrorPlaceholder extends StatelessWidget {
                   onPressed: () async {
                     playerGlobalKey.currentState?.refresh();
                   },
-                  child: Text(theme.labels.refreshLabel),
+                  child: Text("Refresh"),
                 ),
               ),
           ],

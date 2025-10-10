@@ -1,3 +1,12 @@
+# 3.0.4
+
+🧹 **Removals**
+
+* Removed unused parameters in `VideoPlayerLabelTheme`:
+  * `openExternalLabel`
+  * `refreshLabel`
+* These labels were not used anywhere in the player and have been removed to simplify the API.
+
 # 3.0.3
 
 ✨ **New Features**
