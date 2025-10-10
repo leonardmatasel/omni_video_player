@@ -52,9 +52,9 @@ class ProgressBarState extends State<ProgressBar> {
         final thumbRadius = 10.0;
         final percent = (displayValue / widget.max).clamp(0.0, 1.0);
         final safeWidth = max(0.0, constraints.maxWidth);
-        final thumbX = (safeWidth * percent).clamp(
+        final double thumbX = (safeWidth * percent).clamp(
           0.0,
-          safeWidth - thumbRadius,
+          max(0.0, safeWidth - thumbRadius),
         );
 
         return GestureDetector(
