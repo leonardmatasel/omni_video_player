@@ -1,3 +1,11 @@
+# 3.0.5
+
+🛠 **Fix / UI**
+
+* Fixed `ProgressBar` crash in fullscreen.
+
+  * Prevents invalid `clamp` arguments when video starts or panel layouts reduce available width.
+
 # 3.0.4
 
 🧹 **Removals**
