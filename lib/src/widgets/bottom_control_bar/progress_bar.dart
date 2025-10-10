@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class ProgressBar extends StatefulWidget {
@@ -49,7 +51,11 @@ class ProgressBarState extends State<ProgressBar> {
         final trackHeight = 6.0;
         final thumbRadius = 10.0;
         final percent = (displayValue / widget.max).clamp(0.0, 1.0);
-        final thumbX = (constraints.maxWidth - 2 * thumbRadius) * percent;
+        final safeWidth = max(0.0, constraints.maxWidth);
+        final thumbX = (safeWidth * percent).clamp(
+          0.0,
+          safeWidth - thumbRadius,
+        );
 
         return GestureDetector(
           behavior: HitTestBehavior.translucent,
@@ -103,7 +109,7 @@ class ProgressBarState extends State<ProgressBar> {
 
                 // Active progress
                 Container(
-                  width: thumbX,
+                  width: max(0.0, thumbX),
                   height: trackHeight,
                   decoration: BoxDecoration(
                     color: widget.activeColor,
@@ -113,7 +119,7 @@ class ProgressBarState extends State<ProgressBar> {
 
                 // Thumb
                 Positioned(
-                  left: thumbX - thumbRadius,
+                  left: max(0.0, thumbX - thumbRadius),
                   child: Container(
                     width: 2 * thumbRadius,
                     height: 2 * thumbRadius,
