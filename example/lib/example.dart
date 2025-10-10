@@ -150,6 +150,7 @@ class _VideoScreenState extends State<VideoScreen> {
                   thumbnail: null,
                   thumbnailFit: null,
                   customOverlayLayers: null,
+                  fullscreenWrapper: null,
                 ),
                 liveLabel: "LIVE",
                 enableBackgroundOverlayClip: true,

@@ -1,3 +1,11 @@
+# 3.0.3
+
+✨ **New Features**
+
+* **Fullscreen wrapper support** via `CustomPlayerWidgets.fullscreenWrapper`.
+
+  * Allows wrapping the entire fullscreen player with a custom widget or layout.
+
 # 3.0.1 - 3.0.2
 
 🛠 **Fix**

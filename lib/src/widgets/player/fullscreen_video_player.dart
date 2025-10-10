@@ -61,7 +61,7 @@ class _FullscreenVideoPlayerState extends State<FullscreenVideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return OrientationLocker(
+    final basePlayer = OrientationLocker(
       enableOrientationLock:
           widget.options.playerUIVisibilityOptions.enableOrientationLock,
       orientation:
@@ -93,5 +93,9 @@ class _FullscreenVideoPlayerState extends State<FullscreenVideoPlayer> {
         ),
       ),
     );
+
+    final wrapper = widget.options.customPlayerWidgets.fullscreenWrapper;
+
+    return wrapper != null ? wrapper(context, basePlayer) : basePlayer;
   }
 }

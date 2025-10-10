@@ -62,6 +62,21 @@ class CustomPlayerWidgets {
   /// Defaults to [BoxFit.cover].
   final BoxFit thumbnailFit;
 
+  /// Optional wrapper applied **only in fullscreen mode**.
+  ///
+  /// Use this to wrap the entire player in a different layout or theme
+  /// when entering fullscreen. For example, you could add padding,
+  /// a background gradient, or a safe area.
+  ///
+  /// Example:
+  /// ```dart
+  /// fullscreenWrapper: (context, child) => Scaffold(
+  ///   backgroundColor: Colors.black,
+  ///   body: Center(child: child),
+  /// ),
+  /// ```
+  final Widget Function(BuildContext context, Widget child)? fullscreenWrapper;
+
   /// Creates a new instance of [CustomPlayerWidgets] with optional overrides
   /// for all supported customizations.
   const CustomPlayerWidgets({
@@ -76,6 +91,7 @@ class CustomPlayerWidgets {
     this.thumbnail,
     this.thumbnailFit = BoxFit.cover,
     this.customOverlayLayers = const [],
+    this.fullscreenWrapper,
   });
 
   /// Returns a new [CustomPlayerWidgets] instance with the specified fields overridden.
@@ -101,6 +117,7 @@ class CustomPlayerWidgets {
     ImageProvider<Object>? thumbnail,
     BoxFit? thumbnailFit,
     List<CustomOverlayLayer>? customOverlayLayers,
+    Widget Function(BuildContext context, Widget child)? fullscreenWrapper,
   }) {
     return CustomPlayerWidgets(
       loadingWidget: loadingWidget ?? this.loadingWidget,
@@ -117,6 +134,7 @@ class CustomPlayerWidgets {
       thumbnail: thumbnail ?? this.thumbnail,
       thumbnailFit: thumbnailFit ?? this.thumbnailFit,
       customOverlayLayers: customOverlayLayers ?? this.customOverlayLayers,
+      fullscreenWrapper: fullscreenWrapper ?? this.fullscreenWrapper,
     );
   }
 }
