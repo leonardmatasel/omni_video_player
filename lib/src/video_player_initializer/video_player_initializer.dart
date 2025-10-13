@@ -44,7 +44,7 @@ class VideoPlayerInitializer extends StatefulWidget {
 class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
     with AutomaticKeepAliveClientMixin<VideoPlayerInitializer> {
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => widget.options.videoSourceConfiguration.keepAlive;
 
   OmniPlaybackController? _controller;
   bool _isLoading = true;
@@ -58,6 +58,12 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
   void initState() {
     super.initState();
     _initialize();
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
   }
 
   Future<void> refresh({

@@ -1,4 +1,13 @@
-# 3.0.9 - 3.0.8
+# 3.0.10 - 3.0.9 - 3.0.8
+
+✨ **New Features**
+
+* Added `keepAlive` parameter to `VideoSourceConfiguration`.
+
+  * When set to `true`, the video controller is **not automatically disposed**, allowing the video state to persist between rebuilds or navigation changes.
+  * **Default:** `false`
+  * ⚠️ Use with caution — if you never call `dispose()` manually, this may cause memory leaks or OutOfMemory errors.
+
 
 🛠 **Fix**
 

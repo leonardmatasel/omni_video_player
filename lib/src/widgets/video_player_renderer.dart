@@ -79,6 +79,8 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
                 child: VisibilityDetector(
                   key: Key(hashCode.toString()),
                   onVisibilityChanged: (visibilityInfo) {
+                    if (!context.mounted) return;
+
                     if (visibilityInfo.visibleFraction == 1 &&
                         !widget.controller.isFullyVisible) {
                       widget.controller.isFullyVisible = true;

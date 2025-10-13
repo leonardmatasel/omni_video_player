@@ -35,6 +35,36 @@ class YouTubeStreamUrls {
 class YouTubeService {
   static YoutubeExplode? yt = kIsWeb ? null : YoutubeExplode();
 
+  static final Map<String, CachedYouTubeStream> _cache = {};
+
+  static Future<YouTubeStreamUrls> fetchVideoAndAudioUrlsCached(
+    VideoId videoId, {
+    required Duration timeout,
+    List<OmniVideoQuality>? preferredQualities,
+    List<OmniVideoQuality>? availableQualities,
+    List<String>? preferredVideoFormats,
+    List<String>? preferredAudioFormats,
+  }) async {
+    final cached = _cache[videoId.value];
+    if (cached != null && cached.isValid) {
+      logger.d('Using cached YouTube stream data');
+      return cached.data;
+    }
+
+    final urls = await fetchVideoAndAudioUrls(
+      videoId,
+      timeout: timeout,
+      preferredQualities: preferredQualities,
+      availableQualities: availableQualities,
+      preferredVideoFormats: preferredVideoFormats,
+      preferredAudioFormats: preferredAudioFormats,
+    );
+
+    _cache[videoId.value] = CachedYouTubeStream(urls);
+
+    return urls;
+  }
+
   /// Fetches the HLS URL for a live YouTube stream.
   /// Errors from the underlying `youtube_explode_dart` are rethrown
   /// and should be handled by the caller. No internal logging is performed.
@@ -345,9 +375,9 @@ class YouTubeService {
 
 Future<T> retry<T>(
   Future<T> Function() action, {
-  int retries = 3,
+  int retries = 5,
   Duration delay = const Duration(milliseconds: 200),
-  Duration timeout = const Duration(seconds: 5),
+  Duration timeout = const Duration(seconds: 2),
 }) async {
   int attempt = 0;
 
@@ -369,4 +399,13 @@ Future<T> retry<T>(
       "Retry block timed out after ${timeout.inSeconds} seconds",
     ),
   );
+}
+
+class CachedYouTubeStream {
+  final YouTubeStreamUrls data;
+  final DateTime cachedAt;
+
+  CachedYouTubeStream(this.data) : cachedAt = DateTime.now();
+
+  bool get isValid => DateTime.now().difference(cachedAt) < Duration(hours: 1);
 }

@@ -53,6 +53,8 @@ class YoutubePlaybackController extends OmniPlaybackController {
   late final GlobalPlaybackController? _globalController;
   GlobalKey<VideoPlayerInitializerState> globalKeyPlayer;
 
+  bool isDisposed = false;
+
   @override
   final Size size;
 
@@ -220,8 +222,9 @@ class YoutubePlaybackController extends OmniPlaybackController {
   /// Disposes the resources created by [YoutubePlayerController].
   @override
   Future<void> dispose() async {
-    super.dispose();
+    isDisposed = true;
     await webViewController.removeJavaScriptChannel(playerId);
+    super.dispose();
   }
 
   Future<void> run(String functionName, {Map<String, dynamic>? data}) async {

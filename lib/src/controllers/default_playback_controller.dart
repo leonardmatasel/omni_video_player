@@ -50,6 +50,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
   bool _isSeeking = false;
   bool _isFullScreen = false;
   bool _hasStarted = false;
+  bool _isDisposed = false;
   final GlobalPlaybackController? _globalController;
   double _previousVolume = 1.0;
   bool _isNotifyPending = false;
@@ -171,10 +172,11 @@ class DefaultPlaybackController extends OmniPlaybackController {
 
     sharedPlayerNotifier.value = Hero(
       tag: globalKeyPlayer,
-      child: VideoPlayer(key: globalKeyPlayer, newController),
+      child: VideoPlayer(key: GlobalKey(), newController),
     );
 
     await videoController.dispose();
+
     videoController = newController;
     await seekTo(currentPos);
 
@@ -189,6 +191,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
     if (_isNotifyPending) return;
     _isNotifyPending = true;
     SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (_isDisposed) return;
       _isNotifyPending = false;
       notifyListeners();
     });
@@ -448,6 +451,8 @@ class DefaultPlaybackController extends OmniPlaybackController {
   /// Disposes the controller and its resources.
   @override
   void dispose() {
+    _isDisposed = true;
+    super.dispose();
     videoController.removeListener(_onControllerUpdate);
     audioController?.removeListener(_onControllerUpdate);
     // If this controller is still playing according to the global manager,
@@ -457,7 +462,6 @@ class DefaultPlaybackController extends OmniPlaybackController {
     }
     videoController.dispose();
     audioController?.dispose();
-    super.dispose();
   }
 
   @override

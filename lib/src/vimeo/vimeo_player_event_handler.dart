@@ -26,6 +26,7 @@ class VimeoPlayerEventHandler {
   late final Map<String, ValueChanged<Object>> _events;
 
   void call(JavaScriptMessage javaScriptMessage) {
+    if (controller.isDisposed) return;
     final data = Map.from(jsonDecode(javaScriptMessage.message));
     if (data['playerId'] != controller.playerId) return;
 

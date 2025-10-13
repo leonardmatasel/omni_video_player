@@ -148,6 +148,15 @@ class VideoSourceConfiguration {
   ///
   final bool synchronizeMuteAcrossPlayers;
 
+  /// Keeps the video controller alive even when the widget is removed from the tree.
+  ///
+  /// When `true`, the controller is **not automatically disposed**, allowing the
+  /// video state (position, buffer, etc.) to persist across rebuilds or navigation.
+  ///
+  /// ⚠️ Use with caution — if you never call `dispose()` manually, this may lead
+  /// to memory leaks or OutOfMemory errors.
+  final bool keepAlive;
+
   /// Private constructor used by factory constructors and [copyWith].
   const VideoSourceConfiguration._({
     this.videoUrl,
@@ -164,6 +173,7 @@ class VideoSourceConfiguration {
     this.preferredQualities = const [OmniVideoQuality.medium480],
     this.availableQualities,
     this.allowSeeking = true,
+    this.keepAlive = false,
     this.enableYoutubeWebViewFallback = true,
     this.forceYoutubeWebViewOnly = false,
     this.synchronizeMuteAcrossPlayers = true,
@@ -328,6 +338,7 @@ class VideoSourceConfiguration {
     List<OmniVideoQuality>? availableQualities,
     bool? enableYoutubeWebViewFallback,
     bool? forceYoutubeWebViewOnly,
+    bool? keepAlive,
   }) {
     final newPreferred = preferredQualities ?? this.preferredQualities;
     final newAvailable = availableQualities ?? this.availableQualities;
@@ -359,6 +370,7 @@ class VideoSourceConfiguration {
           forceYoutubeWebViewOnly ?? this.forceYoutubeWebViewOnly,
       synchronizeMuteAcrossPlayers:
           synchronizeMuteAcrossPlayers ?? this.synchronizeMuteAcrossPlayers,
+      keepAlive: keepAlive ?? this.keepAlive,
     );
   }
 }

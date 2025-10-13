@@ -104,7 +104,7 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
     Duration timeout,
   ) async {
     final config = videoSourceConfiguration;
-    final urls = await YouTubeService.fetchVideoAndAudioUrls(
+    final urls = await YouTubeService.fetchVideoAndAudioUrlsCached(
       videoId,
       timeout: timeout,
       preferredQualities: config.preferredQualities,

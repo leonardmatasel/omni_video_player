@@ -39,6 +39,8 @@ class VimeoPlaybackController extends OmniPlaybackController {
 
   GlobalKey<VideoPlayerInitializerState> globalKeyPlayer;
 
+  bool isDisposed = false;
+
   @override
   Duration get duration => _duration;
 
@@ -139,8 +141,9 @@ class VimeoPlaybackController extends OmniPlaybackController {
 
   @override
   Future<void> dispose() async {
-    super.dispose();
+    isDisposed = true;
     await webViewController.removeJavaScriptChannel(playerId);
+    super.dispose();
   }
 
   Future<String> _buildPlayerHTML(Map<String, String> data) async {
@@ -286,6 +289,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
 
   @override
   set volume(double value) {
+    if (value > 1 || value < 0) return;
     _evaluate("player.setVolume($volume);");
     _volume = value;
     notifyListeners();

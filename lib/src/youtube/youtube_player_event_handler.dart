@@ -33,6 +33,7 @@ class YoutubePlayerEventHandler {
   late final Map<String, ValueChanged<Object>> _events;
 
   void call(JavaScriptMessage javaScriptMessage) {
+    if (controller.isDisposed) return;
     final data = Map.from(jsonDecode(javaScriptMessage.message));
     if (data['playerId'] != controller.playerId) return;
 
@@ -78,12 +79,14 @@ class YoutubePlayerEventHandler {
       if (config.initialPosition.inSeconds >= 0) {
         await controller.seekTo(config.initialPosition);
         controller.hasStarted = false;
+        controller.isPlaying = false;
       }
 
       if (!config.autoPlay ||
           (!controller.isFullyVisible && controller.hasStarted == false)) {
         controller.pause(useGlobalController: false);
         controller.hasStarted = false;
+        controller.isPlaying = false;
       }
 
       controller.run('unMute');
