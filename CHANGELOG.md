@@ -1,3 +1,11 @@
+# 3.0.9
+
+🛠 **Fix**
+
+* Fixed occasional `OMX.qcom.video.decoder.avc (NO_MEMORY)` crash on Android.
+
+  * Set `mixWithOthers` to `false` in `VideoPlaybackController` to prevent hardware decoder conflicts when multiple players or audio sessions are active.
+
 #  3.0.7 - 3.0.6 - 3.0.5
 
 🛠 **Fix / UI**

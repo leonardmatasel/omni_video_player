@@ -20,10 +20,13 @@ class VideoPlaybackController extends VideoPlayerController {
   /// If [manager] is non-null, calls to [play] and [pause]
   /// are forwarded to it. Set [isLive] to true for live streams,
   /// which affects buffering logic.
-  VideoPlaybackController.uri(super.url, {this.isLive = false})
-    : super.networkUrl(
-        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
-      );
+  VideoPlaybackController.uri(
+    super.url, {
+    this.isLive = false,
+    mixWithOthers = false,
+  }) : super.networkUrl(
+         videoPlayerOptions: VideoPlayerOptions(mixWithOthers: mixWithOthers),
+       );
 
   /// Creates a controller for an asset video.
   ///

@@ -44,8 +44,6 @@ class DefaultPlaybackController extends OmniPlaybackController {
   @override
   final String? videoId = null;
 
-  Duration _lastPosition = Duration.zero;
-  Timer? _positionWatcher;
   bool _wasPlayingBeforeSeek = false;
   bool _isFullyVisible = false;
 
@@ -76,7 +74,9 @@ class DefaultPlaybackController extends OmniPlaybackController {
   ) {
     duration = videoController.value.duration;
 
-    seekTo(initialPosition, skipHasPlaybackStarted: true);
+    if (initialPosition.inSeconds > 0) {
+      seekTo(initialPosition, skipHasPlaybackStarted: true);
+    }
     if (initialVolume != null) {
       volume = initialVolume;
     }
@@ -85,7 +85,6 @@ class DefaultPlaybackController extends OmniPlaybackController {
     }
     videoController.addListener(_onControllerUpdate);
     audioController?.addListener(_onControllerUpdate);
-    _startPositionWatcher();
   }
 
   /// Creates and initializes a new [OmniPlaybackController] instance.
@@ -110,12 +109,20 @@ class DefaultPlaybackController extends OmniPlaybackController {
         ? VideoPlaybackController.asset(dataSource)
         : (type == VideoSourceType.file && file != null)
         ? VideoPlaybackController.file(file)
-        : VideoPlaybackController.uri(videoUrl!, isLive: isLive);
+        : VideoPlaybackController.uri(
+            videoUrl!,
+            isLive: isLive,
+            mixWithOthers: false,
+          );
     await videoController.initialize();
 
     AudioPlaybackController? audioController;
     if (audioUrl != null) {
-      audioController = AudioPlaybackController.uri(audioUrl, isLive: isLive);
+      audioController = AudioPlaybackController.uri(
+        audioUrl,
+        isLive: isLive,
+        mixWithOthers: true,
+      );
       await audioController.initialize();
     }
 
@@ -184,20 +191,6 @@ class DefaultPlaybackController extends OmniPlaybackController {
     SchedulerBinding.instance.addPostFrameCallback((_) {
       _isNotifyPending = false;
       notifyListeners();
-    });
-  }
-
-  // because currentPosition is not correctly notify
-  void _startPositionWatcher() {
-    _positionWatcher?.cancel();
-    _positionWatcher = Timer.periodic(const Duration(milliseconds: 250), (_) {
-      final current = currentPosition;
-
-      // Notifica solo se la posizione è cambiata
-      if (current != _lastPosition) {
-        _lastPosition = current;
-        notifyListeners();
-      }
     });
   }
 
@@ -455,8 +448,6 @@ class DefaultPlaybackController extends OmniPlaybackController {
   /// Disposes the controller and its resources.
   @override
   void dispose() {
-    _positionWatcher?.cancel();
-
     videoController.removeListener(_onControllerUpdate);
     audioController?.removeListener(_onControllerUpdate);
     // If this controller is still playing according to the global manager,
