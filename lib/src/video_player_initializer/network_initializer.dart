@@ -3,6 +3,7 @@ import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/src/api/hls_video_api.dart';
 import 'package:omni_video_player/src/controllers/default_playback_controller.dart';
+import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
 import 'package:video_player/video_player.dart' show VideoPlayer;
 
@@ -73,7 +74,8 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
 
       callbacks.onControllerCreated?.call(controller);
       return controller;
-    } catch (e) {
+    } catch (e, st) {
+      logger.d(st);
       onErrorCallback?.call();
       return null;
     }

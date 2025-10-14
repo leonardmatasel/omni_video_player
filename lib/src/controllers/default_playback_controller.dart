@@ -115,7 +115,22 @@ class DefaultPlaybackController extends OmniPlaybackController {
             isLive: isLive,
             mixWithOthers: false,
           );
-    await videoController.initialize();
+
+    Future<void> retryInitialize(VideoPlaybackController controller) async {
+      int attempts = 0;
+      while (true) {
+        try {
+          await controller.initialize();
+          return; // success
+        } catch (e) {
+          attempts++;
+          if (attempts >= 3) rethrow;
+          await Future.delayed(const Duration(milliseconds: 250));
+        }
+      }
+    }
+
+    await retryInitialize(videoController);
 
     AudioPlaybackController? audioController;
     if (audioUrl != null) {

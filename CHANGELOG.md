@@ -1,3 +1,12 @@
+# 3.0.11
+
+🛠 **Fix**
+
+* Added automatic retry for `VideoPlaybackController` initialization.
+
+  * Retries up to **3 times** with **250 ms delay** between attempts to prevent intermittent
+    `OMX.qcom.video.decoder.avc (NO_MEMORY)` crashes on some Android devices when switching videos rapidly.
+
 # 3.0.10 - 3.0.9 - 3.0.8
 
 ✨ **New Features**
