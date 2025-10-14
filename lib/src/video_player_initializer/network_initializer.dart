@@ -3,7 +3,6 @@ import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/src/api/hls_video_api.dart';
 import 'package:omni_video_player/src/controllers/default_playback_controller.dart';
-import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
 import 'package:video_player/video_player.dart' show VideoPlayer;
 
@@ -43,26 +42,46 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
         );
       }
 
-      final controller = await DefaultPlaybackController.create(
-        videoUrl: (currentQualityEntry != null)
-            ? currentQualityEntry.value
-            : videoSourceConfiguration.videoUrl!,
-        dataSource: null,
-        file: null,
-        audioUrl: null,
-        isLive: false,
-        globalController: globalController,
-        initialPosition: videoSourceConfiguration.initialPosition,
-        initialVolume: videoSourceConfiguration.initialVolume,
-        initialPlaybackSpeed: videoSourceConfiguration.initialPlaybackSpeed,
-        callbacks: callbacks,
-        type: videoSourceConfiguration.videoSourceType,
-        globalKeyPlayer: options.globalKeyInitializer,
-        qualityUrls: qualitiesMap,
-        currentVideoQuality: (currentQualityEntry != null)
-            ? currentQualityEntry.key
-            : null,
-      );
+      DefaultPlaybackController? controller;
+
+      int attempts = 0;
+      while (true) {
+        try {
+          controller = await DefaultPlaybackController.create(
+            videoUrl: (currentQualityEntry != null)
+                ? currentQualityEntry.value
+                : videoSourceConfiguration.videoUrl!,
+            dataSource: null,
+            file: null,
+            audioUrl: null,
+            isLive: false,
+            globalController: globalController,
+            initialPosition: videoSourceConfiguration.initialPosition,
+            initialVolume: videoSourceConfiguration.initialVolume,
+            initialPlaybackSpeed: videoSourceConfiguration.initialPlaybackSpeed,
+            callbacks: callbacks,
+            type: videoSourceConfiguration.videoSourceType,
+            globalKeyPlayer: options.globalKeyInitializer,
+            qualityUrls: qualitiesMap,
+            currentVideoQuality: (currentQualityEntry != null)
+                ? currentQualityEntry.key
+                : null,
+          );
+
+          break;
+        } catch (e, st) {
+          controller?.dispose();
+          attempts++;
+          if (attempts >= 3) {
+            rethrow;
+          }
+
+          debugPrint(
+            '⚠️ Failed to initialize DefaultPlaybackController (attempt $attempts), retrying in 250ms...\n$e\n$st',
+          );
+          await Future.delayed(const Duration(milliseconds: 250));
+        }
+      }
 
       controller.sharedPlayerNotifier.value = Hero(
         tag: options.globalKeyPlayer,
@@ -74,8 +93,7 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
 
       callbacks.onControllerCreated?.call(controller);
       return controller;
-    } catch (e, st) {
-      logger.d(st);
+    } catch (e) {
       onErrorCallback?.call();
       return null;
     }
