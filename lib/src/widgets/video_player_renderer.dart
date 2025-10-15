@@ -3,6 +3,7 @@ import 'package:omni_video_player/omni_video_player/controllers/omni_playback_co
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
+import 'package:omni_video_player/src/controllers/default_playback_controller.dart';
 import 'package:omni_video_player/src/navigation/route_aware_listener.dart';
 import 'package:omni_video_player/src/widgets/adaptive_video_player_display.dart';
 import 'package:omni_video_player/src/widgets/fade_overlay_switcher.dart';
@@ -81,6 +82,9 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
                   onVisibilityChanged: (visibilityInfo) {
                     if (!context.mounted) {
                       widget.controller.pause();
+                      VideoPlaybackControllerPool().release(
+                        uri: widget.controller.videoUrl,
+                      );
                       return;
                     }
 

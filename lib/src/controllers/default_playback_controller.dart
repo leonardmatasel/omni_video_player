@@ -462,6 +462,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
     if (_globalController?.currentVideoPlaying == this) {
       _globalController?.requestPause();
     }
+    VideoPlaybackControllerPool().release(uri: videoUrl);
     videoController.dispose();
     audioController?.dispose();
   }
@@ -512,53 +513,46 @@ class VideoPlaybackControllerPool {
 
   VideoPlaybackControllerPool._internal();
 
-  VideoPlaybackController? _controller;
-  Uri? _currentUri;
+  // Map of URI -> controller for reuse
+  final Map<Uri, VideoPlaybackController> _controllers = {};
 
   /// Returns an existing controller for the given [uri] if possible,
   /// otherwise creates and initializes a new one.
-  /// [isLive] indicates whether the video is a live stream.
   Future<VideoPlaybackController> getOrCreate(
     Uri uri, {
     bool isLive = false,
   }) async {
-    // If the URL is the same, reuse the existing controller
-    if (_controller != null &&
-        _currentUri == uri &&
-        _controller!.value.isInitialized) {
-      return _controller!;
+    // If a controller already exists for this URL and is initialized, reuse it
+    final existingController = _controllers[uri];
+    if (existingController != null && existingController.value.isInitialized) {
+      return existingController;
     }
 
-    // If the URL is different, change the source without creating a new decoder
-    if (_controller != null) {
-      _controller!.dispose();
-      try {
-        _controller = VideoPlaybackController.uri(uri, isLive: isLive);
-        await _controller!.initialize();
-        _currentUri = uri;
-        return _controller!;
-      } catch (_) {
-        // Fallback: dispose and recreate if initialization fails
-        await _controller!.dispose();
-      }
-    }
-
-    // Create a new controller (first time or after an error)
+    // Otherwise, create a new controller
     final controller = VideoPlaybackController.uri(
       uri,
       isLive: isLive,
       mixWithOthers: false,
     );
     await controller.initialize();
-    _controller = controller;
-    _currentUri = uri;
+
+    // Save it in the map for future reuse
+    _controllers[uri] = controller;
+
     return controller;
   }
 
-  /// Releases the current controller and clears the stored URI
-  void release() {
-    _controller?.dispose();
-    _controller = null;
-    _currentUri = null;
+  /// Releases a controller for a specific [uri]
+  /// If [uri] is null, releases all controllers
+  Future<void> release({Uri? uri}) async {
+    if (uri != null) {
+      final controller = _controllers.remove(uri);
+      await controller?.dispose();
+    } else {
+      for (final controller in _controllers.values) {
+        await controller.dispose();
+      }
+      _controllers.clear();
+    }
   }
 }
