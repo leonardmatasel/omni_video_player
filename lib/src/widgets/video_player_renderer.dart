@@ -82,9 +82,6 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
                   onVisibilityChanged: (visibilityInfo) {
                     if (!context.mounted) {
                       widget.controller.pause();
-                      VideoPlaybackControllerPool().release(
-                        uri: widget.controller.videoUrl,
-                      );
                       return;
                     }
 
@@ -149,6 +146,7 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
   @override
   void dispose() {
     widget.controller.removeListener(_onControllerChanged);
+    VideoPlaybackControllerPool().release(uri: widget.controller.videoUrl);
     super.dispose();
   }
 }
