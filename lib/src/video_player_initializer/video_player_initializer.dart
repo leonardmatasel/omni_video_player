@@ -62,7 +62,6 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
 
   @override
   void dispose() {
-    _controller?.dispose();
     super.dispose();
   }
 

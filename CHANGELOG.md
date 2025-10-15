@@ -1,3 +1,13 @@
+# 3.0.13
+
+🛠 **Refactor / Improvement**
+
+* Added a singleton `VideoPlaybackControllerPool` to reuse `VideoPlaybackController` instances.
+
+  * Reuses the existing controller if the requested URI is the same and already initialized.
+  * Disposes and recreates the controller only when switching to a new URI or after an initialization failure.
+  * Simplifies controller management and reduces unnecessary decoder creation, improving performance and memory usage.
+
 # 3.0.11 - 3.0.12
 
 🛠 **Fix**

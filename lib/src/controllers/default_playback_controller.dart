@@ -105,18 +105,6 @@ class DefaultPlaybackController extends OmniPlaybackController {
     OmniVideoQuality? currentVideoQuality,
     required GlobalKey<VideoPlayerInitializerState> globalKeyPlayer,
   }) async {
-    final videoController =
-        (type == VideoSourceType.asset && dataSource != null)
-        ? VideoPlaybackController.asset(dataSource)
-        : (type == VideoSourceType.file && file != null)
-        ? VideoPlaybackController.file(file)
-        : VideoPlaybackController.uri(
-            videoUrl!,
-            isLive: isLive,
-            mixWithOthers: false,
-          );
-    await videoController.initialize();
-
     AudioPlaybackController? audioController;
     if (audioUrl != null) {
       audioController = AudioPlaybackController.uri(
@@ -125,6 +113,20 @@ class DefaultPlaybackController extends OmniPlaybackController {
         mixWithOthers: true,
       );
       await audioController.initialize();
+    }
+
+    final videoController =
+        (type == VideoSourceType.asset && dataSource != null)
+        ? VideoPlaybackController.asset(dataSource)
+        : (type == VideoSourceType.file && file != null)
+        ? VideoPlaybackController.file(file)
+        : await VideoPlaybackControllerPool().getOrCreate(
+            videoUrl!,
+            isLive: isLive,
+          );
+
+    if (type == VideoSourceType.asset || type == VideoSourceType.file) {
+      await videoController.initialize();
     }
 
     return DefaultPlaybackController._(
@@ -499,5 +501,64 @@ class DefaultPlaybackController extends OmniPlaybackController {
   set isFullyVisible(bool value) {
     _isFullyVisible = value;
     notifyListeners();
+  }
+}
+
+class VideoPlaybackControllerPool {
+  // Singleton instance
+  static final VideoPlaybackControllerPool _instance =
+      VideoPlaybackControllerPool._internal();
+  factory VideoPlaybackControllerPool() => _instance;
+
+  VideoPlaybackControllerPool._internal();
+
+  VideoPlaybackController? _controller;
+  Uri? _currentUri;
+
+  /// Returns an existing controller for the given [uri] if possible,
+  /// otherwise creates and initializes a new one.
+  /// [isLive] indicates whether the video is a live stream.
+  Future<VideoPlaybackController> getOrCreate(
+    Uri uri, {
+    bool isLive = false,
+  }) async {
+    // If the URL is the same, reuse the existing controller
+    if (_controller != null &&
+        _currentUri == uri &&
+        _controller!.value.isInitialized) {
+      return _controller!;
+    }
+
+    // If the URL is different, change the source without creating a new decoder
+    if (_controller != null) {
+      _controller!.dispose();
+      try {
+        _controller = VideoPlaybackController.uri(uri, isLive: isLive);
+        await _controller!.initialize();
+        _currentUri = uri;
+        return _controller!;
+      } catch (_) {
+        // Fallback: dispose and recreate if initialization fails
+        await _controller!.dispose();
+      }
+    }
+
+    // Create a new controller (first time or after an error)
+    final controller = VideoPlaybackController.uri(
+      uri,
+      isLive: isLive,
+      mixWithOthers: false,
+    );
+    await controller.initialize();
+    _controller = controller;
+    _currentUri = uri;
+    return controller;
+  }
+
+  /// Releases the current controller and clears the stored URI
+  void release() {
+    _controller?.dispose();
+    _controller = null;
+    _currentUri = null;
   }
 }
