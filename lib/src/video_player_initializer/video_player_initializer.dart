@@ -7,7 +7,6 @@ import 'package:omni_video_player/omni_video_player/models/video_player_configur
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 import 'package:omni_video_player/src/api/vimeo_video_api.dart';
-import 'package:omni_video_player/src/controllers/default_playback_controller.dart';
 import 'package:omni_video_player/src/controllers/global_volume_synchronizer.dart';
 import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
@@ -113,7 +112,6 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
       _startReadyTimeout(_controller!);
     } catch (e, stack) {
       logger.e("Initialization failed", error: e, stackTrace: stack);
-      VideoPlaybackControllerPool().release();
       _hasError = true;
     }
 
@@ -127,7 +125,6 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
   void _startReadyTimeout(OmniPlaybackController controller) {
     Future.delayed(Duration(seconds: 30), () {
       if (mounted && !controller.isReady) {
-        VideoPlaybackControllerPool().release();
         setState(() {
           _hasError = true;
           _isLoading = false;

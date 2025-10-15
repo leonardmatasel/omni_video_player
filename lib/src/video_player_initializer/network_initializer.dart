@@ -44,26 +44,44 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
 
       DefaultPlaybackController? controller;
 
-      controller = await DefaultPlaybackController.create(
-        videoUrl: (currentQualityEntry != null)
-            ? currentQualityEntry.value
-            : videoSourceConfiguration.videoUrl!,
-        dataSource: null,
-        file: null,
-        audioUrl: null,
-        isLive: false,
-        globalController: globalController,
-        initialPosition: videoSourceConfiguration.initialPosition,
-        initialVolume: videoSourceConfiguration.initialVolume,
-        initialPlaybackSpeed: videoSourceConfiguration.initialPlaybackSpeed,
-        callbacks: callbacks,
-        type: videoSourceConfiguration.videoSourceType,
-        globalKeyPlayer: options.globalKeyInitializer,
-        qualityUrls: qualitiesMap,
-        currentVideoQuality: (currentQualityEntry != null)
-            ? currentQualityEntry.key
-            : null,
-      );
+      int attempts = 0;
+      while (true) {
+        try {
+          controller = await DefaultPlaybackController.create(
+            videoUrl: (currentQualityEntry != null)
+                ? currentQualityEntry.value
+                : videoSourceConfiguration.videoUrl!,
+            dataSource: null,
+            file: null,
+            audioUrl: null,
+            isLive: false,
+            globalController: globalController,
+            initialPosition: videoSourceConfiguration.initialPosition,
+            initialVolume: videoSourceConfiguration.initialVolume,
+            initialPlaybackSpeed: videoSourceConfiguration.initialPlaybackSpeed,
+            callbacks: callbacks,
+            type: videoSourceConfiguration.videoSourceType,
+            globalKeyPlayer: options.globalKeyInitializer,
+            qualityUrls: qualitiesMap,
+            currentVideoQuality: (currentQualityEntry != null)
+                ? currentQualityEntry.key
+                : null,
+          );
+
+          break;
+        } catch (e, st) {
+          VideoPlaybackControllerPool().release();
+          attempts++;
+          if (attempts >= 3) {
+            rethrow;
+          }
+
+          debugPrint(
+            '⚠️ Failed to initialize DefaultPlaybackController (attempt $attempts), retrying in 250ms...\n$e\n$st',
+          );
+          await Future.delayed(const Duration(milliseconds: 250));
+        }
+      }
 
       controller.sharedPlayerNotifier.value = Hero(
         tag: options.globalKeyPlayer,
