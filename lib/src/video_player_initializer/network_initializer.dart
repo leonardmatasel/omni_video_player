@@ -42,12 +42,8 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
         );
       }
 
-      DefaultPlaybackController? controller;
-
-      int attempts = 0;
-      while (true) {
-        try {
-          controller = await DefaultPlaybackController.create(
+      final DefaultPlaybackController controller =
+          await DefaultPlaybackController.create(
             videoUrl: (currentQualityEntry != null)
                 ? currentQualityEntry.value
                 : videoSourceConfiguration.videoUrl!,
@@ -68,21 +64,6 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
                 : null,
           );
 
-          break;
-        } catch (e, st) {
-          VideoPlaybackControllerPool().release();
-          attempts++;
-          if (attempts >= 3) {
-            rethrow;
-          }
-
-          debugPrint(
-            '⚠️ Failed to initialize DefaultPlaybackController (attempt $attempts), retrying in 250ms...\n$e\n$st',
-          );
-          await Future.delayed(const Duration(milliseconds: 250));
-        }
-      }
-
       controller.sharedPlayerNotifier.value = Hero(
         tag: options.globalKeyPlayer,
         child: VideoPlayer(
@@ -93,9 +74,16 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
 
       callbacks.onControllerCreated?.call(controller);
       return controller;
-    } catch (e) {
-      onErrorCallback?.call();
-      return null;
+    } catch (_) {
+      VideoPlaybackControllerPool().release(
+        uri: videoSourceConfiguration.videoUrl!,
+      );
+      final result = await options.globalKeyInitializer.currentState!.refresh();
+      if (!result) {
+        rethrow;
+      } else {
+        return null;
+      }
     }
   }
 }

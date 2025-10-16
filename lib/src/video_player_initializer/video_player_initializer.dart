@@ -8,7 +8,6 @@ import 'package:omni_video_player/omni_video_player/models/video_source_type.dar
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 import 'package:omni_video_player/src/api/vimeo_video_api.dart';
 import 'package:omni_video_player/src/controllers/global_volume_synchronizer.dart';
-import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
 import 'package:omni_video_player/src/widgets/player/video_player_error_placeholder.dart';
 import 'package:omni_video_player/src/widgets/player/video_player_thumbnail_preview.dart';
@@ -49,6 +48,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
   OmniPlaybackController? _controller;
   bool _isLoading = true;
   bool _hasError = false;
+  int _countError = 0;
   VimeoVideoInfo? _vimeoVideoInfo;
   ImageProvider<Object>? _thumbnail;
   late VideoSourceConfiguration _videoSourceConfiguration =
@@ -65,18 +65,28 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
     super.dispose();
   }
 
-  Future<void> refresh({
+  Future<bool> refresh({
     VideoSourceConfiguration? videoSourceConfiguration,
   }) async {
+    if (_countError >= 3) {
+      setState(() {
+        _hasError = true;
+      });
+      return false;
+    }
+    await Future.delayed(Duration(milliseconds: 250));
+    debugPrint("Refresh called time: ${_countError + 1}");
     setState(() {
       _controller = null;
       _isLoading = true;
       _hasError = false;
+      _countError++;
       if (videoSourceConfiguration != null) {
         _videoSourceConfiguration = videoSourceConfiguration;
       }
     });
     await _initialize();
+    return true;
   }
 
   Future<void> _initialize() async {
@@ -97,7 +107,6 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
       widget.options,
       widget.callbacks,
       widget.globalController,
-      () => _hasError = true,
     );
 
     try {
@@ -106,12 +115,11 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
         setState(() {});
       }
       _controller = await strategy.initialize();
-      if (_controller == null) {
-        throw Exception('Failed to initialize video player');
+      if (_controller != null) {
+        _startReadyTimeout(_controller!);
       }
-      _startReadyTimeout(_controller!);
-    } catch (e, stack) {
-      logger.e("Initialization failed", error: e, stackTrace: stack);
+    } catch (e, st) {
+      debugPrint("$e\n$st");
       _hasError = true;
     }
 

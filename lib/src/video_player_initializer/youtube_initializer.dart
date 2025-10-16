@@ -9,13 +9,11 @@ import 'package:video_player/video_player.dart' show VideoPlayer;
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../api/hls_video_api.dart';
-import 'package:omni_video_player/src/utils/logger.dart';
 
 class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
   final VideoPlayerConfiguration options;
   final VideoPlayerCallbacks callbacks;
   final GlobalPlaybackController? globalController;
-  final void Function()? onErrorCallback;
   final VideoSourceConfiguration videoSourceConfiguration;
 
   YouTubeInitializer({
@@ -23,7 +21,6 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
     required this.callbacks,
     required this.videoSourceConfiguration,
     this.globalController,
-    this.onErrorCallback,
   });
 
   @override
@@ -79,17 +76,22 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
       return controller;
     } catch (e, _) {
       if (videoSourceConfiguration.enableYoutubeWebViewFallback) {
-        logger.d(
+        debugPrint(
           'YouTube stream initialization with youtube_explode_dart failed: ${e.toString()}',
         );
-        logger.d("Proceeding with WebView fallback...");
+        debugPrint("Proceeding with WebView fallback...");
         return await _fallbackToWebView(videoId);
       } else {
-        logger.e(
-          "YouTube stream with youtube_explode_dart initialization failed: ${e.toString()}",
+        VideoPlaybackControllerPool().release(
+          uri: videoSourceConfiguration.videoUrl!,
         );
-        onErrorCallback?.call();
-        return null;
+        final result = await options.globalKeyInitializer.currentState!
+            .refresh();
+        if (!result) {
+          rethrow;
+        } else {
+          return null;
+        }
       }
     }
   }
@@ -166,23 +168,17 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
   }
 
   Future<OmniPlaybackController?> _fallbackToWebView(VideoId videoId) async {
-    try {
-      final ytVideo = await YouTubeService.getVideoYoutubeDetails(
-        videoId,
-      ); // fallback call
-      return await YouTubeWebViewInitializer(
-        options: options,
-        globalController: globalController,
-        onErrorCallback: onErrorCallback,
-        callbacks: callbacks,
-        videoId: videoId.toString(),
-        videoSourceConfiguration: videoSourceConfiguration,
-        ytVideo: ytVideo, // pass already-fetched video
-      ).initialize();
-    } catch (_) {
-      onErrorCallback?.call();
-      return null;
-    }
+    final ytVideo = await YouTubeService.getVideoYoutubeDetails(
+      videoId,
+    ); // fallback call
+    return await YouTubeWebViewInitializer(
+      options: options,
+      globalController: globalController,
+      callbacks: callbacks,
+      videoId: videoId.toString(),
+      videoSourceConfiguration: videoSourceConfiguration,
+      ytVideo: ytVideo, // pass already-fetched video
+    ).initialize();
   }
 }
 

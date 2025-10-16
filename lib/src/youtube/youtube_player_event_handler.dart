@@ -8,7 +8,6 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../omni_video_player/models/omni_video_quality.dart';
 import '../../omni_video_player/models/video_player_configuration.dart';
-import '../utils/logger.dart';
 import 'model/youtube_player_state.dart';
 
 class YoutubePlayerEventHandler {
@@ -63,6 +62,7 @@ class YoutubePlayerEventHandler {
 
     if ((controller.duration == Duration(seconds: 1) ||
         controller.duration == Duration.zero)) {
+      controller.isReady = false;
       final String duration = await controller.runWithResult("getDuration");
       final int? seconds = double.tryParse(duration)?.round();
 
@@ -79,7 +79,6 @@ class YoutubePlayerEventHandler {
       if (config.initialPosition.inSeconds >= 0) {
         await controller.seekTo(config.initialPosition);
         controller.hasStarted = false;
-        controller.isPlaying = false;
       }
 
       if (!config.autoPlay ||
@@ -101,6 +100,7 @@ class YoutubePlayerEventHandler {
 
       controller.playbackSpeed = config.initialPlaybackSpeed;
 
+      controller.isReady = true;
       callbacks.onControllerCreated?.call(controller);
     } else {
       if (playerState == YoutubePlayerState.playing &&
@@ -112,7 +112,7 @@ class YoutubePlayerEventHandler {
         controller.isSeeking = false;
         if (controller.wasPlayingBeforeSeek && !controller.isFinished) {
           controller.isPlaying = true;
-          controller.play();
+          controller.play(useGlobalController: false);
         }
       }
 
@@ -121,7 +121,7 @@ class YoutubePlayerEventHandler {
         controller.hasStarted = true;
       } else if (playerState == YoutubePlayerState.paused &&
           controller.wasPlayingBeforeGoOnFullScreen == true) {
-        controller.play();
+        controller.play(useGlobalController: false);
         controller.wasPlayingBeforeGoOnFullScreen = null;
       } else if (playerState == YoutubePlayerState.paused) {
         controller.isPlaying = false;
@@ -143,9 +143,7 @@ class YoutubePlayerEventHandler {
   void onFullscreenButtonPressed(Object data) {}
 
   void onError(Object data) {
-    logger.e(
-      "YouTube API ErrorCode: $data, message: ${(data == 150 || data == 101) ? 'Embedding not allowed: usually happens with official music videos, copyrighted content (movies, sports, live events), videos with geographic restrictions, or when the uploader has disabled embedding in YouTube Studio' : 'Unknown error'}",
-    );
+    options.globalKeyInitializer.currentState!.refresh();
     controller.hasError = true;
   }
 
@@ -166,7 +164,7 @@ class YoutubePlayerEventHandler {
   }
 
   void onAutoplayBlocked(Object data) {
-    logger.i(
+    debugPrint(
       'Autoplay was blocked by browser. '
       'Most modern browser does not allow video with sound to autoplay. '
       'Try muting the video to autoplay.',

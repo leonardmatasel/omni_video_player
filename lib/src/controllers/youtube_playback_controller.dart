@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
-import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:omni_video_player/src/youtube/youtube_player_event_handler.dart';
 import 'package:video_player/video_player.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -281,7 +280,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
 
   @override
   Future<void> switchQuality(OmniVideoQuality quality) async {
-    logger.i(
+    debugPrint(
       "Switching quality to $quality: is not available because of the Youtube API. Doc: https://developers.google.com/youtube/iframe_api_reference",
     );
   }
@@ -399,7 +398,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
 
       await _eval('player.seekTo(${position.inSeconds}, true)');
     } else {
-      logger.i('Seek position exceeds duration');
+      debugPrint('Seek position exceeds duration');
     }
   }
 

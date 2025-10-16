@@ -123,6 +123,7 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
   /// - Replay the video if it is finished.
   /// - Toggle between play and pause.
   void _handleTap() {
+    if (!controller.isReady) return;
     if (!controller.hasStarted && widget.autoMuteOnStart) {
       controller.mute();
       controller.play();

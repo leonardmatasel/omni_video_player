@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/src/controllers/vimeo_playback_controller.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class VimeoPlayerEventHandler {
-  VimeoPlayerEventHandler(this.controller) {
+  VimeoPlayerEventHandler(this.controller, this.options) {
     _events = {
       'onReady': onReady,
       'onPlay': onPlay,
@@ -21,6 +22,7 @@ class VimeoPlayerEventHandler {
   }
 
   final VimeoPlaybackController controller;
+  final VideoPlayerConfiguration options;
 
   final Completer<void> _readyCompleter = Completer();
   late final Map<String, ValueChanged<Object>> _events;
@@ -82,6 +84,7 @@ class VimeoPlayerEventHandler {
   void onApiChange(Object? data) {}
 
   void onError(Object data) {
+    options.globalKeyInitializer.currentState!.refresh();
     controller.hasError = true;
   }
 

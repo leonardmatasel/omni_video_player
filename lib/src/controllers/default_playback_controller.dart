@@ -458,7 +458,9 @@ class DefaultPlaybackController extends OmniPlaybackController {
     if (_globalController?.currentVideoPlaying == this) {
       _globalController?.requestPause();
     }
-    VideoPlaybackControllerPool().release(uri: videoUrl);
+    if (videoUrl != null) {
+      VideoPlaybackControllerPool().release(uri: videoUrl!);
+    }
     videoController.dispose();
     audioController?.dispose();
   }
@@ -552,18 +554,10 @@ class VideoPlaybackControllerPool {
 
   /// Releases a controller pair for a specific [uri]
   /// If [uri] is null, releases all controllers
-  Future<void> release({Uri? uri}) async {
-    if (uri != null) {
-      final pair = _controllers.remove(uri);
-      await pair?.videoController.dispose();
-      await pair?.audioController?.dispose();
-    } else {
-      for (final pair in _controllers.values) {
-        await pair.videoController.dispose();
-        await pair.audioController?.dispose();
-      }
-      _controllers.clear();
-    }
+  Future<void> release({required Uri uri}) async {
+    final pair = _controllers.remove(uri);
+    await pair?.videoController.dispose();
+    await pair?.audioController?.dispose();
   }
 }
 

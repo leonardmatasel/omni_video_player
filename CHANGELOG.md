@@ -1,3 +1,11 @@
+# 3.1.0
+
+🛠 **Fix**
+
+* Fixed minor playback issues 
+* Removed a package dependency to reduce overall bundle size.
+* Added automatic retry logic when entering an error state — the player now retries initialization up to **3 times** before failing definitively.
+
 # 3.0.19 - 3.0.13
 
 🛠 **Refactor / Improvement**

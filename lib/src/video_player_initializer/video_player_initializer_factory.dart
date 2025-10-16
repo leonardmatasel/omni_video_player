@@ -24,7 +24,6 @@ class VideoPlayerInitializerFactory {
     VideoPlayerConfiguration options,
     VideoPlayerCallbacks callbacks,
     GlobalPlaybackController? globalController,
-    VoidCallback onErrorCallback,
   ) {
     switch (sourceType) {
       case VideoSourceType.youtube:
@@ -32,7 +31,6 @@ class VideoPlayerInitializerFactory {
           return YouTubeWebViewInitializer(
             options: options,
             globalController: globalController,
-            onErrorCallback: onErrorCallback,
             callbacks: callbacks,
             videoSourceConfiguration: videoSourceConfiguration,
           );
@@ -40,7 +38,6 @@ class VideoPlayerInitializerFactory {
           return YouTubeInitializer(
             options: options,
             globalController: globalController,
-            onErrorCallback: onErrorCallback,
             callbacks: callbacks,
             videoSourceConfiguration: videoSourceConfiguration,
           );
@@ -50,7 +47,6 @@ class VideoPlayerInitializerFactory {
         return VimeoInitializer(
           options: options,
           globalController: globalController,
-          onErrorCallback: onErrorCallback,
           callbacks: callbacks,
           videoSourceConfiguration: videoSourceConfiguration,
         );
@@ -58,7 +54,6 @@ class VideoPlayerInitializerFactory {
         return NetworkInitializer(
           options: options,
           globalController: globalController,
-          onErrorCallback: onErrorCallback,
           callbacks: callbacks,
           videoSourceConfiguration: videoSourceConfiguration,
         );
@@ -66,7 +61,6 @@ class VideoPlayerInitializerFactory {
         return AssetInitializer(
           options: options,
           globalController: globalController,
-          onErrorCallback: onErrorCallback,
           callbacks: callbacks,
           videoSourceConfiguration: videoSourceConfiguration,
         );
@@ -74,7 +68,6 @@ class VideoPlayerInitializerFactory {
         return FileInitializer(
           options: options,
           globalController: globalController,
-          onErrorCallback: onErrorCallback,
           callbacks: callbacks,
           videoSourceConfiguration: videoSourceConfiguration,
         );

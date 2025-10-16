@@ -18,7 +18,7 @@ class VideoPlayerErrorPlaceholder extends StatelessWidget {
   /// that allows the user to open the video in an external app.
   const VideoPlayerErrorPlaceholder({
     super.key,
-    required this.playerGlobalKey,
+    required this.options,
     required this.videoUrlToOpenExternally,
     required this.showRefreshButton,
   });
@@ -28,7 +28,7 @@ class VideoPlayerErrorPlaceholder extends StatelessWidget {
 
   final bool showRefreshButton;
 
-  final GlobalKey<VideoPlayerInitializerState> playerGlobalKey;
+  final VideoPlayerConfiguration options;
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +80,7 @@ class VideoPlayerErrorPlaceholder extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 8.0),
                 child: OutlinedButton(
                   onPressed: () async {
-                    playerGlobalKey.currentState?.refresh();
+                    options.globalKeyInitializer.currentState?.refresh();
                   },
                   child: Text("Refresh"),
                 ),

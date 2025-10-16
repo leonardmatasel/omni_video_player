@@ -146,7 +146,9 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
   @override
   void dispose() {
     widget.controller.removeListener(_onControllerChanged);
-    VideoPlaybackControllerPool().release(uri: widget.controller.videoUrl);
+    if (widget.controller.videoUrl != null) {
+      VideoPlaybackControllerPool().release(uri: widget.controller.videoUrl!);
+    }
     super.dispose();
   }
 }

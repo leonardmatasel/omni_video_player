@@ -1,7 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:omni_video_player/src/utils/logger.dart';
 
 import '../vimeo/model/vimeo_video_info.dart';
 
@@ -16,7 +16,7 @@ class VimeoVideoApi {
       final Map<String, dynamic> jsonData = json.decode(response.body);
       return VimeoVideoInfo.fromJson(jsonData);
     } else {
-      logger.e('Failed to load video info, status: ${response.statusCode}');
+      debugPrint('Failed to load video info, status: ${response.statusCode}');
       return null;
     }
   }

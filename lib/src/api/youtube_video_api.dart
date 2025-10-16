@@ -5,7 +5,6 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
-import 'package:omni_video_player/src/utils/logger.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 /// Represents the URLs for both video and audio streams.
@@ -47,7 +46,7 @@ class YouTubeService {
   }) async {
     final cached = _cache[videoId.value];
     if (cached != null && cached.isValid) {
-      logger.d('Using cached YouTube stream data');
+      debugPrint('Using cached YouTube stream data');
       return cached.data;
     }
 
@@ -98,7 +97,7 @@ class YouTubeService {
     List<String>? preferredAudioFormats,
   }) async {
     final future = () async {
-      logger.d(
+      debugPrint(
         'Fetching YouTube video and audio streams with youtube_explode_dart...',
       );
       final StreamManifest manifest = await retry(
@@ -174,7 +173,7 @@ class YouTubeService {
           final uri = Uri.parse(video['url'] as String);
           allQualityMap[quality] = uri;
         } catch (e) {
-          logger.w('Skipping video stream due to error: $e\n');
+          debugPrint('Skipping video stream due to error: $e\n');
         }
       }
 
@@ -214,7 +213,7 @@ class YouTubeService {
         throw Exception('No compatible YouTube video streams found.');
       }
 
-      logger.d(
+      debugPrint(
         "Youtube video stream: ${availableVideoStreams.first['quality']} ${availableVideoStreams.first['videoCodec']} ${availableVideoStreams.first['size']} MB ${availableVideoStreams.first['bitrate']} ${availableVideoStreams.first['framerate']}",
       );
 
@@ -222,7 +221,7 @@ class YouTubeService {
         throw Exception('No compatible YouTube audio streams found.');
       }
 
-      logger.d(
+      debugPrint(
         "Youtube audio stream: ${availableAudioStreams.first['bitrate']} ${availableAudioStreams.first['audioCodec']} ${availableAudioStreams.first['size']} MB",
       );
 
@@ -363,10 +362,12 @@ class YouTubeService {
           return Size(width, height);
         }
       } else {
-        logger.w('Request of size failed with status: ${response.statusCode}');
+        debugPrint(
+          'Request of size failed with status: ${response.statusCode}',
+        );
       }
     } catch (e) {
-      logger.e('Error fetching video size: $e');
+      debugPrint('Error fetching video size: $e');
     }
 
     return null;

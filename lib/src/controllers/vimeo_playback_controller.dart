@@ -9,8 +9,6 @@ import 'package:video_player/video_player.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
-
-import '../utils/logger.dart';
 import '../vimeo/vimeo_player_event_handler.dart';
 
 class VimeoPlaybackController extends OmniPlaybackController {
@@ -72,8 +70,9 @@ class VimeoPlaybackController extends OmniPlaybackController {
     this.size,
     this.callbacks,
     this.globalKeyPlayer,
+    VideoPlayerConfiguration options,
   ) {
-    _eventHandler = VimeoPlayerEventHandler(this);
+    _eventHandler = VimeoPlayerEventHandler(this, options);
 
     late final PlatformWebViewControllerCreationParams webViewParams;
     if (WebViewPlatform.instance is WebKitWebViewPlatform) {
@@ -112,6 +111,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
     required Size size,
     required VideoPlayerCallbacks callbacks,
     required GlobalKey<VideoPlayerInitializerState> globalKeyPlayer,
+    required VideoPlayerConfiguration options,
   }) {
     return VimeoPlaybackController._(
       videoId,
@@ -121,6 +121,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
       size,
       callbacks,
       globalKeyPlayer,
+      options,
     );
   }
 
@@ -379,7 +380,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
     try {
       await webViewController.runJavaScript(js);
     } catch (e) {
-      logger.d('Error evaluating JS: $js\n$e');
+      debugPrint('Error evaluating JS: $js\n$e');
     }
   }
 
