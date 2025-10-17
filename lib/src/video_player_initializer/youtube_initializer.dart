@@ -82,7 +82,7 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
         debugPrint("Proceeding with WebView fallback...");
         return await _fallbackToWebView(videoId);
       } else {
-        VideoPlaybackControllerPool().release(
+        await VideoPlaybackControllerPool().release(
           uri: videoSourceConfiguration.videoUrl!,
         );
         final result = await options.globalKeyInitializer.currentState!

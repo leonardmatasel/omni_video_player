@@ -448,7 +448,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
 
   /// Disposes the controller and its resources.
   @override
-  void dispose() {
+  Future<void> dispose() async {
     _isDisposed = true;
     super.dispose();
     videoController.removeListener(_onControllerUpdate);
@@ -459,10 +459,10 @@ class DefaultPlaybackController extends OmniPlaybackController {
       _globalController?.requestPause();
     }
     if (videoUrl != null) {
-      VideoPlaybackControllerPool().release(uri: videoUrl!);
+      await VideoPlaybackControllerPool().release(uri: videoUrl!);
     }
-    videoController.dispose();
-    audioController?.dispose();
+    await videoController.dispose();
+    await audioController?.dispose();
   }
 
   @override

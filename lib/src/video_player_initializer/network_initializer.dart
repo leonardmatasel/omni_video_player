@@ -75,7 +75,7 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
       callbacks.onControllerCreated?.call(controller);
       return controller;
     } catch (_) {
-      VideoPlaybackControllerPool().release(
+      await VideoPlaybackControllerPool().release(
         uri: videoSourceConfiguration.videoUrl!,
       );
 
