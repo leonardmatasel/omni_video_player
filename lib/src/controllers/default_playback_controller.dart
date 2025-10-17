@@ -559,6 +559,9 @@ class VideoPlaybackControllerPool {
     await pair?.videoController.dispose();
     await pair?.audioController?.dispose();
   }
+
+  /// Returns true if the given [uri] is already managed by the pool
+  bool contains(Uri uri) => _controllers.containsKey(uri);
 }
 
 class VideoAudioPair {
