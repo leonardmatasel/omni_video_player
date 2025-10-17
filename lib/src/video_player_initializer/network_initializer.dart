@@ -78,12 +78,8 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
       VideoPlaybackControllerPool().release(
         uri: videoSourceConfiguration.videoUrl!,
       );
-      final result = await options.globalKeyInitializer.currentState!.refresh();
-      if (!result) {
-        rethrow;
-      } else {
-        return null;
-      }
+
+      rethrow;
     }
   }
 }
