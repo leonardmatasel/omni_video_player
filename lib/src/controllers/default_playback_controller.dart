@@ -104,6 +104,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
     Map<OmniVideoQuality, Uri>? qualityUrls,
     OmniVideoQuality? currentVideoQuality,
     required GlobalKey<VideoPlayerInitializerState> globalKeyPlayer,
+    required bool refreshOnUrlReuse,
   }) async {
     VideoPlaybackController videoController;
     AudioPlaybackController? pooledAudioController;
@@ -120,6 +121,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
         videoUrl: videoUrl!,
         audioUrl: audioUrl,
         isLive: isLive,
+        forceNew: type == VideoSourceType.network && refreshOnUrlReuse,
       );
       videoController = pair.videoController;
       pooledAudioController = pair.audioController;
@@ -520,15 +522,18 @@ class VideoPlaybackControllerPool {
     required Uri videoUrl,
     Uri? audioUrl,
     bool isLive = false,
+    bool forceNew = false,
   }) async {
     final existing = _controllers[videoUrl];
+
+    // Se esiste un controller già inizializzato e non vogliamo forzarne uno nuovo
     if (existing != null &&
         existing.videoController.value.isInitialized &&
         (existing.audioController?.value.isInitialized ?? true)) {
       return existing;
     }
 
-    // Create video controller
+    // Crea nuovo video controller
     final videoController = VideoPlaybackController.uri(
       videoUrl,
       isLive: isLive,
@@ -536,7 +541,7 @@ class VideoPlaybackControllerPool {
     );
     await videoController.initialize();
 
-    // Create audio controller if audioUrl is provided
+    // Crea nuovo audio controller (se presente)
     AudioPlaybackController? audioController;
     if (audioUrl != null) {
       audioController = AudioPlaybackController.uri(
@@ -548,7 +553,9 @@ class VideoPlaybackControllerPool {
     }
 
     final pair = VideoAudioPair(videoController, audioController);
-    _controllers[videoUrl] = pair;
+    if (!forceNew) {
+      _controllers[videoUrl] = pair;
+    }
     return pair;
   }
 

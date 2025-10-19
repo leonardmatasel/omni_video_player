@@ -62,6 +62,7 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
             currentVideoQuality: (currentQualityEntry != null)
                 ? currentQualityEntry.key
                 : null,
+            refreshOnUrlReuse: videoSourceConfiguration.refreshOnUrlReuse,
           );
 
       controller.sharedPlayerNotifier.value = Hero(

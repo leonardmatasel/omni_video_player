@@ -154,6 +154,7 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
       globalKeyPlayer: options.globalKeyInitializer,
       qualityUrls: qualityUrls,
       currentVideoQuality: currentQuality,
+      refreshOnUrlReuse: config.refreshOnUrlReuse,
     );
   }
 

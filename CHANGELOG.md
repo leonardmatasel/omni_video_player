@@ -1,3 +1,14 @@
+# 3.1.5
+
+✨ **New Features**
+
+* Added `refreshOnUrlReuse` parameter to `VideoSourceConfiguration.network`.
+
+  * When set to `true`, the player will **always create a new controller** even if a controller for the same `videoUrl` already exists in cache.
+  * This is particularly useful when working with **temporary or expiring network URLs** (e.g., signed or tokenized URLs) that may return HTTP 400/403 errors if reused.
+  * **Default:** `false`
+
+
 # 3.1.4 - 3.1.0
 
 🛠 **Fix**
