@@ -29,6 +29,7 @@ dependencies:
 
   visibility_detector: ^0.4.0+2
   volume_controller: ^3.4.0
+  logger: ^2.6.2
   http: ^1.5.0
   web: ^1.1.1
 

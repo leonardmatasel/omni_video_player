@@ -115,6 +115,16 @@ class PlayerUIVisibilityOptions {
   /// portrait if height > width, otherwise landscape.
   final Orientation? fullscreenOrientation;
 
+  /// Whether to always show the bottom control bar,
+  /// even when the video is paused or hasn't started yet.
+  final bool alwaysShowBottomControlsBar;
+
+  /// Whether to display the bottom control bar when the video is paused.
+  ///
+  /// If `true`, the bottom bar remains visible when the player is paused.
+  /// If `false`, it will follow the standard visibility behavior.
+  final bool showBottomControlsBarOnPause;
+
   /// Creates a new instance of [PlayerUIVisibilityOptions].
   ///
   /// All options default to `true` except:
@@ -132,6 +142,8 @@ class PlayerUIVisibilityOptions {
     this.showThumbnailAtStart = true,
     this.showVideoBottomControlsBar = true,
     this.showBottomControlsBarOnEndedFullscreen = true,
+    this.alwaysShowBottomControlsBar = false,
+    this.showBottomControlsBarOnPause = false,
     this.showFullScreenButton = true,
     this.showMuteUnMuteButton = true,
     this.showPlayPauseReplayButton = true,
@@ -164,6 +176,8 @@ class PlayerUIVisibilityOptions {
     bool? showThumbnailAtStart,
     bool? showVideoBottomControlsBar,
     bool? showBottomControlsBarOnEndedFullscreen,
+    bool? alwaysShowBottomControlsBar,
+    bool? showBottomControlsBarOnPause,
     bool? showFullScreenButton,
     bool? showMuteUnMuteButton,
     bool? showPlayPauseReplayButton,
@@ -226,6 +240,10 @@ class PlayerUIVisibilityOptions {
       showBottomControlsBarOnEndedFullscreen:
           showBottomControlsBarOnEndedFullscreen ??
           this.showBottomControlsBarOnEndedFullscreen,
+      alwaysShowBottomControlsBar:
+          alwaysShowBottomControlsBar ?? this.alwaysShowBottomControlsBar,
+      showBottomControlsBarOnPause:
+          showBottomControlsBarOnPause ?? this.showBottomControlsBarOnPause,
     );
   }
 }
