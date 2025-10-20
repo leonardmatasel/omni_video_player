@@ -175,6 +175,15 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
                     areControlsVisible &&
                     _tapState != _TapInteractionState.doubleTapForward &&
                     _tapState != _TapInteractionState.doubleTapBackward) ||
+                (widget
+                    .options
+                    .playerUIVisibilityOptions
+                    .alwaysShowBottomControlsBar) ||
+                (widget
+                        .options
+                        .playerUIVisibilityOptions
+                        .showBottomControlsBarOnPause &&
+                    !widget.controller.isPlaying) ||
                 (widget.controller.isFullScreen &&
                     widget.controller.isFinished &&
                     widget

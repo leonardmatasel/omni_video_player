@@ -1,3 +1,21 @@
+# 3.0.21
+
+✨ **New Features**
+
+* Added `showBottomControlsBarOnPause` parameter to `PlayerUIVisibilityOptions`.
+
+  * When set to `true`, the bottom control bar remains **visible while the video is paused**, providing easier access to playback controls during pause state.
+  * **Default:** `false`
+
+# 3.0.20
+
+✨ **New Features**
+
+* Added `alwaysShowBottomControlsBar` parameter to `PlayerUIVisibilityOptions`.
+
+  * When set to `true`, the bottom control bar is **always visible**, even when the video is paused or hasn't started yet.
+  * **Default:** `false`
+
 # 3.0.19 - 3.0.13
 
 🛠 **Refactor / Improvement**
