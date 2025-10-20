@@ -43,6 +43,12 @@ class _VideoScreenState extends State<VideoScreen> {
   }
 
   @override
+  void dispose() {
+    _controller?.removeListener(_update);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('YouTube Video')),

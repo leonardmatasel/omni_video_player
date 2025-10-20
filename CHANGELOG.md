@@ -1,3 +1,10 @@
+# 3.1.7
+
+🛠 **Fix**
+
+* Fixed issue with **exiting fullscreen** in release mode.
+  - See issue: [#38](https://github.com/leonardmatasel/omni_video_player/issues/38)
+
 # 3.1.6
 
 🛠 **Fix**

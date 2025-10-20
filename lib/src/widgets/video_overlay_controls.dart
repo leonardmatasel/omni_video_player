@@ -357,7 +357,7 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
                   ? (details) {
                       // Exit fullscreen if the user drags downwards significantly.
                       if (details.primaryDelta != null &&
-                          details.primaryDelta! > 10) {
+                          details.primaryDelta!.abs() > 10) {
                         widget.controller.switchFullScreenMode(
                           context,
                           pageBuilder: null,
