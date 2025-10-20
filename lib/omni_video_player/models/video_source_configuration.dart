@@ -157,19 +157,6 @@ class VideoSourceConfiguration {
   /// to memory leaks or OutOfMemory errors.
   final bool keepAlive;
 
-  /// Forces a new controller instance to be created even if a controller
-  /// for the same [videoUrl] already exists in cache.
-  ///
-  /// This is useful when using **temporary or expiring network URLs**
-  /// (e.g., signed URLs or CDN tokens) that may become invalid after reuse,
-  /// leading to HTTP 400/403 errors if cached controllers are reused.
-  ///
-  /// When `true`, the player will **ignore cached controllers** for this URL
-  /// and always create a new one.
-  ///
-  /// Defaults to `false`.
-  final bool refreshOnUrlReuse;
-
   /// Private constructor used by factory constructors and [copyWith].
   const VideoSourceConfiguration._({
     this.videoUrl,
@@ -191,7 +178,6 @@ class VideoSourceConfiguration {
     this.forceYoutubeWebViewOnly = false,
     this.synchronizeMuteAcrossPlayers = true,
     this.timeoutDuration = const Duration(seconds: 6),
-    this.refreshOnUrlReuse = false,
   });
 
   /// Factory constructor for Vimeo videos.
@@ -300,7 +286,6 @@ class VideoSourceConfiguration {
       OmniVideoQuality.medium480,
     ],
     List<OmniVideoQuality>? availableQualities,
-    bool refreshOnUrlReuse = false,
   }) {
     _validatePreferredQualities(
       preferred: preferredQualities,
@@ -312,7 +297,6 @@ class VideoSourceConfiguration {
       videoSourceType: VideoSourceType.network,
       preferredQualities: preferredQualities,
       availableQualities: availableQualities,
-      refreshOnUrlReuse: refreshOnUrlReuse,
     );
   }
 

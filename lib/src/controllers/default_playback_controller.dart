@@ -104,32 +104,32 @@ class DefaultPlaybackController extends OmniPlaybackController {
     Map<OmniVideoQuality, Uri>? qualityUrls,
     OmniVideoQuality? currentVideoQuality,
     required GlobalKey<VideoPlayerInitializerState> globalKeyPlayer,
-    required bool refreshOnUrlReuse,
   }) async {
-    VideoPlaybackController videoController;
-    AudioPlaybackController? pooledAudioController;
+    final videoController =
+        (type == VideoSourceType.asset && dataSource != null)
+        ? VideoPlaybackController.asset(dataSource)
+        : (type == VideoSourceType.file && file != null)
+        ? VideoPlaybackController.file(file)
+        : VideoPlaybackController.uri(
+            videoUrl!,
+            isLive: isLive,
+            mixWithOthers: false,
+          );
+    await videoController.initialize();
 
-    if (type == VideoSourceType.asset && dataSource != null) {
-      videoController = VideoPlaybackController.asset(dataSource);
-      await videoController.initialize();
-    } else if (type == VideoSourceType.file && file != null) {
-      videoController = VideoPlaybackController.file(file);
-      await videoController.initialize();
-    } else {
-      // Use the pool to create or reuse a video + audio controller pair
-      final pair = await VideoPlaybackControllerPool().getOrCreate(
-        videoUrl: videoUrl!,
-        audioUrl: audioUrl,
+    AudioPlaybackController? audioController;
+    if (audioUrl != null) {
+      audioController = AudioPlaybackController.uri(
+        audioUrl,
         isLive: isLive,
-        forceNew: type == VideoSourceType.network && refreshOnUrlReuse,
+        mixWithOthers: true,
       );
-      videoController = pair.videoController;
-      pooledAudioController = pair.audioController;
+      await audioController.initialize();
     }
 
     return DefaultPlaybackController._(
       videoController,
-      pooledAudioController,
+      audioController,
       videoUrl,
       dataSource,
       isLive,
@@ -460,9 +460,6 @@ class DefaultPlaybackController extends OmniPlaybackController {
     if (_globalController?.currentVideoPlaying == this) {
       _globalController?.requestPause();
     }
-    if (videoUrl != null) {
-      await VideoPlaybackControllerPool().release(uri: videoUrl!);
-    }
     await videoController.dispose();
     await audioController?.dispose();
   }
@@ -503,72 +500,6 @@ class DefaultPlaybackController extends OmniPlaybackController {
     _isFullyVisible = value;
     notifyListeners();
   }
-}
-
-class VideoPlaybackControllerPool {
-  // Singleton instance
-  static final VideoPlaybackControllerPool _instance =
-      VideoPlaybackControllerPool._internal();
-  factory VideoPlaybackControllerPool() => _instance;
-
-  VideoPlaybackControllerPool._internal();
-
-  // Map of URI -> Pair(video + audio controller)
-  final Map<Uri, VideoAudioPair> _controllers = {};
-
-  /// Returns an existing controller pair for the given [uri] if possible,
-  /// otherwise creates and initializes a new one.
-  Future<VideoAudioPair> getOrCreate({
-    required Uri videoUrl,
-    Uri? audioUrl,
-    bool isLive = false,
-    bool forceNew = false,
-  }) async {
-    final existing = _controllers[videoUrl];
-
-    // Se esiste un controller già inizializzato e non vogliamo forzarne uno nuovo
-    if (existing != null &&
-        existing.videoController.value.isInitialized &&
-        (existing.audioController?.value.isInitialized ?? true)) {
-      return existing;
-    }
-
-    // Crea nuovo video controller
-    final videoController = VideoPlaybackController.uri(
-      videoUrl,
-      isLive: isLive,
-      mixWithOthers: false,
-    );
-    await videoController.initialize();
-
-    // Crea nuovo audio controller (se presente)
-    AudioPlaybackController? audioController;
-    if (audioUrl != null) {
-      audioController = AudioPlaybackController.uri(
-        audioUrl,
-        isLive: isLive,
-        mixWithOthers: true,
-      );
-      await audioController.initialize();
-    }
-
-    final pair = VideoAudioPair(videoController, audioController);
-    if (!forceNew) {
-      _controllers[videoUrl] = pair;
-    }
-    return pair;
-  }
-
-  /// Releases a controller pair for a specific [uri]
-  /// If [uri] is null, releases all controllers
-  Future<void> release({required Uri uri}) async {
-    final pair = _controllers.remove(uri);
-    await pair?.videoController.dispose();
-    await pair?.audioController?.dispose();
-  }
-
-  /// Returns true if the given [uri] is already managed by the pool
-  bool contains(Uri uri) => _controllers.containsKey(uri);
 }
 
 class VideoAudioPair {

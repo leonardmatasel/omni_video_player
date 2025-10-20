@@ -82,9 +82,6 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
         debugPrint("Proceeding with WebView fallback...");
         return await _fallbackToWebView(videoId);
       } else {
-        await VideoPlaybackControllerPool().release(
-          uri: videoSourceConfiguration.videoUrl!,
-        );
         final result = await options.globalKeyInitializer.currentState!
             .refresh();
         if (!result) {
@@ -154,7 +151,6 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
       globalKeyPlayer: options.globalKeyInitializer,
       qualityUrls: qualityUrls,
       currentVideoQuality: currentQuality,
-      refreshOnUrlReuse: config.refreshOnUrlReuse,
     );
   }
 

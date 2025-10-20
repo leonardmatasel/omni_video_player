@@ -1,3 +1,10 @@
+# 3.1.6
+
+🛠 **Fix**
+
+* Fixed several **minor issues in the player** related to video controller management and playback of certain network sources.
+* Removed the `refreshOnUrlReuse` parameter, which is **no longer valid** and no longer used by the player.
+
 # 3.1.5
 
 ✨ **New Features**

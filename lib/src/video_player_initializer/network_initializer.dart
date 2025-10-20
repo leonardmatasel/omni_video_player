@@ -23,64 +23,73 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
 
   @override
   Future<OmniPlaybackController?> initialize() async {
-    try {
-      final isHlsVideo = await HlsVideoApi.isHlsUri(
+    final isHlsVideo = await HlsVideoApi.isHlsUri(
+      videoSourceConfiguration.videoUrl!,
+    );
+
+    Map<OmniVideoQuality, Uri>? qualitiesMap;
+    MapEntry<OmniVideoQuality, Uri>? currentQualityEntry;
+
+    if (isHlsVideo) {
+      qualitiesMap = await HlsVideoApi.extractHlsVariantsByQuality(
         videoSourceConfiguration.videoUrl!,
+        videoSourceConfiguration.availableQualities,
       );
-
-      Map<OmniVideoQuality, Uri>? qualitiesMap;
-      MapEntry<OmniVideoQuality, Uri>? currentQualityEntry;
-
-      if (isHlsVideo) {
-        qualitiesMap = await HlsVideoApi.extractHlsVariantsByQuality(
-          videoSourceConfiguration.videoUrl!,
-          videoSourceConfiguration.availableQualities,
-        );
-        currentQualityEntry = HlsVideoApi.selectBestQualityVariant(
-          qualitiesMap,
-          preferredQualities: videoSourceConfiguration.preferredQualities,
-        );
-      }
-
-      final DefaultPlaybackController controller =
-          await DefaultPlaybackController.create(
-            videoUrl: (currentQualityEntry != null)
-                ? currentQualityEntry.value
-                : videoSourceConfiguration.videoUrl!,
-            dataSource: null,
-            file: null,
-            audioUrl: null,
-            isLive: false,
-            globalController: globalController,
-            initialPosition: videoSourceConfiguration.initialPosition,
-            initialVolume: videoSourceConfiguration.initialVolume,
-            initialPlaybackSpeed: videoSourceConfiguration.initialPlaybackSpeed,
-            callbacks: callbacks,
-            type: videoSourceConfiguration.videoSourceType,
-            globalKeyPlayer: options.globalKeyInitializer,
-            qualityUrls: qualitiesMap,
-            currentVideoQuality: (currentQualityEntry != null)
-                ? currentQualityEntry.key
-                : null,
-            refreshOnUrlReuse: videoSourceConfiguration.refreshOnUrlReuse,
-          );
-
-      controller.sharedPlayerNotifier.value = Hero(
-        tag: options.globalKeyPlayer,
-        child: VideoPlayer(
-          key: options.globalKeyPlayer,
-          controller.videoController,
-        ),
+      currentQualityEntry = HlsVideoApi.selectBestQualityVariant(
+        qualitiesMap,
+        preferredQualities: videoSourceConfiguration.preferredQualities,
       );
-
-      callbacks.onControllerCreated?.call(controller);
-      return controller;
-    } catch (_) {
-      await VideoPlaybackControllerPool().release(
-        uri: videoSourceConfiguration.videoUrl!,
-      );
-
-      rethrow;
     }
+
+    DefaultPlaybackController? controller;
+
+    int attempts = 0;
+    while (true) {
+      try {
+        controller = await DefaultPlaybackController.create(
+          videoUrl: (currentQualityEntry != null)
+              ? currentQualityEntry.value
+              : videoSourceConfiguration.videoUrl!,
+          dataSource: null,
+          file: null,
+          audioUrl: null,
+          isLive: false,
+          globalController: globalController,
+          initialPosition: videoSourceConfiguration.initialPosition,
+          initialVolume: videoSourceConfiguration.initialVolume,
+          initialPlaybackSpeed: videoSourceConfiguration.initialPlaybackSpeed,
+          callbacks: callbacks,
+          type: videoSourceConfiguration.videoSourceType,
+          globalKeyPlayer: options.globalKeyInitializer,
+          qualityUrls: qualitiesMap,
+          currentVideoQuality: (currentQualityEntry != null)
+              ? currentQualityEntry.key
+              : null,
+        );
+
+        break;
+      } catch (e, st) {
+        attempts++;
+        if (attempts >= 3) {
+          rethrow;
+        }
+
+        debugPrint(
+          'Failed to initialize DefaultPlaybackController (attempt $attempts), retrying in 250ms...\n$e\n$st',
+        );
+        await Future.delayed(const Duration(milliseconds: 250));
+      }
+    }
+
+    controller.sharedPlayerNotifier.value = Hero(
+      tag: options.globalKeyPlayer,
+      child: VideoPlayer(
+        key: options.globalKeyPlayer,
+        controller.videoController,
+      ),
+    );
+
+    callbacks.onControllerCreated?.call(controller);
+    return controller;
   }
 }
