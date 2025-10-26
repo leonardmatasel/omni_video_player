@@ -1,3 +1,11 @@
+# 3.1.8
+
+🛠 **Fix**
+
+* Improved **video startup performance** for long videos on iOS.
+  - See issue: [#37](https://github.com/leonardmatasel/omni_video_player/issues/37)
+  - See issue: [#40](https://github.com/leonardmatasel/omni_video_player/issues/40)
+
 # 3.1.7
 
 🛠 **Fix**

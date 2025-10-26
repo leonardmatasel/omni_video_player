@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -10,7 +11,7 @@ import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 /// Represents the URLs for both video and audio streams.
 class YouTubeStreamUrls {
   final String videoStreamUrl;
-  final String audioStreamUrl;
+  final String? audioStreamUrl;
   final Map<OmniVideoQuality, Uri> videoQualityUrls;
   final OmniVideoQuality currentQuality;
 
@@ -109,12 +110,20 @@ class YouTubeService {
       // working with videoPlayer: [avc1, av01, mp4a]
       // NOT working with videoPlayer: [vp09]
       // NOTE: mp4a is the fastest and the ones with a single encoding should be preferred
-      final List<VideoStreamInfo> videoStreams = manifest.streams
-          .whereType<VideoStreamInfo>()
-          .where((VideoStreamInfo it) {
+      List<VideoStreamInfo> videoStreams = manifest.streams
+          .whereType<MuxedStreamInfo>()
+          .where((MuxedStreamInfo it) {
             return it.videoCodec.isNotEmpty && it.videoCodec.contains('avc');
           })
           .toList();
+
+      if (videoStreams.isEmpty && !Platform.isIOS) {
+        videoStreams = manifest.streams.whereType<VideoStreamInfo>().where((
+          VideoStreamInfo it,
+        ) {
+          return it.videoCodec.isNotEmpty && it.videoCodec.contains('avc');
+        }).toList();
+      }
 
       // Filter audio streams based on codec compatibility
       // working with videoPlayer: [mp4a]
@@ -229,9 +238,11 @@ class YouTubeService {
         videoStreamUrl: availableVideoStreams.isNotEmpty
             ? availableVideoStreams.first['url'] as String
             : '',
-        audioStreamUrl: availableAudioStreams.isNotEmpty
+        audioStreamUrl:
+            availableAudioStreams.isNotEmpty &&
+                !availableVideoStreams.first['videoCodec'].contains('mp4a')
             ? availableAudioStreams.first['url'] as String
-            : '',
+            : null,
         currentQuality:
             availableVideoStreams.first['quality'] as OmniVideoQuality,
         videoQualityUrls: filteredQualityMap,

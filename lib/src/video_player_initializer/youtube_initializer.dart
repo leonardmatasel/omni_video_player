@@ -112,7 +112,9 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
 
     return _StreamData(
       videoUrl: Uri.parse(urls.videoStreamUrl),
-      audioUrl: Uri.parse(urls.audioStreamUrl),
+      audioUrl: urls.audioStreamUrl != null
+          ? Uri.parse(urls.audioStreamUrl!)
+          : null,
       qualityUrls: urls.videoQualityUrls,
       currentVideoQuality: urls.currentQuality,
     );

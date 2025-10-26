@@ -79,7 +79,7 @@ class _VideoScreenState extends State<VideoScreen> {
               options: VideoPlayerConfiguration(
                 videoSourceConfiguration: VideoSourceConfiguration.youtube(
                   videoUrl: Uri.parse(
-                    'https://www.youtube.com/watch?v=cuqZPx0H7a0',
+                    'https://www.youtube.com/watch?v=J0M2Q2iQdKE',
                   ),
                   preferredQualities: [
                     OmniVideoQuality.high720,
@@ -88,6 +88,8 @@ class _VideoScreenState extends State<VideoScreen> {
                   availableQualities: [
                     OmniVideoQuality.high1080,
                     OmniVideoQuality.high720,
+                    OmniVideoQuality.medium480,
+                    OmniVideoQuality.medium360,
                     OmniVideoQuality.low144,
                   ],
                   enableYoutubeWebViewFallback: true,
