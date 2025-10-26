@@ -117,7 +117,8 @@ class YouTubeService {
           })
           .toList();
 
-      if (videoStreams.isEmpty && !Platform.isIOS) {
+      // bug of video_player iOS reference: https://github.com/flutter/flutter/issues/126760
+      if (videoStreams.isEmpty || !Platform.isIOS) {
         videoStreams = manifest.streams.whereType<VideoStreamInfo>().where((
           VideoStreamInfo it,
         ) {
