@@ -5,13 +5,13 @@ import 'package:omni_video_player/omni_video_player/models/video_player_callback
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_configuration.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
-import 'package:omni_video_player/src/video_player_initializer/asset_initializer.dart';
-import 'package:omni_video_player/src/video_player_initializer/network_initializer.dart';
-import 'package:omni_video_player/src/video_player_initializer/vimeo_initializer.dart';
-import 'package:omni_video_player/src/video_player_initializer/youtube_initializer.dart';
-import 'package:omni_video_player/src/video_player_initializer/youtube_web_view_initializer.dart';
-
-import 'file_initializer.dart';
+import 'package:omni_video_player/src/_others/asset_initializer.dart';
+import 'package:omni_video_player/src/_others/file_initializer.dart';
+import 'package:omni_video_player/src/_others/network_initializer.dart';
+import 'package:omni_video_player/src/_vimeo/initializer.dart';
+import 'package:omni_video_player/src/_youtube/_utils/initializer.dart';
+import 'package:omni_video_player/src/_youtube/mobile/inappwebview_initializer.dart';
+import 'package:omni_video_player/src/_youtube/web/webview_initializer.dart';
 
 abstract class IVideoPlayerInitializerStrategy {
   Future<OmniPlaybackController?> initialize();
@@ -28,12 +28,21 @@ class VideoPlayerInitializerFactory {
     switch (sourceType) {
       case VideoSourceType.youtube:
         if (videoSourceConfiguration.forceYoutubeWebViewOnly || kIsWeb) {
-          return YouTubeWebViewInitializer(
-            options: options,
-            globalController: globalController,
-            callbacks: callbacks,
-            videoSourceConfiguration: videoSourceConfiguration,
-          );
+          if (kIsWeb) {
+            return YouTubeWebWebviewInitializer(
+              options: options,
+              globalController: globalController,
+              callbacks: callbacks,
+              videoSourceConfiguration: videoSourceConfiguration,
+            );
+          } else {
+            return YouTubeMobileInappwebviewInitializer(
+              options: options,
+              globalController: globalController,
+              callbacks: callbacks,
+              videoSourceConfiguration: videoSourceConfiguration,
+            );
+          }
         } else {
           return YouTubeInitializer(
             options: options,

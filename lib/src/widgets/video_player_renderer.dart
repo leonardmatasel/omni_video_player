@@ -137,6 +137,8 @@ class VideoPlayerRendererState extends State<VideoPlayerRenderer> {
                 ),
               ),
             ),
+          if (!widget.controller.isReady)
+            widget.options.customPlayerWidgets.loadingWidget,
         ],
       ),
     );

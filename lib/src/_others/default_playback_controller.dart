@@ -7,8 +7,8 @@ import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:video_player/video_player.dart';
 
-import 'audio_playback_controller.dart';
-import 'video_playback_controller.dart';
+import '../controllers/audio_playback_controller.dart';
+import '../controllers/video_playback_controller.dart';
 
 /// A controller that manages synchronized video and optional audio playback.
 ///

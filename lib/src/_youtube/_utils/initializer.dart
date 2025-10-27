@@ -1,14 +1,16 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/src/api/youtube_video_api.dart';
-import 'package:omni_video_player/src/controllers/default_playback_controller.dart';
+import 'package:omni_video_player/src/_others/default_playback_controller.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
-import 'package:omni_video_player/src/video_player_initializer/youtube_web_view_initializer.dart';
+import 'package:omni_video_player/src/_youtube/mobile/inappwebview_initializer.dart';
+import 'package:omni_video_player/src/_youtube/web/webview_initializer.dart';
 import 'package:video_player/video_player.dart' show VideoPlayer;
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
-import '../api/hls_video_api.dart';
+import '../../api/hls_video_api.dart';
 
 class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
   final VideoPlayerConfiguration options;
@@ -170,14 +172,26 @@ class YouTubeInitializer implements IVideoPlayerInitializerStrategy {
     final ytVideo = await YouTubeService.getVideoYoutubeDetails(
       videoId,
     ); // fallback call
-    return await YouTubeWebViewInitializer(
-      options: options,
-      globalController: globalController,
-      callbacks: callbacks,
-      videoId: videoId.toString(),
-      videoSourceConfiguration: videoSourceConfiguration,
-      ytVideo: ytVideo, // pass already-fetched video
-    ).initialize();
+
+    if (kIsWeb) {
+      return await YouTubeWebWebviewInitializer(
+        options: options,
+        globalController: globalController,
+        callbacks: callbacks,
+        videoId: videoId.toString(),
+        videoSourceConfiguration: videoSourceConfiguration,
+        ytVideo: ytVideo,
+      ).initialize();
+    } else {
+      return await YouTubeMobileInappwebviewInitializer(
+        options: options,
+        globalController: globalController,
+        callbacks: callbacks,
+        videoId: videoId.toString(),
+        videoSourceConfiguration: videoSourceConfiguration,
+        ytVideo: ytVideo,
+      ).initialize();
+    }
   }
 }
 

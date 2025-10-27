@@ -14,7 +14,7 @@ import 'package:omni_video_player/src/widgets/player/video_player_thumbnail_prev
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../../omni_video_player/models/video_source_configuration.dart';
-import '../vimeo/model/vimeo_video_info.dart';
+import '../_vimeo/model/vimeo_video_info.dart';
 
 class VideoPlayerInitializer extends StatefulWidget {
   const VideoPlayerInitializer({
@@ -134,6 +134,7 @@ class VideoPlayerInitializerState extends State<VideoPlayerInitializer>
     Future.delayed(Duration(seconds: 30), () {
       if (mounted && !controller.isReady) {
         setState(() {
+          refresh();
           _hasError = true;
           _isLoading = false;
         });

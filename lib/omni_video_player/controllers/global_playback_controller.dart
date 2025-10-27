@@ -55,7 +55,9 @@ class GlobalPlaybackController extends ChangeNotifier {
     await _lock.synchronized(() async {
       if (_currentVideoPlaying == controller) return;
 
-      await _currentVideoPlaying?.pause(useGlobalController: false);
+      try {
+        await _currentVideoPlaying?.pause(useGlobalController: false);
+      } catch (_) {}
 
       if (_currentVolume > 0) {
         controller.unMute();

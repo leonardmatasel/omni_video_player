@@ -2,14 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
-import 'package:omni_video_player/src/controllers/youtube_playback_controller.dart';
+import 'package:omni_video_player/src/_youtube/web/controller.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
-import '../api/youtube_video_api.dart';
+import '../../api/youtube_video_api.dart';
 
-class YouTubeWebViewInitializer implements IVideoPlayerInitializerStrategy {
+class YouTubeWebWebviewInitializer implements IVideoPlayerInitializerStrategy {
   final VideoPlayerConfiguration options;
   final VideoPlayerCallbacks callbacks;
   final GlobalPlaybackController? globalController;
@@ -17,7 +17,7 @@ class YouTubeWebViewInitializer implements IVideoPlayerInitializerStrategy {
   final Video? ytVideo;
   final VideoSourceConfiguration videoSourceConfiguration;
 
-  YouTubeWebViewInitializer({
+  YouTubeWebWebviewInitializer({
     required this.options,
     required this.videoSourceConfiguration,
     required this.callbacks,
@@ -37,7 +37,7 @@ class YouTubeWebViewInitializer implements IVideoPlayerInitializerStrategy {
         : ytVideo ??
               await YouTubeService.getVideoYoutubeDetails(VideoId(videoId!));
 
-    final controller = YoutubePlaybackController.fromVideoId(
+    final controller = YoutubeWebPlaybackController.fromVideoId(
       videoId: videoId!,
       duration: Duration(seconds: 1),
       isLive: kIsWeb ? false : videoInfo?.isLive ?? false,

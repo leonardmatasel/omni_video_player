@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../vimeo/model/vimeo_video_info.dart';
+import '../_vimeo/model/vimeo_video_info.dart';
 
 class VimeoVideoApi {
   static Future<VimeoVideoInfo?> fetchVimeoVideoInfo(String videoId) async {

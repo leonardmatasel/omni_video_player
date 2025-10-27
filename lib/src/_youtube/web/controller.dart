@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
-import 'package:omni_video_player/src/youtube/youtube_player_event_handler.dart';
+import 'package:omni_video_player/src/_youtube/web/player_event_handler.dart';
 import 'package:video_player/video_player.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
@@ -15,8 +15,8 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 typedef YoutubeWebResourceError = WebResourceError;
 
-class YoutubePlaybackController extends OmniPlaybackController {
-  late final YoutubePlayerEventHandler _eventHandler;
+class YoutubeWebPlaybackController extends OmniPlaybackController {
+  late final YoutubeWebPlayerEventHandler _eventHandler;
 
   late final WebViewController webViewController;
 
@@ -57,7 +57,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
   @override
   final Size size;
 
-  YoutubePlaybackController({
+  YoutubeWebPlaybackController({
     required Duration duration,
     required bool isLive,
     required this.size,
@@ -73,7 +73,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
     _isLive = isLive;
     _videoId = videoId;
     _globalController = globalController;
-    _eventHandler = YoutubePlayerEventHandler(this, options, callbacks);
+    _eventHandler = YoutubeWebPlayerEventHandler(this, options, callbacks);
 
     late final PlatformWebViewControllerCreationParams webViewParams;
     if (WebViewPlatform.instance is WebKitWebViewPlatform) {
@@ -103,7 +103,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
     }
   }
 
-  factory YoutubePlaybackController.fromVideoId({
+  factory YoutubeWebPlaybackController.fromVideoId({
     required String videoId,
     required Duration duration,
     required bool isLive,
@@ -116,7 +116,7 @@ class YoutubePlaybackController extends OmniPlaybackController {
     double? startSeconds,
     double? endSeconds,
   }) {
-    final controller = YoutubePlaybackController(
+    final controller = YoutubeWebPlaybackController(
       callbacks: callbacks,
       options: options,
       duration: duration,

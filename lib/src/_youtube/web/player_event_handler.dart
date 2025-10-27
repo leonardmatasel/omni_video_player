@@ -2,16 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
-import 'package:omni_video_player/src/controllers/youtube_playback_controller.dart';
+import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
+import 'package:omni_video_player/src/_youtube/web/controller.dart';
+import 'package:omni_video_player/src/_youtube/_model/youtube_player_state.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import '../../omni_video_player/models/omni_video_quality.dart';
-import '../../omni_video_player/models/video_player_configuration.dart';
-import 'model/youtube_player_state.dart';
-
-class YoutubePlayerEventHandler {
-  YoutubePlayerEventHandler(this.controller, this.options, this.callbacks) {
+class YoutubeWebPlayerEventHandler {
+  YoutubeWebPlayerEventHandler(this.controller, this.options, this.callbacks) {
     _events = {
       'Ready': onReady,
       'StateChange': onStateChange,
@@ -24,7 +23,7 @@ class YoutubePlayerEventHandler {
     };
   }
 
-  final YoutubePlaybackController controller;
+  final YoutubeWebPlaybackController controller;
   final VideoPlayerConfiguration options;
   final VideoPlayerCallbacks callbacks;
 

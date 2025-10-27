@@ -1,3 +1,10 @@
+# 3.1.9
+
+🛠 **Fix**
+
+* Fixed YouTube WebView playback issue
+  - See issue: [#37](https://github.com/leonardmatasel/omni_video_player/issues/37)
+
 # 3.1.8
 
 🛠 **Fix**

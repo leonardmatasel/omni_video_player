@@ -9,7 +9,7 @@ import 'package:video_player/video_player.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
-import '../vimeo/vimeo_player_event_handler.dart';
+import 'player_event_handler.dart';
 
 class VimeoPlaybackController extends OmniPlaybackController {
   @override
