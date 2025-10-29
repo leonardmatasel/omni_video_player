@@ -236,22 +236,22 @@ else
 
 ## 🔮 Future Developments
 
-| Feature                      | Description                                                                 | Implemented            |
-|-----------------------------|-----------------------------------------------------------------------------|------------------------|
-| 📃 Playlist Support         | YouTube playlist playback and custom video URL lists                        | ❌                      |
-| ⏩ Double Tap Seek           | Skip forward/backward by configurable duration                              | ✅                      |
-| 📚 Side Command Bars        | Left and right customizable sidebars for placing user-defined widgets or controls | ❌                      |
-| 🧭 Header Bar               | Custom header with title, channel info, and actions                         | ❌                      |
-| 🖼 Picture-in-Picture (PiP) | Play video in floating overlay while multitasking                           | ❌                      |
+| Feature                      | Description                                                                 | Implemented         |
+|-----------------------------|-----------------------------------------------------------------------------|---------------------|
+| 📃 Playlist Support         | YouTube playlist playback and custom video URL lists                        | ❌                   |
+| ⏩ Double Tap Seek           | Skip forward/backward by configurable duration                              | ✅                   |
+| 📚 Side Command Bars        | Left and right customizable sidebars for placing user-defined widgets or controls | ❌                   |
+| 🧭 Header Bar               | Custom header with title, channel info, and actions                         | ❌                   |
+| 🖼 Picture-in-Picture (PiP) | Play video in floating overlay while multitasking                           | ❌                   |
 | 📶 Quality Selection        | Switch between 360p, 720p, 1080p, etc. during playback                      | ✅ (YouTube, Network HLS) |
-| ⏱ Playback Speed Control   | Adjust speed: 0.5x, 1.5x, 2x, etc.                                           | ✅                       |
-| 🔁 Looping / Repeat         | Loop a single video or an entire playlist                                   | ❌                      |
-| ♿ Accessibility             | Screen reader support, keyboard nav, captions, ARIA, high contrast, etc.   | ❌                      |
-| ⬇️ Download / Offline Mode | Save videos temporarily for offline playback                                | ❌                      |
-| 📺 Chromecast & AirPlay     | Stream to external devices like TVs or smart displays                       | ❌                      |
-| 🔒 Parental Controls        | Restrict age-inappropriate or sensitive content                             | ❌                      |
-| ⚙️ Settings Button          | Easily access and configure playback preferences                            | ❌                      |
-| 👉 Swipe to Exit Fullscreen | Swipe down (or specific gesture) to exit fullscreen mode                    | ✅                      |
+| ⏱ Playback Speed Control   | Adjust speed: 0.5x, 1.5x, 2x, etc.                                           | ✅                   |
+| 🔁 Looping / Repeat         | Loop a single video or an entire playlist                                   | ❌                   |
+| ♿ Accessibility             | Screen reader support, keyboard nav, captions, ARIA, high contrast, etc.   | ✅                     |
+| ⬇️ Download / Offline Mode | Save videos temporarily for offline playback                                | ❌                   |
+| 📺 Chromecast & AirPlay     | Stream to external devices like TVs or smart displays                       | ❌                   |
+| 🔒 Parental Controls        | Restrict age-inappropriate or sensitive content                             | ❌                   |
+| ⚙️ Settings Button          | Easily access and configure playback preferences                            | ❌                   |
+| 👉 Swipe to Exit Fullscreen | Swipe down (or specific gesture) to exit fullscreen mode                    | ✅                   |
 
 
 
