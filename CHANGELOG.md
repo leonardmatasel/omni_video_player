@@ -1,8 +1,11 @@
-# 3.1.10
+# 3.1.11 - 3.1.10
 
 ✨ **New Features**
 
-* Introduced **accessibility improvements** for video player controls and overlays.
+* Enhanced **accessibility** throughout the `OmniVideoPlayer`.
+
+  * The video player has been **made fully accessible**, ensuring it can be properly used by **visually impaired users**.
+  * Introduced a new `VideoPlayerAccessibilityTheme` parameter in `OmniVideoPlayerThemeData`, allowing developers to **customize semantic labels and accessibility messages** for all player controls and overlays.
 
 # 3.1.9
 
