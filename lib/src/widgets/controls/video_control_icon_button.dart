@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
+import 'package:omni_video_player/src/utils/accessible.dart';
 
 /// A customizable icon button for video player controls, such as play, pause, mute, etc.
 ///
@@ -12,20 +13,28 @@ class VideoControlIconButton extends StatelessWidget {
   /// The callback invoked when the button is tapped.
   final VoidCallback onPressed;
 
+  final String semanticLabel;
+
+  final bool? expanded;
+
   /// Creates a new video control button.
   const VideoControlIconButton({
     super.key,
     required this.icon,
     required this.onPressed,
+    required this.semanticLabel,
+    this.expanded,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = OmniVideoPlayerTheme.of(context)!;
 
-    return InkWell(
+    return Accessible.clickable(
+      hint: semanticLabel,
       onTap: onPressed,
-      borderRadius: BorderRadius.circular(100),
+      expanded: expanded,
+      splashBorderRadius: BorderRadius.circular(100),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: AnimatedSwitcher(

@@ -33,7 +33,12 @@ class FullscreenToggleButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = OmniVideoPlayerTheme.of(context)!;
 
+    final String semanticLabel = controller.isFullScreen
+        ? theme.accessibility.exitFullscreenButtonLabel
+        : theme.accessibility.fullscreenButtonLabel;
+
     return VideoControlIconButton(
+      semanticLabel: semanticLabel,
       icon: controller.isFullScreen
           ? theme.icons.exitFullScreen
           : theme.icons.fullScreen,

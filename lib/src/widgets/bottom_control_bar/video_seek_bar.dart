@@ -68,11 +68,13 @@ class VideoSeekBar extends StatelessWidget {
     return controller.isLive
         ? (showLiveIndicator ? _buildLiveIndicator() : const SizedBox.shrink())
         : (showSeekBar
-              ? AnimatedBuilder(
-                  animation: controller,
-                  builder: (BuildContext context, Widget? child) {
-                    return _buildSeekBar();
-                  },
+              ? ExcludeSemantics(
+                  child: AnimatedBuilder(
+                    animation: controller,
+                    builder: (BuildContext context, Widget? child) {
+                      return _buildSeekBar();
+                    },
+                  ),
                 )
               : const SizedBox.shrink());
   }

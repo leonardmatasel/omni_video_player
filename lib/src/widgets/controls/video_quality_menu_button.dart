@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
+import 'package:omni_video_player/src/utils/accessible.dart';
+import 'package:omni_video_player/src/widgets/controls/overlay_button_wrapper.dart';
 
 import 'video_control_icon_button.dart';
 
-class VideoQualityMenuButton extends StatefulWidget {
+class VideoQualityMenuButton extends StatelessWidget {
   final List<OmniVideoQuality>? qualityList;
   final OmniVideoQuality? currentQuality;
   final void Function(OmniVideoQuality selectedQuality) onQualitySelected;
@@ -16,155 +18,21 @@ class VideoQualityMenuButton extends StatefulWidget {
     required this.onQualitySelected,
   });
 
-  @override
-  State<VideoQualityMenuButton> createState() => _VideoQualityMenuButtonState();
-}
-
-class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
-  final LayerLink _layerLink = LayerLink();
-  OverlayEntry? _overlayEntry;
-  late OmniVideoQuality? selectedQuality;
-
-  @override
-  void initState() {
-    super.initState();
-    selectedQuality = widget.currentQuality;
-  }
-
-  @override
-  void didUpdateWidget(covariant VideoQualityMenuButton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.currentQuality != widget.currentQuality) {
-      selectedQuality = widget.currentQuality;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {});
-        }
-      });
-    }
-  }
-
-  void _toggleMenu() {
-    if (_overlayEntry == null) {
-      _showMenu();
-    } else {
-      _removeMenu();
-    }
-  }
-
-  void _showMenu() {
-    final RenderBox buttonRenderBox = context.findRenderObject()! as RenderBox;
-    final position = buttonRenderBox.localToGlobal(Offset.zero);
-    final size = buttonRenderBox.size;
-    final theme = OmniVideoPlayerTheme.of(context)!;
-
-    final valueString = widget.qualityList == null
-        ? selectedQuality != null
-              ? "${theme.labels.autoQualityLabel} (${selectedQuality!.qualityString})"
-              : theme.labels.autoQualityLabel
-        : null;
-
-    final double width = 18.0 + 16 + 16 + (9.0 * (valueString?.length ?? 6.0));
-
-    final menuHeight = _menuHeight();
-
-    // Decidiamo se mostrare sopra o sotto
-    final bool showAbove = position.dy >= menuHeight;
-
-    final Offset offset = showAbove
-        ? Offset(-width / 2, -menuHeight) // sopra
-        : Offset(-width / 2, size.height); // sotto
-
-    _overlayEntry = OverlayEntry(
-      builder: (overlayContext) {
-        return Stack(
-          children: [
-            // Trasparente per chiudere quando si tocca fuori
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: _removeMenu,
-                behavior: HitTestBehavior.translucent,
-                child: Container(),
-              ),
-            ),
-            Positioned(
-              left: position.dx,
-              top: showAbove
-                  ? position.dy - menuHeight
-                  : position.dy + size.height,
-              width: width,
-              child: CompositedTransformFollower(
-                link: _layerLink,
-                showWhenUnlinked: false,
-                offset: offset,
-                child: _buildMenu(theme),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    Overlay.of(context).insert(_overlayEntry!);
-  }
-
-  double _menuHeight() {
-    const double itemHeight = 48;
-    return (widget.qualityList?.length ?? 1) * itemHeight + 16;
-  }
-
-  void _removeMenu() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-  }
-
-  Widget _buildMenu(OmniVideoPlayerThemeData theme) {
-    return Material(
+  Widget _buildMenu(
+    OmniVideoPlayerThemeData theme,
+    void Function() dismissOverlay,
+  ) {
+    return Card(
       elevation: 8,
-      borderRadius: BorderRadius.circular(12),
       color: theme.colors.menuBackground,
-      child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        shrinkWrap: true,
-        children: widget.qualityList == null
-            ? [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        selectedQuality != null
-                            ? "${theme.labels.autoQualityLabel} (${selectedQuality!.qualityString})"
-                            : theme.labels.autoQualityLabel,
-                        style: TextStyle(
-                          color: theme.colors.menuTextSelected,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Icon(
-                        theme.icons.qualitySelectedCheck,
-                        color: theme.colors.menuIconSelected,
-                        size: 18,
-                      ),
-                    ],
-                  ),
-                ),
-              ]
-            : widget.qualityList!.map((quality) {
-                final isSelected = quality == selectedQuality;
-                return InkWell(
-                  onTap: () {
-                    setState(() {
-                      selectedQuality = quality;
-                    });
-                    widget.onQualitySelected(quality);
-                    _removeMenu();
-                  },
-                  child: Container(
+      child: SizedBox(
+        width: 110,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          shrinkWrap: true,
+          children: qualityList == null
+              ? [
+                  Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 12,
@@ -173,47 +41,79 @@ class _VideoQualityMenuButtonState extends State<VideoQualityMenuButton> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          quality.qualityString,
+                          currentQuality != null
+                              ? "${theme.labels.autoQualityLabel} (${currentQuality!.qualityString})"
+                              : theme.labels.autoQualityLabel,
                           style: TextStyle(
-                            color: isSelected
-                                ? theme.colors.menuTextSelected
-                                : theme.colors.menuText,
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
+                            color: theme.colors.menuTextSelected,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        if (isSelected)
-                          Icon(
-                            theme.icons.qualitySelectedCheck,
-                            color: theme.colors.menuIconSelected,
-                            size: 18,
-                          ),
+                        Icon(
+                          theme.icons.qualitySelectedCheck,
+                          color: theme.colors.menuIconSelected,
+                          size: 18,
+                        ),
                       ],
                     ),
                   ),
-                );
-              }).toList(),
+                ]
+              : qualityList!.map((quality) {
+                  final isSelected = quality == currentQuality;
+                  return Accessible.clickable(
+                    onTap: () {
+                      onQualitySelected(quality);
+                      dismissOverlay();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      child: Row(
+                        spacing: 8,
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            quality.qualityString,
+                            style: TextStyle(
+                              color: isSelected
+                                  ? theme.colors.menuTextSelected
+                                  : theme.colors.menuText,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                          if (isSelected)
+                            Icon(
+                              theme.icons.qualitySelectedCheck,
+                              color: theme.colors.menuIconSelected,
+                              size: 18,
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+        ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _removeMenu();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = OmniVideoPlayerTheme.of(context)!;
 
-    return CompositedTransformTarget(
-      link: _layerLink,
-      child: VideoControlIconButton(
-        onPressed: _toggleMenu,
+    return OverlayButtonWrapper(
+      childBuilder: (toggleOverlay, expanded) => VideoControlIconButton(
+        semanticLabel: theme.accessibility.qualityButtonLabel,
+        expanded: expanded,
+        onPressed: toggleOverlay,
         icon: theme.icons.qualityChangeButton,
       ),
+      overlayBuilder: (dismissOverlay) => _buildMenu(theme, dismissOverlay),
     );
   }
 }

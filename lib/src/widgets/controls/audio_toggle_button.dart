@@ -26,11 +26,16 @@ class AudioToggleButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = OmniVideoPlayerTheme.of(context)!;
 
+    final String semanticLabel = controller.volume > 0
+        ? theme.accessibility.muteButtonLabel
+        : theme.accessibility.unmuteButtonLabel;
+
     return VideoControlIconButton(
       onPressed: () {
         controller.toggleMute();
         onAudioToggled?.call(controller.volume == 0);
       },
+      semanticLabel: semanticLabel,
       icon: controller.volume > 0 ? theme.icons.mute : theme.icons.unMute,
     );
   }

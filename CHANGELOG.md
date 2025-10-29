@@ -1,3 +1,9 @@
+# 3.1.10
+
+✨ **New Features**
+
+* Introduced **accessibility improvements** for video player controls and overlays.
+
 # 3.1.9
 
 🛠 **Fix**

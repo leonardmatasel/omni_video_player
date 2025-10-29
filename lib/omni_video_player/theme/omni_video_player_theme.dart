@@ -64,12 +64,16 @@ class OmniVideoPlayerThemeData {
   /// Theme data for overlays like background shading.
   final VideoPlayerOverlayTheme overlays;
 
+  /// Accessibility labels for screen readers and assistive technologies.
+  final VideoPlayerAccessibilityTheme accessibility;
+
   const OmniVideoPlayerThemeData({
     this.colors = const VideoPlayerColorScheme(),
     this.labels = const VideoPlayerLabelTheme(),
     this.icons = const VideoPlayerIconTheme(),
     this.shapes = const VideoPlayerShapeTheme(),
     this.overlays = const VideoPlayerOverlayTheme(),
+    this.accessibility = const VideoPlayerAccessibilityTheme(),
   });
 
   /// Returns a copy of this theme data, overriding only the
@@ -80,6 +84,7 @@ class OmniVideoPlayerThemeData {
     VideoPlayerIconTheme? icons,
     VideoPlayerShapeTheme? shapes,
     VideoPlayerOverlayTheme? overlays,
+    VideoPlayerAccessibilityTheme? accessibility,
   }) {
     return OmniVideoPlayerThemeData(
       colors: colors ?? this.colors,
@@ -87,6 +92,7 @@ class OmniVideoPlayerThemeData {
       icons: icons ?? this.icons,
       shapes: shapes ?? this.shapes,
       overlays: overlays ?? this.overlays,
+      accessibility: accessibility ?? this.accessibility,
     );
   }
 }
@@ -362,4 +368,82 @@ class VideoPlayerOverlayTheme {
         backgroundColor: backgroundColor ?? this.backgroundColor,
         alpha: alpha ?? this.alpha,
       );
+}
+
+/// Defines accessibility labels for screen readers and other assistive technologies.
+@immutable
+class VideoPlayerAccessibilityTheme {
+  /// Semantic label for the play button.
+  final String playButtonLabel;
+
+  /// Semantic label for the pause button.
+  final String pauseButtonLabel;
+
+  /// Semantic label for the fullscreen toggle button.
+  final String fullscreenButtonLabel;
+
+  /// Semantic label for the exit fullscreen button.
+  final String exitFullscreenButtonLabel;
+
+  /// Semantic label for the mute button.
+  final String muteButtonLabel;
+
+  /// Semantic label for the unmute button.
+  final String unmuteButtonLabel;
+
+  /// Semantic label for the quality selection button.
+  final String qualityButtonLabel;
+
+  /// Semantic label for the playback speed button.
+  final String playbackSpeedButtonLabel;
+
+  /// Semantic label base for the controls visibility state.
+  /// The actual label will depend on whether controls are visible or hidden.
+  final String controlsVisibleLabel;
+
+  /// Semantic label for the replay button when the video has finished.
+  final String replayButtonLabel;
+
+  const VideoPlayerAccessibilityTheme({
+    this.playButtonLabel = 'Play video',
+    this.pauseButtonLabel = 'Pause video',
+    this.fullscreenButtonLabel = 'Enter fullscreen',
+    this.exitFullscreenButtonLabel = 'Exit fullscreen',
+    this.muteButtonLabel = 'Mute audio',
+    this.unmuteButtonLabel = 'Unmute audio',
+    this.qualityButtonLabel = 'Change video quality',
+    this.playbackSpeedButtonLabel = 'Change playback speed',
+    this.controlsVisibleLabel = 'Controls visible',
+    this.replayButtonLabel = 'Replay video',
+  });
+
+  /// Returns a copy overriding only the provided fields.
+  VideoPlayerAccessibilityTheme copyWith({
+    String? playButtonLabel,
+    String? pauseButtonLabel,
+    String? fullscreenButtonLabel,
+    String? exitFullscreenButtonLabel,
+    String? muteButtonLabel,
+    String? unmuteButtonLabel,
+    String? qualityButtonLabel,
+    String? playbackSpeedButtonLabel,
+    String? controlsVisibleLabel,
+    String? replayButtonLabel,
+  }) {
+    return VideoPlayerAccessibilityTheme(
+      playButtonLabel: playButtonLabel ?? this.playButtonLabel,
+      pauseButtonLabel: pauseButtonLabel ?? this.pauseButtonLabel,
+      fullscreenButtonLabel:
+          fullscreenButtonLabel ?? this.fullscreenButtonLabel,
+      exitFullscreenButtonLabel:
+          exitFullscreenButtonLabel ?? this.exitFullscreenButtonLabel,
+      muteButtonLabel: muteButtonLabel ?? this.muteButtonLabel,
+      unmuteButtonLabel: unmuteButtonLabel ?? this.unmuteButtonLabel,
+      qualityButtonLabel: qualityButtonLabel ?? this.qualityButtonLabel,
+      playbackSpeedButtonLabel:
+          playbackSpeedButtonLabel ?? this.playbackSpeedButtonLabel,
+      controlsVisibleLabel: controlsVisibleLabel ?? this.controlsVisibleLabel,
+      replayButtonLabel: replayButtonLabel ?? this.replayButtonLabel,
+    );
+  }
 }

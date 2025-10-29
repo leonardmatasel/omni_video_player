@@ -143,6 +143,8 @@ class _VideoScreenState extends State<VideoScreen> {
                   customAspectRatioNormal: null,
                   customAspectRatioFullScreen: null,
                   fullscreenOrientation: null,
+                  showBottomControlsBarOnPause: false,
+                  alwaysShowBottomControlsBar: false,
                 ),
                 customPlayerWidgets: CustomPlayerWidgets().copyWith(
                   loadingWidget: const Center(

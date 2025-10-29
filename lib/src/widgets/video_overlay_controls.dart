@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
+import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 import 'package:omni_video_player/src/widgets/auto_hide_controls_manager.dart';
 import 'package:omni_video_player/src/widgets/auto_hide_play_pause_button.dart';
 import 'package:omni_video_player/src/widgets/bottom_control_bar/gradient_bottom_control_bar.dart';
@@ -224,45 +225,47 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
 
               // Tap area for double tap (left = backward, right = forward).
               Positioned.fill(
-                child: KeyboardListener(
-                  focusNode: _focusKeyboard,
-                  autofocus: true,
-                  onKeyEvent: (KeyEvent event) {
-                    if (event is KeyDownEvent) {
-                      if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-                        // Skip forward
-                        handleDoubleTap(SkipDirection.forward);
-                      } else if (event.logicalKey ==
-                          LogicalKeyboardKey.arrowLeft) {
-                        // Skip backward
-                        handleDoubleTap(SkipDirection.backward);
+                child: ExcludeSemantics(
+                  child: KeyboardListener(
+                    focusNode: _focusKeyboard,
+                    autofocus: true,
+                    onKeyEvent: (KeyEvent event) {
+                      if (event is KeyDownEvent) {
+                        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+                          // Skip forward
+                          handleDoubleTap(SkipDirection.forward);
+                        } else if (event.logicalKey ==
+                            LogicalKeyboardKey.arrowLeft) {
+                          // Skip backward
+                          handleDoubleTap(SkipDirection.backward);
+                        }
                       }
-                    }
-                  },
-                  child: Row(
-                    children: [
-                      // Left side double-tap to rewind.
-                      Expanded(
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          onDoubleTap: () {
-                            handleDoubleTap(SkipDirection.backward);
-                          },
-                          child: const SizedBox.expand(),
+                    },
+                    child: Row(
+                      children: [
+                        // Left side double-tap to rewind.
+                        Expanded(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onDoubleTap: () {
+                              handleDoubleTap(SkipDirection.backward);
+                            },
+                            child: const SizedBox.expand(),
+                          ),
                         ),
-                      ),
 
-                      // Right side double-tap to fast-forward.
-                      Expanded(
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          onDoubleTap: () {
-                            handleDoubleTap(SkipDirection.forward);
-                          },
-                          child: const SizedBox.expand(),
+                        // Right side double-tap to fast-forward.
+                        Expanded(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            onDoubleTap: () {
+                              handleDoubleTap(SkipDirection.forward);
+                            },
+                            child: const SizedBox.expand(),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -339,35 +342,43 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
               }
             }
 
-            return GestureDetector(
-              onTap: () {
-                setState(() => _tapState = _TapInteractionState.singleTap);
-                toggleVisibility();
-              },
-              onDoubleTap: () {
-                setState(() => _tapState = _TapInteractionState.idle);
-                toggleVisibility();
-              },
-              onVerticalDragUpdate:
-                  widget
-                          .options
-                          .playerUIVisibilityOptions
-                          .enableExitFullscreenOnVerticalSwipe &&
-                      widget.controller.isFullScreen
-                  ? (details) {
-                      // Exit fullscreen if the user drags downwards significantly.
-                      if (details.primaryDelta != null &&
-                          details.primaryDelta!.abs() > 10) {
-                        widget.controller.switchFullScreenMode(
-                          context,
-                          pageBuilder: null,
-                          onToggle: widget.callbacks.onFullScreenToggled,
-                        );
+            return Semantics(
+              label: OmniVideoPlayerTheme.of(
+                context,
+              )!.accessibility.controlsVisibleLabel,
+              toggled: isVisibleButton,
+              container: true,
+              explicitChildNodes: false,
+              child: GestureDetector(
+                onTap: () {
+                  setState(() => _tapState = _TapInteractionState.singleTap);
+                  toggleVisibility();
+                },
+                onDoubleTap: () {
+                  setState(() => _tapState = _TapInteractionState.idle);
+                  toggleVisibility();
+                },
+                onVerticalDragUpdate:
+                    widget
+                            .options
+                            .playerUIVisibilityOptions
+                            .enableExitFullscreenOnVerticalSwipe &&
+                        widget.controller.isFullScreen
+                    ? (details) {
+                        // Exit fullscreen if the user drags downwards significantly.
+                        if (details.primaryDelta != null &&
+                            details.primaryDelta!.abs() > 10) {
+                          widget.controller.switchFullScreenMode(
+                            context,
+                            pageBuilder: null,
+                            onToggle: widget.callbacks.onFullScreenToggled,
+                          );
+                        }
                       }
-                    }
-                  : null,
-              behavior: HitTestBehavior.opaque,
-              child: Stack(children: layers),
+                    : null,
+                behavior: HitTestBehavior.opaque,
+                child: Stack(children: layers),
+              ),
             );
           },
         );

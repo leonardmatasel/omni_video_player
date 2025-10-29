@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
+import 'package:omni_video_player/src/utils/accessible.dart';
 
 /// A play/pause toggle button with animated icon and optional replay support.
 ///
@@ -136,14 +137,25 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
     }
   }
 
+  String _accessibilityLabel(OmniVideoPlayerThemeData theme) {
+    if (controller.isFinished && widget.showReplayButton) {
+      return theme.accessibility.replayButtonLabel;
+    } else if (controller.isPlaying) {
+      return theme.accessibility.pauseButtonLabel;
+    } else {
+      return theme.accessibility.playButtonLabel;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = OmniVideoPlayerTheme.of(context)!;
 
     return Center(
-      child: InkWell(
+      child: Accessible.clickable(
+        hint: _accessibilityLabel(theme),
         onTap: _handleTap,
-        borderRadius: BorderRadius.circular(200),
+        splashBorderRadius: BorderRadius.circular(200),
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
