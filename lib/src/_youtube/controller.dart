@@ -354,7 +354,7 @@ class YoutubeMobilePlaybackController extends OmniPlaybackController {
         context,
         PageRouteBuilder(
           pageBuilder: (_, _, _) => pageBuilder!(context),
-          transitionsBuilder: (_, animation, __, Widget child) {
+          transitionsBuilder: (_, animation, _, Widget child) {
             return FadeTransition(opacity: animation, child: child);
           },
         ),
@@ -376,8 +376,9 @@ class YoutubeMobilePlaybackController extends OmniPlaybackController {
 
   @override
   set volume(double value) {
-    if (kIsWeb || Platform.isAndroid)
+    if (kIsWeb || Platform.isAndroid) {
       _evaluate('player.setVolume(${value * 100})');
+    }
     _volume = value;
     notifyListeners();
   }

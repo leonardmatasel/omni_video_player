@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
