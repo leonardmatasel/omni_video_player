@@ -2,7 +2,7 @@
 
 🛠 **Refactor / Improvement**
 
-* Reduced reliance on external libraries (from 5 libraries for web view management) and refactored to use the new flutter_inappwebview dependency.
+* Reduced reliance on external libraries (from 5 libraries for web view management) and refactored to use the new `flutter_inappwebview` dependency.
 
 # 3.1.11 - 3.1.10
 
