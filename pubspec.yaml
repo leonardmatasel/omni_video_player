@@ -20,8 +20,6 @@ funding:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_web_plugins:
-    sdk: flutter
 
   video_player: ^2.10.0
   wakelock_plus: ^1.4.0
@@ -35,23 +33,8 @@ dependencies:
 
   youtube_explode_dart: ^2.5.2
 
-  webview_flutter: ^4.13.0
-  webview_flutter_android: ^4.10.5
-  webview_flutter_wkwebview: ^3.23.1
-  webview_flutter_platform_interface: ^2.14.0
-
   flutter_inappwebview: ^6.1.5
 
-
-flutter:
-  assets:
-    - assets/youtube_player.html
-    - assets/vimeo_player.html
-  plugin:
-    platforms:
-      web:
-        pluginClass: WebYoutubePlayerIframePlatform
-        fileName: src/web/web_youtube_player_iframe_platform.dart
 
 dev_dependencies:
   flutter_test:

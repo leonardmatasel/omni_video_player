@@ -1,15 +1,17 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:omni_video_player/omni_video_player.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:omni_video_player/omni_video_player.dart'
+    show VideoPlayerInitializerState;
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
+import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
+import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
+import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
+import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
+import 'package:omni_video_player/omni_video_player/models/video_source_configuration.dart';
+import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
 import 'package:video_player/video_player.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_android/webview_flutter_android.dart';
-import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
-import 'player_event_handler.dart';
 
 class VimeoPlaybackController extends OmniPlaybackController {
   @override
@@ -21,32 +23,15 @@ class VimeoPlaybackController extends OmniPlaybackController {
   @override
   final String? videoDataSource = null;
 
-  late final WebViewController webViewController;
-  late final VimeoPlayerEventHandler _eventHandler;
-  final Completer<void> _initCompleter = Completer();
-
-  String get playerId => 'Vimeo$hashCode';
+  InAppWebViewController? _webViewController;
 
   bool _isPlaying = false;
   bool _isReady = false;
-  bool _isBuffering = false;
   Duration _currentPosition = Duration.zero;
-  Duration _duration = Duration.zero;
-  double _playbackSpeed = 1.0;
-  bool _isFullyVisible = false;
-
-  GlobalKey<VideoPlayerInitializerState> globalKeyPlayer;
-
-  bool isDisposed = false;
 
   @override
-  Duration get duration => _duration;
-
-  set duration(Duration value) {
-    _duration = value;
-    notifyListeners();
-  }
-
+  final Duration duration;
+  Timer? _positionTimer;
   @override
   final Size size;
 
@@ -57,49 +42,41 @@ class VimeoPlaybackController extends OmniPlaybackController {
   bool _isSeeking = false;
   bool _isFullScreen = false;
   bool _hasStarted = true;
+  bool _isBuffering = true;
   bool _hasError = false;
   final GlobalPlaybackController? _globalController;
   double _previousVolume = 1.0;
   final List<VoidCallback> _onReadyQueue = [];
+  GlobalKey<VideoPlayerInitializerState> globalKeyPlayer;
+  double _playbackSpeed = 1.0;
+
+  final VideoPlayerConfiguration options;
+
+  void _executeOrQueue(VoidCallback action) {
+    if (_isReady) {
+      action();
+    } else {
+      _onReadyQueue.add(action);
+    }
+  }
 
   VimeoPlaybackController._(
     this.videoId,
     this._globalController,
     Duration initialPosition,
     double? initialVolume,
+    this.duration,
     this.size,
     this.callbacks,
     this.globalKeyPlayer,
-    VideoPlayerConfiguration options,
+    this.options,
   ) {
-    _eventHandler = VimeoPlayerEventHandler(this, options);
-
-    late final PlatformWebViewControllerCreationParams webViewParams;
-    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
-      webViewParams = WebKitWebViewControllerCreationParams(
-        allowsInlineMediaPlayback: true,
-        mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
-      );
-    } else {
-      webViewParams = const PlatformWebViewControllerCreationParams();
-    }
-
-    webViewController =
-        WebViewController.fromPlatformCreationParams(webViewParams)
-          ..setJavaScriptMode(JavaScriptMode.unrestricted)
-          ..addJavaScriptChannel(
-            playerId,
-            onMessageReceived: _eventHandler.call,
-          )
-          ..enableZoom(false);
-
-    final webViewPlatform = webViewController.platform;
-    if (webViewPlatform is AndroidWebViewController) {
-      AndroidWebViewController.enableDebugging(false);
-      webViewPlatform.setMediaPlaybackRequiresUserGesture(false);
-    } else if (webViewPlatform is WebKitWebViewController) {
-      webViewPlatform.setAllowsBackForwardNavigationGestures(false);
-    }
+    _executeOrQueue(() {
+      seekTo(initialPosition, skipHasPlaybackStarted: true);
+      if (initialVolume != null) {
+        volume = initialVolume;
+      }
+    });
   }
 
   /// Creates and initializes a new [OmniPlaybackController] instance.
@@ -108,6 +85,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
     required GlobalPlaybackController? globalController,
     required Duration initialPosition,
     required double? initialVolume,
+    required Duration duration,
     required Size size,
     required VideoPlayerCallbacks callbacks,
     required GlobalKey<VideoPlayerInitializerState> globalKeyPlayer,
@@ -118,43 +96,11 @@ class VimeoPlaybackController extends OmniPlaybackController {
       globalController,
       initialPosition,
       initialVolume,
+      duration,
       size,
       callbacks,
       globalKeyPlayer,
       options,
-    );
-  }
-
-  Future<void> init() async {
-    final platform = kIsWeb ? 'web' : defaultTargetPlatform.name.toLowerCase();
-
-    await webViewController.loadHtmlString(
-      await _buildPlayerHTML(<String, String>{
-        'videoId': videoId,
-        'platform': platform,
-        'playerId': playerId,
-      }),
-      baseUrl: kIsWeb ? Uri.base.origin : "https://player.vimeo.com",
-    );
-
-    if (!_initCompleter.isCompleted) _initCompleter.complete();
-  }
-
-  @override
-  Future<void> dispose() async {
-    isDisposed = true;
-    await webViewController.removeJavaScriptChannel(playerId);
-    super.dispose();
-  }
-
-  Future<String> _buildPlayerHTML(Map<String, String> data) async {
-    final playerHtml = await rootBundle.loadString(
-      'packages/omni_video_player/assets/vimeo_player.html',
-    );
-
-    return playerHtml.replaceAllMapped(
-      RegExp(r'<<([a-zA-Z]+)>>'),
-      (m) => data[m.group(1)] ?? m.group(0)!,
     );
   }
 
@@ -248,8 +194,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
   }
 
   @override
-  bool get isFinished =>
-      currentPosition >= duration && duration != Duration.zero;
+  bool get isFinished => duration == currentPosition;
 
   @override
   int get rotationCorrection => 0;
@@ -263,7 +208,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
     if (useGlobalController && _globalController != null) {
       return await _globalController.requestPlay(this);
     } else {
-      return await _evaluate("player.play();");
+      await _evaluate("player.play();");
     }
   }
 
@@ -272,7 +217,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
     if (useGlobalController && _globalController != null) {
       return await _globalController.requestPause();
     } else {
-      return await _evaluate("player.pause();");
+      await _evaluate("player.pause();");
     }
   }
 
@@ -290,7 +235,6 @@ class VimeoPlaybackController extends OmniPlaybackController {
 
   @override
   set volume(double value) {
-    if (value > 1 || value < 0) return;
     _evaluate("player.setVolume($volume);");
     _volume = value;
     notifyListeners();
@@ -303,15 +247,13 @@ class VimeoPlaybackController extends OmniPlaybackController {
   void mute() {
     _previousVolume = _volume;
     _volume = 0;
-    volume = _volume;
-    _globalController?.setCurrentVolume(_volume);
+    _globalController?.setCurrentVolume(0);
   }
 
   @override
   void unMute() {
-    _volume = _previousVolume == 0 ? 1 : _previousVolume;
-    volume = _volume;
-    _globalController?.setCurrentVolume(_volume);
+    _volume = _previousVolume;
+    _globalController?.setCurrentVolume(_previousVolume);
   }
 
   @override
@@ -366,22 +308,54 @@ class VimeoPlaybackController extends OmniPlaybackController {
     }
   }
 
-  void runOnReady(VoidCallback action) {
-    if (isReady) {
-      action();
-    } else {
-      _onReadyQueue.add(action);
-    }
-  }
-
   Future<void> _evaluate(String js) async {
-    await _initCompleter.future;
-
+    if (_webViewController == null) return;
     try {
-      await webViewController.runJavaScript(js);
+      await _webViewController!.evaluateJavascript(source: js);
     } catch (e) {
       debugPrint('Error evaluating JS: $js\n$e');
     }
+  }
+
+  DateTime? _lastTickTime;
+
+  void startPositionTimer() {
+    _positionTimer?.cancel();
+    _lastTickTime = DateTime.now();
+
+    _positionTimer = Timer.periodic(Duration(milliseconds: 500), (_) {
+      if (_isPlaying) {
+        final now = DateTime.now();
+        final elapsed = now.difference(_lastTickTime!);
+        _lastTickTime = now;
+
+        final newPosition = _currentPosition + elapsed;
+
+        if (newPosition > duration) {
+          _currentPosition = duration;
+          _positionTimer?.cancel();
+          pause();
+        } else {
+          _currentPosition = newPosition;
+        }
+
+        notifyListeners();
+      }
+    });
+  }
+
+  void stopPositionTimer() {
+    _positionTimer?.cancel();
+  }
+
+  void setWebViewController(InAppWebViewController? controller) {
+    _webViewController = controller;
+  }
+
+  @override
+  void dispose() {
+    _positionTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -399,6 +373,13 @@ class VimeoPlaybackController extends OmniPlaybackController {
   List<OmniVideoQuality>? get availableVideoQualities => null;
 
   @override
+  void loadVideoSource(VideoSourceConfiguration videoSourceConfiguration) {
+    globalKeyPlayer.currentState?.refresh(
+      videoSourceConfiguration: videoSourceConfiguration,
+    );
+  }
+
+  @override
   double get playbackSpeed => _playbackSpeed;
 
   @override
@@ -408,22 +389,6 @@ class VimeoPlaybackController extends OmniPlaybackController {
     }
     _playbackSpeed = speed;
     _evaluate("player.setPlaybackRate($speed);");
-    notifyListeners();
-  }
-
-  @override
-  void loadVideoSource(VideoSourceConfiguration videoSourceConfiguration) {
-    globalKeyPlayer.currentState?.refresh(
-      videoSourceConfiguration: videoSourceConfiguration,
-    );
-  }
-
-  @override
-  bool get isFullyVisible => _isFullyVisible;
-
-  @override
-  set isFullyVisible(bool value) {
-    _isFullyVisible = value;
     notifyListeners();
   }
 }

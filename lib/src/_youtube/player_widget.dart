@@ -1,3 +1,82 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'controller.dart';
+
+class YoutubeInappwebviewWidget extends StatelessWidget {
+  final YoutubeMobilePlaybackController controller;
+
+  const YoutubeInappwebviewWidget({super.key, required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final html = _playerHtml()
+        .replaceAll('<<playerId>>', controller.playerId)
+        .replaceAll('<<host>>', 'https://www.youtube-nocookie.com')
+        .replaceAll(
+          '<<playerVars>>',
+          jsonEncode({
+            'autoplay': 0,
+            'mute': 1,
+            'cc_lang_pref': 'en',
+            'cc_load_policy': 0,
+            'color': 'white',
+            'controls': 0,
+            'disablekb':
+                kIsWeb &&
+                    controller
+                        .options
+                        .playerUIVisibilityOptions
+                        .enableForwardGesture &&
+                    controller
+                        .options
+                        .playerUIVisibilityOptions
+                        .enableBackwardGesture
+                ? 0
+                : 1,
+            'enablejsapi': 1,
+            'fs': 0,
+            'hl': 'en',
+            'iv_load_policy': 3,
+            'modestbranding': 1,
+            if (kIsWeb) ...{
+              'origin': Uri.base.origin,
+              'widget_referrer': Uri.base.origin,
+            } else ...{
+              'origin': 'https://www.youtube-nocookie.com',
+              'widget_referrer': "https://www.youtube-nocookie.com",
+            },
+            'showinfo': 0,
+            'autohide': 1,
+            'playsinline': 1,
+            'rel': 0,
+          }),
+        );
+
+    return InAppWebView(
+      initialData: InAppWebViewInitialData(
+        data: html,
+        encoding: 'utf-8',
+        baseUrl: WebUri.uri(Uri.https('youtube-nocookie.com')),
+        mimeType: 'text/html',
+      ),
+      initialSettings: InAppWebViewSettings(
+        mediaPlaybackRequiresUserGesture: false,
+        allowsInlineMediaPlayback: true,
+        useHybridComposition: true,
+      ),
+      onLoadStart: (_, _) => controller.isReady = false,
+      onLoadStop: (_, _) => controller.isReady = false,
+      onProgressChanged: (controller, progress) =>
+          this.controller.isBuffering = progress != 100,
+      onWebViewCreated: (webViewController) {
+        controller.setWebViewController(webViewController);
+      },
+    );
+  }
+
+  String _playerHtml() => '''
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -9,13 +88,14 @@
       html {
         width: 100%;
         height: 100%;
+        pointer-events: none !important;
       }
 
       body {
         margin: 0;
         width: 100%;
         height: 100%;
-        pointer-events: inherit;
+        pointer-events: none !important;
       }
 
       .embed-container iframe,
@@ -26,7 +106,7 @@
         left: 0;
         width: 100% !important;
         height: 100% !important;
-        pointer-events: inherit;
+        pointer-events: none !important;
       }
     </style>
     <title>Youtube Player</title>
@@ -36,14 +116,11 @@
     <div class="embed-container">
       <div id="<<playerId>>"></div>
     </div>
+    
+    <script src="https://www.youtube.com/iframe_api"></script>
 
     <script>
-      var tag = document.createElement("script");
-      tag.src = "https://www.youtube.com/iframe_api";
-      var firstScriptTag = document.getElementsByTagName("script")[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-      var platform = "<<platform>>";
       var host = "<<host>>";
       var player;
       var timerId;
@@ -72,7 +149,7 @@
                   };
 
                   sendMessage('VideoState', JSON.stringify(state));
-                }, 100);
+                }, 800);
               }
             },
             onPlaybackQualityChange: function (event) {
@@ -89,6 +166,9 @@
             },
             onAutoplayBlocked: function (event) {
               sendMessage('AutoplayBlocked', event.data);
+            },
+            onContentSizeChanged: function (event) {
+              sendMessage('onContentSizeChanged', event.data);
             },
           },
         });
@@ -123,27 +203,11 @@
         player.setSize(window.innerWidth, window.innerHeight);
       };
 
-      function sendPlatformMessage(message) {
-        switch(platform) {
-           case 'android':
-             <<playerId>>.postMessage(message);
-             break;
-           case 'ios':
-             <<playerId>>.postMessage(message, '*');
-             break;
-           case 'web':
-             window.parent.postMessage(message, '*');
-             break;
-         }
-      }
-
       function sendMessage(key, data) {
          var message = {};
          message[key] = data;
          message['playerId'] = '<<playerId>>';
-         var messageString = JSON.stringify(message);
-
-         sendPlatformMessage(messageString);
+         window.flutter_inappwebview.callHandler(key, data);
       }
 
       function getVideoData() {
@@ -171,25 +235,22 @@
       }
 
       function prepareDataForPlatform(data) {
-        if(platform == 'android') return data;
-
-        return JSON.stringify(data);
+        return data;
+      }
+      
+      function loadById(loadSettings) {
+        player.loadVideoById(loadSettings);
+        return '';
       }
 
-      function handleFullScreenForMobilePlatform() {
-        if(platform != 'web') {
-          var ytFrame = document.getElementsByTagName('iframe')[0].contentWindow.document;
-          var fsButton = ytFrame.getElementsByClassName('ytp-fullscreen-button ytp-button')[0];
+      function play() { player.playVideo(); return ''; }
+      function pause() { player.pauseVideo(); return ''; }
+      function seekTo(position, seekAhead) { player.seekTo(position, seekAhead); return ''; }
 
-          if(fsButton != null) {
-            var fsButtonCopy = fsButton.cloneNode(true);
-            fsButton.replaceWith(fsButtonCopy);
-            fsButtonCopy.onclick = function() {
-              sendMessage('FullscreenButtonPressed', '');
-            };
-          }
-        }
+      function handleFullScreenForMobilePlatform() {
       }
     </script>
   </body>
 </html>
+  ''';
+}

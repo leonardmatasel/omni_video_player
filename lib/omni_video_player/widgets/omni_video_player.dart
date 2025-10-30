@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
@@ -6,6 +8,9 @@ import 'package:omni_video_player/omni_video_player/theme/omni_video_player_them
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer.dart';
 import 'package:omni_video_player/src/widgets/player/video_player_error_placeholder.dart';
 import 'package:omni_video_player/src/widgets/video_player_renderer.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+
+import '../../src/_youtube/web/player_widget_interface.dart';
 
 /// A universal and configurable video player widget supporting multiple video sources.
 ///
@@ -117,56 +122,69 @@ class _OmniVideoPlayerState extends State<OmniVideoPlayer> {
                       alpha: _options.playerTheme.overlays.alpha!,
                     ),
             ),
-          VideoPlayerInitializer(
-            key: _options.globalKeyInitializer,
-            options: _options,
-            callbacks: _callbacks,
-            globalController: GlobalPlaybackController(),
-            buildPlayer: (context, controller, thumbnail) => AnimatedBuilder(
-              animation: controller,
-              builder: (context, child) => Container(
-                alignment: Alignment.center,
-                child: Stack(
-                  children: [
-                    if (_options.playerUIVisibilityOptions.showLoadingWidget &&
-                        !controller.isReady &&
-                        !controller.hasError)
-                      _options.customPlayerWidgets.loadingWidget,
-                    if (!controller.hasError)
-                      VideoPlayerRenderer(
-                        options: _options.copyWith(
-                          customPlayerWidgets: _options.customPlayerWidgets
-                              .copyWith(
-                                thumbnail:
-                                    _options.customPlayerWidgets.thumbnail ??
-                                    thumbnail,
-                              ),
+          if (kIsWeb &&
+              widget.options.videoSourceConfiguration.videoSourceType ==
+                  VideoSourceType.youtube)
+            Center(
+              child: YoutubePlayerWidget(
+                videoId: VideoId(
+                  widget.options.videoSourceConfiguration.videoUrl!.toString(),
+                ).toString(),
+              ),
+            )
+          else
+            VideoPlayerInitializer(
+              key: _options.globalKeyInitializer,
+              options: _options,
+              callbacks: _callbacks,
+              globalController: GlobalPlaybackController(),
+              buildPlayer: (context, controller, thumbnail) => AnimatedBuilder(
+                animation: controller,
+                builder: (context, child) => Container(
+                  alignment: Alignment.center,
+                  child: Stack(
+                    children: [
+                      if (_options
+                              .playerUIVisibilityOptions
+                              .showLoadingWidget &&
+                          !controller.isReady &&
+                          !controller.hasError)
+                        _options.customPlayerWidgets.loadingWidget,
+                      if (!controller.hasError)
+                        VideoPlayerRenderer(
+                          options: _options.copyWith(
+                            customPlayerWidgets: _options.customPlayerWidgets
+                                .copyWith(
+                                  thumbnail:
+                                      _options.customPlayerWidgets.thumbnail ??
+                                      thumbnail,
+                                ),
+                          ),
+                          callbacks: _callbacks,
+                          controller: controller,
+                        )
+                      else
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            widget.options.playerTheme.shapes.borderRadius,
+                          ),
+                          child:
+                              widget
+                                  .options
+                                  .playerUIVisibilityOptions
+                                  .showErrorPlaceholder
+                              ? widget
+                                        .options
+                                        .customPlayerWidgets
+                                        .errorPlaceholder ??
+                                    VideoPlayerErrorPlaceholder()
+                              : const SizedBox.shrink(),
                         ),
-                        callbacks: _callbacks,
-                        controller: controller,
-                      )
-                    else
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                          widget.options.playerTheme.shapes.borderRadius,
-                        ),
-                        child:
-                            widget
-                                .options
-                                .playerUIVisibilityOptions
-                                .showErrorPlaceholder
-                            ? widget
-                                      .options
-                                      .customPlayerWidgets
-                                      .errorPlaceholder ??
-                                  VideoPlayerErrorPlaceholder()
-                            : const SizedBox.shrink(),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

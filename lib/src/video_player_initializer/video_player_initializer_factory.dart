@@ -10,8 +10,7 @@ import 'package:omni_video_player/src/_others/file_initializer.dart';
 import 'package:omni_video_player/src/_others/network_initializer.dart';
 import 'package:omni_video_player/src/_vimeo/initializer.dart';
 import 'package:omni_video_player/src/_youtube/_utils/initializer.dart';
-import 'package:omni_video_player/src/_youtube/mobile/inappwebview_initializer.dart';
-import 'package:omni_video_player/src/_youtube/web/webview_initializer.dart';
+import 'package:omni_video_player/src/_youtube/inappwebview_initializer.dart';
 
 abstract class IVideoPlayerInitializerStrategy {
   Future<OmniPlaybackController?> initialize();
@@ -28,21 +27,12 @@ class VideoPlayerInitializerFactory {
     switch (sourceType) {
       case VideoSourceType.youtube:
         if (videoSourceConfiguration.forceYoutubeWebViewOnly || kIsWeb) {
-          if (kIsWeb) {
-            return YouTubeWebWebviewInitializer(
-              options: options,
-              globalController: globalController,
-              callbacks: callbacks,
-              videoSourceConfiguration: videoSourceConfiguration,
-            );
-          } else {
-            return YouTubeMobileInappwebviewInitializer(
-              options: options,
-              globalController: globalController,
-              callbacks: callbacks,
-              videoSourceConfiguration: videoSourceConfiguration,
-            );
-          }
+          return YouTubeMobileInappwebviewInitializer(
+            options: options,
+            globalController: globalController,
+            callbacks: callbacks,
+            videoSourceConfiguration: videoSourceConfiguration,
+          );
         } else {
           return YouTubeInitializer(
             options: options,

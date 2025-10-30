@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
-import 'package:omni_video_player/src/api/vimeo_video_api.dart';
 import 'package:omni_video_player/src/_vimeo/controller.dart';
+import 'package:omni_video_player/src/_vimeo/player_widget.dart';
+import 'package:omni_video_player/src/api/vimeo_video_api.dart';
 import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:omni_video_player/omni_video_player.dart';
 
 class VimeoInitializer implements IVideoPlayerInitializerStrategy {
   final VideoPlayerConfiguration options;
@@ -21,7 +21,7 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
 
   @override
   Future<OmniPlaybackController?> initialize() async {
-    final videoId = videoSourceConfiguration.videoId!;
+    final videoId = options.videoSourceConfiguration.videoId!;
     final vimeoVideoInfo = await VimeoVideoApi.fetchVimeoVideoInfo(videoId);
 
     if (vimeoVideoInfo == null) {
@@ -31,8 +31,9 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
     final controller = VimeoPlaybackController.create(
       videoId: videoId,
       globalController: globalController,
-      initialPosition: videoSourceConfiguration.initialPosition,
-      initialVolume: videoSourceConfiguration.initialVolume,
+      initialPosition: options.videoSourceConfiguration.initialPosition,
+      initialVolume: options.videoSourceConfiguration.initialVolume,
+      duration: vimeoVideoInfo.duration,
       size: Size(
         vimeoVideoInfo.width.toDouble(),
         vimeoVideoInfo.height.toDouble(),
@@ -44,40 +45,15 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
 
     controller.sharedPlayerNotifier.value = Hero(
       tag: options.globalKeyPlayer,
-      child: WebViewWidget(
+      child: VimeoVideoPlayer(
         key: options.globalKeyPlayer,
-        controller: controller.webViewController,
+        videoId: videoId,
+        controller: controller,
+        preferredQualities: options.videoSourceConfiguration.preferredQualities,
+        autoPlay: options.videoSourceConfiguration.autoPlay,
       ),
     );
-    await controller.init();
 
-    _waitUntilReady(controller);
-    callbacks.onControllerCreated?.call(controller);
     return controller;
-  }
-
-  void _waitUntilReady(VimeoPlaybackController controller) {
-    controller.runOnReady(() {
-      final config = videoSourceConfiguration;
-
-      if (config.initialPosition.inSeconds > 0) {
-        controller.seekTo(config.initialPosition);
-      }
-
-      if (config.autoMuteOnStart) {
-        controller.mute();
-      } else {
-        controller.volume = config.initialVolume;
-      }
-
-      controller.playbackSpeed = config.initialPlaybackSpeed;
-
-      if (!config.autoPlay) {
-        controller.pause();
-        controller.hasStarted = false;
-      } else {
-        controller.play();
-      }
-    });
   }
 }

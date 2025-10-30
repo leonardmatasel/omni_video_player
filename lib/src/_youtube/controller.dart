@@ -1,34 +1,22 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
-import 'package:omni_video_player/src/_youtube/web/player_event_handler.dart';
-import 'package:video_player/video_player.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_android/webview_flutter_android.dart';
-import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import 'package:omni_video_player/src/_youtube/player_event_handler.dart';
+import 'package:video_player/video_player.dart' show DurationRange;
 
-typedef YoutubeWebResourceError = WebResourceError;
-
-class YoutubeWebPlaybackController extends OmniPlaybackController {
-  late final YoutubeWebPlayerEventHandler _eventHandler;
-
-  late final WebViewController webViewController;
-
-  final VideoPlayerCallbacks callbacks;
-  final VideoPlayerConfiguration options;
-
-  final Completer<void> _initCompleter = Completer();
+class YoutubeMobilePlaybackController extends OmniPlaybackController {
+  late final VideoPlayerCallbacks callbacks;
+  late final VideoPlayerConfiguration options;
 
   @override
   final ValueNotifier<Widget?> sharedPlayerNotifier = ValueNotifier(null);
 
-  final String? key;
+  late final YoutubeMobilePlayerEventHandler _eventHandler;
 
   // STATES
   bool _hasError = false;
@@ -39,6 +27,7 @@ class YoutubeWebPlaybackController extends OmniPlaybackController {
   bool _isSeeking = false;
   bool _isBuffering = false;
   bool _isFullyVisible = false;
+  bool _isLoadedVideo = false;
   bool? wasPlayingBeforeGoOnFullScreen;
   double _volume = 100;
   double _previousVolume = 100;
@@ -54,10 +43,18 @@ class YoutubeWebPlaybackController extends OmniPlaybackController {
 
   bool isDisposed = false;
 
+  InAppWebViewController? _webViewController;
+  InAppWebViewController? get webViewController => _webViewController;
+
+  void setWebViewController(InAppWebViewController controller) {
+    _webViewController = controller;
+    _initJavaScriptHandlers();
+  }
+
   @override
   final Size size;
 
-  YoutubeWebPlaybackController({
+  YoutubeMobilePlaybackController({
     required Duration duration,
     required bool isLive,
     required this.size,
@@ -66,44 +63,15 @@ class YoutubeWebPlaybackController extends OmniPlaybackController {
     required String videoId,
     required GlobalPlaybackController? globalController,
     required this.globalKeyPlayer,
-    ValueChanged<YoutubeWebResourceError>? onWebResourceError,
-    this.key,
   }) {
     _duration = duration;
     _isLive = isLive;
     _videoId = videoId;
     _globalController = globalController;
-    _eventHandler = YoutubeWebPlayerEventHandler(this, options, callbacks);
-
-    late final PlatformWebViewControllerCreationParams webViewParams;
-    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
-      webViewParams = WebKitWebViewControllerCreationParams(
-        allowsInlineMediaPlayback: true,
-        mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
-      );
-    } else {
-      webViewParams = const PlatformWebViewControllerCreationParams();
-    }
-
-    webViewController =
-        WebViewController.fromPlatformCreationParams(webViewParams)
-          ..setJavaScriptMode(JavaScriptMode.unrestricted)
-          ..addJavaScriptChannel(
-            playerId,
-            onMessageReceived: _eventHandler.call,
-          )
-          ..enableZoom(false);
-
-    final webViewPlatform = webViewController.platform;
-    if (webViewPlatform is AndroidWebViewController) {
-      AndroidWebViewController.enableDebugging(false);
-      webViewPlatform.setMediaPlaybackRequiresUserGesture(false);
-    } else if (webViewPlatform is WebKitWebViewController) {
-      webViewPlatform.setAllowsBackForwardNavigationGestures(false);
-    }
+    _eventHandler = YoutubeMobilePlayerEventHandler(this, options, callbacks);
   }
 
-  factory YoutubeWebPlaybackController.fromVideoId({
+  factory YoutubeMobilePlaybackController.fromVideoId({
     required String videoId,
     required Duration duration,
     required bool isLive,
@@ -113,10 +81,8 @@ class YoutubeWebPlaybackController extends OmniPlaybackController {
     required GlobalPlaybackController? globalController,
     required GlobalKey<VideoPlayerInitializerState> globalKeyPlayer,
     bool autoPlay = false,
-    double? startSeconds,
-    double? endSeconds,
   }) {
-    final controller = YoutubeWebPlaybackController(
+    final controller = YoutubeMobilePlaybackController(
       callbacks: callbacks,
       options: options,
       duration: duration,
@@ -125,96 +91,51 @@ class YoutubeWebPlaybackController extends OmniPlaybackController {
       videoId: videoId,
       globalController: globalController,
       globalKeyPlayer: globalKeyPlayer,
-      key: videoId,
-    );
-
-    controller.loadVideoById(
-      videoId: videoId,
-      startSeconds: startSeconds,
-      endSeconds: endSeconds,
     );
 
     return controller;
   }
 
-  Future<void> loadVideoById({
-    required String videoId,
-    double? startSeconds,
-    double? endSeconds,
-  }) {
-    return run(
-      'loadVideoById',
-      data: {
-        'videoId': videoId,
-        'startSeconds': startSeconds,
-        'endSeconds': endSeconds,
-      },
+  Future<void> loadVideoById({required String videoId}) async {
+    final loadData = {
+      'videoId': videoId,
+      'startSeconds': 0,
+      'endSeconds': null,
+    };
+    await webViewController?.evaluateJavascript(
+      source: 'loadById(${jsonEncode(loadData)});',
     );
   }
 
   String get playerId => 'Youtube$hashCode';
 
-  Future<void> init() async {
-    await load(
-      baseUrl: kIsWeb ? Uri.base.origin : "https://www.youtube.com",
-      id: playerId,
+  void _initJavaScriptHandlers() {
+    webViewController?.addJavaScriptHandler(
+      handlerName: 'Ready',
+      callback: (_) async {
+        if (!_isLoadedVideo) {
+          await loadVideoById(videoId: videoId!);
+          _isLoadedVideo = true;
+          play(useGlobalController: false);
+        }
+        return _eventHandler.onReady();
+      },
     );
-
-    if (!_initCompleter.isCompleted) _initCompleter.complete();
-  }
-
-  Future<void> load({String? baseUrl, required String id}) async {
-    final platform = kIsWeb ? 'web' : defaultTargetPlatform.name.toLowerCase();
-    final Map<String, String> playerData = {
-      'playerId': id,
-      'playerVars': jsonEncode({
-        'autoplay': 0,
-        'mute': 1,
-        'cc_lang_pref': 'en',
-        'cc_load_policy': 0,
-        'color': 'white',
-        'controls': 0,
-        'disablekb':
-            kIsWeb &&
-                options.playerUIVisibilityOptions.enableForwardGesture &&
-                options.playerUIVisibilityOptions.enableBackwardGesture
-            ? 0
-            : 1,
-        'enablejsapi': 1,
-        'fs': 0,
-        'hl': 'en',
-        'iv_load_policy': 3,
-        'modestbranding': 1,
-        if (kIsWeb) ...{
-          'origin': Uri.base.origin,
-          'widget_referrer': Uri.base.origin,
-        } else ...{
-          'origin': 'https://www.youtube-nocookie.com',
-          'widget_referrer': "https://www.youtube-nocookie.com",
-        },
-        'showinfo': 0,
-        'autohide': 1,
-        'playsinline': 1,
-        'rel': 0,
-      }),
-      'platform': platform,
-      'host': 'https://www.youtube.com',
-    };
-
-    await webViewController.loadHtmlString(
-      await _buildPlayerHTML(playerData),
-      baseUrl: baseUrl,
+    webViewController?.addJavaScriptHandler(
+      handlerName: 'StateChange',
+      callback: (args) {
+        return _eventHandler.onStateChange(args.first);
+      },
     );
-  }
-
-  Future<String> _buildPlayerHTML(Map<String, String> data) async {
-    final playerHtml = await rootBundle.loadString(
-      'packages/omni_video_player/assets/youtube_player.html',
+    webViewController?.addJavaScriptHandler(
+      handlerName: 'PlayerError',
+      callback: (args) => _eventHandler.onError(args.first),
     );
-
-    return playerHtml.replaceAllMapped(
-      RegExp(r'<<([a-zA-Z]+)>>'),
-      (m) => data[m.group(1)] ?? m.group(0)!,
+    webViewController?.addJavaScriptHandler(
+      handlerName: 'VideoState',
+      callback: (args) {
+        _eventHandler.onVideoState(args.first);
+      },
     );
   }
 
@@ -222,40 +143,40 @@ class YoutubeWebPlaybackController extends OmniPlaybackController {
   @override
   Future<void> dispose() async {
     isDisposed = true;
-    await webViewController.removeJavaScriptChannel(playerId);
     super.dispose();
   }
 
   Future<void> run(String functionName, {Map<String, dynamic>? data}) async {
-    await _initCompleter.future;
-
     final varArgs = await _prepareData(data);
 
-    return webViewController.runJavaScript('player.$functionName($varArgs);');
+    if (isDisposed) return;
+    return webViewController?.evaluateJavascript(
+      source: 'player.$functionName($varArgs);',
+    );
   }
 
   Future<String> runWithResult(
     String functionName, {
     Map<String, dynamic>? data,
   }) async {
-    await _initCompleter.future;
-
     final varArgs = await _prepareData(data);
 
-    final result = await webViewController.runJavaScriptReturningResult(
-      'player.$functionName($varArgs);',
+    final result = await webViewController?.evaluateJavascript(
+      source: 'player.$functionName($varArgs);',
     );
     return result.toString();
   }
 
-  Future<void> _eval(String javascript) async {
-    await _eventHandler.isReady;
-
-    return webViewController.runJavaScript(javascript);
+  Future<void> _evaluate(String js) async {
+    if (_webViewController == null) return;
+    try {
+      await _webViewController!.evaluateJavascript(source: js);
+    } catch (e) {
+      debugPrint('Error evaluating JS: $js\n$e');
+    }
   }
 
   Future<String> _prepareData(Map<String, dynamic>? data) async {
-    await _eventHandler.isReady;
     return data == null ? '' : jsonEncode(data);
   }
 
@@ -369,7 +290,7 @@ class YoutubeWebPlaybackController extends OmniPlaybackController {
 
   @override
   Future<void> pause({bool useGlobalController = true}) async {
-    if (useGlobalController && _globalController != null) {
+    if (useGlobalController && _globalController != null && !isFullScreen) {
       return await _globalController.requestPause();
     } else {
       return run('pauseVideo');
@@ -379,7 +300,7 @@ class YoutubeWebPlaybackController extends OmniPlaybackController {
   @override
   Future<void> play({bool useGlobalController = true}) async {
     _hasStarted = true;
-    if (useGlobalController && _globalController != null) {
+    if (useGlobalController && _globalController != null && !isFullScreen) {
       return await _globalController.requestPlay(this);
     } else {
       return run('playVideo');
@@ -390,13 +311,23 @@ class YoutubeWebPlaybackController extends OmniPlaybackController {
   int get rotationCorrection => 0;
 
   @override
-  Future<void> seekTo(Duration position) async {
+  Future<void> seekTo(
+    Duration position, {
+    skipHasPlaybackStarted = false,
+  }) async {
     if (position <= duration) {
-      if (position.inSeconds != 0) {
+      wasPlayingBeforeSeek = isPlaying;
+
+      if (!skipHasPlaybackStarted) {
+        isSeeking = true;
+        pause();
+      }
+
+      if (position.inMicroseconds != 0 && !skipHasPlaybackStarted) {
         hasStarted = true;
       }
 
-      await _eval('player.seekTo(${position.inSeconds}, true)');
+      await _evaluate('player.seekTo(${position.inSeconds}, true)');
     } else {
       debugPrint('Seek position exceeds duration');
     }
@@ -410,25 +341,24 @@ class YoutubeWebPlaybackController extends OmniPlaybackController {
   }) async {
     if (_isFullScreen) {
       _isFullScreen = false;
-      wasPlayingBeforeGoOnFullScreen = null;
       notifyListeners();
       onToggle?.call(false);
       Navigator.of(context).pop();
     } else {
+      wasPlayingBeforeGoOnFullScreen = isPlaying;
       _isFullScreen = true;
       notifyListeners();
       onToggle?.call(true);
-      wasPlayingBeforeGoOnFullScreen = _isPlaying;
+
       await Navigator.push(
         context,
         PageRouteBuilder(
           pageBuilder: (_, _, _) => pageBuilder!(context),
-          transitionsBuilder: (_, animation, _, Widget child) {
+          transitionsBuilder: (_, animation, __, Widget child) {
             return FadeTransition(opacity: animation, child: child);
           },
         ),
       );
-      wasPlayingBeforeGoOnFullScreen = null;
     }
   }
 
@@ -446,7 +376,8 @@ class YoutubeWebPlaybackController extends OmniPlaybackController {
 
   @override
   set volume(double value) {
-    if (kIsWeb || Platform.isAndroid) _eval('player.setVolume(${value * 100})');
+    if (kIsWeb || Platform.isAndroid)
+      _evaluate('player.setVolume(${value * 100})');
     _volume = value;
     notifyListeners();
   }
@@ -493,7 +424,7 @@ class YoutubeWebPlaybackController extends OmniPlaybackController {
       throw ArgumentError('Playback speed must be greater than 0');
     }
     _playbackSpeed = speed;
-    _eval('player.setPlaybackRate($speed);');
+    _evaluate('player.setPlaybackRate($speed);');
     notifyListeners();
   }
 
