@@ -166,221 +166,239 @@ class _VideoOverlayControlsState extends State<VideoOverlayControls>
           controller: widget.controller,
           options: widget.options,
           callbacks: widget.callbacks,
-          builder: (context, areControlsVisible, toggleVisibility) {
-            bool areOverlayControlsVisible =
-                ((widget.controller.isPlaying || widget.controller.isSeeking) &&
-                    widget
-                        .options
-                        .playerUIVisibilityOptions
-                        .showVideoBottomControlsBar &&
-                    areControlsVisible &&
-                    _tapState != _TapInteractionState.doubleTapForward &&
-                    _tapState != _TapInteractionState.doubleTapBackward) ||
-                (widget
-                    .options
-                    .playerUIVisibilityOptions
-                    .alwaysShowBottomControlsBar) ||
-                (widget
-                        .options
-                        .playerUIVisibilityOptions
-                        .showBottomControlsBarOnPause &&
-                    !widget.controller.isPlaying) ||
-                (widget.controller.isFullScreen &&
-                    widget.controller.isFinished &&
-                    widget
-                        .options
-                        .playerUIVisibilityOptions
-                        .showBottomControlsBarOnEndedFullscreen);
-
-            bool isVisibleButton =
-                widget.controller.isFinished ||
-                (areControlsVisible &&
-                    !widget.controller.isBuffering &&
-                    !widget.controller.isSeeking &&
-                    widget.controller.isReady &&
-                    !(widget.controller.isFinished &&
-                        !widget
+          builder:
+              (
+                context,
+                areControlsVisible,
+                toggleVisibility,
+                pauseAutoHide,
+                resumeAutoHide,
+              ) {
+                bool areOverlayControlsVisible =
+                    ((widget.controller.isPlaying ||
+                            widget.controller.isSeeking) &&
+                        widget
                             .options
                             .playerUIVisibilityOptions
-                            .showReplayButton) &&
-                    _tapState != _TapInteractionState.doubleTapForward &&
-                    _tapState != _TapInteractionState.doubleTapBackward);
-
-            widget.callbacks.onCenterControlsVisibilityChanged?.call(
-              isVisibleButton,
-            );
-            widget.callbacks.onOverlayControlsVisibilityChanged?.call(
-              areOverlayControlsVisible,
-            );
-
-            List<Widget> layers = [
-              widget.child,
-
-              // Transparent layer to ensure tap detection on web (e.g., InAppWebView).
-              Container(
-                color: Colors.transparent,
-                width: double.infinity,
-                height: double.infinity,
-              ),
-
-              // Tap area for double tap (left = backward, right = forward).
-              Positioned.fill(
-                child: ExcludeSemantics(
-                  child: KeyboardListener(
-                    focusNode: _focusKeyboard,
-                    autofocus: true,
-                    onKeyEvent: (KeyEvent event) {
-                      if (event is KeyDownEvent) {
-                        if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-                          // Skip forward
-                          handleDoubleTap(SkipDirection.forward);
-                        } else if (event.logicalKey ==
-                            LogicalKeyboardKey.arrowLeft) {
-                          // Skip backward
-                          handleDoubleTap(SkipDirection.backward);
-                        }
-                      }
-                    },
-                    child: Row(
-                      children: [
-                        // Left side double-tap to rewind.
-                        Expanded(
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.translucent,
-                            onDoubleTap: () {
-                              handleDoubleTap(SkipDirection.backward);
-                            },
-                            child: const SizedBox.expand(),
-                          ),
-                        ),
-
-                        // Right side double-tap to fast-forward.
-                        Expanded(
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.translucent,
-                            onDoubleTap: () {
-                              handleDoubleTap(SkipDirection.forward);
-                            },
-                            child: const SizedBox.expand(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              // Skip indicator shown in the center with fade out animation.
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 500),
-                child:
-                    _skipDirection != null &&
-                        (_tapState == _TapInteractionState.doubleTapForward ||
-                            _tapState == _TapInteractionState.doubleTapBackward)
-                    ? AnimatedSkipIndicator(
-                        skipDirection: _skipDirection!,
-                        skipSeconds: _skipSeconds,
-                      )
-                    : const SizedBox.shrink(),
-              ),
-
-              // Gradient bottom bar with playback controls.
-              GradientBottomControlBar(
-                isVisible:
-                    (areOverlayControlsVisible && !kIsWeb) ||
-                    (kIsWeb && widget.controller.isPlaying),
-                padding: widget.playerBarPadding,
-                useSafeAreaForBottomControls: widget
-                    .options
-                    .playerUIVisibilityOptions
-                    .useSafeAreaForBottomControls,
-                showGradientBottomControl: widget
-                    .options
-                    .playerUIVisibilityOptions
-                    .showGradientBottomControl,
-                child:
-                    widget.options.customPlayerWidgets.bottomControlsBar ??
-                    VideoPlaybackControlBar(
-                      controller: widget.controller,
-                      options: widget.options,
-                      callbacks: widget.callbacks,
-                    ),
-              ),
-
-              if (widget.controller.isSeeking) LoaderIndicator(),
-              // Central play/pause button with auto-hide logic.
-              AutoHidePlayPauseButton(
-                isVisible: isVisibleButton,
-                controller: widget.controller,
-                options: widget.options,
-                callbacks: widget.callbacks,
-              ),
-            ];
-
-            for (final customOverlay
-                in widget.options.customPlayerWidgets.customOverlayLayers) {
-              if (customOverlay.ignoreOverlayControlsVisibility ||
-                  areOverlayControlsVisible) {
-                final size = widget.controller.size;
-
-                final aspectRatio =
-                    widget
+                            .showVideoBottomControlsBar &&
+                        areControlsVisible &&
+                        _tapState != _TapInteractionState.doubleTapForward &&
+                        _tapState != _TapInteractionState.doubleTapBackward) ||
+                    (widget
                         .options
                         .playerUIVisibilityOptions
-                        .customAspectRatioNormal ??
-                    size.width / size.height;
+                        .alwaysShowBottomControlsBar) ||
+                    (widget
+                            .options
+                            .playerUIVisibilityOptions
+                            .showBottomControlsBarOnPause &&
+                        !widget.controller.isPlaying) ||
+                    (widget.controller.isFullScreen &&
+                        widget.controller.isFinished &&
+                        widget
+                            .options
+                            .playerUIVisibilityOptions
+                            .showBottomControlsBarOnEndedFullscreen);
 
-                layers.insert(
-                  customOverlay.level,
-                  Center(
-                    child: AspectRatio(
-                      aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
-                      child: customOverlay.widget,
+                bool isVisibleButton =
+                    widget.controller.isFinished ||
+                    (areControlsVisible &&
+                        !widget.controller.isBuffering &&
+                        !widget.controller.isSeeking &&
+                        widget.controller.isReady &&
+                        !(widget.controller.isFinished &&
+                            !widget
+                                .options
+                                .playerUIVisibilityOptions
+                                .showReplayButton) &&
+                        _tapState != _TapInteractionState.doubleTapForward &&
+                        _tapState != _TapInteractionState.doubleTapBackward);
+
+                widget.callbacks.onCenterControlsVisibilityChanged?.call(
+                  isVisibleButton,
+                );
+                widget.callbacks.onOverlayControlsVisibilityChanged?.call(
+                  areOverlayControlsVisible,
+                );
+
+                List<Widget> layers = [
+                  widget.child,
+
+                  // Transparent layer to ensure tap detection on web (e.g., InAppWebView).
+                  Container(
+                    color: Colors.transparent,
+                    width: double.infinity,
+                    height: double.infinity,
+                  ),
+
+                  // Tap area for double tap (left = backward, right = forward).
+                  Positioned.fill(
+                    child: ExcludeSemantics(
+                      child: KeyboardListener(
+                        focusNode: _focusKeyboard,
+                        autofocus: true,
+                        onKeyEvent: (KeyEvent event) {
+                          if (event is KeyDownEvent) {
+                            if (event.logicalKey ==
+                                LogicalKeyboardKey.arrowRight) {
+                              // Skip forward
+                              handleDoubleTap(SkipDirection.forward);
+                            } else if (event.logicalKey ==
+                                LogicalKeyboardKey.arrowLeft) {
+                              // Skip backward
+                              handleDoubleTap(SkipDirection.backward);
+                            }
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            // Left side double-tap to rewind.
+                            Expanded(
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.translucent,
+                                onDoubleTap: () {
+                                  handleDoubleTap(SkipDirection.backward);
+                                },
+                                child: const SizedBox.expand(),
+                              ),
+                            ),
+
+                            // Right side double-tap to fast-forward.
+                            Expanded(
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.translucent,
+                                onDoubleTap: () {
+                                  handleDoubleTap(SkipDirection.forward);
+                                },
+                                child: const SizedBox.expand(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
+                  ),
+
+                  // Skip indicator shown in the center with fade out animation.
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 500),
+                    child:
+                        _skipDirection != null &&
+                            (_tapState ==
+                                    _TapInteractionState.doubleTapForward ||
+                                _tapState ==
+                                    _TapInteractionState.doubleTapBackward)
+                        ? AnimatedSkipIndicator(
+                            skipDirection: _skipDirection!,
+                            skipSeconds: _skipSeconds,
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+
+                  // Gradient bottom bar with playback controls.
+                  GradientBottomControlBar(
+                    isVisible:
+                        (areOverlayControlsVisible && !kIsWeb) ||
+                        (kIsWeb && widget.controller.isPlaying),
+                    padding: widget.playerBarPadding,
+                    useSafeAreaForBottomControls: widget
+                        .options
+                        .playerUIVisibilityOptions
+                        .useSafeAreaForBottomControls,
+                    showGradientBottomControl: widget
+                        .options
+                        .playerUIVisibilityOptions
+                        .showGradientBottomControl,
+                    child:
+                        widget.options.customPlayerWidgets.bottomControlsBar ??
+                        VideoPlaybackControlBar(
+                          controller: widget.controller,
+                          options: widget.options,
+                          callbacks: widget.callbacks,
+                          pauseAutoHide: pauseAutoHide,
+                          resumeAutoHide: resumeAutoHide,
+                        ),
+                  ),
+
+                  if (widget.controller.isSeeking) LoaderIndicator(),
+                  // Central play/pause button with auto-hide logic.
+                  AutoHidePlayPauseButton(
+                    isVisible: isVisibleButton,
+                    controller: widget.controller,
+                    options: widget.options,
+                    callbacks: widget.callbacks,
+                  ),
+                ];
+
+                for (final customOverlay
+                    in widget.options.customPlayerWidgets.customOverlayLayers) {
+                  if (customOverlay.ignoreOverlayControlsVisibility ||
+                      areOverlayControlsVisible) {
+                    final size = widget.controller.size;
+
+                    final aspectRatio =
+                        widget
+                            .options
+                            .playerUIVisibilityOptions
+                            .customAspectRatioNormal ??
+                        size.width / size.height;
+
+                    layers.insert(
+                      customOverlay.level,
+                      Center(
+                        child: AspectRatio(
+                          aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
+                          child: customOverlay.widget,
+                        ),
+                      ),
+                    );
+                  }
+                }
+
+                return Semantics(
+                  label: OmniVideoPlayerTheme.of(
+                    context,
+                  )!.accessibility.controlsVisibleLabel,
+                  toggled: isVisibleButton,
+                  container: true,
+                  explicitChildNodes: false,
+                  child: GestureDetector(
+                    // Toggle visibility on tap. When controls are shown the manager
+                    // will start the persistence timer internally; we no longer
+                    // expose or call an external onInteraction here.
+                    onTap: () {
+                      setState(
+                        () => _tapState = _TapInteractionState.singleTap,
+                      );
+                      toggleVisibility();
+                    },
+                    onDoubleTap: () {
+                      setState(() => _tapState = _TapInteractionState.idle);
+                      toggleVisibility();
+                    },
+                    onVerticalDragUpdate:
+                        widget
+                                .options
+                                .playerUIVisibilityOptions
+                                .enableExitFullscreenOnVerticalSwipe &&
+                            widget.controller.isFullScreen
+                        ? (details) {
+                            // Exit fullscreen if the user drags downwards significantly.
+                            if (details.primaryDelta != null &&
+                                details.primaryDelta!.abs() > 10) {
+                              widget.controller.switchFullScreenMode(
+                                context,
+                                pageBuilder: null,
+                                onToggle: widget.callbacks.onFullScreenToggled,
+                              );
+                            }
+                          }
+                        : null,
+                    behavior: HitTestBehavior.opaque,
+                    child: Stack(children: layers),
                   ),
                 );
-              }
-            }
-
-            return Semantics(
-              label: OmniVideoPlayerTheme.of(
-                context,
-              )!.accessibility.controlsVisibleLabel,
-              toggled: isVisibleButton,
-              container: true,
-              explicitChildNodes: false,
-              child: GestureDetector(
-                onTap: () {
-                  setState(() => _tapState = _TapInteractionState.singleTap);
-                  toggleVisibility();
-                },
-                onDoubleTap: () {
-                  setState(() => _tapState = _TapInteractionState.idle);
-                  toggleVisibility();
-                },
-                onVerticalDragUpdate:
-                    widget
-                            .options
-                            .playerUIVisibilityOptions
-                            .enableExitFullscreenOnVerticalSwipe &&
-                        widget.controller.isFullScreen
-                    ? (details) {
-                        // Exit fullscreen if the user drags downwards significantly.
-                        if (details.primaryDelta != null &&
-                            details.primaryDelta!.abs() > 10) {
-                          widget.controller.switchFullScreenMode(
-                            context,
-                            pageBuilder: null,
-                            onToggle: widget.callbacks.onFullScreenToggled,
-                          );
-                        }
-                      }
-                    : null,
-                behavior: HitTestBehavior.opaque,
-                child: Stack(children: layers),
-              ),
-            );
-          },
+              },
         );
       },
     );

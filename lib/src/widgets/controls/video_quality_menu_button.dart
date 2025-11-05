@@ -16,7 +16,11 @@ class VideoQualityMenuButton extends StatelessWidget {
     required this.qualityList,
     required this.currentQuality,
     required this.onQualitySelected,
+    this.onOverlayToggled,
   });
+
+  /// Optional callback invoked when the overlay opens (true) or closes (false).
+  final void Function(bool isOpen)? onOverlayToggled;
 
   Widget _buildMenu(
     OmniVideoPlayerThemeData theme,
@@ -107,6 +111,7 @@ class VideoQualityMenuButton extends StatelessWidget {
     final theme = OmniVideoPlayerTheme.of(context)!;
 
     return OverlayButtonWrapper(
+      onOverlayToggled: onOverlayToggled,
       childBuilder: (toggleOverlay, expanded) => VideoControlIconButton(
         semanticLabel: theme.accessibility.qualityButtonLabel,
         expanded: expanded,

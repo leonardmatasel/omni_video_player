@@ -139,7 +139,7 @@ class _VideoScreenState extends State<VideoScreen> {
                   enableBackwardGesture: true,
                   enableExitFullscreenOnVerticalSwipe: true,
                   enableOrientationLock: true,
-                  controlsPersistenceDuration: const Duration(seconds: 3),
+                  controlsPersistenceDuration: const Duration(seconds: 5),
                   customAspectRatioNormal: null,
                   customAspectRatioFullScreen: null,
                   fullscreenOrientation: null,

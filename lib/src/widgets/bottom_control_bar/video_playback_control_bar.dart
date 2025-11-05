@@ -23,6 +23,8 @@ class VideoPlaybackControlBar extends StatelessWidget {
     required this.controller,
     required this.options,
     required this.callbacks,
+    this.pauseAutoHide,
+    this.resumeAutoHide,
   });
 
   /// Controls the video playback (e.g., play, pause, seek, mute).
@@ -33,6 +35,10 @@ class VideoPlaybackControlBar extends StatelessWidget {
 
   /// Callbacks to handle user interactions like mute and fullscreen toggle.
   final VideoPlayerCallbacks callbacks;
+
+  /// Optional callbacks to pause/resume the auto-hide manager while overlays are open.
+  final VoidCallback? pauseAutoHide;
+  final VoidCallback? resumeAutoHide;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +84,13 @@ class VideoPlaybackControlBar extends StatelessWidget {
               }
               controller.playbackSpeed = speed;
             },
+            onOverlayToggled: (isOpen) {
+              if (isOpen) {
+                pauseAutoHide?.call();
+              } else {
+                resumeAutoHide?.call();
+              }
+            },
           ),
         ...options.customPlayerWidgets.trailingBottomButtons,
 
@@ -101,6 +114,13 @@ class VideoPlaybackControlBar extends StatelessWidget {
                 return;
               }
               controller.switchQuality(quality);
+            },
+            onOverlayToggled: (isOpen) {
+              if (isOpen) {
+                pauseAutoHide?.call();
+              } else {
+                resumeAutoHide?.call();
+              }
             },
           ),
         if (options.playerUIVisibilityOptions.showFullScreenButton)

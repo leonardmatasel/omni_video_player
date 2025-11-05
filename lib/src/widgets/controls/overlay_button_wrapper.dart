@@ -8,6 +8,7 @@ class OverlayButtonWrapper extends StatefulWidget {
     required this.overlayBuilder,
     this.targetAnchor = Alignment.topCenter,
     this.followerAnchor = Alignment.bottomCenter,
+    this.onOverlayToggled,
   });
 
   /// Builder del pulsante: riceve toggleOverlay
@@ -20,6 +21,9 @@ class OverlayButtonWrapper extends StatefulWidget {
 
   final Alignment followerAnchor;
 
+  /// Optional callback invoked when the overlay opens (true) or closes (false).
+  final void Function(bool isOpen)? onOverlayToggled;
+
   @override
   State<OverlayButtonWrapper> createState() => _OverlayButtonWrapperState();
 }
@@ -31,6 +35,7 @@ class _OverlayButtonWrapperState extends State<OverlayButtonWrapper> {
     _overlayEntry?.remove();
     _overlayEntry = null;
     setState(() {});
+    widget.onOverlayToggled?.call(false);
   }
 
   void _toggleOverlay() {
@@ -69,6 +74,7 @@ class _OverlayButtonWrapperState extends State<OverlayButtonWrapper> {
 
     Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
     setState(() {});
+    widget.onOverlayToggled?.call(true);
   }
 
   @override

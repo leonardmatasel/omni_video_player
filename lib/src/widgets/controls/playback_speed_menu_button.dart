@@ -15,7 +15,11 @@ class PlaybackSpeedMenuButton extends StatelessWidget {
     required this.speedList,
     required this.currentSpeed,
     required this.onSpeedSelected,
+    this.onOverlayToggled,
   });
+
+  /// Optional callback invoked when the overlay opens (true) or closes (false).
+  final void Function(bool isOpen)? onOverlayToggled;
 
   Widget _buildMenu(
     OmniVideoPlayerThemeData theme,
@@ -78,6 +82,7 @@ class PlaybackSpeedMenuButton extends StatelessWidget {
     final theme = OmniVideoPlayerTheme.of(context)!;
 
     return OverlayButtonWrapper(
+      onOverlayToggled: onOverlayToggled,
       childBuilder: (toggleOverlay, expanded) => VideoControlIconButton(
         semanticLabel: theme.accessibility.playbackSpeedButtonLabel,
         expanded: expanded,

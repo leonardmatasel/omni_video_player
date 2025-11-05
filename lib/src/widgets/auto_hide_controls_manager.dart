@@ -43,10 +43,14 @@ class AutoHideControlsManager extends StatefulWidget {
   /// Provides:
   /// - [areVisible]: whether the controls are currently visible.
   /// - [toggleVisibilityTap]: callback to toggle visibility on user tap.
+  /// - [pauseAutoHide]: pause auto-hide while modal overlays are open.
+  /// - [resumeAutoHide]: resume auto-hide when modal overlays close.
   final Widget Function(
     BuildContext context,
     bool areVisible,
     VoidCallback toggleVisibilityTap,
+    VoidCallback pauseAutoHide,
+    VoidCallback resumeAutoHide,
   )
   builder;
 
@@ -78,6 +82,7 @@ class _AutoHideControlsManagerState extends State<AutoHideControlsManager>
   bool isPlaying = false;
 
   late AnimationController _persistenceTimer;
+  bool _paused = false;
 
   @override
   void initState() {
@@ -175,6 +180,38 @@ class _AutoHideControlsManagerState extends State<AutoHideControlsManager>
     _persistenceTimer.stop();
   }
 
+  // Called when user interacts with the controls area (touch, tap, move).
+  // Shows controls and restarts the persistence timer so sub-menus/dialogs
+  // remain visible for the full configured duration after interaction.
+  void _onInteraction([PointerEvent? _]) {
+    if (_paused) return;
+    // Ensure controls are visible on interaction
+    _setIsShowing(true);
+    // Restart persistence timer if playing
+    if (isPlaying) {
+      // stop any running animation and restart from 0
+      _persistenceTimer.stop();
+      _startPersistenceTimer();
+    }
+  }
+
+  /// Pause auto-hide behavior. While paused, interactions won't restart the timer
+  /// and the manager will not hide controls automatically.
+  void pauseAutoHide() {
+    _paused = true;
+    _persistenceTimer.stop();
+  }
+
+  /// Resume auto-hide behavior and restart the persistence timer when appropriate.
+  void resumeAutoHide() {
+    if (!_paused) return;
+    _paused = false;
+    if (isPlaying && isShowing) {
+      _persistenceTimer.stop();
+      _startPersistenceTimer();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return RouteAwareListener(
@@ -183,13 +220,19 @@ class _AutoHideControlsManagerState extends State<AutoHideControlsManager>
         if (isPlaying) _startPersistenceTimer();
       },
       child: Listener(
+        onPointerMove: _onInteraction,
         onPointerHover: (event) {
           if (kIsWeb) {
-            _setIsShowing(true);
-            if (isPlaying) _startPersistenceTimer();
+            _onInteraction(event);
           }
         },
-        child: widget.builder(context, isShowing, _toggleIsShowing),
+        child: widget.builder(
+          context,
+          isShowing,
+          _toggleIsShowing,
+          pauseAutoHide,
+          resumeAutoHide,
+        ),
       ),
     );
   }
