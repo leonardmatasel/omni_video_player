@@ -46,18 +46,22 @@ class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
   @override
   void dispose() {
     _exitFullscreenMode();
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
 
   /// Hides system UI overlays (status bar, navigation bar)
   /// to provide an immersive viewing experience.
   void _enterFullscreenMode() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
   /// Restores the normal system UI mode.
   void _exitFullscreenMode() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: SystemUiOverlay.values,
+    );
   }
 
   /// Computes the video aspect ratio considering rotation or user override.

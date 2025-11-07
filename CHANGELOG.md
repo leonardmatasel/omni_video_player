@@ -1,3 +1,11 @@
+# 3.3.2
+
+🛠 **Fix**
+
+* Fixed **orientation and fullscreen exit issues** on Android and iOS.
+
+  * App no longer remains stuck in **landscape mode** after closing fullscreen.
+  * See issue: [#9](https://github.com/leonardmatasel/omni_video_player/issues/9)
 
 # 3.3.1
 
