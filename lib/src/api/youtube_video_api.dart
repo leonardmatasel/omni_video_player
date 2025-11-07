@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -118,7 +117,7 @@ class YouTubeService {
           .toList();
 
       // bug of video_player iOS reference: https://github.com/flutter/flutter/issues/126760
-      if (videoStreams.isEmpty || !Platform.isIOS) {
+      if (videoStreams.isEmpty) {
         videoStreams = manifest.streams.whereType<VideoStreamInfo>().where((
           VideoStreamInfo it,
         ) {

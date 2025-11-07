@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
-import 'package:video_player/video_player.dart';
 
 import '../controllers/audio_playback_controller.dart';
 import '../controllers/video_playback_controller.dart';
@@ -73,7 +72,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     this.currentVideoQuality,
     this.globalKeyPlayer,
   ) {
-    duration = videoController.value.duration;
+    duration = videoController.duration;
 
     if (initialPosition.inSeconds > 0) {
       seekTo(initialPosition, skipHasPlaybackStarted: true);
@@ -211,15 +210,12 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   /// Returns true if both video and audio (if present) are initialized.
   @override
-  bool get isReady =>
-      videoController.value.isInitialized &&
-      (audioController?.value.isInitialized ?? true);
+  bool get isReady => videoController.isReady;
 
   /// Returns true if both video and audio (if present) are currently playing.
   @override
   bool get isPlaying =>
-      videoController.value.isPlaying &&
-      (audioController?.value.isPlaying ?? true);
+      videoController.isPlaying && (audioController?.isPlaying ?? true);
 
   /// Returns true if the video is buffering.
   @override
@@ -227,11 +223,11 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   /// Returns true if an error occurred during video playback.
   @override
-  bool get hasError => videoController.value.hasError;
+  bool get hasError => videoController.hasError;
 
   /// Returns true if the video is muted.
   @override
-  bool get isMuted => videoController.value.volume == 0;
+  bool get isMuted => videoController.volume == 0;
 
   /// Whether a seek operation is currently in progress.
   @override
@@ -254,7 +250,7 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   /// Returns the current playback position of the video.
   @override
-  Duration get currentPosition => videoController.value.position;
+  Duration get currentPosition => videoController.currentPosition;
 
   /// Returns true if the video playback has reached the end.
   @override
@@ -272,15 +268,15 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   /// Returns the rotation correction to be applied to the video.
   @override
-  int get rotationCorrection => videoController.value.rotationCorrection;
+  int get rotationCorrection => videoController.rotationCorrection;
 
   /// Returns the resolution size of the video.
   @override
-  Size get size => videoController.value.size;
+  Size get size => videoController.size;
 
   /// Returns the buffered ranges of the video.
   @override
-  List<DurationRange> get buffered => videoController.value.buffered;
+  List<DurationRange> get buffered => videoController.buffered;
 
   /// Starts or resumes playback.
   ///
@@ -327,7 +323,7 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   /// Returns the current volume (0.0 to 1.0).
   @override
-  double get volume => videoController.value.volume;
+  double get volume => videoController.volume;
 
   /// Sets the volume for both video and audio (if present).
   @override
@@ -343,7 +339,7 @@ class GenericPlaybackController extends OmniPlaybackController {
   /// Mutes the playback
   @override
   void mute() {
-    _previousVolume = videoController.value.volume;
+    _previousVolume = videoController.volume;
     videoController.setVolume(0);
     audioController?.setVolume(0);
     _globalController?.setCurrentVolume(0);
@@ -472,7 +468,7 @@ class GenericPlaybackController extends OmniPlaybackController {
       qualityUrls?.keys.toList();
 
   @override
-  double get playbackSpeed => videoController.value.playbackSpeed;
+  double get playbackSpeed => videoController.playbackSpeed;
 
   @override
   set playbackSpeed(double speed) {

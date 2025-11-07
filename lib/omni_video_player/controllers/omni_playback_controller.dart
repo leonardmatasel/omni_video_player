@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
-import 'package:video_player/video_player.dart';
 
 /// An abstract interface for controlling video playback across multiple source types.
 ///
@@ -112,8 +111,8 @@ abstract class OmniPlaybackController with ChangeNotifier {
   /// The intrinsic size (width and height) of the video.
   Size get size;
 
-  /// A list of buffered video ranges.
-  List<DurationRange> get buffered;
+  /// A buffered video duration.
+  Duration get buffered;
 
   // ──────────────── Setters ────────────────
 

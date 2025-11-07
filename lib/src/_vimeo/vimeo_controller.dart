@@ -11,7 +11,6 @@ import 'package:omni_video_player/omni_video_player/models/video_player_callback
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_configuration.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
-import 'package:video_player/video_player.dart';
 
 class VimeoController extends OmniPlaybackController {
   @override
@@ -200,7 +199,7 @@ class VimeoController extends OmniPlaybackController {
   int get rotationCorrection => 0;
 
   @override
-  List<DurationRange> get buffered => [];
+  Duration get buffered => Duration.zero;
 
   @override
   Future<void> play({bool useGlobalController = true}) async {

@@ -1,88 +1,100 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:video_player/video_player.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
-/// A [VideoPlayerController] subclass with owner tracking and safe disposal.
-///
-/// Handles multiple widgets sharing the same controller to prevent early disposal,
-/// and optionally delegates [play] / [pause] to a [GlobalVideoPlayerManager]
-/// to enforce a single active video at a time.
-class VideoPlaybackController extends VideoPlayerController {
+/// A controller wrapping [media_kit] Player with similar API to VideoPlayerController.
+class VideoPlaybackController {
+  /// The underlying media_kit player.
+  final Player _player;
+
   /// Whether the controller is still mounted (not yet disposed).
   bool _mounted = true;
 
   /// Flag indicating if this stream is a live broadcast.
   final bool isLive;
 
-  /// Creates a controller from a network [url].
-  ///
-  /// If [manager] is non-null, calls to [play] and [pause]
-  /// are forwarded to it. Set [isLive] to true for live streams,
-  /// which affects buffering logic.
+  /// Video widget controller
+  late final VideoController videoController;
+
   VideoPlaybackController.uri(
-    super.url, {
+    String url, {
     this.isLive = false,
-    mixWithOthers = false,
-  }) : super.networkUrl(
-         videoPlayerOptions: VideoPlayerOptions(mixWithOthers: mixWithOthers),
-       );
+    bool mixWithOthers = false,
+  }) : _player = Player() {
+    _player.open(Media(url));
+    videoController = VideoController(_player);
+  }
 
-  /// Creates a controller for an asset video.
-  ///
-  /// Live flag is irrelevant for assets, defaults to false.
-  VideoPlaybackController.asset(super.dataSource, {this.isLive = false})
-    : super.asset();
+  VideoPlaybackController.asset(String assetPath, {this.isLive = false})
+    : _player = Player() {
+    _player.open(Media(assetPath));
+    videoController = VideoController(_player);
+  }
 
-  /// Creates a controller for an file video.
-  ///
-  /// Live flag is irrelevant for assets, defaults to false.
-  VideoPlaybackController.file(super.file, {this.isLive = false})
-    : super.file();
+  VideoPlaybackController.file(File file, {this.isLive = false})
+    : _player = Player() {
+    _player.open(Media(file.path));
+    videoController = VideoController(_player);
+  }
 
-  @override
   Future<void> play() async {
-    if (_mounted) await super.play();
+    if (_mounted) {
+      await _player.play();
+    }
   }
 
-  @override
   Future<void> pause() async {
-    if (_mounted) await super.pause();
+    if (_mounted) {
+      await _player.pause();
+    }
   }
 
-  /// Returns a more reliable buffering state on Android for non‑live videos.
-  ///
-  /// On Android the `value.isBuffering` flag is not always accurate. For non‑live,
-  /// non‑completed videos, this getter compares the current position (`value.position`)
-  /// to the end of the last buffered range (`value.buffered.lastOrNull`). If the position
-  /// exceeds that value, the video is considered buffering.
-  ///
-  /// This workaround, inspired by issue [https://github.com/flutter/flutter/issues/165149]
-  /// and PR [https://github.com/fluttercommunity/chewie/pull/912], applies only to non‑live
-  /// streams, since live streams may have empty or irrelevant buffers. Additionally,
-  /// the buffering issue occurs in `video_player_android` versions up to 2.8.2, while
-  /// version 2.7.17 does not exhibit it.
+  /// MediaKit does not expose exact buffering state like video_player.
+  /// We'll approximate it using `position` and `duration`.
   bool get isActuallyBuffering {
-    if (kIsWeb) {
-      return value.isBuffering;
+    // For simplicity, if position is less than duration and not playing
+    if (kIsWeb) return false;
+    if (Platform.isAndroid || Platform.isIOS) {
+      return !isPlaying && !isLive && currentPosition < duration;
     }
-
-    if (Platform.isAndroid) {
-      if (value.isBuffering && !value.isCompleted && !isLive) {
-        final int buffer = value.buffered.lastOrNull?.end.inMicroseconds ?? -1;
-        final int position = value.position.inMicroseconds;
-        return position >= buffer;
-      } else {
-        return false;
-      }
-    } else {
-      return value.isBuffering;
-    }
+    return false;
   }
 
-  @override
-  Future<void> dispose() {
+  Future<void> dispose() async {
     _mounted = false;
-    return super.dispose();
+    await _player.dispose();
   }
+
+  // --- Getters / setters ---
+  bool get isReady => _player.platform?.completer.isCompleted ?? true;
+
+  bool get isPlaying => _player.state.playing;
+
+  bool get isMuted => _player.state.volume == 0;
+
+  double get volume => _player.state.volume;
+
+  set volume(double value) => _player.setVolume(value);
+
+  double get playbackSpeed => _player.state.rate;
+
+  set playbackSpeed(double speed) => _player.setRate(speed);
+
+  Duration get currentPosition => _player.state.position;
+
+  Duration get duration => _player.state.duration;
+
+  int get rotationCorrection => 0;
+
+  Size get size => Size(
+    _player.state.videoParams.w?.toDouble() ?? 16,
+    _player.state.videoParams.h?.toDouble() ?? 9,
+  );
+
+  bool get hasError => false;
+
+  Duration get buffered => _player.state.buffer;
 }

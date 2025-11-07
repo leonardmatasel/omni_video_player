@@ -120,16 +120,7 @@ class VideoSeekBar extends StatelessWidget {
       );
 
   /// Returns the end of the buffered range closest to the current position.
-  Duration? _findClosestBufferedEnd() {
-    if (controller.buffered.isEmpty) return null;
-    return controller.buffered
-        .reduce(
-          (a, b) => _timeDifference(a.start) < _timeDifference(b.start) ? a : b,
-        )
-        .end;
+  Duration _findClosestBufferedEnd() {
+    return controller.buffered;
   }
-
-  /// Calculates the absolute difference from the current position.
-  int _timeDifference(Duration start) =>
-      (start.inMilliseconds - controller.currentPosition.inMilliseconds).abs();
 }

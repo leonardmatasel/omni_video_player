@@ -7,7 +7,6 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/src/_youtube/youtube_webview_event_handler.dart';
-import 'package:video_player/video_player.dart' show DurationRange;
 
 class YouTubeWebViewController extends OmniPlaybackController {
   late final VideoPlayerCallbacks callbacks;
@@ -231,7 +230,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
   bool wasPlayingBeforeSeek = false;
 
   @override
-  List<DurationRange> get buffered => [];
+  Duration get buffered => Duration.zero;
 
   @override
   Duration get currentPosition => _currentPosition;

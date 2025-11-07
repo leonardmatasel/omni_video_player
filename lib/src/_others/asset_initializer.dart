@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/src/_others/generic_playback_controller.dart';
 import 'package:omni_video_player/src/_core/utils/omni_video_player_initializer_factory.dart';
-import 'package:video_player/video_player.dart' show VideoPlayer;
 
 class AssetInitializer implements IOmniVideoPlayerInitializerStrategy {
   final VideoPlayerConfiguration options;
@@ -37,9 +37,10 @@ class AssetInitializer implements IOmniVideoPlayerInitializerStrategy {
 
     controller.sharedPlayerNotifier.value = Hero(
       tag: options.globalKeyPlayer,
-      child: VideoPlayer(
+      child: Video(
         key: options.globalKeyPlayer,
-        controller.videoController,
+        controller: controller.videoController.videoController,
+        fit: BoxFit.contain,
       ),
     );
 

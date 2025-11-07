@@ -5,8 +5,8 @@ import 'package:omni_video_player/src/_core/utils/omni_video_player_initializer_
 import 'package:omni_video_player/src/_others/generic_playback_controller.dart';
 import 'package:omni_video_player/src/_youtube/_utils/youtube_webview_initializer.dart';
 import 'package:omni_video_player/src/api/youtube_video_api.dart';
-import 'package:video_player/video_player.dart';
-import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart' hide Video;
+import 'package:media_kit_video/media_kit_video.dart';
 
 /// Handles initialization of YouTube videos using the YouTube Explode API.
 /// Falls back to an InAppWebView-based player if needed.
@@ -120,7 +120,7 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
   void _maybeFixDuration(GenericPlaybackController controller, String url) {
     final duration = _extractDurationFromUrl(url);
     if (duration != null &&
-        duration != controller.videoController.value.duration.inSeconds) {
+        duration != controller.videoController.duration.inSeconds) {
       controller.duration = Duration(seconds: duration.toInt());
     }
   }
@@ -133,9 +133,10 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
   void _registerSharedPlayer(GenericPlaybackController controller) {
     controller.sharedPlayerNotifier.value = Hero(
       tag: config.globalKeyPlayer,
-      child: VideoPlayer(
+      child: Video(
         key: config.globalKeyPlayer,
-        controller.videoController,
+        controller: controller.videoController.videoController,
+        fit: BoxFit.contain,
       ),
     );
   }
