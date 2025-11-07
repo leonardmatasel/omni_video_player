@@ -50,7 +50,7 @@ class _AnimatedBlurredCircleBackgroundState
       builder: (context, constraints) {
         return AnimatedBuilder(
           animation: _controller,
-          builder: (_, __) {
+          builder: (_, _) {
             final center = Offset(
               constraints.maxWidth * _xOffset.value,
               constraints.maxHeight * _yOffset.value,

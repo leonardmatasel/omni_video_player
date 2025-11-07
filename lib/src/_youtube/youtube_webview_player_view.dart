@@ -79,8 +79,8 @@ class _YouTubeWebViewPlayerViewState extends State<YouTubeWebViewPlayerView> {
       onWebViewCreated: (webViewController) {
         widget.controller.setWebViewController(webViewController);
       },
-      onLoadStart: (_, __) => widget.controller.isReady = false,
-      onLoadStop: (_, __) => widget.controller.isReady = false,
+      onLoadStart: (_, _) => widget.controller.isReady = false,
+      onLoadStop: (_, _) => widget.controller.isReady = false,
       onProgressChanged: (_, progress) =>
           widget.controller.isBuffering = progress != 100,
     );

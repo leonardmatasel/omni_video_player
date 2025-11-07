@@ -1,8 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/player_ui_visibility_options.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
@@ -83,8 +81,9 @@ class _OmniVideoPlayerControlsOverlayState
     if ((isBackward && !opts.enableBackwardGesture) ||
         (!isBackward && !opts.enableForwardGesture) ||
         ctrl.isFinished ||
-        !ctrl.hasStarted)
+        !ctrl.hasStarted) {
       return;
+    }
 
     int nextSkip = _calculateNextSkip(direction);
 
