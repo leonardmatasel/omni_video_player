@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
-import 'package:omni_video_player/src/widgets/fade_visibility.dart';
+import 'package:omni_video_player/src/utils/animated_fade_visibility.dart';
 
 /// A bottom-positioned control bar with a vertical gradient background
 /// that smoothly appears and disappears based on visibility.
@@ -46,8 +46,8 @@ class GradientBottomControlBar extends StatelessWidget {
       bottom: 0,
       right: 0,
       left: 0,
-      child: FadeVisibility(
-        isVisible: isVisible,
+      child: AnimatedFadeVisibility(
+        visible: isVisible,
         child: Container(
           decoration: showGradientBottomControl
               ? BoxDecoration(

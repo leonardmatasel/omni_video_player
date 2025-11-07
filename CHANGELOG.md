@@ -1,3 +1,11 @@
+# 3.3.0
+
+🛠 **Bug Fixes · Renaming · Code Refactor** 
+
+* Fixed several minor bugs improving playback stability and UI consistency.
+* Thanks to [**@Md-Sifatullah617**](https://github.com/Md-Sifatullah617) for contributing a fix to one of the issues. 🙌
+* The parameter `options` in `OmniVideoPlayer` has been renamed to `configuration` for clarity.
+
 # 3.2.2
 
 ⬆️ **Updates dependencies**

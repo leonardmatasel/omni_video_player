@@ -6,17 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
-import 'package:omni_video_player/src/_youtube/player_event_handler.dart';
+import 'package:omni_video_player/src/_youtube/youtube_webview_event_handler.dart';
 import 'package:video_player/video_player.dart' show DurationRange;
 
-class YoutubeMobilePlaybackController extends OmniPlaybackController {
+class YouTubeWebViewController extends OmniPlaybackController {
   late final VideoPlayerCallbacks callbacks;
   late final VideoPlayerConfiguration options;
 
   @override
   final ValueNotifier<Widget?> sharedPlayerNotifier = ValueNotifier(null);
 
-  late final YoutubeMobilePlayerEventHandler _eventHandler;
+  late final YouTubeWebViewEventHandler _eventHandler;
 
   // STATES
   bool _hasError = false;
@@ -39,7 +39,7 @@ class YoutubeMobilePlaybackController extends OmniPlaybackController {
   bool _isFullScreen = false;
   late final String _videoId;
   late final GlobalPlaybackController? _globalController;
-  GlobalKey<VideoPlayerInitializerState> globalKeyPlayer;
+  GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer;
 
   bool isDisposed = false;
 
@@ -54,7 +54,7 @@ class YoutubeMobilePlaybackController extends OmniPlaybackController {
   @override
   final Size size;
 
-  YoutubeMobilePlaybackController({
+  YouTubeWebViewController({
     required Duration duration,
     required bool isLive,
     required this.size,
@@ -68,10 +68,10 @@ class YoutubeMobilePlaybackController extends OmniPlaybackController {
     _isLive = isLive;
     _videoId = videoId;
     _globalController = globalController;
-    _eventHandler = YoutubeMobilePlayerEventHandler(this, options, callbacks);
+    _eventHandler = YouTubeWebViewEventHandler(this, options, callbacks);
   }
 
-  factory YoutubeMobilePlaybackController.fromVideoId({
+  factory YouTubeWebViewController.fromVideoId({
     required String videoId,
     required Duration duration,
     required bool isLive,
@@ -79,10 +79,10 @@ class YoutubeMobilePlaybackController extends OmniPlaybackController {
     required VideoPlayerCallbacks callbacks,
     required VideoPlayerConfiguration options,
     required GlobalPlaybackController? globalController,
-    required GlobalKey<VideoPlayerInitializerState> globalKeyPlayer,
+    required GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer,
     bool autoPlay = false,
   }) {
-    final controller = YoutubeMobilePlaybackController(
+    final controller = YouTubeWebViewController(
       callbacks: callbacks,
       options: options,
       duration: duration,
@@ -118,23 +118,34 @@ class YoutubeMobilePlaybackController extends OmniPlaybackController {
           _isLoadedVideo = true;
           play(useGlobalController: false);
         }
-        return _eventHandler.onReady();
       },
     );
     webViewController?.addJavaScriptHandler(
       handlerName: 'StateChange',
       callback: (args) {
-        return _eventHandler.onStateChange(args.first);
+        return _eventHandler.handleStateChange(args.first);
       },
     );
     webViewController?.addJavaScriptHandler(
       handlerName: 'PlayerError',
-      callback: (args) => _eventHandler.onError(args.first),
+      callback: (args) => _eventHandler.handleError(args.first),
     );
     webViewController?.addJavaScriptHandler(
-      handlerName: 'VideoState',
+      handlerName: 'PlaybackProgress',
       callback: (args) {
-        _eventHandler.onVideoState(args.first);
+        _eventHandler.handlePlaybackProgress(args.first);
+      },
+    );
+    webViewController?.addJavaScriptHandler(
+      handlerName: 'PlaybackRateChange',
+      callback: (args) {
+        _eventHandler.handlePlaybackRateChange(args.first);
+      },
+    );
+    webViewController?.addJavaScriptHandler(
+      handlerName: 'PlaybackQualityChange',
+      callback: (args) {
+        _eventHandler.handlePlaybackQualityChange(args.first);
       },
     );
   }
@@ -266,6 +277,11 @@ class YoutubeMobilePlaybackController extends OmniPlaybackController {
   @override
   bool get isFullScreen => _isFullScreen;
 
+  set isFullScreen(bool value) {
+    _isFullScreen = value;
+    notifyListeners();
+  }
+
   @override
   bool get isLive => _isLive;
 
@@ -320,7 +336,6 @@ class YoutubeMobilePlaybackController extends OmniPlaybackController {
 
       if (!skipHasPlaybackStarted) {
         isSeeking = true;
-        pause();
       }
 
       if (position.inMicroseconds != 0 && !skipHasPlaybackStarted) {
@@ -339,14 +354,14 @@ class YoutubeMobilePlaybackController extends OmniPlaybackController {
     required Widget Function(BuildContext p1)? pageBuilder,
     void Function(bool p1)? onToggle,
   }) async {
-    if (_isFullScreen) {
-      _isFullScreen = false;
+    if (isFullScreen) {
+      isFullScreen = false;
       notifyListeners();
       onToggle?.call(false);
       Navigator.of(context).pop();
     } else {
       wasPlayingBeforeGoOnFullScreen = isPlaying;
-      _isFullScreen = true;
+      isFullScreen = true;
       notifyListeners();
       onToggle?.call(true);
 

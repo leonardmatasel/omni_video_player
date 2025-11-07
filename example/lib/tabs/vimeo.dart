@@ -51,7 +51,7 @@ class _VimeoState extends State<Vimeo> {
               }
             },
           ),
-          options: VideoPlayerConfiguration(
+          configuration: VideoPlayerConfiguration(
             videoSourceConfiguration: VideoSourceConfiguration.vimeo(
               videoId: '1017406920',
             ).copyWith(initialVolume: 0.8),

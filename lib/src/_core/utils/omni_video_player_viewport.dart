@@ -14,7 +14,7 @@ import 'package:omni_video_player/omni_video_player/controllers/omni_playback_co
 ///
 /// The aspect ratio is calculated accordingly to maintain the correct
 /// display proportions.
-class AdaptiveVideoPlayerDisplay extends StatelessWidget {
+class OmniVideoPlayerViewport extends StatelessWidget {
   /// Controller that manages media playback and provides video properties.
   final OmniPlaybackController controller;
 
@@ -22,7 +22,7 @@ class AdaptiveVideoPlayerDisplay extends StatelessWidget {
 
   final double aspectRatio;
 
-  const AdaptiveVideoPlayerDisplay({
+  const OmniVideoPlayerViewport({
     super.key,
     required this.controller,
     required this.isFullScreenDisplay,
@@ -34,9 +34,7 @@ class AdaptiveVideoPlayerDisplay extends StatelessWidget {
     return AnimatedBuilder(
       animation: Listenable.merge([
         controller,
-        // ascolta isFullScreen o altri state update
         controller.sharedPlayerNotifier,
-        // ascolta il cambiamento del widget video
       ]),
       builder: (context, _) {
         final player = controller.sharedPlayerNotifier.value;

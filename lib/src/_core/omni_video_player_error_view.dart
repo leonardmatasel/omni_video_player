@@ -3,16 +3,16 @@ import 'package:omni_video_player/omni_video_player/theme/omni_video_player_them
 
 /// A default error placeholder widget for the video player.
 ///
-/// [VideoPlayerErrorPlaceholder] is shown when video playback fails due to an error.
+/// [OmniVideoPlayerErrorView] is shown when video playback fails due to an error.
 /// It displays a themed icon, error message,
 ///
 /// The appearance and text are styled based on the current [OmniVideoPlayerTheme].
-class VideoPlayerErrorPlaceholder extends StatelessWidget {
+class OmniVideoPlayerErrorView extends StatelessWidget {
   /// Creates the error placeholder widget.
   ///
   /// If [videoUrlToOpenExternally] is provided, a button is shown
   /// that allows the user to open the video in an external app.
-  const VideoPlayerErrorPlaceholder({super.key});
+  const OmniVideoPlayerErrorView({super.key});
 
   @override
   Widget build(BuildContext context) {

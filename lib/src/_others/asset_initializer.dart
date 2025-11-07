@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
-import 'package:omni_video_player/src/_others/default_playback_controller.dart';
-import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
+import 'package:omni_video_player/src/_others/generic_playback_controller.dart';
+import 'package:omni_video_player/src/_core/utils/omni_video_player_initializer_factory.dart';
 import 'package:video_player/video_player.dart' show VideoPlayer;
 
-class AssetInitializer implements IVideoPlayerInitializerStrategy {
+class AssetInitializer implements IOmniVideoPlayerInitializerStrategy {
   final VideoPlayerConfiguration options;
   final VideoPlayerCallbacks callbacks;
   final GlobalPlaybackController? globalController;
@@ -20,7 +20,7 @@ class AssetInitializer implements IVideoPlayerInitializerStrategy {
 
   @override
   Future<OmniPlaybackController?> initialize() async {
-    final controller = await DefaultPlaybackController.create(
+    final controller = await GenericPlaybackController.create(
       videoUrl: null,
       dataSource: videoSourceConfiguration.videoDataSource!,
       file: null,

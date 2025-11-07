@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
 
-/// A widget that smoothly fades between its child widgets by
-/// overlaying the new child on top of the previous one.
+/// A widget that smoothly transitions between child widgets using a fade overlay effect.
 ///
-/// This is an [AnimatedSwitcher] variant that uses a custom curve
-/// to make the outgoing child fade out abruptly (rounded up),
-/// creating a fade-over effect rather than a cross-fade.
+/// Unlike a standard [AnimatedSwitcher], this version layers the new child
+/// *on top* of the old one, fading out the previous widget while the new one
+/// appears immediately. This creates a "fade-over" effect instead of a crossfade.
 ///
-/// Useful for UI elements where you want the new content to
-/// appear immediately while the old content fades out.
-class FadeOverlaySwitcher extends StatelessWidget {
+/// It is particularly useful for:
+/// - Overlay UI transitions (e.g., player controls, tooltips)
+/// - Replacing widgets where the new content should appear instantly
+///   while the old content disappears smoothly
+///
+/// Example:
+/// ```dart
+/// FadeOverlaySwitcher(
+///   duration: Duration(milliseconds: 400),
+///   child: isPlaying
+///       ? Icon(Icons.pause, key: ValueKey('pause'), color: Colors.white)
+///       : Icon(Icons.play_arrow, key: ValueKey('play'), color: Colors.white),
+/// )
+/// ```
+class OverlayTransitionSwitcher extends StatelessWidget {
   /// The widget below this widget in the tree.
   final Widget child;
 
@@ -21,7 +32,7 @@ class FadeOverlaySwitcher extends StatelessWidget {
 
   /// Creates a [FadeOverlaySwitcher] that animates fading over
   /// between children with a fade-over effect.
-  const FadeOverlaySwitcher({
+  const OverlayTransitionSwitcher({
     super.key,
     required this.child,
     this.duration = const Duration(milliseconds: 500),

@@ -4,7 +4,7 @@ import 'package:omni_video_player/src/widgets/bottom_control_bar/video_seek_bar.
 import 'package:omni_video_player/src/widgets/controls/audio_toggle_button.dart';
 import 'package:omni_video_player/src/widgets/controls/fullscreen_toggle_button.dart';
 import 'package:omni_video_player/src/widgets/controls/video_quality_menu_button.dart';
-import 'package:omni_video_player/src/widgets/player/fullscreen_video_player.dart';
+import 'package:omni_video_player/src/_core/omni_video_player_fullscreen.dart';
 
 import '../controls/playback_speed_menu_button.dart';
 
@@ -23,6 +23,8 @@ class VideoPlaybackControlBar extends StatelessWidget {
     required this.controller,
     required this.options,
     required this.callbacks,
+    required this.onStartInteraction,
+    required this.onEndInteraction,
   });
 
   /// Controls the video playback (e.g., play, pause, seek, mute).
@@ -33,6 +35,9 @@ class VideoPlaybackControlBar extends StatelessWidget {
 
   /// Callbacks to handle user interactions like mute and fullscreen toggle.
   final VideoPlayerCallbacks callbacks;
+
+  final VoidCallback onStartInteraction;
+  final VoidCallback onEndInteraction;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +51,14 @@ class VideoPlaybackControlBar extends StatelessWidget {
         ...options.customPlayerWidgets.leadingBottomButtons,
         Expanded(
           child: VideoSeekBar(
-            onSeekStart: callbacks.onSeekStart,
+            onSeekStart: (value) {
+              callbacks.onSeekStart?.call(value);
+              onStartInteraction();
+            },
+            onSeekEnd: (value) {
+              callbacks.onSeekEnd?.call(value);
+              onEndInteraction();
+            },
             controller: controller,
             liveLabel: options.liveLabel,
             showCurrentTime: options.playerUIVisibilityOptions.showCurrentTime,
@@ -78,6 +90,8 @@ class VideoPlaybackControlBar extends StatelessWidget {
               }
               controller.playbackSpeed = speed;
             },
+            onStartInteraction: onStartInteraction,
+            onEndInteraction: onEndInteraction,
           ),
         ...options.customPlayerWidgets.trailingBottomButtons,
 
@@ -102,15 +116,17 @@ class VideoPlaybackControlBar extends StatelessWidget {
               }
               controller.switchQuality(quality);
             },
+            onStartInteraction: onStartInteraction,
+            onEndInteraction: onEndInteraction,
           ),
         if (options.playerUIVisibilityOptions.showFullScreenButton)
           FullscreenToggleButton(
             controller: controller,
             fullscreenPageBuilder: (context) => OmniVideoPlayerTheme(
               data: options.playerTheme,
-              child: FullscreenVideoPlayer(
+              child: OmniVideoPlayerFullscreen(
                 controller: controller,
-                options: options,
+                configuration: options,
                 callbacks: callbacks,
               ),
             ),

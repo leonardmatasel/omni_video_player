@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
-import 'package:omni_video_player/src/utils/accessible.dart';
+import 'package:omni_video_player/src/utils/accessibility/accessible.dart';
 
 /// A customizable icon button for video player controls, such as play, pause, mute, etc.
 ///

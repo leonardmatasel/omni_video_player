@@ -15,7 +15,7 @@ class NetworkLink extends StatelessWidget {
               // For more details, see example/lib/example.dart or refer to the "Sync UI" section in the README.
             },
           ),
-          options: VideoPlayerConfiguration(
+          configuration: VideoPlayerConfiguration(
             videoSourceConfiguration: VideoSourceConfiguration.network(
               videoUrl: Uri.parse('https://www.w3schools.com/tags/mov_bbb.mp4'),
             ),

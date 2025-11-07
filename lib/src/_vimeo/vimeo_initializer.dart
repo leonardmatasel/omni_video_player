@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
-import 'package:omni_video_player/src/_vimeo/controller.dart';
-import 'package:omni_video_player/src/_vimeo/player_widget.dart';
+import 'package:omni_video_player/src/_vimeo/vimeo_controller.dart';
+import 'package:omni_video_player/src/_vimeo/vimeo_player_view.dart';
 import 'package:omni_video_player/src/api/vimeo_video_api.dart';
-import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
+import 'package:omni_video_player/src/_core/utils/omni_video_player_initializer_factory.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 
-class VimeoInitializer implements IVideoPlayerInitializerStrategy {
+class VimeoInitializer implements IOmniVideoPlayerInitializerStrategy {
   final VideoPlayerConfiguration options;
   final VideoPlayerCallbacks callbacks;
   final GlobalPlaybackController? globalController;
@@ -28,7 +28,7 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
       throw Exception('Failed to fetch Vimeo video info');
     }
 
-    final controller = VimeoPlaybackController.create(
+    final controller = VimeoController.create(
       videoId: videoId,
       globalController: globalController,
       initialPosition: options.videoSourceConfiguration.initialPosition,
@@ -45,7 +45,7 @@ class VimeoInitializer implements IVideoPlayerInitializerStrategy {
 
     controller.sharedPlayerNotifier.value = Hero(
       tag: options.globalKeyPlayer,
-      child: VimeoVideoPlayer(
+      child: VimeoPlayerView(
         key: options.globalKeyPlayer,
         videoId: videoId,
         controller: controller,

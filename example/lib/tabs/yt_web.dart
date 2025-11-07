@@ -26,7 +26,7 @@ class YTWeb extends StatelessWidget {
               // For more details, see example/lib/example.dart or refer to the "Sync UI" section in the README.
             },
           ),
-          options: VideoPlayerConfiguration(
+          configuration: VideoPlayerConfiguration(
             videoSourceConfiguration: VideoSourceConfiguration.youtube(
               videoUrl: Uri.parse(
                 'https://www.youtube.com/watch?v=pt8VYOfr8To',

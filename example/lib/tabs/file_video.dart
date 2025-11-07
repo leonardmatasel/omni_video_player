@@ -53,7 +53,7 @@ class _FileVideoState extends State<FileVideo> {
                             // For more details, see example/lib/example.dart or refer to the "Sync UI" section in the README.
                           },
                         ),
-                        options: VideoPlayerConfiguration(
+                        configuration: VideoPlayerConfiguration(
                           videoSourceConfiguration:
                               VideoSourceConfiguration.file(
                                 videoFile: _videoFile!,

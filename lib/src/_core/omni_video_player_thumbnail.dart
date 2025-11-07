@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 /// A static, non-interactive image preview for a video player.
 ///
-/// [VideoPlayerThumbnailPreview] shows a thumbnail image using the provided
+/// [VideoPlayerThumbnail] shows a thumbnail image using the provided
 /// [ImageProvider]. It does not respond to playback state changes and is wrapped
 /// in an [IgnorePointer], so it won’t handle any user interactions.
 ///
 /// This widget is typically displayed before the video starts playing.
-class VideoPlayerThumbnailPreview extends StatelessWidget {
+class VideoPlayerThumbnail extends StatelessWidget {
   /// Creates a thumbnail preview for the video player.
-  const VideoPlayerThumbnailPreview({
+  const VideoPlayerThumbnail({
     super.key,
     required this.imageProvider,
     required this.fit,

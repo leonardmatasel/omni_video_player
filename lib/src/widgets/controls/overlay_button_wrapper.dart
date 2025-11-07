@@ -6,6 +6,8 @@ class OverlayButtonWrapper extends StatefulWidget {
     super.key,
     required this.childBuilder,
     required this.overlayBuilder,
+    required this.onStartInteraction,
+    required this.onEndInteraction,
     this.targetAnchor = Alignment.topCenter,
     this.followerAnchor = Alignment.bottomCenter,
   });
@@ -20,6 +22,9 @@ class OverlayButtonWrapper extends StatefulWidget {
 
   final Alignment followerAnchor;
 
+  final VoidCallback onStartInteraction;
+  final VoidCallback onEndInteraction;
+
   @override
   State<OverlayButtonWrapper> createState() => _OverlayButtonWrapperState();
 }
@@ -30,6 +35,7 @@ class _OverlayButtonWrapperState extends State<OverlayButtonWrapper> {
   void _dismissOverlay() {
     _overlayEntry?.remove();
     _overlayEntry = null;
+    widget.onEndInteraction();
     setState(() {});
   }
 
@@ -67,6 +73,7 @@ class _OverlayButtonWrapperState extends State<OverlayButtonWrapper> {
       },
     );
 
+    widget.onStartInteraction();
     Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
     setState(() {});
   }

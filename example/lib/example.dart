@@ -76,7 +76,7 @@ class _VideoScreenState extends State<VideoScreen> {
               ),
 
               // Full configuration: playing a YouTube video.
-              options: VideoPlayerConfiguration(
+              configuration: VideoPlayerConfiguration(
                 videoSourceConfiguration: VideoSourceConfiguration.youtube(
                   videoUrl: Uri.parse(
                     'https://www.youtube.com/watch?v=cuqZPx0H7a0',

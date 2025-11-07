@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:omni_video_player/omni_video_player.dart'
-    show VideoPlayerInitializerState;
+    show OmniVideoPlayerInitializerState;
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
@@ -13,7 +13,7 @@ import 'package:omni_video_player/omni_video_player/models/video_source_configur
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
 import 'package:video_player/video_player.dart';
 
-class VimeoPlaybackController extends OmniPlaybackController {
+class VimeoController extends OmniPlaybackController {
   @override
   final String videoId;
   @override
@@ -47,7 +47,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
   final GlobalPlaybackController? _globalController;
   double _previousVolume = 1.0;
   final List<VoidCallback> _onReadyQueue = [];
-  GlobalKey<VideoPlayerInitializerState> globalKeyPlayer;
+  GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer;
   double _playbackSpeed = 1.0;
 
   final VideoPlayerConfiguration options;
@@ -60,7 +60,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
     }
   }
 
-  VimeoPlaybackController._(
+  VimeoController._(
     this.videoId,
     this._globalController,
     Duration initialPosition,
@@ -80,7 +80,7 @@ class VimeoPlaybackController extends OmniPlaybackController {
   }
 
   /// Creates and initializes a new [OmniPlaybackController] instance.
-  static VimeoPlaybackController create({
+  static VimeoController create({
     required String videoId,
     required GlobalPlaybackController? globalController,
     required Duration initialPosition,
@@ -88,10 +88,10 @@ class VimeoPlaybackController extends OmniPlaybackController {
     required Duration duration,
     required Size size,
     required VideoPlayerCallbacks callbacks,
-    required GlobalKey<VideoPlayerInitializerState> globalKeyPlayer,
+    required GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer,
     required VideoPlayerConfiguration options,
   }) {
-    return VimeoPlaybackController._(
+    return VimeoController._(
       videoId,
       globalController,
       initialPosition,

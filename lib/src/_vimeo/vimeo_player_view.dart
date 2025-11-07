@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:omni_video_player/omni_video_player.dart';
-import 'package:omni_video_player/src/_vimeo/controller.dart';
+import 'package:omni_video_player/src/_vimeo/vimeo_controller.dart';
 
 /// A Vimeo video player widget using [InAppWebView] for embedding the Vimeo iframe player.
 ///
@@ -9,7 +9,7 @@ import 'package:omni_video_player/src/_vimeo/controller.dart';
 /// playback events such as play, pause, finish, and seek. It also allows you to hook
 /// into WebView lifecycle events.
 ///
-/// The video is controlled via a [VimeoPlaybackController], which wraps the internal
+/// The video is controlled via a [VimeoController], which wraps the internal
 /// WebView controller to provide video-related functionality.
 ///
 /// ---
@@ -25,11 +25,11 @@ import 'package:omni_video_player/src/_vimeo/controller.dart';
 /// ```
 ///
 /// > **Note:** [videoId] is required and must not be empty.
-class VimeoVideoPlayer extends StatelessWidget {
-  /// Creates a [VimeoVideoPlayer] instance.
+class VimeoPlayerView extends StatelessWidget {
+  /// Creates a [VimeoPlayerView] instance.
   ///
-  /// Requires a non-empty [videoId] and a [VimeoPlaybackController].
-  VimeoVideoPlayer({
+  /// Requires a non-empty [videoId] and a [VimeoController].
+  VimeoPlayerView({
     super.key,
     required this.videoId,
     required this.controller,
@@ -44,10 +44,10 @@ class VimeoVideoPlayer extends StatelessWidget {
 
   final List<OmniVideoQuality> preferredQualities;
 
-  /// The [VimeoPlaybackController] that manages interaction with the embedded Vimeo player.
+  /// The [VimeoController] that manages interaction with the embedded Vimeo player.
   ///
   /// This is required to access internal controls and state.
-  final VimeoPlaybackController controller;
+  final VimeoController controller;
 
   final bool autoPlay;
 

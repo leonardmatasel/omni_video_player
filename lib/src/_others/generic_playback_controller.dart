@@ -14,12 +14,12 @@ import '../controllers/video_playback_controller.dart';
 ///
 /// Supports features like global player coordination, mute handling,
 /// fullscreen transitions, and real-time state updates.
-class DefaultPlaybackController extends OmniPlaybackController {
+class GenericPlaybackController extends OmniPlaybackController {
   late VideoPlaybackController videoController;
   late AudioPlaybackController? audioController;
 
   final VideoPlayerCallbacks callbacks;
-  final GlobalKey<VideoPlayerInitializerState> globalKeyPlayer;
+  final GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer;
 
   VideoSourceType type;
   Map<OmniVideoQuality, Uri>? qualityUrls;
@@ -57,7 +57,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
 
   Duration _duration = Duration.zero;
 
-  DefaultPlaybackController._(
+  GenericPlaybackController._(
     this.videoController,
     this.audioController,
     this.videoUrl,
@@ -89,7 +89,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
   }
 
   /// Creates and initializes a new [OmniPlaybackController] instance.
-  static Future<DefaultPlaybackController> create({
+  static Future<GenericPlaybackController> create({
     required Uri? videoUrl,
     required String? dataSource,
     required File? file,
@@ -103,7 +103,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
     required VideoSourceType type,
     Map<OmniVideoQuality, Uri>? qualityUrls,
     OmniVideoQuality? currentVideoQuality,
-    required GlobalKey<VideoPlayerInitializerState> globalKeyPlayer,
+    required GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer,
   }) async {
     final videoController =
         (type == VideoSourceType.asset && dataSource != null)
@@ -127,7 +127,7 @@ class DefaultPlaybackController extends OmniPlaybackController {
       await audioController.initialize();
     }
 
-    return DefaultPlaybackController._(
+    return GenericPlaybackController._(
       videoController,
       audioController,
       videoUrl,

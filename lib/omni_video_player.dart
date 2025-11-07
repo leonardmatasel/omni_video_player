@@ -9,5 +9,5 @@ export 'omni_video_player/models/video_source_type.dart';
 export 'omni_video_player/theme/omni_video_player_theme.dart';
 export 'omni_video_player/widgets/omni_video_player.dart';
 export 'omni_video_player/models/custom_overlay_layer.dart';
-export 'src/video_player_initializer/video_player_initializer.dart'
-    show VideoPlayerInitializerState;
+export 'src/_core/omni_video_player_initializer.dart'
+    show OmniVideoPlayerInitializerState;

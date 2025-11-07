@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/src/api/hls_video_api.dart';
-import 'package:omni_video_player/src/_others/default_playback_controller.dart';
-import 'package:omni_video_player/src/video_player_initializer/video_player_initializer_factory.dart';
+import 'package:omni_video_player/src/_others/generic_playback_controller.dart';
+import 'package:omni_video_player/src/_core/utils/omni_video_player_initializer_factory.dart';
 import 'package:video_player/video_player.dart' show VideoPlayer;
 
-class NetworkInitializer implements IVideoPlayerInitializerStrategy {
+class NetworkInitializer implements IOmniVideoPlayerInitializerStrategy {
   final VideoPlayerConfiguration options;
   final VideoPlayerCallbacks callbacks;
   final GlobalPlaybackController? globalController;
@@ -41,12 +41,12 @@ class NetworkInitializer implements IVideoPlayerInitializerStrategy {
       );
     }
 
-    DefaultPlaybackController? controller;
+    GenericPlaybackController? controller;
 
     int attempts = 0;
     while (true) {
       try {
-        controller = await DefaultPlaybackController.create(
+        controller = await GenericPlaybackController.create(
           videoUrl: (currentQualityEntry != null)
               ? currentQualityEntry.value
               : videoSourceConfiguration.videoUrl!,

@@ -25,6 +25,7 @@ class VideoSeekBar extends StatelessWidget {
     required this.customDurationDisplay,
     required this.customRemainingTimeDisplay,
     required this.onSeekStart,
+    required this.onSeekEnd,
   });
 
   /// Controls the playback and provides timing information.
@@ -62,6 +63,8 @@ class VideoSeekBar extends StatelessWidget {
   final Widget? customRemainingTimeDisplay;
 
   final void Function(Duration)? onSeekStart;
+
+  final void Function(Duration)? onSeekEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -102,6 +105,7 @@ class VideoSeekBar extends StatelessWidget {
         },
         onChangeEnd: (value) {
           controller.seekTo(value);
+          onSeekEnd?.call(controller.currentPosition);
         },
         onChanged: (_) {
           if (controller.isReady) controller.isSeeking = true;

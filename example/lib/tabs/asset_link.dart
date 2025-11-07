@@ -15,7 +15,7 @@ class AssetLink extends StatelessWidget {
               // For more details, see example/lib/example.dart or refer to the "Sync UI" section in the README.
             },
           ),
-          options: VideoPlayerConfiguration(
+          configuration: VideoPlayerConfiguration(
             videoSourceConfiguration: VideoSourceConfiguration.asset(
               videoDataSource: 'assets/sample.mp4',
             ),

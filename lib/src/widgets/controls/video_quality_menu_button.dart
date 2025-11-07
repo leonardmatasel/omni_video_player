@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
-import 'package:omni_video_player/src/utils/accessible.dart';
+import 'package:omni_video_player/src/utils/accessibility/accessible.dart';
 import 'package:omni_video_player/src/widgets/controls/overlay_button_wrapper.dart';
 
 import 'video_control_icon_button.dart';
@@ -10,23 +10,27 @@ class VideoQualityMenuButton extends StatelessWidget {
   final List<OmniVideoQuality>? qualityList;
   final OmniVideoQuality? currentQuality;
   final void Function(OmniVideoQuality selectedQuality) onQualitySelected;
+  final VoidCallback onStartInteraction;
+  final VoidCallback onEndInteraction;
 
   const VideoQualityMenuButton({
     super.key,
     required this.qualityList,
     required this.currentQuality,
     required this.onQualitySelected,
+    required this.onStartInteraction,
+    required this.onEndInteraction,
   });
 
   Widget _buildMenu(
     OmniVideoPlayerThemeData theme,
-    void Function() dismissOverlay,
+    VoidCallback dismissOverlay,
   ) {
     return Card(
       elevation: 8,
       color: theme.colors.menuBackground,
       child: SizedBox(
-        width: 110,
+        width: 130,
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 8),
           shrinkWrap: true,
@@ -48,11 +52,6 @@ class VideoQualityMenuButton extends StatelessWidget {
                             color: theme.colors.menuTextSelected,
                             fontWeight: FontWeight.bold,
                           ),
-                        ),
-                        Icon(
-                          theme.icons.qualitySelectedCheck,
-                          color: theme.colors.menuIconSelected,
-                          size: 18,
                         ),
                       ],
                     ),
@@ -86,7 +85,7 @@ class VideoQualityMenuButton extends StatelessWidget {
                                   : FontWeight.normal,
                             ),
                           ),
-                          if (isSelected)
+                          if (isSelected && qualityList!.length > 1)
                             Icon(
                               theme.icons.qualitySelectedCheck,
                               color: theme.colors.menuIconSelected,
@@ -114,6 +113,8 @@ class VideoQualityMenuButton extends StatelessWidget {
         icon: theme.icons.qualityChangeButton,
       ),
       overlayBuilder: (dismissOverlay) => _buildMenu(theme, dismissOverlay),
+      onStartInteraction: onStartInteraction,
+      onEndInteraction: onEndInteraction,
     );
   }
 }

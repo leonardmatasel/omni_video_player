@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
@@ -382,6 +383,21 @@ class YouTubeService {
       debugPrint('Error fetching video size: $e');
     }
 
+    return null;
+  }
+
+  Future<ImageProvider<Object>?> loadYoutubeThumbnail(String? url) async {
+    if (url == null) return null;
+
+    final videoId = VideoId(url).value;
+    final thumbUrl = "https://i3.ytimg.com/vi/$videoId/sddefault.jpg";
+
+    try {
+      final response = await http.head(Uri.parse(thumbUrl));
+      if (response.statusCode == 200) return NetworkImage(thumbUrl);
+    } catch (_) {
+      // silently fail
+    }
     return null;
   }
 }

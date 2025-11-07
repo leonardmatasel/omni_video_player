@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:omni_video_player/src/utils/accessibility_utils.dart';
+import 'package:omni_video_player/src/utils/accessibility/accessibility_utils.dart';
 
 class Accessible extends StatelessWidget {
   const Accessible({

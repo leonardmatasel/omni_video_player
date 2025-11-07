@@ -46,7 +46,7 @@ class YT extends StatelessWidget {
               }
             },
           ),
-          options: VideoPlayerConfiguration(
+          configuration: VideoPlayerConfiguration(
             videoSourceConfiguration: VideoSourceConfiguration.youtube(
               videoUrl: Uri.parse(
                 'https://www.youtube.com/watch?v=QN1odfjtMoo',

@@ -3,7 +3,7 @@ import 'package:omni_video_player/omni_video_player/models/custom_player_widgets
 import 'package:omni_video_player/omni_video_player/models/player_ui_visibility_options.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_configuration.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
-import 'package:omni_video_player/src/video_player_initializer/video_player_initializer.dart';
+import 'package:omni_video_player/src/_core/omni_video_player_initializer.dart';
 
 /// Configuration options for customizing the appearance and behavior of a video player.
 ///
@@ -37,7 +37,7 @@ class VideoPlayerConfiguration {
   /// final globalKeyInitializer = GlobalKey<VideoPlayerInitializerState>();
   /// globalKeyInitializer.currentState?.refresh();
   /// ```
-  late final GlobalKey<VideoPlayerInitializerState> globalKeyInitializer;
+  late final GlobalKey<OmniVideoPlayerInitializerState> globalKeyInitializer;
 
   /// Defines how the video is loaded and played (URL, autoplay, volume, etc).
   final VideoSourceConfiguration videoSourceConfiguration;

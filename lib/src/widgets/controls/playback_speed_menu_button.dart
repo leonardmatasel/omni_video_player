@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
-import 'package:omni_video_player/src/utils/accessible.dart';
+import 'package:omni_video_player/src/utils/accessibility/accessible.dart';
 import 'package:omni_video_player/src/widgets/controls/overlay_button_wrapper.dart';
 
 import 'video_control_icon_button.dart';
@@ -9,17 +9,21 @@ class PlaybackSpeedMenuButton extends StatelessWidget {
   final List<double> speedList;
   final double currentSpeed;
   final void Function(double selectedSpeed) onSpeedSelected;
+  final VoidCallback onStartInteraction;
+  final VoidCallback onEndInteraction;
 
   const PlaybackSpeedMenuButton({
     super.key,
     required this.speedList,
     required this.currentSpeed,
     required this.onSpeedSelected,
+    required this.onStartInteraction,
+    required this.onEndInteraction,
   });
 
   Widget _buildMenu(
     OmniVideoPlayerThemeData theme,
-    void Function() dismissOverlay,
+    VoidCallback dismissOverlay,
   ) {
     return Card(
       elevation: 8,
@@ -57,7 +61,7 @@ class PlaybackSpeedMenuButton extends StatelessWidget {
                             : FontWeight.normal,
                       ),
                     ),
-                    if (isSelected)
+                    if (isSelected && speedList.length > 1)
                       Icon(
                         theme.icons.qualitySelectedCheck,
                         color: theme.colors.menuIconSelected,
@@ -85,6 +89,8 @@ class PlaybackSpeedMenuButton extends StatelessWidget {
         icon: theme.icons.playbackSpeedButton,
       ),
       overlayBuilder: (dismissOverlay) => _buildMenu(theme, dismissOverlay),
+      onStartInteraction: onStartInteraction,
+      onEndInteraction: onEndInteraction,
     );
   }
 }
