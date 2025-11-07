@@ -110,7 +110,18 @@ class _OmniVideoPlayerManagerState extends State<OmniVideoPlayerManager> {
       config.videoSourceConfiguration.videoUrl!.toString(),
     ).toString();
 
-    return Center(child: YoutubePlayerWidget(videoId: videoId));
+    return Center(
+      child: YoutubePlayerWidget(
+        videoId: videoId,
+        mute: widget.configuration.videoSourceConfiguration.autoMuteOnStart,
+        autoPlay: widget.configuration.videoSourceConfiguration.autoPlay,
+        start: widget
+            .configuration
+            .videoSourceConfiguration
+            .initialPosition
+            .inSeconds,
+      ),
+    );
   }
 
   /// Initializes and builds the Flutter video player with full UI and state management.

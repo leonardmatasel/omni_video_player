@@ -1,3 +1,13 @@
+
+# 3.3.1
+
+🛠 **Fix**
+
+* Fixed **autoplay not working** issue on Web.
+  - See issue: [#46](https://github.com/leonardmatasel/omni_video_player/issues/46)
+* Removed **white border** appearing on top and left sides in Web player.
+  - See issue: [#47](https://github.com/leonardmatasel/omni_video_player/issues/47)
+
 # 3.3.0
 
 🛠 **Bug Fixes · Renaming · Code Refactor** 
