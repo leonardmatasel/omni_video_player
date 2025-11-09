@@ -230,7 +230,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
   bool wasPlayingBeforeSeek = false;
 
   @override
-  Duration get buffered => Duration.zero;
+  Duration get buffer => Duration.zero;
 
   @override
   Duration get currentPosition => _currentPosition;

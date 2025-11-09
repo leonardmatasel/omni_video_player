@@ -105,21 +105,16 @@ class YouTubeService {
         timeout: timeout,
       );
 
-      // Filter video streams based on codec compatibility
-      // working with videoPlayer: [avc1, av01, mp4a]
-      // NOT working with videoPlayer: [vp09]
-      // NOTE: mp4a is the fastest and the ones with a single encoding should be preferred
       List<VideoStreamInfo> videoStreams = manifest.streams
-          .whereType<MuxedStreamInfo>()
-          .where((MuxedStreamInfo it) {
+          .whereType<VideoStreamInfo>()
+          .where((it) {
             return it.videoCodec.isNotEmpty && it.videoCodec.contains('avc');
           })
           .toList();
 
-      // bug of video_player iOS reference: https://github.com/flutter/flutter/issues/126760
       if (videoStreams.isEmpty) {
-        videoStreams = manifest.streams.whereType<VideoStreamInfo>().where((
-          VideoStreamInfo it,
+        videoStreams = manifest.streams.whereType<MuxedStreamInfo>().where((
+          MuxedStreamInfo it,
         ) {
           return it.videoCodec.isNotEmpty && it.videoCodec.contains('avc');
         }).toList();

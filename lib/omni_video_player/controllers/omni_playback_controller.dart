@@ -112,7 +112,7 @@ abstract class OmniPlaybackController with ChangeNotifier {
   Size get size;
 
   /// A buffered video duration.
-  Duration get buffered;
+  Duration get buffer;
 
   // ──────────────── Setters ────────────────
 

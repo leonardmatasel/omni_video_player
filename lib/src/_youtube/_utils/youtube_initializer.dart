@@ -37,7 +37,6 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
 
       final controller = await _buildController(streamData, isLiveStream);
 
-      _maybeFixDuration(controller, streamData.videoUrl.toString());
       _registerSharedPlayer(controller);
 
       callbacks.onControllerCreated?.call(controller);
@@ -116,19 +115,6 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
   // ----------------------------------------------------------
   // ⚙️ Helpers
   // ----------------------------------------------------------
-
-  void _maybeFixDuration(GenericPlaybackController controller, String url) {
-    final duration = _extractDurationFromUrl(url);
-    if (duration != null &&
-        duration != controller.videoController.duration.inSeconds) {
-      controller.duration = Duration(seconds: duration.toInt());
-    }
-  }
-
-  double? _extractDurationFromUrl(String url) {
-    final match = RegExp(r"dur=([\d.]+)").firstMatch(url);
-    return match != null ? double.tryParse(match.group(1)!) : null;
-  }
 
   void _registerSharedPlayer(GenericPlaybackController controller) {
     controller.sharedPlayerNotifier.value = Hero(

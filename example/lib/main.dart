@@ -6,8 +6,10 @@ import 'package:example/tabs/yt.dart';
 import 'package:example/tabs/yt_live.dart';
 import 'package:example/tabs/yt_web.dart';
 import 'package:flutter/material.dart';
+import 'package:omni_video_player/omni_video_player.dart';
 
 void main() {
+  OmniVideoPlayer.ensureInitialized();
   runApp(
     MaterialApp(
       home: DefaultTabController(

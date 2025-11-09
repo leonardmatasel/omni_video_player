@@ -61,7 +61,8 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
           _buildVideoDisplay(context, theme, aspectRatio),
           if (_shouldShowThumbnailPreview())
             _buildThumbnailPreview(theme, aspectRatio),
-          if (!controller.isReady) config.customPlayerWidgets.loadingWidget,
+          if (!controller.isReady && _shouldShowThumbnailPreview())
+            config.customPlayerWidgets.loadingWidget,
         ],
       ),
     );

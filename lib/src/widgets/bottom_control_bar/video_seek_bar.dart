@@ -94,7 +94,6 @@ class VideoSeekBar extends StatelessWidget {
       SeekBar(
         position: controller.currentPosition,
         duration: controller.duration,
-        bufferedPosition: _findClosestBufferedEnd(),
         showRemainingTime: showRemainingTime,
         onChangeStart: (_) {
           if (!controller.isSeeking) {
@@ -118,9 +117,4 @@ class VideoSeekBar extends StatelessWidget {
         customDurationDisplay: customDurationDisplay,
         customRemainingTimeDisplay: customRemainingTimeDisplay,
       );
-
-  /// Returns the end of the buffered range closest to the current position.
-  Duration _findClosestBufferedEnd() {
-    return controller.buffered;
-  }
 }

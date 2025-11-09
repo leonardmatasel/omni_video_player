@@ -49,7 +49,7 @@ class YT extends StatelessWidget {
           configuration: VideoPlayerConfiguration(
             videoSourceConfiguration: VideoSourceConfiguration.youtube(
               videoUrl: Uri.parse(
-                'https://www.youtube.com/watch?v=QN1odfjtMoo',
+                'https://www.youtube.com/watch?v=Em3Yr8wi-u4',
               ),
               preferredQualities: [
                 OmniVideoQuality.high720,

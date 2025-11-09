@@ -199,7 +199,7 @@ class VimeoController extends OmniPlaybackController {
   int get rotationCorrection => 0;
 
   @override
-  Duration get buffered => Duration.zero;
+  Duration get buffer => Duration.zero;
 
   @override
   Future<void> play({bool useGlobalController = true}) async {

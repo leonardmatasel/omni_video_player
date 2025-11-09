@@ -3,10 +3,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 
-import '../controllers/audio_playback_controller.dart';
 import '../controllers/video_playback_controller.dart';
 
 /// A controller that manages synchronized video and optional audio playback.
@@ -15,8 +15,6 @@ import '../controllers/video_playback_controller.dart';
 /// fullscreen transitions, and real-time state updates.
 class GenericPlaybackController extends OmniPlaybackController {
   late VideoPlaybackController videoController;
-  late AudioPlaybackController? audioController;
-
   final VideoPlayerCallbacks callbacks;
   final GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer;
 
@@ -51,14 +49,11 @@ class GenericPlaybackController extends OmniPlaybackController {
   bool _hasStarted = false;
   bool _isDisposed = false;
   final GlobalPlaybackController? _globalController;
-  double _previousVolume = 1.0;
+  double _previousVolume = 100;
   bool _isNotifyPending = false;
-
-  Duration _duration = Duration.zero;
 
   GenericPlaybackController._(
     this.videoController,
-    this.audioController,
     this.videoUrl,
     this.videoDataSource,
     this.isLive,
@@ -72,19 +67,16 @@ class GenericPlaybackController extends OmniPlaybackController {
     this.currentVideoQuality,
     this.globalKeyPlayer,
   ) {
-    duration = videoController.duration;
-
     if (initialPosition.inSeconds > 0) {
       seekTo(initialPosition, skipHasPlaybackStarted: true);
     }
     if (initialVolume != null) {
-      volume = initialVolume;
+      volume = initialVolume * 100;
     }
     if (initialPlaybackSpeed != null) {
       playbackSpeed = initialPlaybackSpeed;
     }
     videoController.addListener(_onControllerUpdate);
-    audioController?.addListener(_onControllerUpdate);
   }
 
   /// Creates and initializes a new [OmniPlaybackController] instance.
@@ -109,26 +101,16 @@ class GenericPlaybackController extends OmniPlaybackController {
         ? VideoPlaybackController.asset(dataSource)
         : (type == VideoSourceType.file && file != null)
         ? VideoPlaybackController.file(file)
-        : VideoPlaybackController.uri(
-            videoUrl!,
-            isLive: isLive,
-            mixWithOthers: false,
-          );
-    await videoController.initialize();
+        : VideoPlaybackController.uri(videoUrl!.toString(), isLive: isLive);
 
-    AudioPlaybackController? audioController;
     if (audioUrl != null) {
-      audioController = AudioPlaybackController.uri(
-        audioUrl,
-        isLive: isLive,
-        mixWithOthers: true,
+      await videoController.player.setAudioTrack(
+        AudioTrack.uri(audioUrl.toString()),
       );
-      await audioController.initialize();
     }
 
     return GenericPlaybackController._(
       videoController,
-      audioController,
       videoUrl,
       dataSource,
       isLive,
@@ -160,25 +142,13 @@ class GenericPlaybackController extends OmniPlaybackController {
 
     await pause(useGlobalController: false);
 
-    final newController = VideoPlaybackController.uri(newUrl, isLive: isLive);
-    await newController.initialize();
-
-    videoController.removeListener(_onControllerUpdate);
-
-    newController.addListener(_onControllerUpdate);
-
-    currentVideoQuality = newQuality;
-
-    sharedPlayerNotifier.value = Hero(
-      tag: globalKeyPlayer,
-      child: VideoPlayer(key: GlobalKey(), newController),
-    );
-
-    await videoController.dispose();
-
-    videoController = newController;
+    isSeeking = true;
+    await videoController.player.open(Media(newUrl.toString()), play: false);
+    await Future.delayed(const Duration(seconds: 2));
     await seekTo(currentPos);
 
+    currentVideoQuality = newQuality;
+    isSeeking = false;
     if (wasPlaying) {
       await play(useGlobalController: false);
     }
@@ -214,12 +184,11 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   /// Returns true if both video and audio (if present) are currently playing.
   @override
-  bool get isPlaying =>
-      videoController.isPlaying && (audioController?.isPlaying ?? true);
+  bool get isPlaying => videoController.isPlaying;
 
   /// Returns true if the video is buffering.
   @override
-  bool get isBuffering => videoController.isActuallyBuffering;
+  bool get isBuffering => videoController.isBuffering;
 
   /// Returns true if an error occurred during video playback.
   @override
@@ -259,12 +228,9 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   /// Returns the total duration of the video.
   @override
-  Duration get duration => _duration;
-
-  set duration(Duration value) {
-    _duration = value;
-    notifyListeners();
-  }
+  Duration get duration => videoController.duration == Duration.zero
+      ? Duration(seconds: 1)
+      : videoController.duration;
 
   /// Returns the rotation correction to be applied to the video.
   @override
@@ -276,7 +242,7 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   /// Returns the buffered ranges of the video.
   @override
-  List<DurationRange> get buffered => videoController.buffered;
+  Duration get buffer => videoController.buffer;
 
   /// Starts or resumes playback.
   ///
@@ -288,10 +254,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     if (useGlobalController && _globalController != null) {
       return await _globalController.requestPlay(this);
     } else {
-      await Future.wait([
-        if (audioController != null) audioController!.play(),
-        videoController.play(),
-      ]);
+      await videoController.play();
     }
   }
 
@@ -304,10 +267,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     if (useGlobalController && _globalController != null) {
       return await _globalController.requestPause();
     } else {
-      await Future.wait([
-        if (audioController != null) audioController!.pause(),
-        videoController.pause(),
-      ]);
+      await videoController.pause();
     }
   }
 
@@ -323,13 +283,12 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   /// Returns the current volume (0.0 to 1.0).
   @override
-  double get volume => videoController.volume;
+  double get volume => videoController.volume / 100;
 
   /// Sets the volume for both video and audio (if present).
   @override
   set volume(double value) {
-    videoController.setVolume(value);
-    audioController?.setVolume(value);
+    videoController.player.setVolume(value * 100);
   }
 
   /// Toggles mute on or off based on current state.
@@ -340,18 +299,16 @@ class GenericPlaybackController extends OmniPlaybackController {
   @override
   void mute() {
     _previousVolume = videoController.volume;
-    videoController.setVolume(0);
-    audioController?.setVolume(0);
+    videoController.player.setVolume(0);
     _globalController?.setCurrentVolume(0);
   }
 
   /// Restores the previous volume level.
   @override
   void unMute() {
-    double tmpVolume = _previousVolume == 0 ? 1 : _previousVolume;
-    videoController.setVolume(tmpVolume);
-    audioController?.setVolume(tmpVolume);
-    _globalController?.setCurrentVolume(tmpVolume);
+    double tmpVolume = _previousVolume == 0 ? 100 : _previousVolume;
+    videoController.player.setVolume(tmpVolume);
+    _globalController?.setCurrentVolume(tmpVolume / 100);
   }
 
   /// Seeks playback to a specific [position] in the video.
@@ -378,29 +335,12 @@ class GenericPlaybackController extends OmniPlaybackController {
         _hasStarted = true;
       }
 
-      await Future.wait([
-        if (audioController != null) audioController!.pause(),
-        videoController.pause(),
-      ]);
+      await videoController.pause();
 
-      await Future.wait([
-        if (audioController != null) audioController!.seekTo(position),
-        videoController.seekTo(position),
-      ]);
-
-      // Aspetta che l'audio smetta di fare buffering
-      if (audioController != null) {
-        while ((audioController!.isActuallyBuffering) ||
-            videoController.isActuallyBuffering) {
-          await Future.delayed(Duration(milliseconds: 50));
-        }
-      }
+      await videoController.player.seek(position);
 
       if (wasPlayingBeforeSeek && !isFinished) {
-        await Future.wait([
-          if (audioController != null) audioController!.play(),
-          videoController.play(),
-        ]);
+        await videoController.play();
       }
     } else {
       throw ArgumentError('Seek position exceeds duration');
@@ -450,14 +390,12 @@ class GenericPlaybackController extends OmniPlaybackController {
     _isDisposed = true;
     super.dispose();
     videoController.removeListener(_onControllerUpdate);
-    audioController?.removeListener(_onControllerUpdate);
     // If this controller is still playing according to the global manager,
     // ensure we pause it before disposing.
     if (_globalController?.currentVideoPlaying == this) {
       _globalController?.requestPause();
     }
     await videoController.dispose();
-    await audioController?.dispose();
   }
 
   @override
@@ -476,8 +414,7 @@ class GenericPlaybackController extends OmniPlaybackController {
       throw ArgumentError('Playback speed must be greater than 0');
     }
 
-    videoController.setPlaybackSpeed(speed);
-    audioController?.setPlaybackSpeed(speed);
+    videoController.player.setRate(speed);
     notifyListeners();
   }
 
@@ -496,11 +433,4 @@ class GenericPlaybackController extends OmniPlaybackController {
     _isFullyVisible = value;
     notifyListeners();
   }
-}
-
-class VideoAudioPair {
-  VideoAudioPair(this.videoController, this.audioController);
-
-  final VideoPlaybackController videoController;
-  final AudioPlaybackController? audioController;
 }

@@ -38,7 +38,6 @@ import 'package:omni_video_player/src/widgets/indicators/remaining_playback_time
 class SeekBar extends StatefulWidget {
   final Duration duration;
   final Duration position;
-  final Duration? bufferedPosition;
   final ValueChanged<Duration>? onChanged;
   final ValueChanged<Duration>? onChangeStart;
   final ValueChanged<Duration>? onChangeEnd;
@@ -55,7 +54,6 @@ class SeekBar extends StatefulWidget {
     super.key,
     required this.duration,
     required this.position,
-    required this.bufferedPosition,
     required this.onChanged,
     required this.onChangeStart,
     required this.onChangeEnd,
