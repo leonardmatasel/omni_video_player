@@ -9,14 +9,12 @@
         html {
           width: 100%;
           height: 100%;
-          pointer-events: none !important;
         }
 
         body {
           margin: 0;
           width: 100%;
           height: 100%;
-          pointer-events: none !important;
         }
 
         .embed-container iframe,
@@ -27,7 +25,6 @@
           left: 0;
           width: 100% !important;
           height: 100% !important;
-          pointer-events: none !important;
         }
     </style>
     <title>Youtube Player</title>
@@ -42,7 +39,6 @@
 
 <script>
 
-    var host = "<<host>>";
     var player;
     var timerId;
 
@@ -52,7 +48,7 @@
 
     function onYouTubeIframeAPIReady() {
       player = new YT.Player("<<playerId>>", {
-        host: host,
+        host: 'https://www.youtube-nocookie.com',
         playerVars: <<playerVars>>,
         events: {
           onReady: function (event) {

@@ -34,20 +34,18 @@ class _YouTubeWebViewPlayerViewState extends State<YouTubeWebViewPlayerView> {
       'mute': 1,
       'cc_lang_pref': 'en',
       'cc_load_policy': 0,
-      'color': 'white',
       'controls': 0,
-      'disablekb': 1,
       'enablejsapi': 1,
       'fs': 0,
       'hl': 'en',
       'iv_load_policy': 3,
       'modestbranding': 1,
       'origin': 'https://www.youtube-nocookie.com',
-      'widget_referrer': "https://www.youtube-nocookie.com",
       'showinfo': 0,
-      'autohide': 1,
       'playsinline': 1,
       'rel': 0,
+      'start': 0,
+      'end': 0,
     });
 
     final html = rawHtml
@@ -64,25 +62,37 @@ class _YouTubeWebViewPlayerViewState extends State<YouTubeWebViewPlayerView> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return InAppWebView(
-      initialData: InAppWebViewInitialData(
-        data: _htmlContent!,
-        encoding: 'utf-8',
-        baseUrl: WebUri.uri(Uri.https('youtube-nocookie.com')),
-        mimeType: 'text/html',
+    return IgnorePointer(
+      ignoring: true,
+      child: InAppWebView(
+        initialData: InAppWebViewInitialData(
+          data: _htmlContent!,
+          encoding: 'utf-8',
+          baseUrl: WebUri.uri(Uri.https('youtube-nocookie.com')),
+          mimeType: 'text/html',
+        ),
+        initialSettings: InAppWebViewSettings(
+          mediaPlaybackRequiresUserGesture: false,
+          allowsInlineMediaPlayback: true,
+          useHybridComposition: true,
+          useWideViewPort: false,
+          transparentBackground: true,
+          disableContextMenu: true,
+          supportZoom: false,
+          disableHorizontalScroll: false,
+          disableVerticalScroll: false,
+          allowsAirPlayForMediaPlayback: true,
+          allowsPictureInPictureMediaPlayback: true,
+          userAgent: '',
+        ),
+        onWebViewCreated: (webViewController) {
+          widget.controller.setWebViewController(webViewController);
+        },
+        onLoadStart: (_, _) => widget.controller.isReady = false,
+        onLoadStop: (_, _) => widget.controller.isReady = false,
+        onProgressChanged: (_, progress) =>
+            widget.controller.isBuffering = progress != 100,
       ),
-      initialSettings: InAppWebViewSettings(
-        mediaPlaybackRequiresUserGesture: false,
-        allowsInlineMediaPlayback: true,
-        useHybridComposition: true,
-      ),
-      onWebViewCreated: (webViewController) {
-        widget.controller.setWebViewController(webViewController);
-      },
-      onLoadStart: (_, _) => widget.controller.isReady = false,
-      onLoadStop: (_, _) => widget.controller.isReady = false,
-      onProgressChanged: (_, progress) =>
-          widget.controller.isBuffering = progress != 100,
     );
   }
 }
