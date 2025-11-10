@@ -190,6 +190,7 @@ class YouTubeWebViewEventHandler {
     // Loop when end of video is reached
     if (controller.currentPosition >= controller.duration &&
         controller.duration != const Duration(seconds: 1)) {
+      controller.pause(useGlobalController: false);
       controller.seekTo(Duration.zero);
     }
   }

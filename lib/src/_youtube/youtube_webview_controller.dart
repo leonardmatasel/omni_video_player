@@ -319,7 +319,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
     if (useGlobalController && _globalController != null && !isFullScreen) {
       return await _globalController.requestPlay(this);
     } else {
-      return run('playVideo');
+      return await webViewController?.evaluateJavascript(source: 'play();');
     }
   }
 
@@ -342,7 +342,9 @@ class YouTubeWebViewController extends OmniPlaybackController {
         hasStarted = true;
       }
 
-      await _evaluate('player.seekTo(${position.inSeconds}, true)');
+      await webViewController?.evaluateJavascript(
+        source: 'seekTo(${position.inSeconds}, true);',
+      );
     } else {
       debugPrint('Seek position exceeds duration');
     }
