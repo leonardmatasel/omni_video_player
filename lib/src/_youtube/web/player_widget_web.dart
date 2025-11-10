@@ -29,7 +29,7 @@ class YoutubePlayerWidget extends StatelessWidget {
   width="100%" 
   height="100%" 
   style="border:none;" 
-  src="https://www.youtube.com/embed/$videoId?autoplay=${autoPlay ? 1 : 0}&mute=${mute || autoPlay ? 1 : 0}&start=$start" 
+  src="https://www.youtube.com/embed/$videoId?autoplay=${autoPlay ? 1 : 0}&mute=${mute ? 1 : 0}&start=$start" 
   title="YouTube video player" 
   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
   referrerpolicy="strict-origin-when-cross-origin" 

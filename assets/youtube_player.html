@@ -1,38 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
-    <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <style>
-        html {
-          width: 100%;
-          height: 100%;
-          pointer-events: none !important;
+        html, body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: black;
         }
 
-        body {
-          margin: 0;
-          width: 100%;
-          height: 100%;
-          pointer-events: none !important;
+        .embed-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: black;
+            transition: background-color 0.2s ease;
         }
 
-        .embed-container iframe,
-        .embed-container object,
-        .embed-container embed {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100% !important;
-          height: 100% !important;
-          pointer-events: none !important;
+        .embed-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            transition: opacity 0.18s ease, visibility 0.18s ease;
+        }
+
+        .embed-container iframe.hidden-player {
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        .embed-container iframe.hidden-player + * {
+            background: black;
         }
     </style>
     <title>Youtube Player</title>
 </head>
-
 <body>
 <div class="embed-container">
     <div id="<<playerId>>"></div>
@@ -41,135 +47,75 @@
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-
-    var host = "<<host>>";
     var player;
-    var timerId;
-
-    var lastVolume = null;
-    var lastMuted = null;
-    var lastTime = null;
+    var progressTimer = null;
 
     function onYouTubeIframeAPIReady() {
       player = new YT.Player("<<playerId>>", {
-        host: host,
+        host: "https://www.youtube-nocookie.com",
         playerVars: <<playerVars>>,
         events: {
-          onReady: function (event) {
-            handleFullScreenForMobilePlatform();
-            sendMessage('Ready', event);
-          },
-          onStateChange: function (event) {
-            clearTimeout(timerId);
-            sendMessage('StateChange', event.data);
-            if (event.data == 1) {
-              timerId = setInterval(function () {
-                var state = {
-                  'currentTime': player.getCurrentTime(),
-                  'loadedFraction': player.getVideoLoadedFraction()
-                };
-
-                sendMessage('PlaybackProgress', JSON.stringify(state));
+          onReady: function(e) { handleFullScreenForMobilePlatform(); sendMessage("Ready", e); },
+          onStateChange: function(e) {
+            sendMessage("StateChange", e.data);
+            clearInterval(progressTimer);
+            if (e.data === YT.PlayerState.PLAYING) {
+            const iframe = player.getIframe();
+            iframe.classList.remove("hidden-player");
+              progressTimer = setInterval(()=>{
+                try {
+                  const state = { currentTime: player.getCurrentTime(), loadedFraction: player.getVideoLoadedFraction() };
+                  sendMessage("PlaybackProgress", JSON.stringify(state));
+                } catch(e){}
               }, 800);
             }
           },
-          onPlaybackQualityChange: function (event) {
-            sendMessage('PlaybackQualityChange', event.data);
-          },
-          onPlaybackRateChange: function (event) {
-            sendMessage('PlaybackRateChange', event.data);
-          },
-          onApiChange: function (event) {
-            sendMessage('ApiChange', event.data);
-          },
-          onError: function (event) {
-            sendMessage('PlayerError', event.data);
-          },
-          onAutoplayBlocked: function (event) {
-            sendMessage('AutoplayBlocked', event.data);
-          },
-          onContentSizeChanged: function (event) {
-            sendMessage('onContentSizeChanged', event.data);
-          },
-        },
+          onError: function(e){ sendMessage("PlayerError", e.data); }
+        }
       });
       player.setSize(window.innerWidth, window.innerHeight);
     }
 
-    window.addEventListener('message', (event) => {
-      try {
-
-        if (typeof event.data !== 'string') return;
-
-        var data = JSON.parse(event.data);
-
-        if (!data) return;
-
-        if(data.function){
-          var rawFunction = data.function.replaceAll('<<quote>>', '"');
-          var result = eval(rawFunction);
-
-          if(data.key) {
-            var message = {}
-            message[data.key] = result
-            var messageString = JSON.stringify(message);
-
-            event.source.postMessage(messageString , '*');
-          }
-        }
-      } catch (e) { }
-    }, false);
-
-    window.onresize = function () {
-      player.setSize(window.innerWidth, window.innerHeight);
-    };
-
-    function sendMessage(key, data) {
-       var message = {};
-       message[key] = data;
-       message['playerId'] = '<<playerId>>';
-       window.flutter_inappwebview.callHandler(key, data);
-    }
-
-    function getVideoData() {
-      return prepareDataForPlatform(player.getVideoData());
-    }
-
-    function getPlaylist() {
-      return prepareDataForPlatform(player.getPlaylist());
-    }
-
-    function getAvailablePlaybackRates(){
-      return prepareDataForPlatform(player.getAvailablePlaybackRates());
-    }
-
-    function getPlaybackQuality() {
-      return prepareDataForPlatform(player.getPlaybackQuality());
-    }
-
-    function getAvailableQualityLevels() {
-      return prepareDataForPlatform(player.getAvailableQualityLevels());
-    }
-
-    function setPlaybackQuality(quality) {
-      return player.setPlaybackQuality(quality);
-    }
-
-    function prepareDataForPlatform(data) {
-      return data;
-    }
-
-    function loadById(loadSettings) {
-      player.loadVideoById(loadSettings);
+    // override play
+    async function play() {
+      const iframe = player.getIframe();
+      iframe.classList.add("hidden-player");
+      await sleep(300);
+      let now = 0;
+      try { now = player.getCurrentTime(); } catch(e){ now = 0; }
+      try{ player.playVideo(); } catch(e){}
       return '';
     }
 
-    function play() { player.playVideo(); return ''; }
-    function pause() { player.pauseVideo(); return ''; }
-    function seekTo(position, seekAhead) { player.seekTo(position, seekAhead); return ''; }
-
-    function handleFullScreenForMobilePlatform() {
+    // override seekTo
+    async function seekTo(pos, seekAhead) {
+      const iframe = player.getIframe();
+      iframe.classList.add("hidden-player");
+      await sleep(300);
+      let start = Number(pos)||0;
+      try{ player.seekTo(pos, seekAhead); } catch(e){}
+      return '';
     }
+
+    // override loadById
+    async function loadById(settings) {
+      const iframe = player.getIframe();
+      iframe.classList.add("hidden-player");
+      await sleep(300);
+      let start = 0;
+      if(settings && typeof settings.startSeconds !== "undefined") start = Number(settings.startSeconds)||0;
+      try{ player.loadVideoById(settings); } catch(e){}
+      try{ player.playVideo(); } catch(e){}
+      return '';
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    window.onresize = function(){ try{ player.setSize(window.innerWidth, window.innerHeight); } catch(e){} };
+    function sendMessage(key,data){ var msg={}; msg[key]=data; msg['playerId']='<<playerId>>'; try{ window.flutter_inappwebview.callHandler(key,data); } catch(e){ try{ window.parent.postMessage(JSON.stringify(msg),'*'); } catch(e){} } }
+    function handleFullScreenForMobilePlatform(){}
 </script>
 </body>
 </html>
