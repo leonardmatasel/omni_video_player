@@ -1,3 +1,10 @@
+# 3.3.3
+
+⬆️ **Updates dependencies · Improvement**
+
+* Updated all dependencies.
+* Improved YouTube WebView player and removed all YouTube branding.
+
 # 3.3.2
 
 🛠 **Fix**
