@@ -21,7 +21,7 @@
 
 ## Introduction
 
-**omni\_video\_player** is a Flutter video player built on top of Flutter’s official `video_player` plugin.
+**omni_video_player** is a Flutter video player built on top of Flutter’s official `video_player` plugin. ⚡ **A beta version is also available** with faster video loading and improved iOS handling — see [Beta Version](https://pub.dev/packages/omni_video_player#-beta-version) for details.
 
 It supports **YouTube** (via `youtube_explode_dart` with an **automatic WebView-based fallback** implemented using `webview_flutter`
 to handle cases where YouTube rate-limits requests, temporarily blocking direct extraction — see [issue #323](https://github.com/Hexer10/youtube_explode_dart/issues/323)),
@@ -254,7 +254,30 @@ else
 | 👉 Swipe to Exit Fullscreen | Swipe down (or specific gesture) to exit fullscreen mode                    | ✅                   |
 
 
+<br>
 
+## 🧪 Beta Version
+
+Starting from version **3.3.3-beta**, **omni_video_player** introduces a new video handling implementation to address a known issue with the `video_player` plugin on iOS:
+
+> Currently, the `video_player` package on iOS preloads the entire video before starting playback, causing delays.
+> (see [flutter/flutter#126760](https://github.com/flutter/flutter/issues/126760)).
+
+The beta version uses [`media_kit`](https://pub.dev/packages/media_kit] which) enables:
+
+* 🎬 **Much faster video loading** on both **iOS and Android**
+* 🌐 Better support for multiple resolutions
+
+**Important note:** on the **iOS Simulator**, audio does not work yet, but it works perfectly on real devices and android simulator.
+
+### 📦 Installing the Beta
+
+To use the beta version, specify the full version in your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  omni_video_player: ^3.3.3-beta
+```
 <br>
 
 ## 📄 License
