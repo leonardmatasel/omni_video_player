@@ -1,11 +1,13 @@
 # 3.3.3-beta
 
-⚡ **Faster video loading · iOS improvements**
+⚡ **Replaced `video_player` with `media_kit` · Faster playback**
 
-* New video handling implementation for faster playback on **iOS and Android**.
-* Fixes the `video_player` iOS issue with preloading full videos (see [flutter/flutter#126760](https://github.com/flutter/flutter/issues/126760)).
-* Improved support for multiple resolutions (also on iOS).
-* **Note:** Audio does not work on the iOS Simulator, works on real devices and android Simulator
+* Replaced the underlying `video_player` package with [`media_kit`](https://pub.dev/packages/media_kit) for native video playback.
+* Significantly faster video loading on **iOS and Android**.
+* Resolves the iOS `video_player` issue of preloading the entire video (see [flutter/flutter#126760](https://github.com/flutter/flutter/issues/126760)).
+* Improved support for multiple resolutions.
+* **Note:** Audio does not work on the iOS Simulator, works on real devices and android Simulator.
+
 
 # 3.3.3
 
