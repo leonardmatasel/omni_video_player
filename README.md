@@ -20,7 +20,9 @@
 
 ## Introduction
 
-**omni_video_player** is a Flutter video player built on top of [`media_kit`](https://pub.dev/packages/media_kit) for **native video playback**. ⚡ **This README refers to the 3.3.3-beta version** which introduces faster video loading and improved iOS handling — see [Beta Version](#-beta-version) for details.
+**omni_video_player** is a Flutter video player built on top of [`media_kit`](https://pub.dev/packages/media_kit) for **native video playback**. 
+
+⚡ **This README refers to the 3.3.3-beta version** which introduces faster video loading and improved iOS handling — see [Beta Version](#-beta-version) for details.
 
 It supports **YouTube** (via `youtube_explode_dart` with an **automatic WebView fallback** implemented using `webview_flutter` to handle temporary YouTube rate-limit blocks — see [issue #323](https://github.com/Hexer10/youtube_explode_dart/issues/323)),
 
@@ -29,6 +31,7 @@ It supports **YouTube** (via `youtube_explode_dart` with an **automatic WebView 
 A single unified controller is provided to manage playback across all supported video types seamlessly.
 
 🎨 Highly customizable — tweak UI, show/hide controls, and easily integrate your own widgets.  
+
 🎮 The controller gives full control over video state and callbacks for smooth video management on mobile and web.
 
 🎯 **Long-term goal:** create a universal, flexible, feature-rich video player that works across all platforms and video sources, using robust and actively maintained technologies.
@@ -258,7 +261,7 @@ Starting from version **3.3.3-beta**, **omni_video_player** introduces a new vid
 > Currently, the `video_player` package on iOS preloads the entire video before starting playback, causing delays.
 > (see [flutter/flutter#126760](https://github.com/flutter/flutter/issues/126760)).
 
-The beta version uses [`media_kit`](https://pub.dev/packages/media_kit] which) enables:
+The beta version uses [`media_kit`](https://pub.dev/packages/media_kit) which enables:
 
 * 🎬 **Much faster video loading** on both **iOS and Android**
 * 🌐 Better support for multiple resolutions
