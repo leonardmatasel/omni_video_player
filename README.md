@@ -1,4 +1,3 @@
-
 <h1 align="center">
   <img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/logo_horizontal.png?raw=true" alt="omni_video_player" height="125"/>
 </h1>
@@ -21,20 +20,18 @@
 
 ## Introduction
 
-**omni_video_player** is a Flutter video player built on top of Flutter’s official `video_player` plugin. ⚡ **A beta version is also available** with faster video loading and improved iOS handling — see [Beta Version](https://pub.dev/packages/omni_video_player#-beta-version) for details.
+**omni_video_player** is a Flutter video player built on top of [`media_kit`](https://pub.dev/packages/media_kit) for **native video playback**. ⚡ **This README refers to the 3.3.3-beta version** which introduces faster video loading and improved iOS handling — see [Beta Version](#-beta-version) for details.
 
-It supports **YouTube** (via `youtube_explode_dart` with an **automatic WebView-based fallback** implemented using `webview_flutter`
-to handle cases where YouTube rate-limits requests, temporarily blocking direct extraction — see [issue #323](https://github.com/Hexer10/youtube_explode_dart/issues/323)),
+It supports **YouTube** (via `youtube_explode_dart` with an **automatic WebView fallback** implemented using `webview_flutter` to handle temporary YouTube rate-limit blocks — see [issue #323](https://github.com/Hexer10/youtube_explode_dart/issues/323)),
 
-**Vimeo** videos (now using `webview_flutter` for improved stability and maintainability),
-as well as network and asset videos.
+**Vimeo** videos (via `webview_flutter` for stability), as well as network and asset videos.
 
 A single unified controller is provided to manage playback across all supported video types seamlessly.
 
-🎨 Highly customizable — tweak UI, show/hide controls, and easily integrate your own widgets.
+🎨 Highly customizable — tweak UI, show/hide controls, and easily integrate your own widgets.  
 🎮 The controller gives full control over video state and callbacks for smooth video management on mobile and web.
 
-🎯 **Long-term goal:** to create a universal, flexible, and feature-rich video player that works flawlessly across all platforms and video sources, using the most robust and actively maintained technologies to ensure consistent behavior over time.
+🎯 **Long-term goal:** create a universal, flexible, feature-rich video player that works across all platforms and video sources, using robust and actively maintained technologies.
 
 <br>
 
@@ -42,7 +39,7 @@ A single unified controller is provided to manage playback across all supported 
 
 | Video Source Type | Android | iOS | Web | Status                                                                                                                                                                |
 |-------------------| ------- | --- | -- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| YouTube           | ✅       | ✅   | ✅  | ✅ Supported — uses `youtube_explode_dart` by default on mobile, and WebView (`webview_flutter`) on web or as fallback on mobile to bypass temporary rate-limit blocks |
+| YouTube           | ✅       | ✅   | ✅  | ✅ Supported — uses `youtube_explode_dart` on mobile, WebView (`webview_flutter`) fallback on mobile/web                                                             |
 | Vimeo             | ✅       | ✅   | ❌  | ✅ Supported — uses `webview_flutter`                                                                                                                                  |
 | Network           | ✅       | ✅   | ✅  | ✅ Supported                                                                                                                                                           |
 | Asset             | ✅       | ✅   | ✅  | ✅ Supported                                                                                                                                                           |
@@ -57,8 +54,8 @@ A single unified controller is provided to manage playback across all supported 
 
 * ✅ Play videos from:
 
-  * YouTube (live and regular videos, with automatic WebView fallback powered by `webview_flutter` to keep playback working even under temporary YouTube rate-limit restrictions)
-  * Vimeo (public — now using official `webview_flutter` for stable playback)
+  * YouTube (live and regular videos, with automatic WebView fallback)
+  * Vimeo (public — stable playback with `webview_flutter`)
   * Network video URLs
   * Flutter app assets
   * File from device
@@ -74,7 +71,6 @@ A single unified controller is provided to manage playback across all supported 
 
   * Supports **YouTube quality switching**
   * Supports **HLS/network stream quality switching**
-  
 
 <br>
 
@@ -92,9 +88,8 @@ Check the latest version on: [![Pub Version](https://img.shields.io/pub/v/omni_v
 
 ```yaml
 dependencies:
-  omni_video_player: <latest_version>
+  omni_video_player: <latest_beta_version>
 ````
-
 
 ---
 
@@ -191,9 +186,9 @@ VideoSourceConfiguration.file(
 Explore the [`example/`](https://github.com/leonardmatasel/omni_video_player/tree/main/example) folder for working demos:
 
 * **Full demo** using different video sources: [`main.dart`](https://github.com/leonardmatasel/omni_video_player/blob/main/example/lib/main.dart)
-* **Full YouTube setup** with controller and all available configuration options: [`example.dart`](https://github.com/leonardmatasel/omni_video_player/blob/main/example/lib/example.dart)
+* **Full YouTube setup** with controller and all configuration options: [`example.dart`](https://github.com/leonardmatasel/omni_video_player/blob/main/example/lib/example.dart)
 
-> 💡 Great starting points to understand how to integrate and customize the player.
+> 💡 Great starting points to integrate and customize the player.
 
 <br>
 
@@ -278,8 +273,10 @@ To use the beta version, specify the full version in your `pubspec.yaml`:
 dependencies:
   omni_video_player: ^3.3.3-beta
 ```
+
 <br>
 
 ## 📄 License
 
 BSD 3-Clause License – see [LICENSE](LICENSE)
+
