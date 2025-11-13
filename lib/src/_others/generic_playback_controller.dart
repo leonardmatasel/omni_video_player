@@ -229,7 +229,9 @@ class GenericPlaybackController extends OmniPlaybackController {
   /// Returns true if the video playback has reached the end.
   @override
   bool get isFinished =>
-      (currentPosition.inSeconds >= duration.inSeconds) && !isLive;
+      (currentPosition.inSeconds >= duration.inSeconds - 1 &&
+          duration.inSeconds != 1) &&
+      !isLive;
 
   /// Returns the total duration of the video.
   @override

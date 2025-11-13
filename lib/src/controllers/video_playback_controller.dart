@@ -51,7 +51,6 @@ class VideoPlaybackController with ChangeNotifier {
 
   void _listenToStreams() {
     final streams = [
-      player.stream.playing,
       player.stream.position,
       player.stream.duration,
       player.stream.volume,
@@ -65,6 +64,8 @@ class VideoPlaybackController with ChangeNotifier {
     videoController.waitUntilFirstFrameRendered.then(
       (value) => _isReady = true,
     );
+
+    player.stream.playing.listen((_) => notifyListeners());
 
     // --- throttling ---
     Timer? notifyTimer;

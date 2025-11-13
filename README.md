@@ -274,7 +274,7 @@ To use the beta version, specify the full version in your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  omni_video_player: 3.3.4-beta
+  omni_video_player: 3.3.5-beta
 ```
 
 <br>

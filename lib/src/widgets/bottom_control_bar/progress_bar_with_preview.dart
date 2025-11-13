@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
+import 'package:media_kit_video/media_kit_video.dart';
+import 'package:omni_video_player/src/controllers/video_playback_controller.dart';
 
 import 'progress_bar.dart';
 import '../../../omni_video_player/controllers/omni_playback_controller.dart';
@@ -35,22 +36,23 @@ class ProgressBarWithPreview extends StatefulWidget {
 class _ProgressBarWithPreviewState extends State<ProgressBarWithPreview> {
   double? _dragValue;
   bool _showPreview = false;
-  VideoPlayerController? _previewController;
+  VideoPlaybackController? _previewController;
 
   @override
   void initState() {
     super.initState();
     if (widget.controller.videoUrl != null) {
-      _previewController = VideoPlayerController.networkUrl(
-        widget.controller.videoUrl!,
-      )..initialize();
+      _previewController = VideoPlaybackController.uri(
+        widget.controller.videoUrl!.toString(),
+      );
     } else if (widget.controller.videoDataSource != null) {
-      _previewController = VideoPlayerController.asset(
+      _previewController = VideoPlaybackController.asset(
         widget.controller.videoDataSource!,
-      )..initialize();
+      );
     } else if (widget.controller.file != null) {
-      _previewController = VideoPlayerController.file(widget.controller.file!)
-        ..initialize();
+      _previewController = VideoPlaybackController.file(
+        widget.controller.file!,
+      );
     }
   }
 
@@ -69,7 +71,7 @@ class _ProgressBarWithPreviewState extends State<ProgressBarWithPreview> {
     setState(() {
       _dragValue = value;
     });
-    _previewController?.seekTo(Duration(milliseconds: value.round()));
+    _previewController?.player.seek(Duration(milliseconds: value.round()));
     widget.onChanged?.call(Duration(milliseconds: value.round()));
   }
 
@@ -114,7 +116,7 @@ class _ProgressBarWithPreviewState extends State<ProgressBarWithPreview> {
             if (widget.showScrubbingThumbnailPreview &&
                 _previewController != null &&
                 _showPreview &&
-                _previewController!.value.isInitialized)
+                _previewController!.isReady)
               Positioned(
                 left: (thumbX - 50).clamp(0, constraints.maxWidth - 100),
                 bottom: 40,
@@ -139,8 +141,12 @@ class _ProgressBarWithPreviewState extends State<ProgressBarWithPreview> {
                       fit: BoxFit.cover,
                       child: SizedBox(
                         width: 160,
-                        height: 90,
-                        child: VideoPlayer(_previewController!),
+                        height: 122,
+                        child: Video(
+                          width: 160,
+                          height: 122,
+                          controller: _previewController!.videoController,
+                        ),
                       ),
                     ),
                   ),
