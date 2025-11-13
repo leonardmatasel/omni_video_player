@@ -1,3 +1,9 @@
+# 3.3.4
+
+⬆️ **Updates dependencies**
+
+* Updated all dependencies.
+
 # 3.3.3
 
 ⬆️ **Updates dependencies · Improvement**
