@@ -125,6 +125,9 @@ class PlayerUIVisibilityOptions {
   /// If `false`, it will follow the standard visibility behavior.
   final bool showBottomControlsBarOnPause;
 
+  /// Whether to show the scrubbing thumbnail preview when dragging the seek bar.
+  final bool showScrubbingThumbnailPreview;
+
   /// Creates a new instance of [PlayerUIVisibilityOptions].
   ///
   /// All options default to `true` except:
@@ -160,6 +163,7 @@ class PlayerUIVisibilityOptions {
     this.customAspectRatioNormal,
     this.customAspectRatioFullScreen,
     this.fullscreenOrientation,
+    this.showScrubbingThumbnailPreview = true,
   });
 
   /// Returns a copy of this [PlayerUIVisibilityOptions] with
@@ -194,6 +198,7 @@ class PlayerUIVisibilityOptions {
     double? customAspectRatioNormal,
     double? customAspectRatioFullScreen,
     Orientation? fullscreenOrientation,
+    bool? showScrubbingThumbnailPreview,
   }) {
     return PlayerUIVisibilityOptions(
       showSeekBar: showSeekBar ?? this.showSeekBar,
@@ -244,6 +249,8 @@ class PlayerUIVisibilityOptions {
           alwaysShowBottomControlsBar ?? this.alwaysShowBottomControlsBar,
       showBottomControlsBarOnPause:
           showBottomControlsBarOnPause ?? this.showBottomControlsBarOnPause,
+      showScrubbingThumbnailPreview:
+          showScrubbingThumbnailPreview ?? this.showScrubbingThumbnailPreview,
     );
   }
 }

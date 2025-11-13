@@ -26,6 +26,7 @@ class VideoSeekBar extends StatelessWidget {
     required this.customRemainingTimeDisplay,
     required this.onSeekStart,
     required this.onSeekEnd,
+    required this.showScrubbingThumbnailPreview,
   });
 
   /// Controls the playback and provides timing information.
@@ -65,6 +66,8 @@ class VideoSeekBar extends StatelessWidget {
   final void Function(Duration)? onSeekStart;
 
   final void Function(Duration)? onSeekEnd;
+
+  final bool showScrubbingThumbnailPreview;
 
   @override
   Widget build(BuildContext context) {
@@ -116,5 +119,6 @@ class VideoSeekBar extends StatelessWidget {
         allowSeeking: allowSeeking,
         customDurationDisplay: customDurationDisplay,
         customRemainingTimeDisplay: customRemainingTimeDisplay,
+        showScrubbingThumbnailPreview: showScrubbingThumbnailPreview,
       );
 }

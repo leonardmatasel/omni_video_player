@@ -62,6 +62,8 @@ class VideoPlaybackControlBar extends StatelessWidget {
             controller: controller,
             liveLabel: options.liveLabel,
             showCurrentTime: options.playerUIVisibilityOptions.showCurrentTime,
+            showScrubbingThumbnailPreview:
+                options.playerUIVisibilityOptions.showScrubbingThumbnailPreview,
             showDurationTime:
                 options.playerUIVisibilityOptions.showDurationTime,
             showRemainingTime:

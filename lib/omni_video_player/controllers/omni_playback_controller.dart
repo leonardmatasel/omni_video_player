@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 
@@ -55,6 +57,8 @@ abstract class OmniPlaybackController with ChangeNotifier {
 
   /// The raw data source of the video, such as a URL or asset path.
   String? get videoDataSource;
+
+  File? get file;
 
   /// A unique video identifier (e.g., YouTube/Vimeo video ID).
   String? get videoId;

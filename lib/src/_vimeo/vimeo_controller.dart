@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -390,4 +391,7 @@ class VimeoController extends OmniPlaybackController {
     _evaluate("player.setPlaybackRate($speed);");
     notifyListeners();
   }
+
+  @override
+  File? get file => null;
 }
