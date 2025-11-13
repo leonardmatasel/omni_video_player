@@ -1,3 +1,9 @@
+# 3.3.4 - 3.3.4-beta
+
+⬆️ **Updates dependencies**
+
+* Updated all dependencies.
+
 # 3.3.3-beta
 
 ⚡ **Replaced `video_player` with `media_kit` · Faster playback**
