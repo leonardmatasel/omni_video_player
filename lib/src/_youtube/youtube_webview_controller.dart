@@ -461,4 +461,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
     _isFullyVisible = value;
     notifyListeners();
   }
+
+  @override
+  File? get file => null;
 }

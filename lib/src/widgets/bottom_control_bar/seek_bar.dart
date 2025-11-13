@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
-import 'package:omni_video_player/src/widgets/bottom_control_bar/progress_bar.dart';
+import 'package:omni_video_player/src/widgets/bottom_control_bar/progress_bar_with_preview.dart';
 import 'package:omni_video_player/src/widgets/indicators/playback_time_display.dart';
 import 'package:omni_video_player/src/widgets/indicators/remaining_playback_time.dart';
 
@@ -35,7 +35,7 @@ import 'package:omni_video_player/src/widgets/indicators/remaining_playback_time
 ///   controller: playbackController,
 /// )
 /// ```
-class SeekBar extends StatefulWidget {
+class SeekBar extends StatelessWidget {
   final Duration duration;
   final Duration position;
   final Duration? bufferedPosition;
@@ -46,6 +46,7 @@ class SeekBar extends StatefulWidget {
   final bool showCurrentTime;
   final bool showDurationTime;
   final bool allowSeeking;
+  final bool showScrubbingThumbnailPreview;
   final Widget? customDurationDisplay;
   final Widget? customRemainingTimeDisplay;
   final Widget? customTimeDisplay;
@@ -65,71 +66,49 @@ class SeekBar extends StatefulWidget {
     required this.customTimeDisplay,
     required this.controller,
     required this.allowSeeking,
+    required this.showScrubbingThumbnailPreview,
     required this.customDurationDisplay,
     required this.customRemainingTimeDisplay,
   });
 
   @override
-  State<SeekBar> createState() => _SeekBarState();
-}
-
-class _SeekBarState extends State<SeekBar> {
-  double? _dragValue;
-
-  @override
   Widget build(BuildContext context) {
     final theme = OmniVideoPlayerTheme.of(context)!;
-
-    final positionValue =
-        _dragValue ?? widget.position.inMilliseconds.toDouble();
-    final durationValue = widget.duration.inMilliseconds.toDouble();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          widget.showCurrentTime || widget.showDurationTime
+          showCurrentTime || showDurationTime
               ? Align(
                   alignment: Alignment.topLeft,
                   child:
-                      widget.customDurationDisplay ??
+                      customDurationDisplay ??
                       PlaybackTimeDisplay(
-                        controller: widget.controller,
-                        showCurrentTime: widget.showCurrentTime,
-                        showDurationTime: widget.showDurationTime,
+                        controller: controller,
+                        showCurrentTime: showCurrentTime,
+                        showDurationTime: showDurationTime,
                       ),
                 )
               : const SizedBox(height: 18),
 
           // Custom Progress Bar with thumb and active color
-          ProgressBar(
-            value: positionValue.toDouble(),
-            max: durationValue,
-            allowSeeking: widget.allowSeeking,
+          ProgressBarWithPreview(
             activeColor: theme.colors.active,
             thumbColor: theme.colors.thumb ?? theme.colors.active,
             inactiveColor: theme.colors.inactive,
-            onChanged: (val) {
-              setState(() {
-                _dragValue = val;
-              });
-              widget.onChanged?.call(Duration(milliseconds: val.round()));
-            },
-            onChangeStart: (value) {
-              widget.onChangeStart?.call(Duration(milliseconds: value.round()));
-            },
-            onChangeEnd: (value) {
-              setState(() {
-                _dragValue = null;
-              });
-              widget.onChangeEnd?.call(Duration(milliseconds: value.round()));
-            },
+            controller: controller,
+            onChanged: onChanged,
+            onChangeStart: onChangeStart,
+            onChangeEnd: onChangeEnd,
+            allowSeeking: allowSeeking,
+            showScrubbingThumbnailPreview: showScrubbingThumbnailPreview,
           ),
 
           // Optional remaining playback time below the bar
-          widget.showRemainingTime
-              ? widget.customRemainingTimeDisplay ??
+          showRemainingTime
+              ? customRemainingTimeDisplay ??
                     Align(
                       alignment: Alignment.bottomRight,
                       child: RemainingPlaybackTime(duration: _remaining),
@@ -140,5 +119,5 @@ class _SeekBarState extends State<SeekBar> {
     );
   }
 
-  Duration get _remaining => widget.duration - widget.position;
+  Duration get _remaining => duration - position;
 }

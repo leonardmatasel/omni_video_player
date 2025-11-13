@@ -21,6 +21,9 @@ class GenericPlaybackController extends OmniPlaybackController {
   final VideoPlayerCallbacks callbacks;
   final GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer;
 
+  @override
+  final File? file;
+
   VideoSourceType type;
   Map<OmniVideoQuality, Uri>? qualityUrls;
   @override
@@ -62,6 +65,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     this.audioController,
     this.videoUrl,
     this.videoDataSource,
+    this.file,
     this.isLive,
     this._globalController,
     Duration initialPosition,
@@ -132,6 +136,7 @@ class GenericPlaybackController extends OmniPlaybackController {
       audioController,
       videoUrl,
       dataSource,
+      file,
       isLive,
       globalController,
       initialPosition,
