@@ -128,6 +128,17 @@ class PlayerUIVisibilityOptions {
   /// Whether to show the scrubbing thumbnail preview when dragging the seek bar.
   final bool showScrubbingThumbnailPreview;
 
+  /// Whether the video player should only occupy the natural video space
+  /// instead of expanding to fill all available space.
+  ///
+  /// If `true`, the layout respects the video's aspect ratio and constrains
+  /// itself to the video’s natural size.
+  ///
+  /// If `false` (default), the player expands to fill all available space.
+  ///
+  /// Defaults to `true`.
+  final bool fitVideoToBounds;
+
   /// Creates a new instance of [PlayerUIVisibilityOptions].
   ///
   /// All options default to `true` except:
@@ -164,6 +175,7 @@ class PlayerUIVisibilityOptions {
     this.customAspectRatioFullScreen,
     this.fullscreenOrientation,
     this.showScrubbingThumbnailPreview = true,
+    this.fitVideoToBounds = true,
   });
 
   /// Returns a copy of this [PlayerUIVisibilityOptions] with
@@ -199,6 +211,7 @@ class PlayerUIVisibilityOptions {
     double? customAspectRatioFullScreen,
     Orientation? fullscreenOrientation,
     bool? showScrubbingThumbnailPreview,
+    bool? fitVideoToBounds,
   }) {
     return PlayerUIVisibilityOptions(
       showSeekBar: showSeekBar ?? this.showSeekBar,
@@ -251,6 +264,7 @@ class PlayerUIVisibilityOptions {
           showBottomControlsBarOnPause ?? this.showBottomControlsBarOnPause,
       showScrubbingThumbnailPreview:
           showScrubbingThumbnailPreview ?? this.showScrubbingThumbnailPreview,
+      fitVideoToBounds: fitVideoToBounds ?? this.fitVideoToBounds,
     );
   }
 }

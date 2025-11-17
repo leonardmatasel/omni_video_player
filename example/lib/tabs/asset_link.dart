@@ -24,8 +24,8 @@ class AssetLink extends StatelessWidget {
               showPlaybackSpeedButton: true,
             ),
             customPlayerWidgets: CustomPlayerWidgets().copyWith(
-              loadingWidget: const Center(
-                child: CircularProgressIndicator(color: Colors.blueAccent),
+              loadingWidget: CircularProgressIndicator(
+                color: Colors.blueAccent,
               ),
             ),
             playerTheme: OmniVideoPlayerThemeData().copyWith(

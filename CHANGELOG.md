@@ -1,3 +1,13 @@
+# 3.3.6 - 3.3.6-beta
+
+✨ **New Features**
+
+* Added new `fitVideoToBounds` parameter in `PlayerUIVisibilityOptions` to control whether the video fills the available area (default: `true`).
+
+🛠 **Fix**
+
+* Minor stability and UI fixes.
+
 # 3.3.5 - 3.3.5-beta
 
 ✨ **New Features**

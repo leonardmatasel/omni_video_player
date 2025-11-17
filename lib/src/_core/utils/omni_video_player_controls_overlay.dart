@@ -227,16 +227,23 @@ class _OmniVideoPlayerControlsOverlayState
 
     final layers = <Widget>[
       widget.child,
-      Container(color: Colors.transparent), // tap-catcher for web views
       _buildDoubleTapZones(),
-      _buildSkipIndicator(),
+      Positioned.fill(
+        child: Align(alignment: Alignment.center, child: _buildSkipIndicator()),
+      ),
       _buildBottomBar(
         areOverlayVisible,
         onStartInteraction: onStartInteraction,
         onEndInteraction: onEndInteraction,
       ),
-      if (ctrl.isSeeking) const LoaderIndicator(),
-      _buildCenterButton(isButtonVisible),
+      if (ctrl.isSeeking)
+        Positioned.fill(
+          child: Align(
+            alignment: Alignment.center,
+            child: const LoaderIndicator(),
+          ),
+        ),
+      Positioned.fill(child: _buildCenterButton(isButtonVisible)),
     ];
 
     // Add custom overlay layers from configuration
@@ -251,7 +258,7 @@ class _OmniVideoPlayerControlsOverlayState
             (ctrl.size.width / ctrl.size.height);
         layers.insert(
           overlay.level,
-          Center(
+          Positioned.fill(
             child: AspectRatio(
               aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
               child: overlay.widget,

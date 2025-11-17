@@ -6,6 +6,7 @@ import 'package:omni_video_player/omni_video_player/theme/omni_video_player_them
 import 'package:omni_video_player/src/_youtube/youtube_webview_controller.dart';
 import 'package:omni_video_player/src/navigation/route_aware_listener.dart';
 import 'package:omni_video_player/src/_core/utils/omni_video_player_viewport.dart';
+import 'package:omni_video_player/src/utils/conditional_parent.dart';
 import 'package:omni_video_player/src/utils/overlay_transition_switcher.dart';
 import 'package:omni_video_player/src/_core/omni_video_player_thumbnail.dart';
 import 'package:omni_video_player/src/_core/utils/omni_video_player_controls_overlay.dart';
@@ -62,7 +63,16 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
           if (_shouldShowThumbnailPreview())
             _buildThumbnailPreview(theme, aspectRatio),
           if (!controller.isReady && _shouldShowThumbnailPreview())
-            config.customPlayerWidgets.loadingWidget,
+            ConditionalParent(
+              wrapWhen: !widget
+                  .configuration
+                  .playerUIVisibilityOptions
+                  .fitVideoToBounds,
+              wrapWith: (context, child) => Center(child: child),
+              child: Positioned.fill(
+                child: Center(child: config.customPlayerWidgets.loadingWidget),
+              ),
+            ),
         ],
       ),
     );
@@ -82,7 +92,10 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
     OmniVideoPlayerThemeData theme,
     double aspectRatio,
   ) {
-    return Positioned.fill(
+    return ConditionalParent(
+      wrapWhen:
+          !widget.configuration.playerUIVisibilityOptions.fitVideoToBounds,
+      wrapWith: (context, child) => Center(child: child),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
         child: OverlayTransitionSwitcher(
@@ -136,7 +149,10 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
     OmniVideoPlayerThemeData theme,
     double aspectRatio,
   ) {
-    return Center(
+    return ConditionalParent(
+      wrapWhen:
+          !widget.configuration.playerUIVisibilityOptions.fitVideoToBounds,
+      wrapWith: (context, child) => Center(child: child),
       child: AspectRatio(
         aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
         child: ClipRRect(

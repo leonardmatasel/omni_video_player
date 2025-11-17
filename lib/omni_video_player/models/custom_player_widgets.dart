@@ -80,7 +80,7 @@ class CustomPlayerWidgets {
   /// Creates a new instance of [CustomPlayerWidgets] with optional overrides
   /// for all supported customizations.
   const CustomPlayerWidgets({
-    this.loadingWidget = const Center(child: CircularProgressIndicator()),
+    this.loadingWidget = const CircularProgressIndicator(),
     this.errorPlaceholder,
     this.bottomControlsBar,
     this.leadingBottomButtons = const [],
