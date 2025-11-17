@@ -345,6 +345,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
       await webViewController?.evaluateJavascript(
         source: 'seekTo(${position.inSeconds}, true);',
       );
+      currentPosition = position;
     } else {
       debugPrint('Seek position exceeds duration');
     }

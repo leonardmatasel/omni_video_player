@@ -106,17 +106,16 @@ class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
       orientation: preferredOrientation,
       child: Material(
         color: Colors.black,
-        child: SafeArea(
-          top: false,
-          bottom: false,
-          child: OmniVideoPlayerControlsOverlay(
-            playerBarPadding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 16,
-            ),
-            controller: widget.controller,
-            configuration: widget.configuration,
-            callbacks: widget.callbacks,
+        child: OmniVideoPlayerControlsOverlay(
+          playerBarPadding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 16,
+          ),
+          controller: widget.controller,
+          configuration: widget.configuration,
+          callbacks: widget.callbacks,
+          child: Align(
+            alignment: Alignment.center,
             child: OmniVideoPlayerViewport(
               controller: widget.controller,
               isFullScreenDisplay: true,

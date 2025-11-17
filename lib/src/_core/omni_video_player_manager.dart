@@ -138,14 +138,19 @@ class _OmniVideoPlayerManagerState extends State<OmniVideoPlayerManager> {
         return AnimatedBuilder(
           animation: controller,
           builder: (context, child) {
-            return Container(
+            return Align(
               alignment: Alignment.center,
               child: Stack(
                 children: [
                   if (visibilityOptions.showLoadingWidget &&
                       !controller.isReady &&
                       !controller.hasError)
-                    customWidgets.loadingWidget,
+                    Positioned.fill(
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: customWidgets.loadingWidget,
+                      ),
+                    ),
                   if (!controller.hasError)
                     OmniVideoPlayerView(
                       configuration: config.copyWith(

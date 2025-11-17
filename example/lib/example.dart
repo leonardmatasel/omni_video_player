@@ -145,11 +145,10 @@ class _VideoScreenState extends State<VideoScreen> {
                   fullscreenOrientation: null,
                   showBottomControlsBarOnPause: false,
                   alwaysShowBottomControlsBar: false,
+                  fitVideoToBounds: true,
                 ),
                 customPlayerWidgets: CustomPlayerWidgets().copyWith(
-                  loadingWidget: const Center(
-                    child: CircularProgressIndicator(color: Colors.red),
-                  ),
+                  loadingWidget: CircularProgressIndicator(color: Colors.red),
                   errorPlaceholder: null,
                   bottomControlsBar: null,
                   leadingBottomButtons: null,

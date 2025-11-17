@@ -41,13 +41,11 @@ class OmniVideoPlayerViewport extends StatelessWidget {
 
         final shouldRender = isFullScreenDisplay == controller.isFullScreen;
 
-        return Center(
-          child: AspectRatio(
-            aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
-            child: shouldRender
-                ? (player ?? const SizedBox.shrink())
-                : const SizedBox.shrink(),
-          ),
+        return AspectRatio(
+          aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
+          child: shouldRender
+              ? (player ?? const SizedBox.shrink())
+              : const SizedBox.shrink(),
         );
       },
     );

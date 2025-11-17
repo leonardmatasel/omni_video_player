@@ -199,7 +199,8 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
     return Stack(
       children: [
         if (showThumbnail && hasThumb)
-          Center(
+          Align(
+            alignment: Alignment.center,
             child: AspectRatio(
               aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
               child: ClipRRect(
@@ -215,9 +216,15 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
             ),
           ),
         if (widget.configuration.playerUIVisibilityOptions.showLoadingWidget)
-          widget.configuration.customPlayerWidgets.loadingWidget
-        else
-          const SizedBox.shrink(),
+          Align(
+            alignment: Alignment.center,
+            child: AspectRatio(
+              aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
+              child: Center(
+                child: widget.configuration.customPlayerWidgets.loadingWidget,
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -228,11 +235,13 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
 
     if (!showError) return const SizedBox.shrink();
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
-      child:
-          widget.configuration.customPlayerWidgets.errorPlaceholder ??
-          const OmniVideoPlayerErrorView(),
+    return Positioned.fill(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
+        child:
+            widget.configuration.customPlayerWidgets.errorPlaceholder ??
+            const OmniVideoPlayerErrorView(),
+      ),
     );
   }
 

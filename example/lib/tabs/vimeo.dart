@@ -60,9 +60,7 @@ class _VimeoState extends State<Vimeo> {
               showPlaybackSpeedButton: true,
             ),
             customPlayerWidgets: CustomPlayerWidgets().copyWith(
-              loadingWidget: Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              ),
+              loadingWidget: CircularProgressIndicator(color: Colors.white),
             ),
             playerTheme: OmniVideoPlayerThemeData().copyWith(
               overlays: VideoPlayerOverlayTheme().copyWith(

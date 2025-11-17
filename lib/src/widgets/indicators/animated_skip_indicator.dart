@@ -15,18 +15,16 @@ class AnimatedSkipIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = OmniVideoPlayerTheme.of(context)!;
 
-    return Center(
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: theme.colors.playPauseBackground.withAlpha(100),
-          borderRadius: BorderRadius.circular(200),
-        ),
-        child: Icon(
-          _getSkipIcon(skipDirection, skipSeconds, theme.icons),
-          size: 36,
-          color: theme.colors.playPauseIcon ?? theme.colors.icon,
-        ),
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: theme.colors.playPauseBackground.withAlpha(100),
+        borderRadius: BorderRadius.circular(200),
+      ),
+      child: Icon(
+        _getSkipIcon(skipDirection, skipSeconds, theme.icons),
+        size: 36,
+        color: theme.colors.playPauseIcon ?? theme.colors.icon,
       ),
     );
   }

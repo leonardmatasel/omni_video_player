@@ -62,9 +62,7 @@ class YT extends StatelessWidget {
             ),
             customPlayerWidgets: CustomPlayerWidgets().copyWith(
               thumbnailFit: BoxFit.fitWidth,
-              loadingWidget: Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              ),
+              loadingWidget: CircularProgressIndicator(color: Colors.white),
             ),
             playerTheme: OmniVideoPlayerThemeData().copyWith(
               icons: VideoPlayerIconTheme().copyWith(error: Icons.warning),

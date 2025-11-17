@@ -35,6 +35,7 @@ class ProgressBarWithPreview extends StatefulWidget {
 class _ProgressBarWithPreviewState extends State<ProgressBarWithPreview> {
   double? _dragValue;
   bool _showPreview = false;
+  Duration previousDuration = Duration.zero;
   VideoPlayerController? _previewController;
 
   @override
@@ -69,7 +70,12 @@ class _ProgressBarWithPreviewState extends State<ProgressBarWithPreview> {
     setState(() {
       _dragValue = value;
     });
-    _previewController?.seekTo(Duration(milliseconds: value.round()));
+    if (_previewController != null &&
+        (value - previousDuration.inMilliseconds).abs() > 5000) {
+      _previewController?.seekTo(Duration(milliseconds: value.round()));
+      setState(() {});
+    }
+
     widget.onChanged?.call(Duration(milliseconds: value.round()));
   }
 
