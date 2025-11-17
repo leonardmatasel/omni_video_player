@@ -269,13 +269,24 @@ The beta version uses [`media_kit`](https://pub.dev/packages/media_kit) which en
 
 **Important note:** on the **iOS Simulator**, audio does not work yet, but it works perfectly on real devices and android simulator.
 
+### ⚡ Initialization
+
+Before using any video player in your app, **you must call**:
+
+```dart
+OmniVideoPlayer.ensureInitialized();
+```
+
+This ensures the underlying media engine is properly initialized.
+
+
 ### 📦 Installing the Beta
 
 To use the beta version, specify the full version in your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  omni_video_player: 3.3.4-beta
+  omni_video_player: 3.3.6-beta
 ```
 
 <br>
