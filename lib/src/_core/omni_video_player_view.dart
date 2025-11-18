@@ -68,7 +68,7 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
                   !widget
                       .configuration
                       .playerUIVisibilityOptions
-                      .fitVideoToBounds &&
+                      .fitVideoToBounds ||
                   _getAspectRatio() < 1,
               wrapWith: (context, child) => Center(child: child),
               child: Positioned.fill(
@@ -96,7 +96,7 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
   ) {
     return ConditionalParent(
       wrapWhen:
-          !widget.configuration.playerUIVisibilityOptions.fitVideoToBounds &&
+          !widget.configuration.playerUIVisibilityOptions.fitVideoToBounds ||
           _getAspectRatio() < 1,
       wrapWith: (context, child) => Center(child: child),
       child: ClipRRect(
@@ -154,7 +154,7 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
   ) {
     return ConditionalParent(
       wrapWhen:
-          !widget.configuration.playerUIVisibilityOptions.fitVideoToBounds &&
+          !widget.configuration.playerUIVisibilityOptions.fitVideoToBounds ||
           _getAspectRatio() < 1,
       wrapWith: (context, child) => Center(child: child),
       child: AspectRatio(
