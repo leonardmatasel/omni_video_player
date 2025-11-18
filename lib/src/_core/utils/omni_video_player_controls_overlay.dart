@@ -70,15 +70,6 @@ class _OmniVideoPlayerControlsOverlayState
     super.dispose();
   }
 
-  double _getAspectRatio() {
-    final customRatio =
-        widget.configuration.playerUIVisibilityOptions.customAspectRatioNormal;
-    if (customRatio != null) return customRatio;
-
-    final size = widget.controller.size;
-    return size.width / size.height;
-  }
-
   // 🌀 TAP HANDLERS ------------------------------------------------------------
 
   /// Handles a double tap gesture in the given [direction].
@@ -238,11 +229,11 @@ class _OmniVideoPlayerControlsOverlayState
       Positioned.directional(
         textDirection: TextDirection.ltr,
         child: AspectRatio(
-          aspectRatio: _getAspectRatio(),
+          aspectRatio: 16 / 9,
           child: Center(child: widget.child),
         ),
       ),
-      Container(color: Colors.transparent, height: 50),
+
       _buildDoubleTapZones(),
       Positioned.fill(
         child: Align(alignment: Alignment.center, child: _buildSkipIndicator()),
