@@ -1,4 +1,12 @@
-# 3.3.6 - 3.3.6-beta
+# 3.3.13, 3.3.13-beta
+
+🛠 **Fix**
+
+* Fixed the issue where **unlisted YouTube videos kept loading**.
+
+  * See issue: [#50](https://github.com/leonardmatasel/omni_video_player/issues/50)
+
+# 3.3.12 - 3.3.6
 
 ✨ **New Features**
 
@@ -8,7 +16,7 @@
 
 * Minor stability and UI fixes.
 
-# 3.3.5 - 3.3.5-beta
+# 3.3.5, 3.3.5-beta
 
 ✨ **New Features**
 
@@ -18,7 +26,7 @@
   * This parameter allows developers to **enable or disable the small preview thumbnail** that appears when **dragging the seek bar**.
   * Default value is `true`, ensuring the preview is shown unless explicitly turned off.
 
-# 3.3.4 - 3.3.4-beta
+# 3.3.4, 3.3.4-beta
 
 ⬆️ **Updates dependencies**
 

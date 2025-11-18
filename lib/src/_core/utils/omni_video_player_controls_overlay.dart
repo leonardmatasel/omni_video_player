@@ -6,6 +6,7 @@ import 'package:omni_video_player/omni_video_player/models/player_ui_visibility_
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
+import 'package:omni_video_player/src/utils/conditional_parent.dart';
 import 'package:omni_video_player/src/widgets/playback_controls_visibility_manager.dart';
 import 'package:omni_video_player/src/widgets/playback_center_button.dart';
 import 'package:omni_video_player/src/widgets/bottom_control_bar/gradient_bottom_control_bar.dart';
@@ -68,6 +69,15 @@ class _OmniVideoPlayerControlsOverlayState
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  double _getAspectRatio() {
+    final customRatio =
+        widget.configuration.playerUIVisibilityOptions.customAspectRatioNormal;
+    if (customRatio != null) return customRatio;
+
+    final size = widget.controller.size;
+    return size.width / size.height;
   }
 
   // 🌀 TAP HANDLERS ------------------------------------------------------------
@@ -226,8 +236,26 @@ class _OmniVideoPlayerControlsOverlayState
     final ctrl = widget.controller;
 
     final layers = <Widget>[
-      widget.child,
-      Positioned.fill(child: Container(color: Colors.transparent)),
+      ConditionalParent(
+        wrapWith: (ctx, child) => Positioned.directional(
+          textDirection: TextDirection.ltr,
+          child: Center(
+            child: AspectRatio(aspectRatio: _getAspectRatio(), child: child),
+          ),
+        ),
+        wrapWhen: _getAspectRatio() < 1,
+        child: widget.child,
+      ),
+      ConditionalParent(
+        wrapWith: (ctx, child) => Positioned.directional(
+          textDirection: TextDirection.ltr,
+          child: Center(
+            child: AspectRatio(aspectRatio: _getAspectRatio(), child: child),
+          ),
+        ),
+        wrapWhen: _getAspectRatio() < 1,
+        child: Container(color: Colors.transparent),
+      ),
       _buildDoubleTapZones(),
       Positioned.fill(
         child: Align(alignment: Alignment.center, child: _buildSkipIndicator()),
