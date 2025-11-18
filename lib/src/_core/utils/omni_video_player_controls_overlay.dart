@@ -246,16 +246,7 @@ class _OmniVideoPlayerControlsOverlayState
         wrapWhen: _getAspectRatio() < 1,
         child: widget.child,
       ),
-      ConditionalParent(
-        wrapWith: (ctx, child) => Positioned.directional(
-          textDirection: TextDirection.ltr,
-          child: Center(
-            child: AspectRatio(aspectRatio: _getAspectRatio(), child: child),
-          ),
-        ),
-        wrapWhen: _getAspectRatio() < 1,
-        child: Container(color: Colors.transparent),
-      ),
+      Container(color: Colors.transparent, height: 50),
       _buildDoubleTapZones(),
       Positioned.fill(
         child: Align(alignment: Alignment.center, child: _buildSkipIndicator()),

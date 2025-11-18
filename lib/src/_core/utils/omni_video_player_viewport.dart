@@ -37,7 +37,16 @@ class OmniVideoPlayerViewport extends StatelessWidget {
         controller.sharedPlayerNotifier,
       ]),
       builder: (context, _) {
-        final player = controller.sharedPlayerNotifier.value;
+        final player = controller.sharedPlayerNotifier.value != null
+            ? Stack(
+                children: [
+                  Positioned.fill(
+                    child: controller.sharedPlayerNotifier.value!,
+                  ),
+                  Positioned.fill(child: Container(color: Colors.transparent)),
+                ],
+              )
+            : null;
 
         final shouldRender = isFullScreenDisplay == controller.isFullScreen;
 
