@@ -64,10 +64,12 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
             _buildThumbnailPreview(theme, aspectRatio),
           if (!controller.isReady)
             ConditionalParent(
-              wrapWhen: !widget
-                  .configuration
-                  .playerUIVisibilityOptions
-                  .fitVideoToBounds,
+              wrapWhen:
+                  !widget
+                      .configuration
+                      .playerUIVisibilityOptions
+                      .fitVideoToBounds &&
+                  _getAspectRatio() < 1,
               wrapWith: (context, child) => Center(child: child),
               child: Positioned.fill(
                 child: Center(child: config.customPlayerWidgets.loadingWidget),
@@ -94,7 +96,8 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
   ) {
     return ConditionalParent(
       wrapWhen:
-          !widget.configuration.playerUIVisibilityOptions.fitVideoToBounds,
+          !widget.configuration.playerUIVisibilityOptions.fitVideoToBounds &&
+          _getAspectRatio() < 1,
       wrapWith: (context, child) => Center(child: child),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
@@ -151,7 +154,8 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
   ) {
     return ConditionalParent(
       wrapWhen:
-          !widget.configuration.playerUIVisibilityOptions.fitVideoToBounds,
+          !widget.configuration.playerUIVisibilityOptions.fitVideoToBounds &&
+          _getAspectRatio() < 1,
       wrapWith: (context, child) => Center(child: child),
       child: AspectRatio(
         aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
