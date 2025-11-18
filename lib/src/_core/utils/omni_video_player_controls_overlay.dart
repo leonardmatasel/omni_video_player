@@ -227,6 +227,7 @@ class _OmniVideoPlayerControlsOverlayState
 
     final layers = <Widget>[
       widget.child,
+      Container(color: Colors.transparent, height: 50),
       _buildDoubleTapZones(),
       Positioned.fill(
         child: Align(alignment: Alignment.center, child: _buildSkipIndicator()),
