@@ -226,14 +226,8 @@ class _OmniVideoPlayerControlsOverlayState
     final ctrl = widget.controller;
 
     final layers = <Widget>[
-      Positioned.directional(
-        textDirection: TextDirection.ltr,
-        child: AspectRatio(
-          aspectRatio: 16 / 9,
-          child: Center(child: widget.child),
-        ),
-      ),
-
+      widget.child,
+      Container(color: Colors.transparent, height: 50),
       _buildDoubleTapZones(),
       Positioned.fill(
         child: Align(alignment: Alignment.center, child: _buildSkipIndicator()),
