@@ -1,3 +1,11 @@
+# 3.3.13
+
+🛠 **Fix**
+
+* Fixed the issue where **unlisted YouTube videos kept loading**.
+
+  * See issue: [#50](https://github.com/leonardmatasel/omni_video_player/issues/50)
+
 # 3.3.12 - 3.3.6
 
 ✨ **New Features**

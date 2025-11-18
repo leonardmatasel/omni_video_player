@@ -45,6 +45,10 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
     } catch (error, _) {
       debugPrint("YouTube initialization error: $error");
 
+      if (error is VideoUnplayableException) {
+        rethrow;
+      }
+
       if (sourceConfig.enableYoutubeWebViewFallback) {
         debugPrint("Fallback: switching to WebView mode...");
         return _initializeWebViewFallback(videoId);
