@@ -1,3 +1,9 @@
+# 3.3.14
+
+🛠 **Fix**
+
+* Fixed some minor bugs
+
 # 3.3.13
 
 🛠 **Fix**

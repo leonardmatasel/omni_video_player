@@ -235,7 +235,7 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
 
     if (!showError) return const SizedBox.shrink();
 
-    return Positioned.fill(
+    return Center(
       child: ClipRRect(
         borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
         child:

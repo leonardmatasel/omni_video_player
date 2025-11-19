@@ -119,7 +119,14 @@ class GenericPlaybackController extends OmniPlaybackController {
             isLive: isLive,
             mixWithOthers: false,
           );
-    await videoController.initialize();
+    await videoController.initialize().timeout(
+      const Duration(seconds: 30),
+      onTimeout: () {
+        throw TimeoutException(
+          'videoController initialization timed out after 30 seconds',
+        );
+      },
+    );
 
     AudioPlaybackController? audioController;
     if (audioUrl != null) {

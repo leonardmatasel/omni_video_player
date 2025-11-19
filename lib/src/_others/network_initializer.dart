@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
@@ -70,7 +72,7 @@ class NetworkInitializer implements IOmniVideoPlayerInitializerStrategy {
         break;
       } catch (e, st) {
         attempts++;
-        if (attempts >= 3) {
+        if (attempts >= 3 || (e is TimeoutException)) {
           rethrow;
         }
 
