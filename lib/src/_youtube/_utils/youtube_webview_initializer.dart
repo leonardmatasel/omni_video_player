@@ -33,12 +33,11 @@ class YouTubeWebViewInitializer implements IOmniVideoPlayerInitializerStrategy {
     final videoSize = await YouTubeService.fetchYouTubeVideoSize(
       resolvedVideoId,
     );
-    final videoInfo = await _resolveVideoMetadata(resolvedVideoId);
 
     final controller = YouTubeWebViewController.fromVideoId(
       videoId: resolvedVideoId,
       duration: const Duration(seconds: 1),
-      isLive: videoInfo?.isLive ?? false,
+      isLive: false,
       size: videoSize!,
       callbacks: callbacks,
       options: config,
@@ -59,9 +58,5 @@ class YouTubeWebViewInitializer implements IOmniVideoPlayerInitializerStrategy {
     });
 
     return controller;
-  }
-
-  Future<Video?> _resolveVideoMetadata(String videoId) async {
-    return await YouTubeService.getVideoYoutubeDetails(VideoId(videoId));
   }
 }
