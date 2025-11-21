@@ -32,10 +32,6 @@
             visibility: hidden;
             opacity: 0;
         }
-
-        .embed-container iframe.hidden-player + * {
-            background: black;
-        }
     </style>
     <title>Youtube Player</title>
 </head>
@@ -49,72 +45,80 @@
 <script>
     var player;
     var progressTimer = null;
+    var isHidden = false; // variabile di stato
 
     function onYouTubeIframeAPIReady() {
-      player = new YT.Player("<<playerId>>", {
-        host: "https://www.youtube-nocookie.com",
-        playerVars: <<playerVars>>,
-        events: {
-          onReady: function(e) { handleFullScreenForMobilePlatform(); sendMessage("Ready", e); },
-          onStateChange: function(e) {
-            sendMessage("StateChange", e.data);
-            clearInterval(progressTimer);
-            if (e.data === YT.PlayerState.PLAYING) {
-            const iframe = player.getIframe();
-            iframe.classList.remove("hidden-player");
-              progressTimer = setInterval(()=>{
-                try {
-                  const state = { currentTime: player.getCurrentTime(), loadedFraction: player.getVideoLoadedFraction() };
-                  sendMessage("PlaybackProgress", JSON.stringify(state));
-                } catch(e){}
-              }, 800);
+        player = new YT.Player("<<playerId>>", {
+            host: "https://www.youtube-nocookie.com",
+            playerVars: <<playerVars>>,
+            events: {
+                onReady: function(e) { handleFullScreenForMobilePlatform(); sendMessage("Ready", e); },
+                onStateChange: onPlayerStateChange,
+                onError: function(e){ sendMessage("PlayerError", e.data); }
             }
-          },
-          onError: function(e){ sendMessage("PlayerError", e.data); }
+        });
+        player.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // Funzione unica per mostrare/nascondere
+    function setIframeHidden(hidden) {
+        if(isHidden === hidden) return; // già nello stato giusto
+        isHidden = hidden;
+        const iframe = player.getIframe();
+        if(hidden) iframe.classList.add("hidden-player");
+        else iframe.classList.remove("hidden-player");
+    }
+
+    function onPlayerStateChange(e) {
+        sendMessage("StateChange", e.data);
+        clearInterval(progressTimer);
+
+        if(e.data === YT.PlayerState.PLAYING) {
+            setIframeHidden(false); // mostra iframe
+            progressTimer = setInterval(()=>{
+                try {
+                    const state = { currentTime: player.getCurrentTime(), loadedFraction: player.getVideoLoadedFraction() };
+                    sendMessage("PlaybackProgress", JSON.stringify(state));
+                } catch(e){}
+            }, 800);
         }
-      });
-      player.setSize(window.innerWidth, window.innerHeight);
     }
 
     // override play
     async function play() {
-      const iframe = player.getIframe();
-      iframe.classList.add("hidden-player");
-      await sleep(300);
-      let now = 0;
-      try { now = player.getCurrentTime(); } catch(e){ now = 0; }
-      try{ player.playVideo(); } catch(e){}
-      return '';
+        setIframeHidden(true);
+        await sleep(300);
+        try { player.playVideo(); } catch(e){}
+        return '';
     }
 
     // override seekTo
     async function seekTo(pos, seekAhead) {
-      const iframe = player.getIframe();
-      iframe.classList.add("hidden-player");
-      await sleep(300);
-      let start = Number(pos)||0;
-      try{ player.seekTo(pos, seekAhead); } catch(e){}
-      return '';
+        setIframeHidden(true);
+        await sleep(300);
+        try{ player.seekTo(Number(pos)||0, seekAhead); } catch(e){}
+        return '';
     }
 
     // override loadById
     async function loadById(settings) {
-      const iframe = player.getIframe();
-      iframe.classList.add("hidden-player");
-      await sleep(300);
-      let start = 0;
-      if(settings && typeof settings.startSeconds !== "undefined") start = Number(settings.startSeconds)||0;
-      try{ player.loadVideoById(settings); } catch(e){}
-      try{ player.playVideo(); } catch(e){}
-      return '';
+        setIframeHidden(true);
+        await sleep(300);
+        try{ player.loadVideoById(settings); } catch(e){}
+        try{ player.playVideo(); } catch(e){}
+        return '';
     }
 
-    function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
+    function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
     window.onresize = function(){ try{ player.setSize(window.innerWidth, window.innerHeight); } catch(e){} };
-    function sendMessage(key,data){ var msg={}; msg[key]=data; msg['playerId']='<<playerId>>'; try{ window.flutter_inappwebview.callHandler(key,data); } catch(e){ try{ window.parent.postMessage(JSON.stringify(msg),'*'); } catch(e){} } }
+    function sendMessage(key,data){
+        var msg={};
+        msg[key]=data;
+        msg['playerId']='<<playerId>>';
+        try{ window.flutter_inappwebview.callHandler(key,data); }
+        catch(e){ try{ window.parent.postMessage(JSON.stringify(msg),'*'); } catch(e){} }
+    }
     function handleFullScreenForMobilePlatform(){}
 </script>
 </body>
