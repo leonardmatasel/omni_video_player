@@ -50,6 +50,8 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
       }
 
       if (sourceConfig.enableYoutubeWebViewFallback) {
+        YouTubeService.yt?.close();
+
         debugPrint("Fallback: switching to WebView mode...");
         return _initializeWebViewFallback(videoId);
       }
