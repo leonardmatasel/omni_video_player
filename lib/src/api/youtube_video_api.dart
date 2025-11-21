@@ -253,8 +253,12 @@ class YouTubeService {
   }
 
   static Future<bool> isLiveVideoYoutube(VideoId videoId) async {
-    final videoMetaData = await retry(() => yt!.videos.get(videoId));
-    return videoMetaData.isLive;
+    try {
+      final videoMetaData = await retry(() => yt!.videos.get(videoId));
+      return videoMetaData.isLive;
+    } catch (e) {
+      return false;
+    }
   }
 
   static Future<Video> getVideoYoutubeDetails(VideoId videoId) async {

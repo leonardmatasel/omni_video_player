@@ -65,7 +65,7 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
   late VideoSourceConfiguration _sourceConfig =
       widget.configuration.videoSourceConfiguration;
 
-  static const int _maxRetries = 3;
+  static const int _maxRetries = 2;
   static const Duration _retryDelay = Duration(milliseconds: 250);
   static const Duration _readyTimeout = Duration(seconds: 30);
 
