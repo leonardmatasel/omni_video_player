@@ -43,6 +43,8 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
       callbacks.onControllerCreated?.call(controller);
       return controller;
     } catch (error, _) {
+      YouTubeService.yt = YoutubeExplode();
+
       debugPrint("YouTube initialization error: $error");
 
       if (error is VideoUnplayableException) {
