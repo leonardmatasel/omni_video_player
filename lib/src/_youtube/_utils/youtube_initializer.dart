@@ -29,7 +29,7 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
 
     try {
       final videoInfo = await YouTubeService.getVideoYoutubeDetails(videoId);
-      final isLiveStream = videoInfo.isLive;
+      final isLiveStream = videoInfo?.isLive ?? false;
 
       final streamData = isLiveStream
           ? await _fetchLiveStream(videoId)

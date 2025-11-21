@@ -261,8 +261,12 @@ class YouTubeService {
     }
   }
 
-  static Future<Video> getVideoYoutubeDetails(VideoId videoId) async {
-    return await yt!.videos.get(videoId);
+  static Future<Video?> getVideoYoutubeDetails(VideoId videoId) async {
+    try {
+      return await yt!.videos.get(videoId);
+    } catch (e) {
+      return null;
+    }
   }
 
   /// Helper method to sort streams by file size.
