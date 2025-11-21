@@ -53,6 +53,7 @@ class YouTubeWebViewInitializer implements IOmniVideoPlayerInitializerStrategy {
         child: YouTubeWebViewPlayerView(
           key: config.globalKeyPlayer,
           controller: controller,
+          customLoader: config.customPlayerWidgets.loadingWidget,
         ),
       );
     });

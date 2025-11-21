@@ -6,8 +6,13 @@ import 'youtube_webview_controller.dart';
 
 class YouTubeWebViewPlayerView extends StatefulWidget {
   final YouTubeWebViewController controller;
+  final Widget customLoader;
 
-  const YouTubeWebViewPlayerView({super.key, required this.controller});
+  const YouTubeWebViewPlayerView({
+    super.key,
+    required this.controller,
+    required this.customLoader,
+  });
 
   @override
   State<YouTubeWebViewPlayerView> createState() =>
@@ -59,7 +64,7 @@ class _YouTubeWebViewPlayerViewState extends State<YouTubeWebViewPlayerView> {
   @override
   Widget build(BuildContext context) {
     if (_htmlContent == null) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(child: widget.customLoader);
     }
 
     return IgnorePointer(

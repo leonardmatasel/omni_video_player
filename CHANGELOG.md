@@ -1,3 +1,10 @@
+# 3.4.0, 3.4.0-beta
+
+✨ **New Features**
+
+* Added new `enableZoom` parameter in `PlayerUIVisibilityOptions` to allow pinch-to-zoom gestures on the video player (default: `false`). 
+* Fixed some minor bugs
+
 # 3.3.23 - 3.3.14
 
 🛠 **Fix**
@@ -22,7 +29,7 @@
 
 * Minor stability and UI fixes.
 
-# 3.3.5
+# 3.3.5, 3.3.5-beta
 
 ✨ **New Features**
 
@@ -32,11 +39,22 @@
   * This parameter allows developers to **enable or disable the small preview thumbnail** that appears when **dragging the seek bar**.
   * Default value is `true`, ensuring the preview is shown unless explicitly turned off.
 
-# 3.3.4
+# 3.3.4, 3.3.4-beta
 
 ⬆️ **Updates dependencies**
 
 * Updated all dependencies.
+
+# 3.3.3-beta
+
+⚡ **Replaced `video_player` with `media_kit` · Faster playback**
+
+* Replaced the underlying `video_player` package with [`media_kit`](https://pub.dev/packages/media_kit) for native video playback.
+* Significantly faster video loading on **iOS and Android**.
+* Resolves the iOS `video_player` issue of preloading the entire video (see [flutter/flutter#126760](https://github.com/flutter/flutter/issues/126760)).
+* Improved support for multiple resolutions.
+* **Note:** Audio does not work on the iOS Simulator, works on real devices and android Simulator.
+
 
 # 3.3.3
 

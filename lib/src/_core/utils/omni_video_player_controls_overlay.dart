@@ -55,6 +55,10 @@ class _OmniVideoPlayerControlsOverlayState
   static const _skipFadeDuration = Duration(milliseconds: 500);
   static const _skipAnimationDuration = Duration(milliseconds: 2500);
 
+  double _scale = 1.0;
+  double _baseScale = 1.0;
+  Offset _offset = Offset.zero;
+
   @override
   void initState() {
     super.initState();
@@ -157,6 +161,12 @@ class _OmniVideoPlayerControlsOverlayState
   Widget build(BuildContext context) {
     final theme = OmniVideoPlayerTheme.of(context)!;
 
+    final opts = widget.configuration.playerUIVisibilityOptions;
+    final onVerticalDragUpdateEnable =
+        opts.enableExitFullscreenOnVerticalSwipe &&
+        widget.controller.isFullScreen &&
+        _scale == 1;
+
     return AnimatedBuilder(
       animation: widget.controller,
       builder: (context, _) {
@@ -213,7 +223,9 @@ class _OmniVideoPlayerControlsOverlayState
                       setState(() => _tapState = _TapInteractionState.idle);
                       toggle();
                     },
-                    onVerticalDragUpdate: _handleVerticalDrag,
+                    onVerticalDragUpdate: onVerticalDragUpdateEnable
+                        ? _handleVerticalDrag
+                        : null,
                     child: Stack(children: layers),
                   ),
                 );
@@ -235,6 +247,45 @@ class _OmniVideoPlayerControlsOverlayState
   }) {
     final ctrl = widget.controller;
 
+    final player = ConditionalParent(
+      wrapWith: (ctx, child) => GestureDetector(
+        onScaleStart: (details) {
+          _baseScale = _scale;
+        },
+        onScaleUpdate: (details) {
+          setState(() {
+            // --- ZOOM ---
+            _scale = (_baseScale * details.scale).clamp(1.0, 5.0);
+
+            // --- PAN SOLO SE ZOOM > 1 ---
+            if (_scale > 1.0) {
+              _offset += details.focalPointDelta;
+
+              // limiti del pan:
+              final maxX = (context.size!.width * (_scale - 1)) / 2;
+              final maxY = (context.size!.height * (_scale - 1)) / 2;
+
+              _offset = Offset(
+                _offset.dx.clamp(-maxX, maxX),
+                _offset.dy.clamp(-maxY, maxY),
+              );
+            } else {
+              // quando torni a 1x rimetti centrato
+              _offset = Offset.zero;
+            }
+          });
+        },
+        child: ClipRect(
+          child: Transform.translate(
+            offset: _offset,
+            child: Transform.scale(scale: _scale, child: child),
+          ),
+        ),
+      ),
+      wrapWhen: widget.configuration.playerUIVisibilityOptions.enableZoom,
+      child: widget.child,
+    );
+
     final layers = <Widget>[
       ConditionalParent(
         wrapWith: (ctx, child) => Positioned.directional(
@@ -244,7 +295,7 @@ class _OmniVideoPlayerControlsOverlayState
           ),
         ),
         wrapWhen: _getAspectRatio() < 1,
-        child: widget.child,
+        child: Align(alignment: Alignment.center, child: player),
       ),
       Container(color: Colors.transparent, height: 50),
       _buildDoubleTapZones(),
@@ -397,12 +448,6 @@ class _OmniVideoPlayerControlsOverlayState
       _tapState == _TapInteractionState.doubleTapBackward;
 
   void _handleVerticalDrag(DragUpdateDetails details) {
-    final opts = widget.configuration.playerUIVisibilityOptions;
-    if (!opts.enableExitFullscreenOnVerticalSwipe ||
-        !widget.controller.isFullScreen) {
-      return;
-    }
-
     if (details.primaryDelta != null && details.primaryDelta!.abs() > 10) {
       widget.controller.switchFullScreenMode(
         context,
