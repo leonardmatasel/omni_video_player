@@ -1,4 +1,4 @@
-# 3.4.0, 3.4.0-beta
+# 3.4.1 - 3.4.1-beta
 
 ✨ **New Features**
 
@@ -29,7 +29,7 @@
 
 * Minor stability and UI fixes.
 
-# 3.3.5, 3.3.5-beta
+# 3.3.5 - 3.3.5-beta
 
 ✨ **New Features**
 
@@ -39,7 +39,7 @@
   * This parameter allows developers to **enable or disable the small preview thumbnail** that appears when **dragging the seek bar**.
   * Default value is `true`, ensuring the preview is shown unless explicitly turned off.
 
-# 3.3.4, 3.3.4-beta
+# 3.3.4 - 3.3.4-beta
 
 ⬆️ **Updates dependencies**
 
