@@ -147,14 +147,12 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
   Future<OmniPlaybackController?> _initializeWebViewFallback(
     VideoId videoId,
   ) async {
-    final videoDetails = await YouTubeService.getVideoYoutubeDetails(videoId);
     return YouTubeWebViewInitializer(
       config: config,
       callbacks: callbacks,
       globalController: globalController,
       sourceConfig: sourceConfig,
       videoId: videoId.toString(),
-      videoMetadata: videoDetails,
     ).initialize();
   }
 }

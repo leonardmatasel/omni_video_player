@@ -413,7 +413,7 @@ Future<T> retry<T>(
   Future<T> Function() action, {
   int retries = 5,
   Duration delay = const Duration(milliseconds: 200),
-  Duration timeout = const Duration(seconds: 2),
+  Duration timeout = const Duration(seconds: 30),
 }) async {
   int attempt = 0;
 
