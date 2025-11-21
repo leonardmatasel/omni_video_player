@@ -33,8 +33,6 @@ class YouTubeStreamUrls {
 /// The applied modifications aim to ensure greater stability and compatibility
 /// with the latest versions of the `youtube_explode_dart` package.
 class YouTubeService {
-  static YoutubeExplode? yt = kIsWeb ? null : YoutubeExplode();
-
   static final Map<String, CachedYouTubeStream> _cache = {};
 
   static Future<YouTubeStreamUrls> fetchVideoAndAudioUrlsCached(
@@ -253,12 +251,14 @@ class YouTubeService {
   }
 
   static Future<bool> isLiveVideoYoutube(VideoId videoId) async {
-    final videoMetaData = await retry(() => yt!.videos.get(videoId));
+    final yt = YoutubeExplode();
+    final videoMetaData = await retry(() => yt.videos.get(videoId));
     return videoMetaData.isLive;
   }
 
   static Future<Video> getVideoYoutubeDetails(VideoId videoId) async {
-    return await yt!.videos.get(videoId);
+    final yt = YoutubeExplode();
+    return await yt.videos.get(videoId);
   }
 
   /// Helper method to sort streams by file size.
@@ -328,8 +328,11 @@ class YouTubeService {
   }
 
   static Future<String> _getQuietLiveUrl(VideoId id) {
+    final yt = YoutubeExplode();
     return runZoned(
-      () => yt!.videos.streamsClient.getHttpLiveStreamUrl(id),
+      () => yt.videos.streamsClient
+          .getHttpLiveStreamUrl(id)
+          .timeout(Duration(seconds: 15)),
       zoneSpecification: ZoneSpecification(
         print: (self, parent, zone, line) {
           // drop any lines that look like retry‑logs
@@ -341,12 +344,15 @@ class YouTubeService {
   }
 
   static Future<StreamManifest> _getQuietManifest(VideoId videoId) {
+    final yt = YoutubeExplode();
     return runZoned(
-      () => yt!.videos.streamsClient.getManifest(
-        videoId,
-        // FIX BUG youtube_explode_dart of 23/09/25 https://github.com/Hexer10/youtube_explode_dart/issues/361
-        ytClients: [YoutubeApiClient.androidVr],
-      ),
+      () => yt.videos.streamsClient
+          .getManifest(
+            videoId,
+            // FIX BUG youtube_explode_dart of 23/09/25 https://github.com/Hexer10/youtube_explode_dart/issues/361
+            ytClients: [YoutubeApiClient.androidVr],
+          )
+          .timeout(Duration(seconds: 15)),
       zoneSpecification: ZoneSpecification(
         print: (self, parent, zone, line) {
           if (line.toLowerCase().contains('retry')) return;
@@ -405,7 +411,7 @@ Future<T> retry<T>(
   Future<T> Function() action, {
   int retries = 5,
   Duration delay = const Duration(milliseconds: 200),
-  Duration timeout = const Duration(seconds: 2),
+  Duration timeout = const Duration(seconds: 15),
 }) async {
   int attempt = 0;
 
