@@ -15,7 +15,6 @@ class YouTubeWebViewInitializer implements IOmniVideoPlayerInitializerStrategy {
   final VideoPlayerCallbacks callbacks;
   final GlobalPlaybackController? globalController;
   final String? videoId;
-  final Video? videoMetadata;
   final VideoSourceConfiguration sourceConfig;
 
   const YouTubeWebViewInitializer({
@@ -23,7 +22,6 @@ class YouTubeWebViewInitializer implements IOmniVideoPlayerInitializerStrategy {
     required this.sourceConfig,
     required this.callbacks,
     this.videoId,
-    this.videoMetadata,
     this.globalController,
   });
 
@@ -35,12 +33,11 @@ class YouTubeWebViewInitializer implements IOmniVideoPlayerInitializerStrategy {
     final videoSize = await YouTubeService.fetchYouTubeVideoSize(
       resolvedVideoId,
     );
-    final videoInfo = await _resolveVideoMetadata(resolvedVideoId);
 
     final controller = YouTubeWebViewController.fromVideoId(
       videoId: resolvedVideoId,
       duration: const Duration(seconds: 1),
-      isLive: videoInfo?.isLive ?? false,
+      isLive: false,
       size: videoSize!,
       callbacks: callbacks,
       options: config,
@@ -56,15 +53,11 @@ class YouTubeWebViewInitializer implements IOmniVideoPlayerInitializerStrategy {
         child: YouTubeWebViewPlayerView(
           key: config.globalKeyPlayer,
           controller: controller,
+          customLoader: config.customPlayerWidgets.loadingWidget,
         ),
       );
     });
 
     return controller;
-  }
-
-  Future<Video?> _resolveVideoMetadata(String videoId) async {
-    return videoMetadata ??
-        await YouTubeService.getVideoYoutubeDetails(VideoId(videoId));
   }
 }

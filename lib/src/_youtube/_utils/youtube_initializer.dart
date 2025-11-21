@@ -29,7 +29,7 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
 
     try {
       final videoInfo = await YouTubeService.getVideoYoutubeDetails(videoId);
-      final isLiveStream = videoInfo.isLive;
+      final isLiveStream = videoInfo?.isLive ?? false;
 
       final streamData = isLiveStream
           ? await _fetchLiveStream(videoId)
@@ -42,6 +42,8 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
       callbacks.onControllerCreated?.call(controller);
       return controller;
     } catch (error, _) {
+      YouTubeService.yt = YoutubeExplode();
+
       debugPrint("YouTube initialization error: $error");
 
       if (error is VideoUnplayableException) {
@@ -134,14 +136,12 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
   Future<OmniPlaybackController?> _initializeWebViewFallback(
     VideoId videoId,
   ) async {
-    final videoDetails = await YouTubeService.getVideoYoutubeDetails(videoId);
     return YouTubeWebViewInitializer(
       config: config,
       callbacks: callbacks,
       globalController: globalController,
       sourceConfig: sourceConfig,
       videoId: videoId.toString(),
-      videoMetadata: videoDetails,
     ).initialize();
   }
 }

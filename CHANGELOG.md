@@ -1,4 +1,17 @@
-# 3.3.13, 3.3.13-beta
+# 3.4.0, 3.4.0-beta
+
+✨ **New Features**
+
+* Added new `enableZoom` parameter in `PlayerUIVisibilityOptions` to allow pinch-to-zoom gestures on the video player (default: `false`). 
+* Fixed some minor bugs
+
+# 3.3.23 - 3.3.14
+
+🛠 **Fix**
+
+* Fixed some minor bugs
+
+# 3.3.13
 
 🛠 **Fix**
 

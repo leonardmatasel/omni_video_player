@@ -59,21 +59,23 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
       callbacks: callbacks,
       child: Stack(
         children: [
-          _buildVideoDisplay(context, theme, aspectRatio),
-          if (_shouldShowThumbnailPreview())
-            _buildThumbnailPreview(theme, aspectRatio),
-          if (!controller.isReady && _shouldShowThumbnailPreview())
-            ConditionalParent(
-              wrapWhen:
-                  !widget
-                      .configuration
-                      .playerUIVisibilityOptions
-                      .fitVideoToBounds ||
-                  _getAspectRatio() < 1,
-              wrapWith: (context, child) => Center(child: child),
-              child: Positioned.fill(
-                child: Center(child: config.customPlayerWidgets.loadingWidget),
-              ),
+          ConditionalParent(
+            wrapWhen:
+                !widget
+                    .configuration
+                    .playerUIVisibilityOptions
+                    .fitVideoToBounds ||
+                _getAspectRatio() < 1,
+            wrapWith: (ctx, child) => Positioned.fill(child: child),
+            child: _buildVideoDisplay(context, theme, aspectRatio),
+          ),
+          if (_shouldShowThumbnailPreview() && _shouldShowThumbnailPreview())
+            Positioned.fill(
+              child: Center(child: _buildThumbnailPreview(theme, aspectRatio)),
+            ),
+          if (!controller.isReady)
+            Positioned.fill(
+              child: Center(child: config.customPlayerWidgets.loadingWidget),
             ),
         ],
       ),
@@ -94,25 +96,19 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
     OmniVideoPlayerThemeData theme,
     double aspectRatio,
   ) {
-    return ConditionalParent(
-      wrapWhen:
-          !widget.configuration.playerUIVisibilityOptions.fitVideoToBounds ||
-          _getAspectRatio() < 1,
-      wrapWith: (context, child) => Center(child: child),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
-        child: OverlayTransitionSwitcher(
-          duration: const Duration(milliseconds: 400),
-          child: VisibilityDetector(
-            key: Key('video-visibility-${controller.hashCode}'),
-            onVisibilityChanged: _handleVisibilityChanged,
-            child: RouteAwareListener(
-              onPopNext: (_) {},
-              child: OmniVideoPlayerViewport(
-                controller: controller,
-                isFullScreenDisplay: false,
-                aspectRatio: aspectRatio,
-              ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
+      child: OverlayTransitionSwitcher(
+        duration: const Duration(milliseconds: 400),
+        child: VisibilityDetector(
+          key: Key('video-visibility-${controller.hashCode}'),
+          onVisibilityChanged: _handleVisibilityChanged,
+          child: RouteAwareListener(
+            onPopNext: (_) {},
+            child: OmniVideoPlayerViewport(
+              controller: controller,
+              isFullScreenDisplay: false,
+              aspectRatio: aspectRatio,
             ),
           ),
         ),
@@ -152,20 +148,14 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
     OmniVideoPlayerThemeData theme,
     double aspectRatio,
   ) {
-    return ConditionalParent(
-      wrapWhen:
-          !widget.configuration.playerUIVisibilityOptions.fitVideoToBounds ||
-          _getAspectRatio() < 1,
-      wrapWith: (context, child) => Center(child: child),
-      child: AspectRatio(
-        aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
-          child: VideoPlayerThumbnail(
-            imageProvider: config.customPlayerWidgets.thumbnail!,
-            fit: config.customPlayerWidgets.thumbnailFit,
-            backgroundColor: theme.colors.backgroundThumbnail,
-          ),
+    return AspectRatio(
+      aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
+        child: VideoPlayerThumbnail(
+          imageProvider: config.customPlayerWidgets.thumbnail!,
+          fit: config.customPlayerWidgets.thumbnailFit,
+          backgroundColor: theme.colors.backgroundThumbnail,
         ),
       ),
     );

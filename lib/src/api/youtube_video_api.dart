@@ -247,12 +247,20 @@ class YouTubeService {
   }
 
   static Future<bool> isLiveVideoYoutube(VideoId videoId) async {
-    final videoMetaData = await retry(() => yt!.videos.get(videoId));
-    return videoMetaData.isLive;
+    try {
+      final videoMetaData = await retry(() => yt!.videos.get(videoId));
+      return videoMetaData.isLive;
+    } catch (e) {
+      return false;
+    }
   }
 
-  static Future<Video> getVideoYoutubeDetails(VideoId videoId) async {
-    return await yt!.videos.get(videoId);
+  static Future<Video?> getVideoYoutubeDetails(VideoId videoId) async {
+    try {
+      return await yt!.videos.get(videoId);
+    } catch (e) {
+      return null;
+    }
   }
 
   /// Helper method to sort streams by file size.
@@ -399,7 +407,7 @@ Future<T> retry<T>(
   Future<T> Function() action, {
   int retries = 5,
   Duration delay = const Duration(milliseconds: 200),
-  Duration timeout = const Duration(seconds: 2),
+  Duration timeout = const Duration(seconds: 30),
 }) async {
   int attempt = 0;
 

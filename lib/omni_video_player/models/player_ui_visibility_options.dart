@@ -139,6 +139,11 @@ class PlayerUIVisibilityOptions {
   /// Defaults to `true`.
   final bool fitVideoToBounds;
 
+  /// Whether to allow pinch-to-zoom gestures.
+  ///
+  /// Defaults to `false`.
+  final bool enableZoom;
+
   /// Creates a new instance of [PlayerUIVisibilityOptions].
   ///
   /// All options default to `true` except:
@@ -176,6 +181,7 @@ class PlayerUIVisibilityOptions {
     this.fullscreenOrientation,
     this.showScrubbingThumbnailPreview = true,
     this.fitVideoToBounds = true,
+    this.enableZoom = false,
   });
 
   /// Returns a copy of this [PlayerUIVisibilityOptions] with
@@ -212,6 +218,7 @@ class PlayerUIVisibilityOptions {
     Orientation? fullscreenOrientation,
     bool? showScrubbingThumbnailPreview,
     bool? fitVideoToBounds,
+    bool? enableZoom,
   }) {
     return PlayerUIVisibilityOptions(
       showSeekBar: showSeekBar ?? this.showSeekBar,
@@ -265,6 +272,7 @@ class PlayerUIVisibilityOptions {
       showScrubbingThumbnailPreview:
           showScrubbingThumbnailPreview ?? this.showScrubbingThumbnailPreview,
       fitVideoToBounds: fitVideoToBounds ?? this.fitVideoToBounds,
+      enableZoom: enableZoom ?? this.enableZoom,
     );
   }
 }
