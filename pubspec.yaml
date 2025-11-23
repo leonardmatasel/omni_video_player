@@ -1,12 +1,13 @@
 name: omni_video_player
 description: "A Flutter widget for playing videos from YouTube, Vimeo, assets, and network sources — fully customizable and easy to integrate."
-version: 3.4.2
+version: 3.4.3
 homepage: https://github.com/leonardmatasel/omni_video_player
 repository: https://github.com/leonardmatasel/omni_video_player
 issue_tracker: https://github.com/leonardmatasel/omni_video_player/issues
+
 screenshots:
   - description: "A unified Flutter video player for YouTube, Vimeo, assets, and network sources."
-    path: assets/logo_horizontal.png
+    path: assets/logo_square.png
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
@@ -47,7 +48,6 @@ dev_dependencies:
 flutter:
   assets:
     - assets/youtube_player.html
-    - assets/logo_horizontal.png
 
 
 topics:
