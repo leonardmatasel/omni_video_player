@@ -1,3 +1,7 @@
+# 3.4.2
+
+⬆️ **Updates pub.dev page**
+
 # 3.4.1 - 3.4.1-beta
 
 ✨ **New Features**
