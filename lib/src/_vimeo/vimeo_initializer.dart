@@ -45,12 +45,18 @@ class VimeoInitializer implements IOmniVideoPlayerInitializerStrategy {
 
     controller.sharedPlayerNotifier.value = Hero(
       tag: options.globalKeyPlayer,
-      child: VimeoPlayerView(
-        key: options.globalKeyPlayer,
-        videoId: videoId,
-        controller: controller,
-        preferredQualities: options.videoSourceConfiguration.preferredQualities,
-        autoPlay: options.videoSourceConfiguration.autoPlay,
+      child: Stack(
+        children: [
+          VimeoPlayerView(
+            key: options.globalKeyPlayer,
+            videoId: videoId,
+            controller: controller,
+            preferredQualities:
+                options.videoSourceConfiguration.preferredQualities,
+            autoPlay: options.videoSourceConfiguration.autoPlay,
+          ),
+          Container(color: Colors.transparent),
+        ],
       ),
     );
 

@@ -1,3 +1,10 @@
+# 3.4.4
+
+🛠 **Fix**
+
+* Fixed vimeo player bug
+  * See issue: [#54](https://github.com/leonardmatasel/omni_video_player/issues/54)
+
 # 3.4.3 - 3.4.2
 
 ⬆️ **Updates pub.dev page**
