@@ -41,10 +41,10 @@ A single unified controller is provided to manage playback across all supported 
 ## Supported Platforms & Status
 
 | Video Source Type | Android | iOS | Web | Status                                                                                                                                                                |
-|-------------------| ------- | --- | -- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|-------------------| ------- | --- | -- |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | YouTube           | ✅       | ✅   | ✅  | ✅ Supported — uses `youtube_explode_dart` by default on mobile, and WebView (`webview_flutter`) on web or as fallback on mobile to bypass temporary rate-limit blocks |
 | Vimeo             | ✅       | ✅   | ❌  | ✅ Supported — uses `webview_flutter`                                                                                                                                  |
-| Network           | ✅       | ✅   | ✅  | ✅ Supported                                                                                                                                                           |
+| Network           | ✅       | ✅   | ✅  | ✅ Supported —  also .m3u8                                                                                                                                             |
 | Asset             | ✅       | ✅   | ✅  | ✅ Supported                                                                                                                                                           |
 | File              | ✅       | ✅   | ❌  | ✅ Supported                                                                                                                                                           |
 | Twitch            | -       | -   | -  | 🔜 Planned                                                                                                                                                            |
