@@ -48,8 +48,6 @@ A single unified controller is provided to manage playback across all supported 
 | Asset             | ✅       | ✅   | ✅  | ✅ Supported                                                                                                                                                           |
 | File              | ✅       | ✅   | ❌  | ✅ Supported                                                                                                                                                           |
 | Twitch            | -       | -   | -  | 🔜 Planned                                                                                                                                                            |
-| TikTok            | -       | -   | -  | 🔜 Planned                                                                                                                                                            |
-| Dailymotion       | -       | -   | -  | 🔜 Planned                                                                                                                                                            |
 
 <br>
 
