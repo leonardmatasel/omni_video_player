@@ -304,10 +304,9 @@ class GenericPlaybackController extends OmniPlaybackController {
     if (useGlobalController && _globalController != null) {
       return await _globalController.requestPlay(this);
     } else {
-      await Future.wait([
-        if (audioController != null) audioController!.play(),
-        videoController.play(),
-      ]);
+      await _playAllControllers();
+      // videoController can be slow to play, so ensure audio is synced
+      await audioController?.seekTo(videoController.value.position);
     }
   }
 
@@ -378,7 +377,6 @@ class GenericPlaybackController extends OmniPlaybackController {
     Duration position, {
     skipHasPlaybackStarted = false,
   }) async {
-    print('[SEEK] seekTo called: target=${position.inMilliseconds}ms');
     if (position <= duration) {
       if (isFinished) {
         pause();
@@ -391,29 +389,21 @@ class GenericPlaybackController extends OmniPlaybackController {
       }
 
       wasPlayingBeforeSeek = isPlaying;
-      print('[SEEK] wasPlayingBeforeSeek=$wasPlayingBeforeSeek');
       if (position.inMicroseconds != 0 && !skipHasPlaybackStarted) {
         _hasStarted = true;
       }
 
-      print('[SEEK] pausing both controllers...');
       await Future.wait([
         if (audioController != null) audioController!.pause(),
         videoController.pause(),
       ]);
-      print('[SEEK] paused. video.isPlaying=${videoController.value.isPlaying}, audio.isPlaying=${audioController?.value.isPlaying}');
 
-      print('[SEEK] seeking both controllers to ${position.inMilliseconds}ms...');
       await Future.wait([
         if (audioController != null) audioController!.seekTo(position),
         videoController.seekTo(position),
       ]);
-      print('[SEEK] seekTo awaits completed');
-      print('[SEEK] video.position=${videoController.value.position.inMilliseconds}ms, audio.position=${audioController?.value.position.inMilliseconds}ms');
-      print('[SEEK] video.isBuffering=${videoController.value.isBuffering}, audio.isBuffering=${audioController?.value.isBuffering}');
-      print('[SEEK] video.isActuallyBuffering=${videoController.isActuallyBuffering}, audio.isActuallyBuffering=${audioController?.isActuallyBuffering}');
 
-      // FIX ATTEMPT: Use value.isBuffering instead of isActuallyBuffering for seek waiting.
+      // Use value.isBuffering instead of isActuallyBuffering for seek waiting.
       // isActuallyBuffering was returning false even when isBuffering=true because
       // position (0) was not >= buffer end, causing the loop to exit immediately.
       // This may need cleanup - isActuallyBuffering was a workaround for false positive
@@ -423,33 +413,27 @@ class GenericPlaybackController extends OmniPlaybackController {
         while (audioController!.value.isBuffering ||
             videoController.value.isBuffering) {
           loopCount++;
-          if (loopCount % 10 == 1) {
-            print('[SEEK] waiting for buffer... loop=$loopCount, video.isBuffering=${videoController.value.isBuffering}, audio.isBuffering=${audioController!.value.isBuffering}');
-            print('[SEEK]   video.position=${videoController.value.position.inMilliseconds}ms');
-            print('[SEEK]   video.buffered=${videoController.value.buffered.map((r) => '${r.start.inMilliseconds}-${r.end.inMilliseconds}ms').join(', ')}');
-          }
+          if (loopCount % 10 == 1) {}
           await Future.delayed(Duration(milliseconds: 50));
         }
-        print('[SEEK] buffer wait done after $loopCount iterations');
-      } else {
-        print('[SEEK] no audioController, skipping buffer wait');
       }
-
-      print('[SEEK] about to resume: wasPlayingBeforeSeek=$wasPlayingBeforeSeek, isFinished=$isFinished');
       if (wasPlayingBeforeSeek && !isFinished) {
-        print('[SEEK] calling play on both controllers...');
-        await Future.wait([
-          if (audioController != null) audioController!.play(),
-          videoController.play(),
-        ]);
-        print('[SEEK] play() awaits completed');
-        print('[SEEK] video.isPlaying=${videoController.value.isPlaying}, audio.isPlaying=${audioController?.value.isPlaying}');
+        await _playAllControllers();
       }
     } else {
       throw ArgumentError('Seek position exceeds duration');
     }
     isSeeking = false;
-    print('[SEEK] seekTo finished');
+  }
+
+  Future<void> _playAllControllers() async {
+    await Future.wait([
+      if (audioController != null) audioController!.play(),
+      videoController.play(),
+    ]);
+
+    // videoController can be slow to play, so ensure audio is synced
+    await audioController?.seekTo(videoController.value.position);
   }
 
   /// Opens or closes the fullscreen playback mode.
