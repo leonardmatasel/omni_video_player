@@ -7,6 +7,7 @@ import 'package:omni_video_player/omni_video_player/models/video_source_type.dar
 import 'package:omni_video_player/src/_others/asset_initializer.dart';
 import 'package:omni_video_player/src/_others/file_initializer.dart';
 import 'package:omni_video_player/src/_others/network_initializer.dart';
+import 'package:omni_video_player/src/_twitch/twitch_initializer.dart';
 import 'package:omni_video_player/src/_vimeo/vimeo_initializer.dart';
 import 'package:omni_video_player/src/_youtube/_utils/youtube_initializer.dart';
 import 'package:omni_video_player/src/_youtube/_utils/youtube_webview_initializer.dart';
@@ -43,6 +44,13 @@ class OmniVideoPlayerInitializerFactory {
 
       case VideoSourceType.vimeo:
         return VimeoInitializer(
+          options: config,
+          globalController: globalController,
+          callbacks: callbacks,
+          videoSourceConfiguration: sourceConfig,
+        );
+      case VideoSourceType.twitch:
+        return TwitchInitializer(
           options: config,
           globalController: globalController,
           callbacks: callbacks,

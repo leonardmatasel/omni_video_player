@@ -6,14 +6,9 @@
 /// ### Supported Sources
 /// - [youtube] — Videos hosted on YouTube.
 /// - [vimeo] — Videos from Vimeo.
+/// - [twitch] — Twitch stream playback.
 /// - [network] — Generic network-based video URLs (e.g., MP4 files).
 /// - [asset] — Local asset files bundled with the application.
 /// - [file] — Video files stored locally on the device.
 ///
-/// ### Planned Support
-/// - [twitch] — *(Planned)* Twitch stream playback.
-/// - [tiktok] — *(Planned)* TikTok video playback.
-/// - [dailymotion] — *(Planned)* Dailymotion videos.
-/// - [streamable] — *(Planned)* Streamable-hosted videos.
-///
-enum VideoSourceType { youtube, vimeo, network, asset, file }
+enum VideoSourceType { youtube, vimeo, twitch, network, asset, file }

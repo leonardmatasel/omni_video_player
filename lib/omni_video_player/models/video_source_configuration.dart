@@ -67,8 +67,11 @@ class VideoSourceConfiguration {
   /// The video URL (for YouTube or network-based videos).
   final Uri? videoUrl;
 
-  /// The video ID (only for Vimeo videos).
+  /// The video ID (only for Vimeo and Twitch videos).
   final String? videoId;
+
+  /// The channel name (only for Twitch lives).
+  final String? channelName;
 
   /// The asset or file path (for asset or local file videos).
   final String? videoDataSource;
@@ -161,6 +164,7 @@ class VideoSourceConfiguration {
   const VideoSourceConfiguration._({
     this.videoUrl,
     this.videoId,
+    this.channelName,
     this.videoDataSource,
     this.videoFile,
     required this.videoSourceType,
@@ -203,6 +207,20 @@ class VideoSourceConfiguration {
       videoId: videoId,
       videoSourceType: VideoSourceType.vimeo,
       preferredQualities: preferredQualities,
+    );
+  }
+
+  factory VideoSourceConfiguration.twitch({
+    String? videoId,
+    String? channelName,
+  }) {
+    if (videoId == null && channelName == null) {
+      throw ArgumentError('videoId or channelName must be provided');
+    }
+    return VideoSourceConfiguration._(
+      videoId: videoId,
+      channelName: channelName,
+      videoSourceType: VideoSourceType.twitch,
     );
   }
 

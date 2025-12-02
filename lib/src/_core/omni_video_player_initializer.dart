@@ -263,6 +263,7 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
       case VideoSourceType.network:
       case VideoSourceType.asset:
       case VideoSourceType.file:
+      case VideoSourceType.twitch: // FIXME: leonard
         return widget.configuration.customPlayerWidgets.thumbnail;
     }
   }

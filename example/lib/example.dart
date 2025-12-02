@@ -77,23 +77,9 @@ class _VideoScreenState extends State<VideoScreen> {
 
               // Full configuration: playing a YouTube video.
               configuration: VideoPlayerConfiguration(
-                videoSourceConfiguration: VideoSourceConfiguration.youtube(
-                  videoUrl: Uri.parse(
-                    'https://www.youtube.com/watch?v=cuqZPx0H7a0',
-                  ),
-                  preferredQualities: [
-                    OmniVideoQuality.high720,
-                    OmniVideoQuality.low144,
-                  ],
-                  availableQualities: [
-                    OmniVideoQuality.high1080,
-                    OmniVideoQuality.high720,
-                    OmniVideoQuality.medium480,
-                    OmniVideoQuality.medium360,
-                    OmniVideoQuality.low144,
-                  ],
-                  enableYoutubeWebViewFallback: true,
-                  forceYoutubeWebViewOnly: false,
+                videoSourceConfiguration: VideoSourceConfiguration.twitch(
+                  videoId: "123456789",
+                  channelName: null,
                 ).copyWith(
                   autoPlay: false,
                   initialPosition: Duration.zero,
