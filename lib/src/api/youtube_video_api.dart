@@ -44,8 +44,10 @@ class YouTubeService {
     List<OmniVideoQuality>? availableQualities,
     List<String>? preferredVideoFormats,
     List<String>? preferredAudioFormats,
+    bool forceMuxedStream = false,
   }) async {
-    final cached = _cache[videoId.value];
+    final cacheKey = '${videoId.value}_${forceMuxedStream ? 'muxed' : 'separate'}';
+    final cached = _cache[cacheKey];
     if (cached != null && cached.isValid) {
       debugPrint('Using cached YouTube stream data');
       return cached.data;
@@ -58,9 +60,10 @@ class YouTubeService {
       availableQualities: availableQualities,
       preferredVideoFormats: preferredVideoFormats,
       preferredAudioFormats: preferredAudioFormats,
+      forceMuxedStream: forceMuxedStream,
     );
 
-    _cache[videoId.value] = CachedYouTubeStream(urls);
+    _cache[cacheKey] = CachedYouTubeStream(urls);
 
     return urls;
   }
@@ -89,6 +92,9 @@ class YouTubeService {
   /// - [preferredQualities]: A list of preferred video quality levels (e.g., 1080, 720).
   /// - [preferredVideoFormats]: A list of preferred video formats (e.g., mp4, webm).
   /// - [preferredAudioFormats]: A list of preferred audio formats (e.g., mp4a, opus).
+  /// - [forceMuxedStream]: If true, force the use of muxed streams (combined audio+video)
+  ///   instead of separate streams. This avoids audio/video sync issues but limits
+  ///   quality to 360p-720p maximum.
   static Future<YouTubeStreamUrls> fetchVideoAndAudioUrls(
     VideoId videoId, {
     required Duration timeout,
@@ -96,6 +102,7 @@ class YouTubeService {
     List<OmniVideoQuality>? availableQualities,
     List<String>? preferredVideoFormats,
     List<String>? preferredAudioFormats,
+    bool forceMuxedStream = false,
   }) async {
     final future = () async {
       debugPrint(
@@ -118,7 +125,9 @@ class YouTubeService {
           .toList();
 
       // bug of video_player iOS reference: https://github.com/flutter/flutter/issues/126760
-      if (videoStreams.isEmpty || !Platform.isIOS) {
+      // When forceMuxedStream is true, only fall back to video-only if no muxed streams exist
+      // When forceMuxedStream is false (default), use video-only streams on non-iOS platforms
+      if (videoStreams.isEmpty || (!forceMuxedStream && !Platform.isIOS)) {
         videoStreams = manifest.streams.whereType<VideoStreamInfo>().where((
           VideoStreamInfo it,
         ) {

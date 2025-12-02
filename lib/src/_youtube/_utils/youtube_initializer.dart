@@ -81,11 +81,12 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
       timeout: sourceConfig.timeoutDuration,
       preferredQualities: sourceConfig.preferredQualities,
       availableQualities: sourceConfig.availableQualities,
+      forceMuxedStream: sourceConfig.forceMuxedStream,
     );
 
     return _YouTubeStreamData(
       videoUrl: Uri.parse(urls.videoStreamUrl),
-      audioUrl: urls.audioStreamUrl != null
+      audioUrl: !sourceConfig.forceMuxedStream && urls.audioStreamUrl != null
           ? Uri.parse(urls.audioStreamUrl!)
           : null,
       qualityUrls: urls.videoQualityUrls,

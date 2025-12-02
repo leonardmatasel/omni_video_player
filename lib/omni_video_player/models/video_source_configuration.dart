@@ -141,6 +141,24 @@ class VideoSourceConfiguration {
   /// Defaults to `false`.
   final bool forceYoutubeWebViewOnly;
 
+  /// Forces the use of muxed streams (combined audio+video) for YouTube playback.
+  ///
+  /// When `false` (default), the player fetches separate audio and video streams
+  /// from YouTube, which allows for higher quality video (up to 1080p+).
+  /// However, this can sometimes cause audio/video sync issues during seeking.
+  ///
+  /// When `true`, the player uses muxed streams which are more reliable for
+  /// audio/video sync but have significantly lower quality options.
+  ///
+  /// **WARNING:** Muxed streams are typically limited to 360p-720p maximum.
+  /// Only enable this if you're experiencing audio/video sync issues and
+  /// can accept lower video quality.
+  ///
+  /// Only applies to YouTube sources using native playback (not WebView).
+  ///
+  /// Defaults to `false`.
+  final bool forceMuxedStream;
+
   /// Synchronizes the mute state across all video players controlled globally.
   ///
   /// When `true`, muting or unmuting one video will apply the same mute state to
@@ -176,6 +194,7 @@ class VideoSourceConfiguration {
     this.keepAlive = false,
     this.enableYoutubeWebViewFallback = true,
     this.forceYoutubeWebViewOnly = false,
+    this.forceMuxedStream = false,
     this.synchronizeMuteAcrossPlayers = true,
     this.timeoutDuration = const Duration(seconds: 6),
   });
@@ -227,6 +246,7 @@ class VideoSourceConfiguration {
     List<OmniVideoQuality>? availableQualities,
     bool enableYoutubeWebViewFallback = true,
     bool forceYoutubeWebViewOnly = false,
+    bool forceMuxedStream = false,
   }) {
     _validatePreferredQualities(
       preferred: preferredQualities,
@@ -240,6 +260,7 @@ class VideoSourceConfiguration {
       availableQualities: availableQualities,
       enableYoutubeWebViewFallback: enableYoutubeWebViewFallback,
       forceYoutubeWebViewOnly: forceYoutubeWebViewOnly,
+      forceMuxedStream: forceMuxedStream,
     );
   }
 
@@ -338,6 +359,7 @@ class VideoSourceConfiguration {
     List<OmniVideoQuality>? availableQualities,
     bool? enableYoutubeWebViewFallback,
     bool? forceYoutubeWebViewOnly,
+    bool? forceMuxedStream,
     bool? keepAlive,
   }) {
     final newPreferred = preferredQualities ?? this.preferredQualities;
@@ -368,6 +390,7 @@ class VideoSourceConfiguration {
           enableYoutubeWebViewFallback ?? this.enableYoutubeWebViewFallback,
       forceYoutubeWebViewOnly:
           forceYoutubeWebViewOnly ?? this.forceYoutubeWebViewOnly,
+      forceMuxedStream: forceMuxedStream ?? this.forceMuxedStream,
       synchronizeMuteAcrossPlayers:
           synchronizeMuteAcrossPlayers ?? this.synchronizeMuteAcrossPlayers,
       keepAlive: keepAlive ?? this.keepAlive,
