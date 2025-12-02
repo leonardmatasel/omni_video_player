@@ -329,6 +329,9 @@ class GenericPlaybackController extends OmniPlaybackController {
   /// Restarts playback from the beginning.
   @override
   Future<void> replay({bool useGlobalController = true}) async {
+    // TODO should this be done in order?
+    // currently restart plays audio immediately while video stays frozen
+    // for a non-deterministic amount of time
     await Future.wait([
       pause(useGlobalController: useGlobalController),
       seekTo(Duration.zero),
@@ -409,11 +412,8 @@ class GenericPlaybackController extends OmniPlaybackController {
       // This may need cleanup - isActuallyBuffering was a workaround for false positive
       // buffering on Android, but we need the raw isBuffering value here.
       if (audioController != null) {
-        int loopCount = 0;
         while (audioController!.value.isBuffering ||
             videoController.value.isBuffering) {
-          loopCount++;
-          if (loopCount % 10 == 1) {}
           await Future.delayed(Duration(milliseconds: 50));
         }
       }
