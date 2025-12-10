@@ -273,7 +273,12 @@ The new version uses [`media_kit`](https://pub.dev/packages/media_kit) which ena
 * 🎬 **Much faster video loading** on both **iOS and Android**
 * 🌐 Better support for multiple resolutions
 
-**Important note:** on the **iOS Simulator**, audio does not work yet, but it works perfectly on real devices and android simulator.
+**Important note:**
+- Both audio and video work correctly on real devices.
+- On the **iOS Simulator**, audio is not available.
+- On the **Android Simulator**, videos are not visible.
+- Currently, the package does **not work with Flutter 3.38.x**. - An issue is ongoing: [media-kit issue #1340](https://github.com/media-kit/media-kit/issues/1340)
+
 
 <br>
 
