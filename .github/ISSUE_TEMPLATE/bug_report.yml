@@ -1,0 +1,74 @@
+name: 🐛 Bug Report
+description: Report a bug in the app or plugin
+title: "[Bug] "
+labels: bug
+body:
+- type: markdown
+  attributes:
+  value: "Please fill out all required fields to help us reproduce and fix the bug."
+
+- type: input
+  id: description
+  attributes:
+  label: Description
+  placeholder: "Briefly describe the bug"
+  required: true
+
+- type: textarea
+  id: steps
+  attributes:
+  label: Steps to Reproduce
+  placeholder: "1. Step one\n2. Step two\n3. Step three"
+  required: true
+
+- type: input
+  id: expected
+  attributes:
+  label: Expected Behavior
+  placeholder: "What should happen"
+  required: true
+
+- type: input
+  id: actual
+  attributes:
+  label: Actual Behavior
+  placeholder: "What happens instead"
+  required: true
+
+- type: input
+  id: environment
+  attributes:
+  label: OS / Browser / Device
+  description: "Specify platform (Android, iOS, Browser) and version if applicable (e.g., Android 13, iOS 17)"
+  placeholder: "Android 13 / iPhone 14 / Chrome 120"
+  required: true
+
+- type: input
+  id: flutter_version
+  attributes:
+  label: Flutter Version
+  placeholder: "e.g., 3.13.0"
+  required: true
+
+- type: input
+  id: plugin_version
+  attributes:
+  label: omni_video_player Plugin Version
+  placeholder: "e.g., 1.2.0"
+  required: true
+
+- type: textarea
+  id: logs
+  attributes:
+  label: Logs
+  description: "Please paste relevant logs (required)"
+  placeholder: "Paste logs here..."
+  required: true
+
+- type: textarea
+  id: screenshots
+  attributes:
+  label: Screenshots
+  description: "Optional: attach screenshots if they help illustrate the bug"
+  placeholder: "Provide screenshots or image links here"
+  required: false
