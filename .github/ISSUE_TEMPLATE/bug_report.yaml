@@ -1,74 +1,65 @@
-name: 🐛 Bug Report
-description: Report a bug in the app or plugin. Please fill in all required fields.
-title: "[Bug] "
-labels: bug
+name: Bug Report
+description: File a bug report.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+projects: ["octo-org/1", "octo-org/44"]
+assignees:
+  - octocat
+type: bug
 body:
-- type: markdown
-  attributes:
-    value: "Fill out all required fields to help us reproduce and fix the bug."
-
-- type: input
-  id: description
-  attributes:
-    label: Description
-    placeholder: "Briefly describe the bug"
-    required: true
-
-- type: textarea
-  id: steps
-  attributes:
-    label: Steps to Reproduce
-    placeholder: "1. Step one\n2. Step two\n3. Step three"
-    required: true
-
-- type: input
-  id: expected
-  attributes:
-    label: Expected Behavior
-    placeholder: "What should happen"
-    required: true
-
-- type: input
-  id: actual
-  attributes:
-    label: Actual Behavior
-    placeholder: "What happens instead"
-    required: true
-
-- type: input
-  id: environment
-  attributes:
-    label: OS / Browser / Device
-    description: "Specify platform (Android, iOS, Browser) and version if applicable (e.g., Android 13, iOS 17)"
-    placeholder: "Android 13 / iPhone 14 / Chrome 120"
-    required: true
-
-- type: input
-  id: flutter_version
-  attributes:
-    label: Flutter Version
-    placeholder: "e.g., 3.13.0"
-    required: true
-
-- type: input
-  id: plugin_version
-  attributes:
-    label: omni_video_player Plugin Version
-    placeholder: "e.g., 1.2.0"
-    required: true
-
-- type: textarea
-  id: logs
-  attributes:
-    label: Logs
-    description: "Paste relevant logs (required)"
-    placeholder: "Paste logs here..."
-    required: true
-
-- type: textarea
-  id: screenshots
-  attributes:
-    label: Screenshots
-    description: "Optional: attach screenshots if they help illustrate the bug"
-    placeholder: "Provide screenshots or image links here"
-    required: false
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details
+      description: How can we get in touch with you if we need more info?
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen?
+      placeholder: Tell us what you see!
+      value: "A bug happened!"
+    validations:
+      required: true
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: What version of our software are you running?
+      options:
+        - 1.0.2 (Default)
+        - 1.0.3 (Edge)
+      default: 0
+    validations:
+      required: true
+  - type: dropdown
+    id: browsers
+    attributes:
+      label: What browsers are you seeing the problem on?
+      multiple: true
+      options:
+        - Firefox
+        - Chrome
+        - Safari
+        - Microsoft Edge
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://example.com).
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
