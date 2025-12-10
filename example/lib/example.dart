@@ -5,7 +5,6 @@ import 'package:omni_video_player/omni_video_player.dart';
 /// Entry point of the app.
 void main() {
   OmniVideoPlayer.ensureInitialized();
-
   runApp(MyApp());
 }
 
