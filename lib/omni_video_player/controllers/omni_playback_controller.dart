@@ -34,7 +34,7 @@ abstract class OmniPlaybackController with ChangeNotifier {
   void unMute();
 
   /// Seeks the playback to the given [position].
-  void seekTo(Duration position);
+  Future<void> seekTo(Duration position);
 
   /// Switches fullscreen mode for the video player.
   ///
