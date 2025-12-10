@@ -1,14 +1,20 @@
-# 4.0.0
+# 4.0.0-beta
 
 ⬆️ **Dependencies Updated**
 
 * All dependencies have been updated to their latest versions.
 
-✅ **Beta Version Becomes Official**
+✅ **Beta Version Pre-Release**
 
-* The beta version using `media_kit` is now the official release.
-* Learn more about why we switched to `media_kit` in the [documentation](https://pub.dev/packages/omni_video_player#-why-we-chose-media_kit-over-video-player).
+* The beta version using `media_kit` is in pre-release.
+* Learn more about why we want to switch to `media_kit` in the [documentation](https://pub.dev/packages/omni_video_player#-why-we-chose-media_kit-over-video-player).
 * Make sure to follow the [installation guide](https://pub.dev/packages/omni_video_player#installation) carefully before upgrading.
+
+# 3.4.5
+
+* Fixed minor bugs:
+  - Resolved video/audio desynchronization when using `seekTo`
+  - Improved WebView rendering performance
 
 # 3.4.4
 
