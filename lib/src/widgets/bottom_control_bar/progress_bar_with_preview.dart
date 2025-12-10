@@ -80,7 +80,6 @@ class _ProgressBarWithPreviewState extends State<ProgressBarWithPreview> {
   }
 
   void _onChangeEnd(double value) {
-    widget.controller.seekTo(Duration(milliseconds: value.round()));
     setState(() {
       _dragValue = null;
       _showPreview = false;

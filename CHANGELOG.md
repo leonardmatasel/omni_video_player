@@ -1,3 +1,9 @@
+# 3.4.5
+
+* Fixed minor bugs:
+  - Resolved video/audio desynchronization when using `seekTo`
+  - Improved WebView rendering performance
+
 # 3.4.4
 
 🛠 **Fix**
