@@ -89,7 +89,6 @@ class NetworkInitializer implements IOmniVideoPlayerInitializerStrategy {
         key: options.globalKeyPlayer,
         controller: controller.videoController.videoController,
         fit: BoxFit.contain,
-        pauseUponEnteringBackgroundMode: false,
       ),
     );
 

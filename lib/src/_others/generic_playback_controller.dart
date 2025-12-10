@@ -205,7 +205,7 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   /// Whether a seek operation is currently in progress.
   @override
-  bool get isSeeking => _isSeeking || videoController.isSeeking;
+  bool get isSeeking => _isSeeking;
 
   /// Whether playback has started at least once.
   @override
@@ -328,9 +328,7 @@ class GenericPlaybackController extends OmniPlaybackController {
   }) async {
     if (position <= duration) {
       if (isFinished) {
-        await pause();
-      } else {
-        videoController.seekingPosition = position;
+        pause();
       }
 
       if (callbacks.onSeekRequest != null &&
@@ -343,6 +341,8 @@ class GenericPlaybackController extends OmniPlaybackController {
       if (position.inMicroseconds != 0 && !skipHasPlaybackStarted) {
         _hasStarted = true;
       }
+
+      await videoController.pause();
 
       await videoController.player.seek(position);
 
@@ -395,7 +395,7 @@ class GenericPlaybackController extends OmniPlaybackController {
   @override
   Future<void> dispose() async {
     _isDisposed = true;
-
+    super.dispose();
     videoController.removeListener(_onControllerUpdate);
     // If this controller is still playing according to the global manager,
     // ensure we pause it before disposing.
@@ -403,7 +403,6 @@ class GenericPlaybackController extends OmniPlaybackController {
       _globalController?.requestPause();
     }
     await videoController.dispose();
-    super.dispose();
   }
 
   @override

@@ -12,6 +12,7 @@ import 'package:omni_video_player/src/widgets/playback_center_button.dart';
 import 'package:omni_video_player/src/widgets/bottom_control_bar/gradient_bottom_control_bar.dart';
 import 'package:omni_video_player/src/widgets/bottom_control_bar/video_playback_control_bar.dart';
 import '../../widgets/indicators/animated_skip_indicator.dart';
+import '../../widgets/indicators/loader_indicator.dart';
 
 /// Overlay widget managing playback controls, gestures, and skip indicators.
 ///
@@ -306,6 +307,13 @@ class _OmniVideoPlayerControlsOverlayState
         onStartInteraction: onStartInteraction,
         onEndInteraction: onEndInteraction,
       ),
+      if (ctrl.isSeeking)
+        Positioned.fill(
+          child: Align(
+            alignment: Alignment.center,
+            child: const LoaderIndicator(),
+          ),
+        ),
       Positioned.fill(child: _buildCenterButton(isButtonVisible)),
     ];
 
