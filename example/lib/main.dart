@@ -10,6 +10,7 @@ import 'package:omni_video_player/omni_video_player.dart';
 
 void main() {
   OmniVideoPlayer.ensureInitialized();
+
   runApp(
     MaterialApp(
       home: DefaultTabController(

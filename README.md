@@ -20,9 +20,7 @@
 
 ## Introduction
 
-**omni_video_player** is a Flutter video player built on top of [`media_kit`](https://pub.dev/packages/media_kit) for **native video playback**. 
-
-⚡ **This README refers to the 3.3.3-beta version** which introduces faster video loading and improved iOS handling — see [Beta Version](#-beta-version) for details.
+**omni_video_player** is a Flutter video player built on top of [`media_kit`](https://pub.dev/packages/media_kit) for **native video playback**.
 
 It supports **YouTube** (via `youtube_explode_dart` with an **automatic WebView fallback** implemented using `webview_flutter` to handle temporary YouTube rate-limit blocks — see [issue #323](https://github.com/Hexer10/youtube_explode_dart/issues/323)),
 
@@ -91,8 +89,17 @@ Check the latest version on: [![Pub Version](https://img.shields.io/pub/v/omni_v
 
 ```yaml
 dependencies:
-  omni_video_player: <latest_beta_version>
+  omni_video_player: <latest_version>
 ````
+
+Before using any video player in your app, **you only need to call this once**, preferably in your `main.dart`:
+
+```dart
+OmniVideoPlayer.ensureInitialized();
+```
+
+This ensures the underlying media engine is properly initialized.
+
 
 ---
 
@@ -254,39 +261,19 @@ else
 
 <br>
 
-## 🧪 Beta Version
+## 🧪 Why we chose media_kit over video_player
 
-Starting from version **3.3.3-beta**, **omni_video_player** introduces a new video handling implementation to address a known issue with the `video_player` plugin on iOS:
+Starting from version **4.0.0**, **omni_video_player** introduces a new video handling implementation to address a known issue with the `video_player` plugin on iOS:
 
 > Currently, the `video_player` package on iOS preloads the entire video before starting playback, causing delays.
 > (see [flutter/flutter#126760](https://github.com/flutter/flutter/issues/126760)).
 
-The beta version uses [`media_kit`](https://pub.dev/packages/media_kit) which enables:
+The new version uses [`media_kit`](https://pub.dev/packages/media_kit) which enables:
 
 * 🎬 **Much faster video loading** on both **iOS and Android**
 * 🌐 Better support for multiple resolutions
 
 **Important note:** on the **iOS Simulator**, audio does not work yet, but it works perfectly on real devices and android simulator.
-
-### ⚡ Initialization
-
-Before using any video player in your app, **you must call**:
-
-```dart
-OmniVideoPlayer.ensureInitialized();
-```
-
-This ensures the underlying media engine is properly initialized.
-
-
-### 📦 Installing the Beta
-
-To use the beta version, specify the full version in your `pubspec.yaml`:
-
-```yaml
-dependencies:
-  omni_video_player: 3.4.0-beta
-```
 
 <br>
 
