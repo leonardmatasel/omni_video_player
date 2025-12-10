@@ -69,6 +69,7 @@ class _PlaybackCenterButtonState extends State<PlaybackCenterButton> {
   bool get _shouldShowButton {
     final uiOptions = widget.configuration.playerUIVisibilityOptions;
     return widget.visible &&
+        !widget.controller.isSeeking &&
         (widget.controller.isFullScreen ||
             uiOptions.showPlayPauseReplayButton) &&
         !(widget.controller.isBuffering ||
