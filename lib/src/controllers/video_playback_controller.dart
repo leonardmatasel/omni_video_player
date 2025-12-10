@@ -25,6 +25,11 @@ class VideoPlaybackController with ChangeNotifier {
 
   bool _isReady = false;
 
+  Duration seekingPosition = Duration.zero;
+  bool _isSeeking = false;
+
+  Timer? _notifyTimer;
+
   VideoPlaybackController.uri(
     String url, {
     this.isLive = false,
@@ -65,19 +70,30 @@ class VideoPlaybackController with ChangeNotifier {
       (value) => _isReady = true,
     );
 
-    player.stream.playing.listen((_) => notifyListeners());
+    _subscriptions.add(player.stream.playing.listen((_) => notifyListeners()));
 
     // --- throttling ---
-    Timer? notifyTimer;
     void throttledNotify() {
-      if (notifyTimer?.isActive ?? false) return;
-      notifyTimer = Timer(const Duration(milliseconds: 500), () {
-        if (_mounted) notifyListeners();
+      if (_notifyTimer?.isActive ?? false) return;
+      _notifyTimer = Timer(const Duration(milliseconds: 500), () {
+        if (!_mounted) return;
+        if (isPlaying &&
+            currentPosition.inSeconds == seekingPosition.inSeconds &&
+            currentPosition.inSeconds < (duration.inSeconds - 1)) {
+          _isSeeking = true;
+        } else {
+          _isSeeking = false;
+        }
+        notifyListeners();
       });
     }
 
     for (final s in streams) {
-      _subscriptions.add(s.listen((_) => throttledNotify()));
+      _subscriptions.add(
+        s.listen((_) {
+          throttledNotify();
+        }),
+      );
     }
   }
 
@@ -96,12 +112,21 @@ class VideoPlaybackController with ChangeNotifier {
   bool get isBuffering => false;
 
   @override
+  @override
   Future<void> dispose() async {
     _mounted = false;
+
     for (final s in _subscriptions) {
-      await s.cancel();
+      s.cancel();
     }
-    await player.dispose();
+    _subscriptions.clear();
+
+    _notifyTimer?.cancel();
+
+    try {
+      await player.dispose();
+    } catch (_) {}
+
     super.dispose();
   }
 
@@ -132,4 +157,6 @@ class VideoPlaybackController with ChangeNotifier {
   bool get hasError => false;
 
   Duration get buffer => player.state.buffer;
+
+  bool get isSeeking => _isSeeking;
 }
