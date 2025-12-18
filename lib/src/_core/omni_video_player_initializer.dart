@@ -116,7 +116,7 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
         if (_vimeoInfo == null) throw Exception('Failed to fetch Vimeo info');
       }
 
-      final initStrategy = OmniVideoPlayerInitializerFactory.getStrategy(
+      final initStrategy = await OmniVideoPlayerInitializerFactory.getStrategy(
         _sourceConfig.videoSourceType,
         _sourceConfig,
         widget.configuration,

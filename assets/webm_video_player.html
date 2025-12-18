@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow: hidden; }
+        video { width: 100%; height: 100%; object-fit: contain; }
+    </style>
+</head>
+<body>
+<video
+        id="player"
+        playsinline
+        webkit-playsinline
+        preload="metadata"
+        style="width: 100%; height: 100%;">
+    <source src="<<videoUrl>>" type="video/webm">
+</video>
+
+<script>
+    var player = document.getElementById('player');
+
+    // --- Event Listeners to notify Flutter ---
+
+    // Video pronto e metadati caricati (durata)
+    player.addEventListener('loadedmetadata', function() {
+        window.flutter_inappwebview.callHandler('Ready', {
+            duration: player.duration
+        });
+    });
+
+    // Cambio stato Play/Pause
+    player.addEventListener('play', function() {
+        window.flutter_inappwebview.callHandler('StateChange', 'playing');
+    });
+    player.addEventListener('pause', function() {
+        window.flutter_inappwebview.callHandler('StateChange', 'paused');
+    });
+    player.addEventListener('ended', function() {
+        window.flutter_inappwebview.callHandler('StateChange', 'ended');
+    });
+
+    // Buffering
+    player.addEventListener('waiting', function() {
+        window.flutter_inappwebview.callHandler('StateChange', 'buffering');
+    });
+    player.addEventListener('playing', function() {
+        // Fired when playback is ready to start after buffering or seeking
+        window.flutter_inappwebview.callHandler('StateChange', 'playing');
+    });
+
+    // Progresso
+    player.addEventListener('timeupdate', function() {
+        window.flutter_inappwebview.callHandler('PlaybackProgress', {
+            currentTime: player.currentTime
+        });
+    });
+
+    // Errori
+    player.addEventListener('error', function() {
+        window.flutter_inappwebview.callHandler('PlayerError', player.error ? player.error.message : 'Unknown error');
+    });
+
+    player.addEventListener('seeked', function() {
+        window.flutter_inappwebview.callHandler('Seeked');
+    });
+
+    // --- Control Functions called by Flutter ---
+
+    function play() { player.play(); }
+    function pause() { player.pause(); }
+    function seekTo(seconds) { player.currentTime = seconds; }
+    function setVolume(vol) { player.volume = vol; } // 0.0 to 1.0
+    function setPlaybackRate(rate) { player.playbackRate = rate; }
+    function mute() { player.muted = true; }
+    function unMute() { player.muted = false; }
+</script>
+</body>
+</html>

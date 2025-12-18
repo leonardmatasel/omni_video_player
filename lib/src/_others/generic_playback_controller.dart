@@ -60,6 +60,22 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   Duration _duration = Duration.zero;
 
+  Timer? _progressTimer;
+
+  void _startProgressTimer() {
+    _progressTimer?.cancel();
+    _progressTimer = Timer.periodic(const Duration(milliseconds: 200), (_) {
+      if (isPlaying && !isSeeking) {
+        notifyListeners();
+      }
+    });
+  }
+
+  void _stopProgressTimer() {
+    _progressTimer?.cancel();
+    _progressTimer = null;
+  }
+
   GenericPlaybackController._(
     this.videoController,
     this.audioController,
@@ -309,6 +325,7 @@ class GenericPlaybackController extends OmniPlaybackController {
         videoController.play(),
       ]);
     }
+    _startProgressTimer();
   }
 
   /// Pauses playback.
@@ -325,6 +342,7 @@ class GenericPlaybackController extends OmniPlaybackController {
         videoController.pause(),
       ]);
     }
+    _stopProgressTimer();
   }
 
   /// Restarts playback from the beginning.
@@ -463,6 +481,7 @@ class GenericPlaybackController extends OmniPlaybackController {
   /// Disposes the controller and its resources.
   @override
   Future<void> dispose() async {
+    _stopProgressTimer();
     _isDisposed = true;
     super.dispose();
     videoController.removeListener(_onControllerUpdate);

@@ -1,22 +1,22 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
-import 'package:omni_video_player/src/_youtube/youtube_webview_event_handler.dart';
+import 'package:omni_video_player/src/_webm/webm_webview_event_handler.dart';
 import 'package:video_player/video_player.dart' show DurationRange;
 
-class YouTubeWebViewController extends OmniPlaybackController {
+class WebVideoWebViewController extends OmniPlaybackController {
   late final VideoPlayerCallbacks callbacks;
   late final VideoPlayerConfiguration options;
+  late final WebVideoWebViewEventHandler _eventHandler;
+
+  // URL del video raw (webm/mp4)
+  final String videoUrlStr;
 
   @override
   final ValueNotifier<Widget?> sharedPlayerNotifier = ValueNotifier(null);
-
-  late final YouTubeWebViewEventHandler _eventHandler;
 
   // STATES
   bool _hasError = false;
@@ -27,7 +27,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
   bool _isSeeking = false;
   bool _isBuffering = false;
   bool _isFullyVisible = false;
-  bool _isLoadedVideo = false;
+
   bool? wasPlayingBeforeGoOnFullScreen;
   double _volume = 100;
   double _previousVolume = 100;
@@ -37,7 +37,6 @@ class YouTubeWebViewController extends OmniPlaybackController {
   OmniVideoQuality? _currentVideoQuality;
   List<OmniVideoQuality>? _availableVideoQualities;
   bool _isFullScreen = false;
-  late final String _videoId;
   late final GlobalPlaybackController? _globalController;
   GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer;
 
@@ -46,140 +45,80 @@ class YouTubeWebViewController extends OmniPlaybackController {
   InAppWebViewController? _webViewController;
   InAppWebViewController? get webViewController => _webViewController;
 
-  void setWebViewController(InAppWebViewController controller) {
-    _webViewController = controller;
-    _initJavaScriptHandlers();
-  }
-
   @override
   final Size size;
 
-  YouTubeWebViewController({
-    required Duration duration,
+  WebVideoWebViewController({
+    required Duration duration, // Spesso zero all'inizio per i file web
     required bool isLive,
     required this.size,
     required this.callbacks,
     required this.options,
-    required String videoId,
+    required this.videoUrlStr,
     required GlobalPlaybackController? globalController,
     required this.globalKeyPlayer,
   }) {
     _duration = duration;
     _isLive = isLive;
-    _videoId = videoId;
     _globalController = globalController;
-    _eventHandler = YouTubeWebViewEventHandler(this, options, callbacks);
+    _eventHandler = WebVideoWebViewEventHandler(this, options, callbacks);
   }
 
-  factory YouTubeWebViewController.fromVideoId({
-    required String videoId,
-    required Duration duration,
-    required bool isLive,
-    required Size size,
-    required VideoPlayerCallbacks callbacks,
-    required VideoPlayerConfiguration options,
-    required GlobalPlaybackController? globalController,
-    required GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer,
-    bool autoPlay = false,
-  }) {
-    final controller = YouTubeWebViewController(
-      callbacks: callbacks,
-      options: options,
-      duration: duration,
-      isLive: isLive,
-      size: size,
-      videoId: videoId,
-      globalController: globalController,
-      globalKeyPlayer: globalKeyPlayer,
-    );
-
-    return controller;
+  void setWebViewController(InAppWebViewController controller) {
+    _webViewController = controller;
+    _initJavaScriptHandlers();
   }
 
-  Future<void> loadVideoById({required String videoId}) async {
-    final loadData = {
-      'videoId': videoId,
-      'startSeconds': 0,
-      'endSeconds': null,
-    };
-    await webViewController?.evaluateJavascript(
-      source: 'loadById(${jsonEncode(loadData)});',
-    );
-  }
-
-  String get playerId => 'Youtube$hashCode';
+  String get playerId => 'WebVideo$hashCode';
 
   void _initJavaScriptHandlers() {
+    // Handler quando il video è caricato e pronto
     webViewController?.addJavaScriptHandler(
       handlerName: 'Ready',
-      callback: (_) async {
-        if (!_isLoadedVideo) {
-          await loadVideoById(videoId: videoId!);
-          _isLoadedVideo = true;
-          play(useGlobalController: false);
-        }
+      callback: (args) {
+        _eventHandler.handleReady(args.isNotEmpty ? args.first : null);
       },
     );
+
+    // Cambio Stato (Play, Pause, Buffering)
     webViewController?.addJavaScriptHandler(
       handlerName: 'StateChange',
       callback: (args) {
         return _eventHandler.handleStateChange(args.first);
       },
     );
+
+    // Errori
     webViewController?.addJavaScriptHandler(
       handlerName: 'PlayerError',
       callback: (args) => _eventHandler.handleError(args.first),
     );
+
+    // Progresso Temporale
     webViewController?.addJavaScriptHandler(
       handlerName: 'PlaybackProgress',
       callback: (args) {
         _eventHandler.handlePlaybackProgress(args.first);
       },
     );
+
     webViewController?.addJavaScriptHandler(
-      handlerName: 'PlaybackRateChange',
+      handlerName: 'Seeked',
       callback: (args) {
-        _eventHandler.handlePlaybackRateChange(args.first);
-      },
-    );
-    webViewController?.addJavaScriptHandler(
-      handlerName: 'PlaybackQualityChange',
-      callback: (args) {
-        _eventHandler.handlePlaybackQualityChange(args.first);
+        _eventHandler.handleSeeked();
       },
     );
   }
 
-  /// Disposes the resources created by [YoutubePlayerController].
   @override
   Future<void> dispose() async {
     isDisposed = true;
     super.dispose();
   }
 
-  Future<void> run(String functionName, {Map<String, dynamic>? data}) async {
-    final varArgs = await _prepareData(data);
-
-    if (isDisposed) return;
-    return webViewController?.evaluateJavascript(
-      source: 'player.$functionName($varArgs);',
-    );
-  }
-
-  Future<String> runWithResult(
-    String functionName, {
-    Map<String, dynamic>? data,
-  }) async {
-    final varArgs = await _prepareData(data);
-
-    final result = await webViewController?.evaluateJavascript(
-      source: 'player.$functionName($varArgs);',
-    );
-    return result.toString();
-  }
-
+  // Helper per eseguire JS
   Future<void> _evaluate(String js) async {
-    if (_webViewController == null) return;
+    if (_webViewController == null || isDisposed) return;
     try {
       await _webViewController!.evaluateJavascript(source: js);
     } catch (e) {
@@ -187,9 +126,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
     }
   }
 
-  Future<String> _prepareData(Map<String, dynamic>? data) async {
-    return data == null ? '' : jsonEncode(data);
-  }
+  // --- Implementazione Metodi OmniPlaybackController ---
 
   @override
   Map<OmniVideoQuality, Uri>? get videoQualityUrls => null;
@@ -197,7 +134,6 @@ class YouTubeWebViewController extends OmniPlaybackController {
   @override
   List<OmniVideoQuality>? get availableVideoQualities =>
       _availableVideoQualities;
-
   set availableVideoQualities(List<OmniVideoQuality>? value) {
     _availableVideoQualities = value;
     notifyListeners();
@@ -212,14 +148,12 @@ class YouTubeWebViewController extends OmniPlaybackController {
 
   @override
   Future<void> switchQuality(OmniVideoQuality quality) async {
-    debugPrint(
-      "Switching quality to $quality: is not available because of the Youtube API. Doc: https://developers.google.com/youtube/iframe_api_reference",
-    );
+    // WebM solitamente è file singolo, difficile cambiare qualità senza ricaricare URL diverso
+    debugPrint("Switch quality not supported for raw web video");
   }
 
   @override
   bool get isSeeking => _isSeeking;
-
   @override
   set isSeeking(bool value) {
     _isSeeking = value;
@@ -235,9 +169,8 @@ class YouTubeWebViewController extends OmniPlaybackController {
 
   @override
   Duration get currentPosition => _currentPosition;
-
   set currentPosition(Duration value) {
-    if (value > duration) return;
+    if (value > duration && duration != Duration.zero) return;
     _currentPosition = value;
     notifyListeners();
   }
@@ -251,7 +184,6 @@ class YouTubeWebViewController extends OmniPlaybackController {
 
   @override
   bool get hasError => _hasError;
-
   set hasError(bool value) {
     _hasError = value;
     notifyListeners();
@@ -279,7 +211,6 @@ class YouTubeWebViewController extends OmniPlaybackController {
 
   @override
   bool get isFullScreen => _isFullScreen;
-
   set isFullScreen(bool value) {
     _isFullScreen = value;
     notifyListeners();
@@ -287,7 +218,6 @@ class YouTubeWebViewController extends OmniPlaybackController {
 
   @override
   bool get isLive => _isLive;
-
   set isLive(bool value) {
     _isLive = value;
     notifyListeners();
@@ -312,7 +242,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
     if (useGlobalController && _globalController != null && !isFullScreen) {
       return await _globalController.requestPause();
     } else {
-      return run('pauseVideo');
+      return _evaluate('pause()');
     }
   }
 
@@ -322,7 +252,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
     if (useGlobalController && _globalController != null && !isFullScreen) {
       return await _globalController.requestPlay(this);
     } else {
-      return await webViewController?.evaluateJavascript(source: 'play();');
+      return _evaluate('play()');
     }
   }
 
@@ -336,18 +266,14 @@ class YouTubeWebViewController extends OmniPlaybackController {
   }) async {
     if (position <= duration) {
       wasPlayingBeforeSeek = isPlaying;
-
-      if (!skipHasPlaybackStarted) {
-        isSeeking = true;
-      }
-
+      if (!skipHasPlaybackStarted) isSeeking = true;
       if (position.inMicroseconds != 0 && !skipHasPlaybackStarted) {
         hasStarted = true;
       }
 
-      await webViewController?.evaluateJavascript(
-        source: 'seekTo(${position.inSeconds}, true);',
-      );
+      // HTML5 usa secondi floating point
+      double seconds = position.inMilliseconds / 1000.0;
+      await _evaluate('seekTo($seconds)');
       currentPosition = position;
     } else {
       debugPrint('Seek position exceeds duration');
@@ -397,9 +323,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
 
   @override
   set volume(double value) {
-    if (kIsWeb || Platform.isAndroid) {
-      _evaluate('player.setVolume(${value * 100})');
-    }
+    _evaluate('setVolume($value)');
     _volume = value;
     notifyListeners();
   }
@@ -414,52 +338,47 @@ class YouTubeWebViewController extends OmniPlaybackController {
   void mute() {
     _previousVolume = _volume;
     volume = 0;
-    run('mute');
+    _evaluate('mute()');
     _globalController?.setCurrentVolume(volume);
   }
 
   @override
   void unMute() {
     volume = _previousVolume == 0 ? 1 : _previousVolume;
-    run('unMute');
+    _evaluate('unMute()');
     _globalController?.setCurrentVolume(volume);
   }
 
   @override
-  String? get videoDataSource => null;
+  String? get videoDataSource => videoUrlStr;
 
   @override
-  String? get videoId => _videoId;
+  String? get videoId => null; // Non c'è ID specifico come su YT
 
   @override
-  VideoSourceType get videoSourceType => VideoSourceType.youtube;
+  VideoSourceType get videoSourceType => VideoSourceType.network;
 
   @override
-  Uri? get videoUrl => null;
+  Uri? get videoUrl => Uri.tryParse(videoUrlStr);
 
   @override
   double get playbackSpeed => _playbackSpeed;
 
   @override
   set playbackSpeed(double speed) {
-    if (speed <= 0) {
-      throw ArgumentError('Playback speed must be greater than 0');
-    }
+    if (speed <= 0) return;
     _playbackSpeed = speed;
-    _evaluate('player.setPlaybackRate($speed);');
+    _evaluate('setPlaybackRate($speed)');
     notifyListeners();
   }
 
   @override
   void loadVideoSource(VideoSourceConfiguration videoSourceConfiguration) {
-    globalKeyPlayer.currentState?.refresh(
-      videoSourceConfiguration: videoSourceConfiguration,
-    );
+    // Implementa reload se necessario
   }
 
   @override
   bool get isFullyVisible => _isFullyVisible;
-
   @override
   set isFullyVisible(bool value) {
     _isFullyVisible = value;

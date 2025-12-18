@@ -192,7 +192,6 @@ class YouTubeWebViewEventHandler {
         controller.duration != const Duration(seconds: 1) &&
         controller.hasStarted == true) {
       controller.pause(useGlobalController: false);
-      controller.seekTo(Duration.zero);
     }
   }
 }

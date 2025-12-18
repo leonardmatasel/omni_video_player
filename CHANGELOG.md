@@ -1,3 +1,8 @@
+# 3.5.0
+
+* Fixed minor bugs on YouTube Webview isFinished
+* Add support to webm on iOS (with a WebView)
+
 # 3.4.5
 
 * Fixed minor bugs:
