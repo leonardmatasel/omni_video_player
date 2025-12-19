@@ -15,7 +15,7 @@ class _FileVideoState extends State<FileVideo> {
   File? _videoFile;
 
   Future<void> _pickVideo() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.video);
+    final result = await FilePicker.platform.pickFiles();
 
     if (result != null && result.files.single.path != null) {
       setState(() {

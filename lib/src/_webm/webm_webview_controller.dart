@@ -7,10 +7,10 @@ import 'package:omni_video_player/omni_video_player/controllers/global_playback_
 import 'package:omni_video_player/src/_webm/webm_webview_event_handler.dart';
 import 'package:video_player/video_player.dart' show DurationRange;
 
-class WebVideoWebViewController extends OmniPlaybackController {
+class WebmVideoWebViewController extends OmniPlaybackController {
   late final VideoPlayerCallbacks callbacks;
   late final VideoPlayerConfiguration options;
-  late final WebVideoWebViewEventHandler _eventHandler;
+  late final WebmVideoWebViewEventHandler _eventHandler;
 
   // URL del video raw (webm/mp4)
   final String videoUrlStr;
@@ -48,7 +48,9 @@ class WebVideoWebViewController extends OmniPlaybackController {
   @override
   final Size size;
 
-  WebVideoWebViewController({
+  final bool isFile;
+
+  WebmVideoWebViewController({
     required Duration duration, // Spesso zero all'inizio per i file web
     required bool isLive,
     required this.size,
@@ -57,11 +59,12 @@ class WebVideoWebViewController extends OmniPlaybackController {
     required this.videoUrlStr,
     required GlobalPlaybackController? globalController,
     required this.globalKeyPlayer,
+    required this.isFile,
   }) {
     _duration = duration;
     _isLive = isLive;
     _globalController = globalController;
-    _eventHandler = WebVideoWebViewEventHandler(this, options, callbacks);
+    _eventHandler = WebmVideoWebViewEventHandler(this, options, callbacks);
   }
 
   void setWebViewController(InAppWebViewController controller) {
@@ -69,7 +72,7 @@ class WebVideoWebViewController extends OmniPlaybackController {
     _initJavaScriptHandlers();
   }
 
-  String get playerId => 'WebVideo$hashCode';
+  String get playerId => 'WebmVideo$hashCode';
 
   void _initJavaScriptHandlers() {
     // Handler quando il video è caricato e pronto

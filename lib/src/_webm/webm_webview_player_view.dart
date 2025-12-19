@@ -3,22 +3,23 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:omni_video_player/src/_webm/webm_webview_controller.dart';
 
-class WebVideoWebViewPlayerView extends StatefulWidget {
-  final WebVideoWebViewController controller;
+class WebmVideoWebViewPlayerView extends StatefulWidget {
+  final WebmVideoWebViewController controller;
   final Widget customLoader;
 
-  const WebVideoWebViewPlayerView({
+  const WebmVideoWebViewPlayerView({
     super.key,
     required this.controller,
     required this.customLoader,
   });
 
   @override
-  State<WebVideoWebViewPlayerView> createState() =>
-      _WebVideoWebViewPlayerViewState();
+  State<WebmVideoWebViewPlayerView> createState() =>
+      _WebmVideoWebViewPlayerViewState();
 }
 
-class _WebVideoWebViewPlayerViewState extends State<WebVideoWebViewPlayerView> {
+class _WebmVideoWebViewPlayerViewState
+    extends State<WebmVideoWebViewPlayerView> {
   String? _htmlContent;
 
   @override
@@ -56,8 +57,11 @@ class _WebVideoWebViewPlayerViewState extends State<WebVideoWebViewPlayerView> {
           data: _htmlContent!,
           encoding: 'utf-8',
           mimeType: 'text/html',
+          baseUrl: widget.controller.isFile ? WebUri("file://") : null,
         ),
         initialSettings: InAppWebViewSettings(
+          allowFileAccessFromFileURLs: true,
+          allowUniversalAccessFromFileURLs: true,
           mediaPlaybackRequiresUserGesture: false,
           allowsInlineMediaPlayback: true, // Fondamentale per iOS
           useHybridComposition: false,

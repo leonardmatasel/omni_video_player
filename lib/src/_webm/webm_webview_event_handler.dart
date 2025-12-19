@@ -4,12 +4,12 @@ import 'package:omni_video_player/omni_video_player/models/video_player_configur
 import 'package:omni_video_player/omni_video_player/models/video_source_configuration.dart';
 import 'package:omni_video_player/src/_webm/webm_webview_controller.dart';
 
-class WebVideoWebViewEventHandler {
-  final WebVideoWebViewController controller;
+class WebmVideoWebViewEventHandler {
+  final WebmVideoWebViewController controller;
   final VideoPlayerConfiguration configuration;
   final VideoPlayerCallbacks callbacks;
 
-  WebVideoWebViewEventHandler(
+  WebmVideoWebViewEventHandler(
     this.controller,
     this.configuration,
     this.callbacks,

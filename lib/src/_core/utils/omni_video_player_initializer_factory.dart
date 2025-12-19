@@ -87,6 +87,21 @@ class OmniVideoPlayerInitializerFactory {
         );
 
       case VideoSourceType.file:
+        if (isIos && sourceConfig.videoFile?.path != null) {
+          final isWebm = await WebmMagicBytesChecker.isFileWebm(
+            sourceConfig.videoFile!.path,
+          );
+          if (isWebm) {
+            return _webVideoWebView(
+              config,
+              globalController,
+              callbacks,
+              sourceConfig,
+              sourceConfig.videoFile!.path,
+              isFile: true,
+            );
+          }
+        }
         return FileInitializer(
           options: config,
           globalController: globalController,
@@ -102,14 +117,16 @@ class OmniVideoPlayerInitializerFactory {
     GlobalPlaybackController? globalController,
     VideoPlayerCallbacks callbacks,
     VideoSourceConfiguration sourceConfig,
-    String videoUrl,
-  ) {
+    String videoUrl, {
+    bool isFile = false,
+  }) {
     return WebmVideoWebViewInitializer(
       config: config,
       globalController: globalController,
       callbacks: callbacks,
       sourceConfig: sourceConfig,
       videoUrl: videoUrl,
+      isFile: isFile,
     );
   }
 }

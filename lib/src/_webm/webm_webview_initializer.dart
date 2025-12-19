@@ -14,12 +14,14 @@ class WebmVideoWebViewInitializer
   final GlobalPlaybackController? globalController;
   final VideoSourceConfiguration sourceConfig;
   final String videoUrl;
+  final bool isFile;
 
   const WebmVideoWebViewInitializer({
     required this.config,
     required this.sourceConfig,
     required this.callbacks,
     required this.videoUrl,
+    required this.isFile,
     this.globalController,
   });
 
@@ -31,7 +33,7 @@ class WebmVideoWebViewInitializer
     // La WebView con CSS "object-fit: contain" gestirà l'aspect ratio visivo.
     const defaultSize = Size(1280, 720);
 
-    final controller = WebVideoWebViewController(
+    final controller = WebmVideoWebViewController(
       duration: Duration(
         seconds: 1,
       ), // La durata verrà aggiornata dall'evento 'Ready' JS
@@ -42,13 +44,14 @@ class WebmVideoWebViewInitializer
       videoUrlStr: videoUrl,
       globalController: globalController,
       globalKeyPlayer: config.globalKeyInitializer,
+      isFile: isFile,
     );
 
     // Register hero widget after layout is complete
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.sharedPlayerNotifier.value = Hero(
         tag: config.globalKeyPlayer,
-        child: WebVideoWebViewPlayerView(
+        child: WebmVideoWebViewPlayerView(
           key: config.globalKeyPlayer,
           controller: controller,
           customLoader: config.customPlayerWidgets.loadingWidget,
