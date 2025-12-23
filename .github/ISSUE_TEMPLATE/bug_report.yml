@@ -1,59 +1,75 @@
-name: Bug Report
-description: Segnala un malfunzionamento del plugin.
+name: "🐛 Bug Report"
+description: Report a bug in omni_video_player.
 title: "[Bug]: "
 labels: ["bug", "triage"]
 body:
   - type: markdown
     attributes:
       value: |
-        Grazie per aver deciso di aiutarci a migliorare il plugin!
-  - type: input
-    id: contact
+        Thanks for reporting! Please provide as much detail as possible so we can reproduce the issue.
+  - type: textarea
+    id: description
     attributes:
-      label: Dettagli di contatto
-      description: Come possiamo contattarti se servono info?
-      placeholder: es. email@esempio.it
+      label: Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Initialize omni_video_player with URL...
+        2. Call play()...
+        3. See error...
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Affected Platform
+      multiple: true
+      options:
+        - Android
+        - iOS
+        - Web
+        - macOS
+        - Windows
+        - Linux
+    validations:
+      required: true
+  - type: input
+    id: flutter_version
+    attributes:
+      label: Flutter & Plugin Version
+      placeholder: "Flutter 3.19.0 / Plugin 1.2.0"
+    validations:
+      required: true
+  - type: input
+    id: video_format
+    attributes:
+      label: Video Format/Source
+      placeholder: "e.g., HLS (.m3u8), MP4, DASH, Asset or Network URL"
     validations:
       required: false
   - type: textarea
-    id: what-happened
+    id: doctor
     attributes:
-      label: Cosa è successo?
-      description: Descrivi il problema e cosa ti aspettavi succedesse.
-      placeholder: Raccontaci i dettagli...
+      label: Flutter Doctor Output
+      description: Please paste the output of `flutter doctor -v`.
+      render: shell
     validations:
       required: true
-  - type: dropdown
-    id: version
-    attributes:
-      label: Versione
-      description: Quale versione del plugin stai usando?
-      options:
-        - 1.0.2 (Default)
-        - 1.0.3 (Edge)
-      default: 0
-    validations:
-      required: true
-  - type: dropdown
-    id: browsers
-    attributes:
-      label: Su quali browser riscontri il problema?
-      multiple: true
-      options:
-        - Firefox
-        - Chrome
-        - Safari
-        - Microsoft Edge
   - type: textarea
     id: logs
     attributes:
-      label: Log di errore
-      description: Incolla qui eventuali log (verranno formattati automaticamente).
+      label: Logs
+      description: Paste relevant logs or console output.
       render: shell
-  - type: checkboxes
-    id: terms
+  - type: textarea
+    id: visual_proof
     attributes:
-      label: Codice di Condotta
-      options:
-        - label: Accetto di seguire le linee guida di questo progetto
-          required: true
+      label: Screenshots / Video
+      description: Drag and drop screenshots or screen recordings here.
+    validations:
+      required: false

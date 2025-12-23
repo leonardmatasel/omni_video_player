@@ -1,0 +1,33 @@
+name: "🚀 Feature Request"
+description: Suggest an idea or a new functionality for omni_video_player.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to make **omni_video_player** better? We'd love to hear it!
+  - type: textarea
+    id: feature_description
+    attributes:
+      label: Is your feature request related to a problem?
+      description: A clear description of what the problem is (e.g., I'm always frustrated when...).
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution you'd like
+      description: A clear and concise description of what you want to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Describe alternatives you've considered
+      description: Any alternative solutions or features you've considered.
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional context
+      description: Add any other context, code snippets, or screenshots about the feature request here.
