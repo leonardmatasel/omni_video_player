@@ -1,12 +1,12 @@
 name: "🚀 Feature Request"
 description: Suggest an idea or a new functionality for omni_video_player.
-title: "[Feature]: "
+title: "[FEATURE]: "
 labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        Have an idea to make **omni_video_player** better? We'd love to hear it!
+        <br>Have an idea to make **omni_video_player** better? We'd love to hear it!
   - type: textarea
     id: feature_description
     attributes:
