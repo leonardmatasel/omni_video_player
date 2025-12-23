@@ -1,11 +1,9 @@
-# omni_video_player
-
 <h1 align="center">
   <img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/logo_horizontal.png?raw=true" alt="omni_video_player" height="125"/>
 </h1>
 
 <p align="center">
-  <strong>All-in-one Flutter video player – stream from YouTube, Vimeo, network, assets files</strong>
+  <strong>The ultimate All-in-One Flutter video solution. Stream YouTube, Vimeo, HLS, and local files with a single, unified controller.</strong>
 </p>
 
 <p align="center">
@@ -20,8 +18,6 @@
   </a>
 </p>
 
----
-
 ## 🚀 Why Omni Video Player?
 
 Stop juggling multiple packages for different video sources. **omni_video_player** wraps the complexity of specialized extractors and webviews into a **single, powerful widget**.
@@ -35,16 +31,16 @@ Stop juggling multiple packages for different video sources. **omni_video_player
 
 ## 📊 Compatibility Matrix
 
-| Source / Format        | Android | iOS | WebView | Web | Notes                                            |
-|------------------------|---------|-----|---------|-----|--------------------------------------------------|
-| **YouTube**            | ✅       | ✅   | ✅       | ✅   | Auto-fallback to WebView on rate-limit.          |
-| **Vimeo**              | ❌       | ❌   | ✅       | ❌   | High stability via WebView.                      |
-| **HLS (.m3u8)**        | ✅       | ✅   | ❌       | ✅   | **Multi-quality switching** supported.           |
-| **Network (.mp4/etc)** | ✅       | ✅   | ❌       | ✅   | Standard streaming.                              |
-| **Assets/Files**       | ✅       | ✅   | ❌       | ✅   | Local storage & bundle support.                  |
-| **AVI**                | ✅       | ❌   | ❌       | ✅   | Not supported on iOS (OS limitation).            |
-| **WebM**               | ✅       | ❌   | ✅       | ✅   | **Requires WebView on iOS** (no native support). |
-| **Twitch**             | -       | -   | -       | -   | 🔜 Coming Soon.                                  |
+| Source / Format        | Android | iOS | WebView (alt/fallback) | Web | Notes                                            |
+|------------------------|---------|-----|------------------------|-----|--------------------------------------------------|
+| **YouTube**            | ✅       | ✅   | ✅                      | ✅   | Auto-fallback to WebView on rate-limit.          |
+| **Vimeo**              | ❌       | ❌   | ✅                      | ❌   | High stability via WebView.                      |
+| **HLS (.m3u8)**        | ✅       | ✅   | ❌                      | ✅   | **Multi-quality switching** supported.           |
+| **Network (.mp4/etc)** | ✅       | ✅   | ❌                      | ✅   | Standard streaming.                              |
+| **Assets/Files**       | ✅       | ✅   | ❌                      | ✅   | Local storage & bundle support.                  |
+| **AVI**                | ✅       | ❌   | ❌                      | ✅   | Not supported on iOS (OS limitation).            |
+| **WebM**               | ✅       | ❌   | ✅                      | ✅   | **Requires WebView on iOS** (no native support). |
+| **Twitch**             | -       | -   | -                      | -   | 🔜 Coming Soon.                                  |
 
 ---
 
@@ -62,7 +58,7 @@ Stop juggling multiple packages for different video sources. **omni_video_player
 ## 🧪 Preview
 
 <p align="center">
-<img src="[https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/showcase.gif?raw=true](https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/showcase.gif?raw=true)" width="320" style="border-radius: 20px"/>
+  <img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/showcase.gif?raw=true" width="300"/>
 </p>
 
 ---
@@ -170,5 +166,5 @@ Released under the **BSD 3-Clause License**. See [LICENSE](LICENSE) for details.
 
 ---
 
-**Built with ❤️ by [**Leonard Matasel**](https://github.com/leonardmatasel)
+Built with ❤️ by [Leonard Matasel](https://github.com/leonardmatasel)
 *Found a bug? Open an [issue](https://github.com/leonardmatasel/omni_video_player/issues) or submit a PR!*
