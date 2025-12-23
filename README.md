@@ -1,4 +1,4 @@
-# Proposta di nuovo README.md
+# omni_video_player
 
 <h1 align="center">
 <img src="[https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/logo_horizontal.png?raw=true](https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/logo_horizontal.png?raw=true)" alt="omni_video_player" height="125"/>
@@ -18,7 +18,7 @@
 <a href="[https://pub.dev/packages/omni_video_player/score](https://pub.dev/packages/omni_video_player/score)">
 <img src="[https://img.shields.io/badge/popularity-high-brightgreen](https://img.shields.io/badge/popularity-high-brightgreen)" alt="pub popularity">
 </a>
-<img src="[https://img.shields.io/badge/platform-android%20%7C%20ios%20%7C%20web-blue](https://www.google.com/search?q=https://img.shields.io/badge/platform-android%2520%257C%2520ios%2520%257C%2520web-blue)" alt="platforms">
+<img src="[https://img.shields.io/badge/platform-android%20%7C%20ios%20%7C%20web-blue](https://img.shields.io/badge/platform-android%20%7C%20ios%20%7C%20web-blue)" alt="platforms">
 </p>
 
 ---
@@ -171,5 +171,5 @@ Released under the **BSD 3-Clause License**. See [LICENSE](LICENSE) for details.
 
 ---
 
-**Built with ❤️ by [Leonard Matasel**](https://github.com/leonardmatasel)
+**Built with ❤️ by [**Leonard Matasel**](https://github.com/leonardmatasel)
 *Found a bug? Open an [issue](https://github.com/leonardmatasel/omni_video_player/issues) or submit a PR!*
