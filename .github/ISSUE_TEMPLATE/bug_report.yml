@@ -1,38 +1,33 @@
 name: Bug Report
-description: File a bug report.
+description: Segnala un malfunzionamento del plugin.
 title: "[Bug]: "
 labels: ["bug", "triage"]
-projects: ["octo-org/1", "octo-org/44"]
-assignees:
-  - octocat
-type: bug
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report!
+        Grazie per aver deciso di aiutarci a migliorare il plugin!
   - type: input
     id: contact
     attributes:
-      label: Contact Details
-      description: How can we get in touch with you if we need more info?
-      placeholder: ex. email@example.com
+      label: Dettagli di contatto
+      description: Come possiamo contattarti se servono info?
+      placeholder: es. email@esempio.it
     validations:
       required: false
   - type: textarea
     id: what-happened
     attributes:
-      label: What happened?
-      description: Also tell us, what did you expect to happen?
-      placeholder: Tell us what you see!
-      value: "A bug happened!"
+      label: Cosa è successo?
+      description: Descrivi il problema e cosa ti aspettavi succedesse.
+      placeholder: Raccontaci i dettagli...
     validations:
       required: true
   - type: dropdown
     id: version
     attributes:
-      label: Version
-      description: What version of our software are you running?
+      label: Versione
+      description: Quale versione del plugin stai usando?
       options:
         - 1.0.2 (Default)
         - 1.0.3 (Edge)
@@ -42,7 +37,7 @@ body:
   - type: dropdown
     id: browsers
     attributes:
-      label: What browsers are you seeing the problem on?
+      label: Su quali browser riscontri il problema?
       multiple: true
       options:
         - Firefox
@@ -52,14 +47,13 @@ body:
   - type: textarea
     id: logs
     attributes:
-      label: Relevant log output
-      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      label: Log di errore
+      description: Incolla qui eventuali log (verranno formattati automaticamente).
       render: shell
   - type: checkboxes
     id: terms
     attributes:
-      label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://example.com).
+      label: Codice di Condotta
       options:
-        - label: I agree to follow this project's Code of Conduct
+        - label: Accetto di seguire le linee guida di questo progetto
           required: true
