@@ -216,6 +216,10 @@ class GenericPlaybackController extends OmniPlaybackController {
   }
 
   void _onControllerUpdate() {
+    if (duration != videoController.value.duration) {
+      duration = videoController.value.duration;
+    }
+
     if (_isNotifyPending) return;
     _isNotifyPending = true;
     SchedulerBinding.instance.addPostFrameCallback((_) {

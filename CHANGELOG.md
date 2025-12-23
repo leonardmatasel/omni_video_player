@@ -1,3 +1,10 @@
+# 3.5.2
+
+🛠 **Fix**
+
+* Fixed network http player bug with duration
+  * See issue: [#56](https://github.com/leonardmatasel/omni_video_player/issues/56)
+
 # 3.5.0 - 3.5.1
 
 * Fixed minor bugs on YouTube Webview isFinished
