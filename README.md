@@ -1,24 +1,23 @@
 # omni_video_player
 
 <h1 align="center">
-<img src="[https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/logo_horizontal.png?raw=true](https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/logo_horizontal.png?raw=true)" alt="omni_video_player" height="125"/>
+  <img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/logo_horizontal.png?raw=true" alt="omni_video_player" height="125"/>
 </h1>
 
 <p align="center">
-<strong>The ultimate All-in-One Flutter video solution. Stream YouTube, Vimeo, HLS, and local files with a single, unified controller.</strong>
+  <strong>All-in-one Flutter video player – stream from YouTube, Vimeo, network, assets files</strong>
 </p>
 
 <p align="center">
-<a href="[https://pub.dev/packages/omni_video_player](https://pub.dev/packages/omni_video_player)">
-<img src="[https://img.shields.io/pub/v/omni_video_player.svg](https://img.shields.io/pub/v/omni_video_player.svg)" alt="pub version">
-</a>
-<a href="[https://pub.dev/packages/omni_video_player/score](https://pub.dev/packages/omni_video_player/score)">
-<img src="[https://img.shields.io/pub/points/omni_video_player](https://img.shields.io/pub/points/omni_video_player)" alt="pub points">
-</a>
-<a href="[https://pub.dev/packages/omni_video_player/score](https://pub.dev/packages/omni_video_player/score)">
-<img src="[https://img.shields.io/badge/popularity-high-brightgreen](https://img.shields.io/badge/popularity-high-brightgreen)" alt="pub popularity">
-</a>
-<img src="[https://img.shields.io/badge/platform-android%20%7C%20ios%20%7C%20web-blue](https://img.shields.io/badge/platform-android%20%7C%20ios%20%7C%20web-blue)" alt="platforms">
+  <a href="https://pub.dev/packages/omni_video_player">
+    <img src="https://img.shields.io/pub/v/omni_video_player.svg" alt="pub version">
+  </a>
+  <a href="https://pub.dev/packages/omni_video_player/score">
+    <img src="https://img.shields.io/pub/points/omni_video_player" alt="pub points">
+  </a>
+  <a href="https://pub.dev/packages/omni_video_player/score">
+    <img src="https://img.shields.io/badge/popularity-high-brightgreen" alt="pub popularity">
+  </a>
 </p>
 
 ---
