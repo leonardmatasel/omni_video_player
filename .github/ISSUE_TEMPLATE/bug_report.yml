@@ -31,7 +31,9 @@ body:
       multiple: true
       options:
         - Android
+        - Android Emulator
         - iOS
+        - iOS Simulator
         - Web
     validations:
       required: true
