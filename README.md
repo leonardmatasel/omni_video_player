@@ -67,7 +67,7 @@ Stop juggling multiple packages for different video sources. **omni_video_player
     <td><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/yt_live_omni_video_player.gif?raw=true" height="400" alt="YouTube Live"/></td>
   </tr>
   <tr>
-    <td align="center"><b>M3U8 network link</b></td>
+    <td align="center"><b>M3U8 Network Link</b></td>
     <td align="center"><b>Vimeo</b></td>
   </tr>
   <tr>
