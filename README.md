@@ -57,22 +57,22 @@ Stop juggling multiple packages for different video sources. **omni_video_player
 
 ## 🧪 Preview
 
-<table border="0">
+<table border="0" width="100%">
   <tr>
     <td align="center"><b>YouTube</b></td>
     <td align="center"><b>YouTube Live</b></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/yt_omni_video_player.gif?raw=true" width="100%" alt="YouTube"/></td>
-    <td><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/yt_live_omni_video_player.gif?raw=true" width="100%" alt="YouTube Live"/></td>
+    <td align="center"><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/youtube.gif?raw=true" height="600" alt="YouTube"/></td>
+    <td align="center"><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/youtube_live.gif?raw=true" height="600" alt="YouTube Live"/></td>
   </tr>
   <tr>
     <td align="center"><b>M3U8 network link</b></td>
     <td align="center"><b>Vimeo</b></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/m3u8_omni_video_player.gif?raw=true" width="100%" alt="M3U8"/></td>
-    <td><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/vimeo_omni_video_player.gif?raw=true" width="100%" alt="Vimeo"/></td>
+    <td align="center"><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/m3u8.gif?raw=true" height="600" alt="M3U8"/></td>
+    <td align="center"><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/vimeo.gif?raw=true" height="600" alt="Vimeo"/></td>
   </tr>
 </table>
 
