@@ -57,22 +57,22 @@ Stop juggling multiple packages for different video sources. **omni_video_player
 
 ## 🧪 Preview
 
-<table border="0" align="center">
+<table border="0" cellpadding="0" cellspacing="0" align="center">
   <tr>
-    <td align="center"><b>YouTube</b></td>
-    <td align="center"><b>YouTube Live</b></td>
+    <td align="center" style="padding: 10px;"><b>YouTube</b></td>
+    <td align="center" style="padding: 10px;"><b>YouTube Live</b></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/yt_omni_video_player.gif?raw=true" height="400" alt="YouTube"/></td>
-    <td><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/yt_live_omni_video_player.gif?raw=true" height="400" alt="YouTube Live"/></td>
+    <td align="center"><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/yt_omni_video_player.gif?raw=true" height="400" alt="YouTube"/></td>
+    <td align="center"><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/yt_live_omni_video_player.gif?raw=true" height="400" alt="YouTube Live"/></td>
   </tr>
   <tr>
-    <td align="center"><b>M3U8 Network Link</b></td>
-    <td align="center"><b>Vimeo</b></td>
+    <td align="center" style="padding: 10px;"><b>M3U8 Network Link</b></td>
+    <td align="center" style="padding: 10px;"><b>Vimeo</b></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/m3u8_omni_video_player.gif?raw=true" height="400" alt="M3U8"/></td>
-    <td><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/vimeo_omni_video_player.gif?raw=true" height="400" alt="Vimeo"/></td>
+    <td align="center"><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/m3u8_omni_video_player.gif?raw=true" height="400" alt="M3U8"/></td>
+    <td align="center"><img src="https://github.com/leonardmatasel/omni_video_player/blob/main/example/assets/vimeo_omni_video_player.gif?raw=true" height="400" alt="Vimeo"/></td>
   </tr>
 </table>
 
