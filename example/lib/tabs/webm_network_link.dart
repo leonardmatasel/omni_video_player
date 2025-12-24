@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 
-class AssetLink extends StatelessWidget {
-  const AssetLink({super.key});
+class WebmNetworkLink extends StatelessWidget {
+  const WebmNetworkLink({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.amberAccent,
+      backgroundColor: Colors.blueAccent,
       body: Center(
         child: OmniVideoPlayer(
           callbacks: VideoPlayerCallbacks(
@@ -16,15 +16,17 @@ class AssetLink extends StatelessWidget {
             },
           ),
           configuration: VideoPlayerConfiguration(
-            videoSourceConfiguration: VideoSourceConfiguration.asset(
-              videoDataSource: 'assets/sample.mp4',
+            videoSourceConfiguration: VideoSourceConfiguration.network(
+              videoUrl: Uri.parse(
+                'https://wiki.yoctoproject.org/wiki/images/a/a6/Big-buck-bunny_trailer.webm',
+              ),
             ),
             playerUIVisibilityOptions: PlayerUIVisibilityOptions(
               useSafeAreaForBottomControls: true,
               showPlaybackSpeedButton: true,
             ),
             customPlayerWidgets: CustomPlayerWidgets().copyWith(
-              loadingWidget: CircularProgressIndicator(color: Colors.black),
+              loadingWidget: CircularProgressIndicator(color: Colors.white),
             ),
             playerTheme: OmniVideoPlayerThemeData().copyWith(
               shapes: VideoPlayerShapeTheme().copyWith(borderRadius: 0),

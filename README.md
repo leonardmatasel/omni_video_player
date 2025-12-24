@@ -22,7 +22,7 @@
 
 Stop juggling multiple packages for different video sources. **omni_video_player** wraps the complexity of specialized extractors and webviews into a **single, powerful widget**.
 
-* **Smart YouTube Handling**: Direct extraction via `youtube_explode_dart` with an **automatic WebView fallback**. If YouTube rate-limits your app, the player switches to WebView seamlessly—no black screens for your users.
+* **Smart YouTube Handling**: Direct extraction via `youtube_explode_dart` with an **automatic WebView fallback**. The player seamlessly switches to WebView if the primary method fails, ensuring uninterrupted playback and no black screens for your users.
 * **Vimeo Ready**: Stable playback using optimized WebViews.
 * **Adaptive Streaming**: Native support for **HLS (.m3u8)** with built-in **quality selection** UI.
 * **Unified Controller**: One controller to rule them all. Manage state, volume, and seeking regardless of the source.
@@ -31,16 +31,16 @@ Stop juggling multiple packages for different video sources. **omni_video_player
 
 ## 📊 Compatibility Matrix
 
-| Source / Format        | Android | iOS | WebView (alt/fallback) | Web | Notes                                            |
-|------------------------|---------|-----|------------------------|-----|--------------------------------------------------|
-| **YouTube**            | ✅       | ✅   | ✅                      | ✅   | Auto-fallback to WebView on rate-limit.          |
-| **Vimeo**              | ❌       | ❌   | ✅                      | ❌   | High stability via WebView.                      |
-| **HLS (.m3u8)**        | ✅       | ✅   | ❌                      | ✅   | **Multi-quality switching** supported.           |
-| **Network (.mp4/etc)** | ✅       | ✅   | ❌                      | ✅   | Standard streaming.                              |
-| **Assets/Files**       | ✅       | ✅   | ❌                      | ✅   | Local storage & bundle support.                  |
-| **AVI**                | ✅       | ❌   | ❌                      | ✅   | Not supported on iOS (OS limitation).            |
-| **WebM**               | ✅       | ❌   | ✅                      | ✅   | **Requires WebView on iOS** (no native support). |
-| **Twitch**             | -       | -   | -                      | -   | 🔜 Coming Soon.                                  |
+| Source / Format        | Android | iOS | WebView (alt/fallback) | Web | Notes                                             |
+|------------------------|---------|-----|------------------------|-----|---------------------------------------------------|
+| **YouTube**            | ✅       | ✅   | ✅                      | ✅   | Auto-fallback to WebView on primary method fails. |
+| **Vimeo**              | ❌       | ❌   | ✅                      | ❌   | High stability via WebView.                       |
+| **HLS (.m3u8)**        | ✅       | ✅   | ❌                      | ✅   | **Multi-quality switching** supported.            |
+| **Network (.mp4/etc)** | ✅       | ✅   | ❌                      | ✅   | Standard streaming.                               |
+| **Assets/Files**       | ✅       | ✅   | ❌                      | ✅   | Local storage & bundle support.                   |
+| **AVI**                | ✅       | ❌   | ❌                      | ✅   | Not supported on iOS (OS limitation).             |
+| **WebM**               | ✅       | ❌   | ✅                      | ✅   | **Requires WebView on iOS** (no native support).  |
+| **Twitch**             | -       | -   | -                      | -   | 🔜 Coming Soon.                                   |
 
 ---
 
@@ -121,6 +121,18 @@ OmniVideoPlayer(
 
 ```
 
+## 🕹️ Full Live Demo
+
+Want to see the player in action with all its features? We have provided a comprehensive example project.
+
+1. **Download/Clone** this repository.
+2. Navigate to the `example/` folder.
+3. Run `lib/main.dart` on your device or emulator.
+
+This demo showcases **everything the library supports**: quality switching, source transitions, custom controls, and more. It is the best way to understand the full potential of **omni_video_player**.
+
+---
+
 ### Reactive UI with Controller
 
 Control the player from anywhere in your widget tree:
@@ -168,3 +180,4 @@ Released under the **BSD 3-Clause License**. See [LICENSE](LICENSE) for details.
 
 Built with ❤️ by [Leonard Matasel](https://github.com/leonardmatasel)
 *Found a bug? Open an [issue](https://github.com/leonardmatasel/omni_video_player/issues) or submit a PR!*
+

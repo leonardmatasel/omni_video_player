@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 
-class AssetLink extends StatelessWidget {
-  const AssetLink({super.key});
+class M3u8NetworkLink extends StatelessWidget {
+  const M3u8NetworkLink({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.amberAccent,
+      backgroundColor: Colors.orange,
       body: Center(
         child: OmniVideoPlayer(
           callbacks: VideoPlayerCallbacks(
@@ -16,15 +16,17 @@ class AssetLink extends StatelessWidget {
             },
           ),
           configuration: VideoPlayerConfiguration(
-            videoSourceConfiguration: VideoSourceConfiguration.asset(
-              videoDataSource: 'assets/sample.mp4',
+            videoSourceConfiguration: VideoSourceConfiguration.network(
+              videoUrl: Uri.parse(
+                'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
+              ),
             ),
             playerUIVisibilityOptions: PlayerUIVisibilityOptions(
               useSafeAreaForBottomControls: true,
               showPlaybackSpeedButton: true,
             ),
             customPlayerWidgets: CustomPlayerWidgets().copyWith(
-              loadingWidget: CircularProgressIndicator(color: Colors.black),
+              loadingWidget: CircularProgressIndicator(color: Colors.white),
             ),
             playerTheme: OmniVideoPlayerThemeData().copyWith(
               shapes: VideoPlayerShapeTheme().copyWith(borderRadius: 0),

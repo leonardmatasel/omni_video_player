@@ -24,9 +24,7 @@ class NetworkLink extends StatelessWidget {
               showPlaybackSpeedButton: true,
             ),
             customPlayerWidgets: CustomPlayerWidgets().copyWith(
-              loadingWidget: CircularProgressIndicator(
-                color: Colors.blueAccent,
-              ),
+              loadingWidget: CircularProgressIndicator(color: Colors.white),
             ),
             playerTheme: OmniVideoPlayerThemeData().copyWith(
               shapes: VideoPlayerShapeTheme().copyWith(borderRadius: 0),
