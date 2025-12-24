@@ -1,3 +1,7 @@
+# 3.5.3
+
+⬆️ **Update documentation**
+
 # 3.5.2
 
 🛠 **Fix**
