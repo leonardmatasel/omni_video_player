@@ -157,6 +157,11 @@ class VideoSourceConfiguration {
   /// to memory leaks or OutOfMemory errors.
   final bool keepAlive;
 
+  /// Whether the video should automatically pause when it leaves the viewport.
+  ///
+  /// Defaults to `true`.
+  final bool pauseWhenOutOfView;
+
   /// Private constructor used by factory constructors and [copyWith].
   const VideoSourceConfiguration._({
     this.videoUrl,
@@ -178,6 +183,7 @@ class VideoSourceConfiguration {
     this.forceYoutubeWebViewOnly = false,
     this.synchronizeMuteAcrossPlayers = true,
     this.timeoutDuration = const Duration(seconds: 6),
+    this.pauseWhenOutOfView = true,
   });
 
   /// Factory constructor for Vimeo videos.
@@ -339,6 +345,7 @@ class VideoSourceConfiguration {
     bool? enableYoutubeWebViewFallback,
     bool? forceYoutubeWebViewOnly,
     bool? keepAlive,
+    bool? pauseWhenOutOfView,
   }) {
     final newPreferred = preferredQualities ?? this.preferredQualities;
     final newAvailable = availableQualities ?? this.availableQualities;
@@ -371,6 +378,7 @@ class VideoSourceConfiguration {
       synchronizeMuteAcrossPlayers:
           synchronizeMuteAcrossPlayers ?? this.synchronizeMuteAcrossPlayers,
       keepAlive: keepAlive ?? this.keepAlive,
+      pauseWhenOutOfView: pauseWhenOutOfView ?? this.pauseWhenOutOfView,
     );
   }
 }

@@ -1,3 +1,11 @@
+# 3.6.0
+
+✨ **New Features**
+
+* Added **`pauseWhenOutOfView`** parameter to `VideoSourceConfiguration`.
+  * This flag controls whether the video should **automatically pause** when the player is scrolled out of the viewport or is no longer visible.
+  * **Default:** `true` (the video will pause when it leaves the view).
+
 # 3.5.3
 
 ⬆️ **Update documentation**

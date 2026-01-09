@@ -123,6 +123,7 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
     controller.isFullyVisible = visibleFraction == 1;
 
     if (visibleFraction == 0 &&
+        config.videoSourceConfiguration.pauseWhenOutOfView &&
         controller.isPlaying &&
         (!controller.isFullScreen || controller is YouTubeWebViewController)) {
       controller.pause(useGlobalController: false);
