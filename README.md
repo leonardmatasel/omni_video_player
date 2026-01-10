@@ -27,7 +27,7 @@ Stop juggling multiple packages for different video sources. **omni_video_player
 * **Adaptive Streaming**: Native support for **HLS (.m3u8)** with built-in **quality selection** UI.
 * **Unified Controller**: One controller to rule them all. Manage state, volume, and seeking regardless of the source.
 
----
+<br>
 
 ## 📊 Compatibility Matrix
 
@@ -42,7 +42,7 @@ Stop juggling multiple packages for different video sources. **omni_video_player
 | **WebM**               | ✅       | ❌   | ✅                      | ✅   | **Requires WebView on iOS** (no native support).  |
 | **Twitch**             | -       | -   | -                      | -   | 🔜 Coming Soon.                                   |
 
----
+<br>
 
 ## ✨ Key Features
 
@@ -53,7 +53,7 @@ Stop juggling multiple packages for different video sources. **omni_video_player
 * 🔊 **Global Sync**: Synchronize volume and mute states across multiple player instances.
 * ⛶ **Native Fullscreen**: Smooth transition to fullscreen mode on mobile.
 
----
+<br>
 
 ## 🧪 Preview
 
@@ -76,7 +76,7 @@ Stop juggling multiple packages for different video sources. **omni_video_player
   </tr>
 </table>
 
----
+<br>
 
 ## 🛠️ Quick Start
 
@@ -120,7 +120,7 @@ Configure these only if your use case requires it:
 
 > **Note:** If you use only `https` (standard for YouTube/Vimeo) and local assets, you can skip the Cleartext/Arbitrary Loads settings.
 
----
+<br>
 
 ## 📦 Code Examples
 
@@ -146,7 +146,7 @@ Want to see the player in action with all its features? We have provided a compr
 
 This demo showcases **everything the library supports**: quality switching, source transitions, custom controls, and more. It is the best way to understand the full potential of **omni_video_player**.
 
----
+<br>
 
 ### Reactive UI with Controller
 
@@ -174,7 +174,7 @@ void dispose() {
 
 ```
 
----
+<br>
 
 ## 🔮 Roadmap
 
@@ -185,13 +185,37 @@ void dispose() {
 | **Download Mode** | Cache management for offline viewing. | 🔜 Planned |
 | **Cast Support** | Google Cast & AirPlay integration. | 🔜 Planned |
 
----
+<br>
+
+## ❓ FAQ
+
+### Known Issue: "Made for Kids" YouTube Videos
+
+Youtube videos marked as **"Made for Kids"** in YouTube Studio cannot be played using the default extraction method on mobile platforms (iOS/Android) due to API restrictions.
+
+* **Solution 1:** If you own the video, uncheck the "Made for Kids" option in YouTube Studio.
+* **Solution 2:** Initialize the player with `forceYoutubeWebViewOnly: true`. This bypasses the default extraction and plays the video via WebView.
+
+### Why is there no quality selection for YouTube on iOS?
+
+On Android, we can handle separate Audio and Video streams provided by the API, allowing for multiple quality options.
+
+* **The iOS Limitation:** The native iOS player struggles to synchronize separate Audio/Video tracks without pre-loading the entire file (causing huge delays).
+* **The Result:** On iOS, we must use a "muxed" stream (combined audio/video). The YouTube API currently provides only **one muxed stream at 360p**. Therefore, quality selection is disabled on iOS as there are no other combined streams available to switch to.
+
+### Why isn't my YouTube Live stream working?
+
+YouTube Live streams work out-of-the-box with the default configuration.
+
+* **Important:** Live streams are **not supported** in WebView mode. Ensure you are **not** using `forceYoutubeWebViewOnly: true` when playing live content.
+
+<br>
 
 ## 📄 License
 
 Released under the **BSD 3-Clause License**. See [LICENSE](LICENSE) for details.
 
----
+<br>
 
 Built with ❤️ by [Leonard Matasel](https://github.com/leonardmatasel)
 *Found a bug? Open an [issue](https://github.com/leonardmatasel/omni_video_player/issues) or submit a PR!*

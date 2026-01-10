@@ -1,3 +1,11 @@
+# 3.7.0
+
+🛠 **Fix**
+
+* Fixed **audio-video synchronization issues** for YouTube videos.
+  * Resolved desynchronization occurring when **seeking** or **changing playback speed**.
+  * See issue: [#64](https://github.com/leonardmatasel/omni_video_player/issues/64)
+
 # 3.6.0
 
 ✨ **New Features**
