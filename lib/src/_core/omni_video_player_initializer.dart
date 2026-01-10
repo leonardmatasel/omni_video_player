@@ -5,6 +5,7 @@ import 'package:omni_video_player/omni_video_player/models/video_player_callback
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
+import 'package:omni_video_player/src/_core/omni_video_player_fullscreen.dart';
 import 'package:omni_video_player/src/api/vimeo_video_api.dart';
 import 'package:omni_video_player/src/api/youtube_video_api.dart';
 import 'package:omni_video_player/src/controllers/global_volume_synchronizer.dart';
@@ -128,7 +129,27 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
       if (mounted) setState(() {});
 
       _controller = await initStrategy.initialize();
-      if (_controller != null) _startReadyTimeout(_controller!);
+      if (!mounted) return;
+
+      if (_controller != null) {
+        _startReadyTimeout(_controller!);
+        if (widget
+            .configuration
+            .videoSourceConfiguration
+            .autoFullScreenAtStart) {
+          _controller!.switchFullScreenMode(
+            context,
+            pageBuilder: (context) => OmniVideoPlayerTheme(
+              data: widget.configuration.playerTheme,
+              child: OmniVideoPlayerFullscreen(
+                controller: _controller!,
+                configuration: widget.configuration,
+                callbacks: widget.callbacks,
+              ),
+            ),
+          );
+        }
+      }
     } catch (e, st) {
       debugPrint('Video initialization error: $e\n$st');
       _hasError = true;

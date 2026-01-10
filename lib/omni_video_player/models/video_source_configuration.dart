@@ -162,6 +162,9 @@ class VideoSourceConfiguration {
   /// Defaults to `true`.
   final bool pauseWhenOutOfView;
 
+  /// Whether the player should automatically switch to fullscreen mode when initialization is complete.
+  final bool autoFullScreenAtStart;
+
   /// Private constructor used by factory constructors and [copyWith].
   const VideoSourceConfiguration._({
     this.videoUrl,
@@ -184,6 +187,7 @@ class VideoSourceConfiguration {
     this.synchronizeMuteAcrossPlayers = true,
     this.timeoutDuration = const Duration(seconds: 6),
     this.pauseWhenOutOfView = true,
+    this.autoFullScreenAtStart = false,
   });
 
   /// Factory constructor for Vimeo videos.
@@ -346,6 +350,7 @@ class VideoSourceConfiguration {
     bool? forceYoutubeWebViewOnly,
     bool? keepAlive,
     bool? pauseWhenOutOfView,
+    bool? autoFullScreenAtStart,
   }) {
     final newPreferred = preferredQualities ?? this.preferredQualities;
     final newAvailable = availableQualities ?? this.availableQualities;
@@ -379,6 +384,8 @@ class VideoSourceConfiguration {
           synchronizeMuteAcrossPlayers ?? this.synchronizeMuteAcrossPlayers,
       keepAlive: keepAlive ?? this.keepAlive,
       pauseWhenOutOfView: pauseWhenOutOfView ?? this.pauseWhenOutOfView,
+      autoFullScreenAtStart:
+          autoFullScreenAtStart ?? this.autoFullScreenAtStart,
     );
   }
 }

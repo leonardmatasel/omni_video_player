@@ -1,3 +1,11 @@
+# 3.7.1
+
+✨ **New Features**
+
+* Added **`autoFullScreenAtStart`** parameter to `VideoSourceConfiguration`.
+  * This flag controls whether the video should **automatically switch to fullscreen mode** as soon as the player initialization is complete.
+  * **Default:** `false`.
+
 # 3.7.0
 
 🛠 **Fix**
