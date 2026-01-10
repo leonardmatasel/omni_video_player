@@ -7,6 +7,14 @@ body:
     attributes:
       value: |
         <br> Thanks for reporting! Please provide as much detail as possible so we can reproduce the issue.
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Prerequisites
+      description: Please ensure you have checked the following before submitting.
+      options:
+        - label: I have read the [FAQ](https://github.com/leonardmatasel/omni_video_player?tab=readme-ov-file#-faq) and confirmed my issue is not a known limitation (e.g. iOS YouTube Quality, "Made for Kids" videos).
+          required: true
   - type: textarea
     id: description
     attributes:
