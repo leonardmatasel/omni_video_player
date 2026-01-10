@@ -165,7 +165,7 @@ abstract class OmniPlaybackController with ChangeNotifier {
   /// - Typical values: 0.5 (half speed), 1.0 (normal), 1.5, 2.0 (double speed).
   ///
   /// Implementations should ensure that video and audio remain synchronized.
-  set playbackSpeed(double speed);
+  Future<void> setPlaybackSpeed(double speed);
 
   /// Loads a new video source dynamically, replacing the current one.
   ///

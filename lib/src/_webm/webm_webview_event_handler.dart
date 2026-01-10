@@ -57,7 +57,7 @@ class WebmVideoWebViewEventHandler {
     }
 
     // Speed
-    controller.playbackSpeed = sourceConfig.initialPlaybackSpeed;
+    controller.setPlaybackSpeed(sourceConfig.initialPlaybackSpeed);
 
     // Autoplay
     // Nota: Su Web/Mobile browser autoplay con audio spesso è bloccato.

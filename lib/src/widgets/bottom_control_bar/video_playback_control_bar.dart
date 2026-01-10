@@ -90,7 +90,7 @@ class VideoPlaybackControlBar extends StatelessWidget {
               if (speed == controller.playbackSpeed) {
                 return;
               }
-              controller.playbackSpeed = speed;
+              controller.setPlaybackSpeed(speed);
             },
             onStartInteraction: onStartInteraction,
             onEndInteraction: onEndInteraction,

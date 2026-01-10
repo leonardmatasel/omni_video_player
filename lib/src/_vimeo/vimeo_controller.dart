@@ -384,7 +384,7 @@ class VimeoController extends OmniPlaybackController {
   double get playbackSpeed => _playbackSpeed;
 
   @override
-  set playbackSpeed(double speed) {
+  Future<void> setPlaybackSpeed(double speed) async {
     if (speed <= 0) {
       throw ArgumentError('Playback speed must be greater than 0');
     }

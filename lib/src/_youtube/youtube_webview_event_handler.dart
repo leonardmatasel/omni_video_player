@@ -113,7 +113,7 @@ class YouTubeWebViewEventHandler {
     }
 
     // Apply playback speed
-    controller.playbackSpeed = sourceConfig.initialPlaybackSpeed;
+    controller.setPlaybackSpeed(sourceConfig.initialPlaybackSpeed);
 
     // Control autoplay and visibility
     if (!sourceConfig.autoPlay ||
@@ -161,7 +161,7 @@ class YouTubeWebViewEventHandler {
   }
 
   void handlePlaybackRateChange(Object? data) {
-    controller.playbackSpeed = double.tryParse(data.toString()) ?? 1.0;
+    controller.setPlaybackSpeed(double.tryParse(data.toString()) ?? 1.0);
   }
 
   // -------------------------------------

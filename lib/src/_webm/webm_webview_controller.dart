@@ -368,7 +368,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   double get playbackSpeed => _playbackSpeed;
 
   @override
-  set playbackSpeed(double speed) {
+  Future<void> setPlaybackSpeed(double speed) async {
     if (speed <= 0) return;
     _playbackSpeed = speed;
     _evaluate('setPlaybackRate($speed)');
