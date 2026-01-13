@@ -1,3 +1,9 @@
+# 3.7.2
+
+🛠 **Fix**
+
+* Fixed minor bugs
+
 # 3.7.1
 
 ✨ **New Features**

@@ -557,7 +557,9 @@ class GenericPlaybackController extends OmniPlaybackController {
   set wasPlayingBeforeSeek(bool value) {
     if (isSeeking) return;
     _wasPlayingBeforeSeek = value;
-    notifyListeners();
+    if (!_isDisposed) {
+      notifyListeners();
+    }
   }
 
   /// Returns true if both video and audio (if present) are initialized.
