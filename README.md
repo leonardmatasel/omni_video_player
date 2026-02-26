@@ -31,16 +31,15 @@ Stop juggling multiple packages for different video sources. **omni_video_player
 
 ## 📊 Compatibility Matrix
 
-| Source / Format        | Android | iOS | WebView (alt/fallback) | Web | Notes                                             |
-|------------------------|---------|-----|------------------------|-----|---------------------------------------------------|
-| **YouTube**            | ✅       | ✅   | ✅                      | ✅   | Auto-fallback to WebView on primary method fails. |
-| **Vimeo**              | -       | -   | ✅                      | ❌   | High stability via WebView.                       |
-| **HLS (.m3u8)**        | ✅       | ✅   | -                      | ✅   | **Multi-quality switching** supported.            |
-| **Network (.mp4/etc)** | ✅       | ✅   | -                      | ✅   | Standard streaming.                               |
-| **Assets/Files**       | ✅       | ✅   | -                      | ✅   | Local storage & bundle support.                   |
-| **AVI**                | ✅       | ❌   | -                      | ✅   | Not supported on iOS (OS limitation).             |
-| **WebM**               | ✅       | ❌   | ✅                      | ✅   | **Requires WebView on iOS** (no native support).  |
-| **Twitch**             | -       | -   | -                      | -   | 🔜 Coming Soon.                                   |
+| Source / Format        | Android | iOS | WebView (Android & iOS - alt/fallback) | Web | Notes                                             |
+|------------------------|---------|-----|----------------------------------------|-----|---------------------------------------------------|
+| **YouTube**            | ✅       | ✅   | ✅                                      | ✅   | Auto-fallback to WebView on primary method fails. |
+| **Vimeo**              | -       | -   | ✅                                      | ✅   | High stability via WebView.                       |
+| **HLS (.m3u8)**        | ✅       | ✅   | -                                      | ✅   | **Multi-quality switching** supported.            |
+| **Network (.mp4/etc)** | ✅       | ✅   | -                                      | ✅   | Standard streaming.                               |
+| **Assets/Files**       | ✅       | ✅   | -                                      | ✅   | Local storage & bundle support.                   |
+| **AVI**                | ✅       | ❌   | -                                      | ✅   | Not supported on iOS (OS limitation).             |
+| **WebM**               | ✅       | ❌   | ✅                                      | ✅   | **Requires WebView on iOS** (no native support).  |
 
 <br>
 

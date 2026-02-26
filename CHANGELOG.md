@@ -1,3 +1,11 @@
+# 3.8.0
+
+✨ **New Features**
+
+* Added native **HTML iframe** support for **Vimeo** on Flutter **Web**
+    * See issue: [#67](https://github.com/leonardmatasel/omni_video_player/issues/67)
+
+
 # 3.7.4
 
 ✨ **New Features**

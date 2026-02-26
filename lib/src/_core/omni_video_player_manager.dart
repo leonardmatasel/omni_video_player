@@ -5,6 +5,7 @@ import 'package:omni_video_player/omni_video_player/models/video_player_callback
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
+import 'package:omni_video_player/src/_vimeo/web/vimeo_video_player.dart';
 import 'package:omni_video_player/src/utils/animated_blurred_circle_background.dart';
 import 'package:omni_video_player/src/_core/omni_video_player_initializer.dart';
 import 'package:omni_video_player/src/_core/omni_video_player_error_view.dart';
@@ -101,6 +102,10 @@ class _OmniVideoPlayerManagerState extends State<OmniVideoPlayerManager> {
       return _buildWebYoutubePlayer();
     }
 
+    if (kIsWeb && sourceType == VideoSourceType.vimeo) {
+      return _buildWebVimeoPlayer();
+    }
+
     return _buildInitializedVideoPlayer();
   }
 
@@ -120,6 +125,18 @@ class _OmniVideoPlayerManagerState extends State<OmniVideoPlayerManager> {
             .videoSourceConfiguration
             .initialPosition
             .inSeconds,
+      ),
+    );
+  }
+
+  Widget _buildWebVimeoPlayer() {
+    final videoId = config.videoSourceConfiguration.videoId;
+
+    return Center(
+      child: VimeoVideoPlayer(
+        videoId: videoId!,
+        autoPlay: config.videoSourceConfiguration.autoPlay,
+        mute: config.videoSourceConfiguration.autoMuteOnStart,
       ),
     );
   }
