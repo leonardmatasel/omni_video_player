@@ -1,3 +1,10 @@
+# 3.7.3
+
+🛠 **Fix**
+
+* Fixed an issue where **YouTube live videos** were failing to play.
+  * See issue: [#66](https://github.com/leonardmatasel/omni_video_player/issues/66)
+
 # 3.7.2
 
 🛠 **Fix**

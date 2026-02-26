@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
@@ -77,11 +76,17 @@ class YouTubeWebViewEventHandler {
     final durationResult = await controller.runWithResult("getDuration");
     final durationSeconds = double.tryParse(durationResult)?.round();
 
-    if (durationSeconds == null || durationSeconds <= 0) return;
+    if (!controller.isLive &&
+        (durationSeconds == null || durationSeconds <= 0)) {
+      return;
+    }
 
-    controller
-      ..isLive = durationSeconds > 1_000_000 && kIsWeb
-      ..duration = Duration(seconds: durationSeconds - 2);
+    if (controller.isLive) {
+      // Per i live non c'è una durata fissa calcolabile accuratamente
+      controller.duration = Duration(seconds: 10000000);
+    } else {
+      controller.duration = Duration(seconds: (durationSeconds ?? 0) - 2);
+    }
 
     final sourceConfig = configuration.videoSourceConfiguration;
 
@@ -188,7 +193,8 @@ class YouTubeWebViewEventHandler {
     controller.currentPosition = Duration(seconds: seconds);
 
     // Loop when end of video is reached
-    if (controller.currentPosition >= controller.duration &&
+    if (!controller.isLive &&
+        controller.currentPosition >= controller.duration &&
         controller.duration != const Duration(seconds: 1) &&
         controller.hasStarted == true) {
       controller.pause(useGlobalController: false);

@@ -27,10 +27,10 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
   Future<OmniPlaybackController?> initialize() async {
     final videoId = VideoId(sourceConfig.videoUrl!.toString());
 
-    try {
-      final videoInfo = await YouTubeService.getVideoYoutubeDetails(videoId);
-      final isLiveStream = videoInfo?.isLive ?? false;
+    final videoInfo = await YouTubeService.getVideoYoutubeDetails(videoId);
+    final isLiveStream = videoInfo?.isLive ?? false;
 
+    try {
       final streamData = isLiveStream
           ? await _fetchLiveStream(videoId)
           : await _fetchOnDemandStream(videoId);
@@ -53,7 +53,7 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
 
       if (sourceConfig.enableYoutubeWebViewFallback) {
         debugPrint("Fallback: switching to WebView mode...");
-        return _initializeWebViewFallback(videoId);
+        return _initializeWebViewFallback(videoId, isLiveStream);
       }
 
       final refreshed = await config.globalKeyInitializer.currentState
@@ -148,6 +148,7 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
 
   Future<OmniPlaybackController?> _initializeWebViewFallback(
     VideoId videoId,
+    bool isLive,
   ) async {
     return YouTubeWebViewInitializer(
       config: config,
@@ -155,6 +156,7 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
       globalController: globalController,
       sourceConfig: sourceConfig,
       videoId: videoId.toString(),
+      isLive: isLive,
     ).initialize();
   }
 }

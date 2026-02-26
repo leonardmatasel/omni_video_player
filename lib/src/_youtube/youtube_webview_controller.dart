@@ -273,6 +273,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
 
   @override
   bool get isFinished =>
+      !isLive &&
       hasStarted == true &&
       (duration == Duration.zero ||
           currentPosition.inSeconds >= (duration.inSeconds - 1));

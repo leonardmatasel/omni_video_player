@@ -16,6 +16,7 @@ class YouTubeWebViewInitializer implements IOmniVideoPlayerInitializerStrategy {
   final GlobalPlaybackController? globalController;
   final String? videoId;
   final VideoSourceConfiguration sourceConfig;
+  final bool isLive;
 
   const YouTubeWebViewInitializer({
     required this.config,
@@ -23,6 +24,7 @@ class YouTubeWebViewInitializer implements IOmniVideoPlayerInitializerStrategy {
     required this.callbacks,
     this.videoId,
     this.globalController,
+    this.isLive = false,
   });
 
   @override
@@ -37,7 +39,7 @@ class YouTubeWebViewInitializer implements IOmniVideoPlayerInitializerStrategy {
     final controller = YouTubeWebViewController.fromVideoId(
       videoId: resolvedVideoId,
       duration: const Duration(seconds: 1),
-      isLive: false,
+      isLive: isLive,
       size: videoSize!,
       callbacks: callbacks,
       options: config,

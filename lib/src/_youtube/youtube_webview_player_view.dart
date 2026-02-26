@@ -49,8 +49,6 @@ class _YouTubeWebViewPlayerViewState extends State<YouTubeWebViewPlayerView> {
       'showinfo': 0,
       'playsinline': 1,
       'rel': 0,
-      'start': 0,
-      'end': 0,
     });
 
     final html = rawHtml
