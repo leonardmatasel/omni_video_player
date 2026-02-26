@@ -20,6 +20,7 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   final VideoPlayerCallbacks callbacks;
   final GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer;
+  final Map<String, String>? httpHeaders;
 
   @override
   final File? file;
@@ -189,6 +190,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     this.qualityUrls,
     this.currentVideoQuality,
     this.globalKeyPlayer,
+    this.httpHeaders,
   ) {
     duration = videoController.value.duration;
 
@@ -220,6 +222,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     Map<OmniVideoQuality, Uri>? qualityUrls,
     OmniVideoQuality? currentVideoQuality,
     required GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer,
+    Map<String, String>? httpHeaders,
   }) async {
     final videoController =
         (type == VideoSourceType.asset && dataSource != null)
@@ -230,6 +233,7 @@ class GenericPlaybackController extends OmniPlaybackController {
             videoUrl!,
             isLive: isLive,
             mixWithOthers: false,
+            httpHeaders: httpHeaders ?? const <String, String>{},
           );
 
     await videoController.initialize().timeout(
@@ -267,6 +271,7 @@ class GenericPlaybackController extends OmniPlaybackController {
       qualityUrls,
       currentVideoQuality,
       globalKeyPlayer,
+      httpHeaders,
     );
   }
 
@@ -286,7 +291,11 @@ class GenericPlaybackController extends OmniPlaybackController {
 
     await pause(useGlobalController: false);
 
-    final newController = VideoPlaybackController.uri(newUrl, isLive: isLive);
+    final newController = VideoPlaybackController.uri(
+      newUrl,
+      isLive: isLive,
+      httpHeaders: httpHeaders ?? const <String, String>{},
+    );
     await newController.initialize();
 
     videoController.removeListener(_onControllerUpdate);

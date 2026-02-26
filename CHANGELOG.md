@@ -1,3 +1,10 @@
+# 3.7.4
+
+✨ **New Features**
+
+* Added **`httpHeaders`** parameter to `VideoSourceConfiguration.network()`
+    * See issue: [#68](https://github.com/leonardmatasel/omni_video_player/issues/68)
+
 # 3.7.3
 
 🛠 **Fix**

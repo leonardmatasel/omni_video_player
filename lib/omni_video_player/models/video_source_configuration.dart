@@ -165,6 +165,9 @@ class VideoSourceConfiguration {
   /// Whether the player should automatically switch to fullscreen mode when initialization is complete.
   final bool autoFullScreenAtStart;
 
+  /// Optional HTTP headers (e.g., for authentication) to send with the video request.
+  final Map<String, String>? httpHeaders;
+
   /// Private constructor used by factory constructors and [copyWith].
   const VideoSourceConfiguration._({
     this.videoUrl,
@@ -172,6 +175,7 @@ class VideoSourceConfiguration {
     this.videoDataSource,
     this.videoFile,
     required this.videoSourceType,
+    this.httpHeaders,
     this.autoPlay = false,
     this.initialPosition = Duration.zero,
     this.initialVolume = 1.0,
@@ -292,6 +296,7 @@ class VideoSourceConfiguration {
   /// are ignored for non-HLS network videos (e.g., direct mp4 URLs).
   factory VideoSourceConfiguration.network({
     required Uri videoUrl,
+    Map<String, String>? httpHeaders,
     List<OmniVideoQuality> preferredQualities = const [
       OmniVideoQuality.medium480,
     ],
@@ -305,6 +310,7 @@ class VideoSourceConfiguration {
     return VideoSourceConfiguration._(
       videoUrl: videoUrl,
       videoSourceType: VideoSourceType.network,
+      httpHeaders: httpHeaders,
       preferredQualities: preferredQualities,
       availableQualities: availableQualities,
     );
@@ -351,6 +357,7 @@ class VideoSourceConfiguration {
     bool? keepAlive,
     bool? pauseWhenOutOfView,
     bool? autoFullScreenAtStart,
+    Map<String, String>? httpHeaders,
   }) {
     final newPreferred = preferredQualities ?? this.preferredQualities;
     final newAvailable = availableQualities ?? this.availableQualities;
@@ -386,6 +393,7 @@ class VideoSourceConfiguration {
       pauseWhenOutOfView: pauseWhenOutOfView ?? this.pauseWhenOutOfView,
       autoFullScreenAtStart:
           autoFullScreenAtStart ?? this.autoFullScreenAtStart,
+      httpHeaders: httpHeaders ?? this.httpHeaders,
     );
   }
 }

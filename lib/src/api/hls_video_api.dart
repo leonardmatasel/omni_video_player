@@ -7,9 +7,10 @@ import 'package:omni_video_player/omni_video_player/models/omni_video_quality.da
 class HlsVideoApi {
   static Future<Map<OmniVideoQuality, Uri>> extractHlsVariantsByQuality(
     Uri masterUrl,
-    List<OmniVideoQuality>? availableQualities,
-  ) async {
-    final response = await http.get(masterUrl);
+    List<OmniVideoQuality>? availableQualities, {
+    Map<String, String>? httpHeaders,
+  }) async {
+    final response = await http.get(masterUrl, headers: httpHeaders);
 
     if (response.statusCode != 200) {
       throw Exception('Failed to load HLS playlist: ${response.statusCode}');
@@ -67,9 +68,12 @@ class HlsVideoApi {
     return OmniVideoQuality.unknown;
   }
 
-  static Future<bool> isHlsUri(Uri uri) async {
+  static Future<bool> isHlsUri(
+    Uri uri, {
+    Map<String, String>? httpHeaders, // <-- ADDED
+  }) async {
     try {
-      final response = await http.head(uri);
+      final response = await http.head(uri, headers: httpHeaders);
       final contentType = response.headers['content-type'] ?? '';
       return contentType.contains('application/vnd.apple.mpegurl') ||
           contentType.contains('application/x-mpegURL');

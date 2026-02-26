@@ -27,6 +27,7 @@ class NetworkInitializer implements IOmniVideoPlayerInitializerStrategy {
   Future<OmniPlaybackController?> initialize() async {
     final isHlsVideo = await HlsVideoApi.isHlsUri(
       videoSourceConfiguration.videoUrl!,
+      httpHeaders: videoSourceConfiguration.httpHeaders,
     );
 
     Map<OmniVideoQuality, Uri>? qualitiesMap;
@@ -36,6 +37,7 @@ class NetworkInitializer implements IOmniVideoPlayerInitializerStrategy {
       qualitiesMap = await HlsVideoApi.extractHlsVariantsByQuality(
         videoSourceConfiguration.videoUrl!,
         videoSourceConfiguration.availableQualities,
+        httpHeaders: videoSourceConfiguration.httpHeaders,
       );
       currentQualityEntry = HlsVideoApi.selectBestQualityVariant(
         qualitiesMap,
@@ -67,6 +69,7 @@ class NetworkInitializer implements IOmniVideoPlayerInitializerStrategy {
           currentVideoQuality: (currentQualityEntry != null)
               ? currentQualityEntry.key
               : null,
+          httpHeaders: videoSourceConfiguration.httpHeaders,
         );
 
         break;
