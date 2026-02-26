@@ -202,12 +202,6 @@ On Android, we can handle separate Audio and Video streams provided by the API, 
 * **The iOS Limitation:** The native iOS player struggles to synchronize separate Audio/Video tracks without pre-loading the entire file (causing huge delays).
 * **The Result:** On iOS, we must use a "muxed" stream (combined audio/video). The YouTube API currently provides only **one muxed stream at 360p**. Therefore, quality selection is disabled on iOS as there are no other combined streams available to switch to.
 
-### Why isn't my YouTube Live stream working?
-
-YouTube Live streams work out-of-the-box with the default configuration.
-
-* **Important:** Live streams are **not supported** in WebView mode. Ensure you are **not** using `forceYoutubeWebViewOnly: true` when playing live content.
-
 <br>
 
 ## 📄 License
