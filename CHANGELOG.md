@@ -1,3 +1,9 @@
+# 3.8.2
+
+🛠 **Fix**
+
+* Fixed an error into build for mobile
+
 # 3.8.1
 
 ⬆️ **Update documentation**
