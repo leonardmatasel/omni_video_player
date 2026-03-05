@@ -336,6 +336,8 @@ class YouTubeWebViewController extends OmniPlaybackController {
     Duration position, {
     skipHasPlaybackStarted = false,
   }) async {
+    if (isLive) return;
+
     if (position <= duration) {
       wasPlayingBeforeSeek = isPlaying;
 
