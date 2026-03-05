@@ -154,6 +154,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
   @override
   Future<void> dispose() async {
     isDisposed = true;
+    _eventHandler.dispose();
     super.dispose();
   }
 
@@ -371,6 +372,14 @@ class YouTubeWebViewController extends OmniPlaybackController {
       isFullScreen = true;
       notifyListeners();
       onToggle?.call(true);
+
+      // FIX LIVE: Se il video è una live e stava riproducendo, forziamo
+      // un play dopo mezzo secondo per evitare che il cambio rotta lo congeli.
+      if (isLive && wasPlayingBeforeGoOnFullScreen == true) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (!isDisposed) play(useGlobalController: false);
+        });
+      }
 
       await Navigator.push(
         context,

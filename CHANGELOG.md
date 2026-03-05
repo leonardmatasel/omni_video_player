@@ -2,6 +2,13 @@
 
 🛠 **Fix**
 
+* Fixed an error when switching to fullscreen in youtube live video
+    * See issue: [#72](https://github.com/leonardmatasel/omni_video_player/issues/72)
+
+# 3.8.2
+
+🛠 **Fix**
+
 * Fixed an error into build for mobile
 
 # 3.8.1
