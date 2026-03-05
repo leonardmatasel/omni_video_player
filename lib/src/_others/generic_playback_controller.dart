@@ -361,6 +361,12 @@ class GenericPlaybackController extends OmniPlaybackController {
   }) async {
     if (position > duration) return;
 
+    if (callbacks.onSeekRequest != null &&
+        !callbacks.onSeekRequest!(position)) {
+      isSeeking = false;
+      return;
+    }
+
     isSeeking = true;
     _videoStuckCounter = 0;
     _lastVideoPosition = Duration.zero;

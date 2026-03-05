@@ -1,3 +1,9 @@
+# 3.8.5
+
+🛠 **Fix**
+
+* Fixed an error on onSeekRequest
+
 # 3.8.3 - 3.8.4
 
 🛠 **Fix**
