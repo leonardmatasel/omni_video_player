@@ -154,7 +154,6 @@ class YouTubeWebViewController extends OmniPlaybackController {
   @override
   Future<void> dispose() async {
     isDisposed = true;
-    _eventHandler.dispose();
     super.dispose();
   }
 
@@ -336,7 +335,10 @@ class YouTubeWebViewController extends OmniPlaybackController {
     Duration position, {
     skipHasPlaybackStarted = false,
   }) async {
-    if (isLive) return;
+    if (isLive) {
+      isSeeking = false;
+      return;
+    }
 
     if (position <= duration) {
       wasPlayingBeforeSeek = isPlaying;

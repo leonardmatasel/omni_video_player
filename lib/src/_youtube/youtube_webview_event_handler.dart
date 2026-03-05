@@ -6,7 +6,6 @@ import 'package:omni_video_player/omni_video_player/models/video_player_configur
 import 'package:omni_video_player/omni_video_player/models/video_source_configuration.dart';
 import 'package:omni_video_player/src/_youtube/youtube_webview_controller.dart';
 import 'package:omni_video_player/src/_youtube/_model/youtube_player_state.dart';
-import 'package:flutter/foundation.dart'; // Per debugPrint
 
 /// Handles YouTube mobile player events triggered from WebView.
 ///
@@ -18,40 +17,11 @@ class YouTubeWebViewEventHandler {
   final VideoPlayerConfiguration configuration;
   final VideoPlayerCallbacks callbacks;
 
-  Timer? _bufferingWatchdog; // Timer per il watchdog
-
   YouTubeWebViewEventHandler(
     this.controller,
     this.configuration,
     this.callbacks,
   );
-
-  // -------------------------------------
-  // ⏱ WATCHDOG (LIVE FIX)
-  // -------------------------------------
-
-  /// Gestisce il timer per prevenire il blocco infinito nello stato di buffering,
-  /// specialmente per le live durante le transizioni a full screen.
-  void _manageWatchdog(bool isBuffering) {
-    _bufferingWatchdog?.cancel();
-
-    if (isBuffering && controller.isLive) {
-      _bufferingWatchdog = Timer(const Duration(seconds: 4), () {
-        if (controller.isDisposed) return;
-
-        debugPrint(
-          "YouTubeWebViewEventHandler: Watchdog scattato! Player bloccato in buffering. Forzo il play.",
-        );
-
-        // Sblocco forzato dello stato visivo
-        controller.isBuffering = false;
-        controller.isSeeking = false;
-
-        // Costringiamo l'iframe a riagganciarsi alla diretta
-        controller.play(useGlobalController: false);
-      });
-    }
-  }
 
   // -------------------------------------
   // 🎬 STATE CHANGE
@@ -65,6 +35,10 @@ class YouTubeWebViewEventHandler {
       orElse: () => YoutubePlayerState.unknown,
     );
 
+    controller
+      ..isReady = true
+      ..isBuffering = false;
+
     // Initialize controller when duration is not yet available
     if (_isDurationUnset) {
       await _initializeControllerFromYouTube();
@@ -74,30 +48,17 @@ class YouTubeWebViewEventHandler {
     // Handle state transitions
     switch (playerState) {
       case YoutubePlayerState.playing:
-        _manageWatchdog(false); // Annulla il watchdog se partiamo
-        controller.isBuffering = false;
         _handlePlayingState();
         break;
       case YoutubePlayerState.paused:
-        _manageWatchdog(false); // Annulla il watchdog in pausa
-        controller.isBuffering = false;
         _handlePausedState();
         break;
-      case YoutubePlayerState.buffering:
-        controller.isBuffering = true;
-        _manageWatchdog(true); // Avvia il watchdog se entriamo in buffering
-        break;
-      case YoutubePlayerState.ended:
-      case YoutubePlayerState.unStarted:
-      case YoutubePlayerState.cued:
-      case YoutubePlayerState.unknown:
-        _manageWatchdog(false);
-        controller.isBuffering = false;
+      default:
         break;
     }
 
     // Resume after seeking if necessary
-    if (controller.isSeeking && playerState == YoutubePlayerState.playing) {
+    if (controller.isSeeking) {
       _handleSeekCompletion();
     }
   }
@@ -122,7 +83,7 @@ class YouTubeWebViewEventHandler {
 
     if (controller.isLive) {
       // Per i live non c'è una durata fissa calcolabile accuratamente
-      controller.duration = const Duration(seconds: 10000000);
+      controller.duration = Duration(seconds: 10000000);
     } else {
       controller.duration = Duration(seconds: (durationSeconds ?? 0) - 2);
     }
@@ -214,7 +175,6 @@ class YouTubeWebViewEventHandler {
 
   void handleError(Object? data) {
     controller.hasError = true;
-    _bufferingWatchdog?.cancel(); // Se c'è un errore, ferma il watchdog
     configuration.globalKeyInitializer.currentState?.refresh();
   }
 
@@ -239,10 +199,5 @@ class YouTubeWebViewEventHandler {
         controller.hasStarted == true) {
       controller.pause(useGlobalController: false);
     }
-  }
-
-  // Da chiamare quando l'handler o il controller vengono distrutti
-  void dispose() {
-    _bufferingWatchdog?.cancel();
   }
 }
