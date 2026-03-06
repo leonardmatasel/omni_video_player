@@ -103,6 +103,9 @@ class VideoPlayerColorScheme {
   /// Color for active UI elements like the progress bar fill.
   final Color active;
 
+  /// Gradient for active UI elements like the progress bar fill.
+  final Gradient? activeGradient;
+
   /// Color for the draggable thumb on the progress bar.
   final Color? thumb;
 
@@ -149,6 +152,7 @@ class VideoPlayerColorScheme {
     this.active = Colors.redAccent,
     this.thumb,
     this.inactive = Colors.grey,
+    this.activeGradient,
     this.backgroundThumbnail = Colors.transparent,
     this.playPauseIcon = Colors.white,
     this.playPauseBackground = Colors.black,
@@ -181,6 +185,7 @@ class VideoPlayerColorScheme {
     Color? menuText,
     Color? menuTextSelected,
     Color? menuIconSelected,
+    Gradient? activeGradient,
   }) {
     return VideoPlayerColorScheme(
       active: active ?? this.active,
@@ -198,6 +203,7 @@ class VideoPlayerColorScheme {
       menuText: menuText ?? this.menuText,
       menuTextSelected: menuTextSelected ?? this.menuTextSelected,
       menuIconSelected: menuIconSelected ?? this.menuIconSelected,
+      activeGradient: activeGradient ?? this.activeGradient,
     );
   }
 }

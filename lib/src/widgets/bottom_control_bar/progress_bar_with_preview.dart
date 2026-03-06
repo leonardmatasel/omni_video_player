@@ -14,6 +14,7 @@ class ProgressBarWithPreview extends StatefulWidget {
   final ValueChanged<Duration>? onChanged;
   final ValueChanged<Duration>? onChangeStart;
   final ValueChanged<Duration>? onChangeEnd;
+  final Gradient? activeGradient;
 
   const ProgressBarWithPreview({
     super.key,
@@ -26,6 +27,7 @@ class ProgressBarWithPreview extends StatefulWidget {
     required this.onChangeEnd,
     required this.allowSeeking,
     required this.showScrubbingThumbnailPreview,
+    required this.activeGradient,
   });
 
   @override
@@ -113,6 +115,7 @@ class _ProgressBarWithPreviewState extends State<ProgressBarWithPreview> {
               activeColor: widget.activeColor,
               inactiveColor: widget.inactiveColor,
               thumbColor: widget.thumbColor,
+              activeGradient: widget.activeGradient,
             ),
 
             // --- Overlay preview video ---

@@ -1,3 +1,9 @@
+# 3.8.6
+
+✨ **New Features**
+
+* Added **`activeGradient`** parameter to `VideoPlayerColorScheme` into `OmniVideoPlayerThemeData` 
+
 # 3.8.5
 
 🛠 **Fix**

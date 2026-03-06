@@ -97,6 +97,7 @@ class SeekBar extends StatelessWidget {
           ProgressBarWithPreview(
             activeColor: theme.colors.active,
             thumbColor: theme.colors.thumb ?? theme.colors.active,
+            activeGradient: theme.colors.activeGradient,
             inactiveColor: theme.colors.inactive,
             controller: controller,
             onChanged: onChanged,

@@ -12,6 +12,7 @@ class ProgressBar extends StatefulWidget {
   final Color activeColor;
   final Color thumbColor;
   final Color inactiveColor;
+  final Gradient? activeGradient;
 
   const ProgressBar({
     super.key,
@@ -24,6 +25,7 @@ class ProgressBar extends StatefulWidget {
     required this.activeColor,
     required this.thumbColor,
     required this.inactiveColor,
+    required this.activeGradient,
   });
 
   @override
@@ -112,6 +114,7 @@ class ProgressBarState extends State<ProgressBar> {
                   width: max(0.0, thumbX),
                   height: trackHeight,
                   decoration: BoxDecoration(
+                    gradient: widget.activeGradient,
                     color: widget.activeColor,
                     borderRadius: BorderRadius.circular(trackHeight / 2),
                   ),
