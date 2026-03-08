@@ -1,3 +1,10 @@
+# 3.8.7
+
+🛠 **Fix**
+
+* Fixed playback controls visibility and interaction issues on Web.
+    * See issue: [#70](https://github.com/leonardmatasel/omni_video_player/issues/70)
+
 # 3.8.6
 
 ✨ **New Features**

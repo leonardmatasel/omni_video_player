@@ -211,22 +211,28 @@ class _OmniVideoPlayerControlsOverlayState
                   toggled: isButtonVisible,
                   container: true,
                   explicitChildNodes: false,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      setState(
-                        () => _tapState = _TapInteractionState.singleTap,
-                      );
-                      toggle();
+                  child: MouseRegion(
+                    onHover: (_) {
+                      // Show controls when the mouse moves over the player
+                      if (!areControlsVisible) toggle();
                     },
-                    onDoubleTap: () {
-                      setState(() => _tapState = _TapInteractionState.idle);
-                      toggle();
-                    },
-                    onVerticalDragUpdate: onVerticalDragUpdateEnable
-                        ? _handleVerticalDrag
-                        : null,
-                    child: Stack(children: layers),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        setState(
+                          () => _tapState = _TapInteractionState.singleTap,
+                        );
+                        toggle();
+                      },
+                      onDoubleTap: () {
+                        setState(() => _tapState = _TapInteractionState.idle);
+                        toggle();
+                      },
+                      onVerticalDragUpdate: onVerticalDragUpdateEnable
+                          ? _handleVerticalDrag
+                          : null,
+                      child: Stack(children: layers),
+                    ),
                   ),
                 );
               },
@@ -348,16 +354,16 @@ class _OmniVideoPlayerControlsOverlayState
         children: [
           Expanded(
             child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
+              behavior: HitTestBehavior.opaque,
               onDoubleTap: () => _onDoubleTap(SkipDirection.backward),
-              child: const SizedBox.expand(),
+              child: Container(color: Colors.transparent),
             ),
           ),
           Expanded(
             child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
+              behavior: HitTestBehavior.opaque,
               onDoubleTap: () => _onDoubleTap(SkipDirection.forward),
-              child: const SizedBox.expand(),
+              child: Container(color: Colors.transparent),
             ),
           ),
         ],
