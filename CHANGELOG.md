@@ -1,3 +1,10 @@
+# 3.8.8
+
+🛠 **Fix**
+
+* resolve autoMuteOnStart ignored
+    * See issue: [#73](https://github.com/leonardmatasel/omni_video_player/issues/73)
+
 # 3.8.7
 
 🛠 **Fix**

@@ -130,6 +130,12 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
     }
 
     if (!controller.hasStarted &&
+        config.videoSourceConfiguration.autoMuteOnStart &&
+        visibleFraction == 1) {
+      controller.mute();
+    }
+
+    if (!controller.hasStarted &&
         config.videoSourceConfiguration.autoPlay &&
         visibleFraction == 1) {
       controller.play();
