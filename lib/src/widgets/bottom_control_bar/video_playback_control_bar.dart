@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/src/widgets/bottom_control_bar/video_seek_bar.dart';
-import 'package:omni_video_player/src/widgets/controls/audio_toggle_button.dart';
+import 'package:omni_video_player/src/widgets/bottom_control_bar/volume_slider_control.dart';
 import 'package:omni_video_player/src/widgets/controls/fullscreen_toggle_button.dart';
 import 'package:omni_video_player/src/widgets/controls/video_quality_menu_button.dart';
 import 'package:omni_video_player/src/_core/omni_video_player_fullscreen.dart';
@@ -44,9 +44,11 @@ class VideoPlaybackControlBar extends StatelessWidget {
     return Row(
       children: [
         if (options.playerUIVisibilityOptions.showMuteUnMuteButton)
-          AudioToggleButton(
+          VolumeSliderControl(
             controller: controller,
             onAudioToggled: callbacks.onMuteToggled,
+            onStartInteraction: onStartInteraction,
+            onEndInteraction: onEndInteraction,
           ),
         ...options.customPlayerWidgets.leadingBottomButtons,
         Expanded(

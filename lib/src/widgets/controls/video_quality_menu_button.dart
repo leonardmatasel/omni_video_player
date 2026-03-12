@@ -29,8 +29,16 @@ class VideoQualityMenuButton extends StatelessWidget {
     return Card(
       elevation: 8,
       color: theme.colors.menuBackground,
-      child: SizedBox(
+      child: Container(
         width: 130,
+        decoration:
+            theme.menus.menuDecoration ??
+            BoxDecoration(
+              color: theme.colors.menuBackground,
+              borderRadius: BorderRadius.circular(
+                theme.shapes.menuBorderRadius,
+              ),
+            ),
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 8),
           shrinkWrap: true,

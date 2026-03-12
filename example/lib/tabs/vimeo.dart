@@ -63,7 +63,7 @@ class _VimeoState extends State<Vimeo> {
               loadingWidget: CircularProgressIndicator(color: Colors.white),
             ),
             playerTheme: OmniVideoPlayerThemeData().copyWith(
-              overlays: VideoPlayerOverlayTheme().copyWith(
+              backdrop: VideoPlayerBackdropTheme().copyWith(
                 backgroundColor: Colors.white,
                 alpha: 100,
               ),

@@ -71,8 +71,8 @@ class _OmniVideoPlayerManagerState extends State<OmniVideoPlayerManager> {
 
   /// Builds the animated blurred background if configured in the theme.
   Widget _buildBackgroundOverlay() {
-    final overlayColor = config.playerTheme.overlays.backgroundColor;
-    final overlayAlpha = config.playerTheme.overlays.alpha;
+    final overlayColor = config.playerTheme.backdrop.backgroundColor;
+    final overlayAlpha = config.playerTheme.backdrop.alpha;
 
     if (overlayColor == null || overlayAlpha == null) return SizedBox.shrink();
 

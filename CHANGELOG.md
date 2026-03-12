@@ -1,3 +1,11 @@
+# 3.9.0
+
+✨ **New Features**
+
+* **Feat:** New interactive Web volume slider (`VolumeSliderControl`) with hover support.
+* **Breaking (Theme):** Renamed `VideoPlayerOverlayTheme` to `VideoPlayerBackdropTheme`.
+* **Theme:** Introduced `VideoPlayerMenuTheme`, `menuBorderRadius`, `volumeSliderThumbShape`, and new volume-specific colors in `VideoPlayerColorScheme`.
+
 # 3.8.8
 
 🛠 **Fix**

@@ -66,7 +66,7 @@ class YT extends StatelessWidget {
             ),
             playerTheme: OmniVideoPlayerThemeData().copyWith(
               icons: VideoPlayerIconTheme().copyWith(error: Icons.warning),
-              overlays: VideoPlayerOverlayTheme().copyWith(
+              backdrop: VideoPlayerBackdropTheme().copyWith(
                 backgroundColor: Colors.white,
                 alpha: 100,
               ),

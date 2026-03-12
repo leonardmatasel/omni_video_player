@@ -110,7 +110,7 @@ class _VideoScreenState extends State<VideoScreen> {
                     error: Icons.warning,
                     playbackSpeedButton: Icons.speed,
                   ),
-                  overlays: VideoPlayerOverlayTheme().copyWith(
+                  backdrop: VideoPlayerBackdropTheme().copyWith(
                     backgroundColor: Colors.white,
                     alpha: 25,
                   ),

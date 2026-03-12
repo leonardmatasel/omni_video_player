@@ -62,18 +62,23 @@ class OmniVideoPlayerThemeData {
   final VideoPlayerShapeTheme shapes;
 
   /// Theme data for overlays like background shading.
-  final VideoPlayerOverlayTheme overlays;
+  final VideoPlayerBackdropTheme backdrop;
 
   /// Accessibility labels for screen readers and assistive technologies.
   final VideoPlayerAccessibilityTheme accessibility;
+
+  /// Theme data for popup menus and floating UI components
+  /// (e.g., quality menu, speed menu, volume slider).
+  final VideoPlayerMenuTheme menus;
 
   const OmniVideoPlayerThemeData({
     this.colors = const VideoPlayerColorScheme(),
     this.labels = const VideoPlayerLabelTheme(),
     this.icons = const VideoPlayerIconTheme(),
     this.shapes = const VideoPlayerShapeTheme(),
-    this.overlays = const VideoPlayerOverlayTheme(),
+    this.backdrop = const VideoPlayerBackdropTheme(),
     this.accessibility = const VideoPlayerAccessibilityTheme(),
+    this.menus = const VideoPlayerMenuTheme(),
   });
 
   /// Returns a copy of this theme data, overriding only the
@@ -83,16 +88,18 @@ class OmniVideoPlayerThemeData {
     VideoPlayerLabelTheme? labels,
     VideoPlayerIconTheme? icons,
     VideoPlayerShapeTheme? shapes,
-    VideoPlayerOverlayTheme? overlays,
+    VideoPlayerBackdropTheme? backdrop,
     VideoPlayerAccessibilityTheme? accessibility,
+    VideoPlayerMenuTheme? menus,
   }) {
     return OmniVideoPlayerThemeData(
       colors: colors ?? this.colors,
       labels: labels ?? this.labels,
       icons: icons ?? this.icons,
       shapes: shapes ?? this.shapes,
-      overlays: overlays ?? this.overlays,
+      backdrop: backdrop ?? this.backdrop,
       accessibility: accessibility ?? this.accessibility,
+      menus: menus ?? this.menus,
     );
   }
 }
@@ -142,6 +149,19 @@ class VideoPlayerColorScheme {
   /// Text color for unselected quality options.
   final Color menuText;
 
+  /// Background color of the volume slider overlay.
+  /// Typically a semi-transparent color, visible mainly on web
+  /// when interacting with the volume control.
+  final Color volumeOverlayBackground;
+
+  /// Color of the volume slider's active track and thumb when volume is > 0.
+  /// Used to customize the visual appearance of the active volume level indicator.
+  final Color volumeColorActiveSlider;
+
+  /// Color of the volume slider's active track and thumb when volume is 0 (muted).
+  /// Used to provide visual feedback that the audio is completely muted.
+  final Color volumeColorInactiveSlider;
+
   /// Text color for the selected quality option.
   final Color menuTextSelected;
 
@@ -165,6 +185,9 @@ class VideoPlayerColorScheme {
     this.menuText = Colors.white,
     this.menuTextSelected = Colors.redAccent,
     this.menuIconSelected = Colors.redAccent,
+    this.volumeOverlayBackground = const Color(0xFF212121),
+    this.volumeColorActiveSlider = Colors.white,
+    this.volumeColorInactiveSlider = Colors.grey,
   });
 
   /// Creates a copy of this color scheme overriding
@@ -186,6 +209,9 @@ class VideoPlayerColorScheme {
     Color? menuTextSelected,
     Color? menuIconSelected,
     Gradient? activeGradient,
+    Color? volumeOverlayBackground,
+    Color? volumeColorActiveSlider,
+    Color? volumeColorInactiveSlider,
   }) {
     return VideoPlayerColorScheme(
       active: active ?? this.active,
@@ -204,6 +230,12 @@ class VideoPlayerColorScheme {
       menuTextSelected: menuTextSelected ?? this.menuTextSelected,
       menuIconSelected: menuIconSelected ?? this.menuIconSelected,
       activeGradient: activeGradient ?? this.activeGradient,
+      volumeOverlayBackground:
+          volumeOverlayBackground ?? this.volumeOverlayBackground,
+      volumeColorActiveSlider:
+          volumeColorActiveSlider ?? this.volumeColorActiveSlider,
+      volumeColorInactiveSlider:
+          volumeColorInactiveSlider ?? this.volumeColorInactiveSlider,
     );
   }
 }
@@ -344,33 +376,51 @@ class VideoPlayerIconTheme {
   }
 }
 
-/// Defines shape-related styling options such as border radius.
+/// Defines shape-related styling options.
 @immutable
 class VideoPlayerShapeTheme {
-  /// Border radius applied to the video player UI.
+  /// Border radius applied to the main video player UI.
   final double borderRadius;
 
-  const VideoPlayerShapeTheme({this.borderRadius = 0});
+  /// Border radius applied to the popup menus (quality, speed, volume).
+  final double menuBorderRadius;
 
-  /// Returns a copy with an updated border radius.
-  VideoPlayerShapeTheme copyWith({double? borderRadius}) =>
-      VideoPlayerShapeTheme(borderRadius: borderRadius ?? this.borderRadius);
+  /// Custom shape for the volume slider thumb.
+  final SliderComponentShape? volumeSliderThumbShape;
+
+  const VideoPlayerShapeTheme({
+    this.borderRadius = 0,
+    this.menuBorderRadius = 8.0,
+    this.volumeSliderThumbShape,
+  });
+
+  /// Returns a copy with updated shape properties.
+  VideoPlayerShapeTheme copyWith({
+    double? borderRadius,
+    double? menuBorderRadius,
+    SliderComponentShape? volumeSliderThumbShape,
+  }) => VideoPlayerShapeTheme(
+    borderRadius: borderRadius ?? this.borderRadius,
+    menuBorderRadius: menuBorderRadius ?? this.menuBorderRadius,
+    volumeSliderThumbShape:
+        volumeSliderThumbShape ?? this.volumeSliderThumbShape,
+  );
 }
 
-/// Defines theming for overlays such as background shading behind the player.
+/// Defines theming for the backdrop shading behind the player controls.
 @immutable
-class VideoPlayerOverlayTheme {
-  /// Background color used for overlays.
+class VideoPlayerBackdropTheme {
+  /// Background color used for the backdrop shading.
   final Color? backgroundColor;
 
   /// Alpha transparency value (0-255) applied to the background color.
   final int? alpha;
 
-  const VideoPlayerOverlayTheme({this.backgroundColor, this.alpha = 150});
+  const VideoPlayerBackdropTheme({this.backgroundColor, this.alpha = 150});
 
   /// Returns a copy overriding the background color and/or alpha.
-  VideoPlayerOverlayTheme copyWith({Color? backgroundColor, int? alpha}) =>
-      VideoPlayerOverlayTheme(
+  VideoPlayerBackdropTheme copyWith({Color? backgroundColor, int? alpha}) =>
+      VideoPlayerBackdropTheme(
         backgroundColor: backgroundColor ?? this.backgroundColor,
         alpha: alpha ?? this.alpha,
       );
@@ -450,6 +500,24 @@ class VideoPlayerAccessibilityTheme {
           playbackSpeedButtonLabel ?? this.playbackSpeedButtonLabel,
       controlsVisibleLabel: controlsVisibleLabel ?? this.controlsVisibleLabel,
       replayButtonLabel: replayButtonLabel ?? this.replayButtonLabel,
+    );
+  }
+}
+
+/// Defines theming for popup menus and floating controls
+/// (e.g., volume slider on web, quality selection, playback speed).
+@immutable
+class VideoPlayerMenuTheme {
+  /// Configurable decoration for popup menus and floating containers.
+  /// If null, a default semi-transparent black decoration is used.
+  final Decoration? menuDecoration;
+
+  const VideoPlayerMenuTheme({this.menuDecoration});
+
+  /// Returns a copy overriding the menu decoration.
+  VideoPlayerMenuTheme copyWith({Decoration? menuDecoration}) {
+    return VideoPlayerMenuTheme(
+      menuDecoration: menuDecoration ?? this.menuDecoration,
     );
   }
 }

@@ -36,7 +36,7 @@ class YTLive extends StatelessWidget {
               colors: VideoPlayerColorScheme().copyWith(
                 liveIndicator: Colors.white,
               ),
-              overlays: VideoPlayerOverlayTheme().copyWith(
+              backdrop: VideoPlayerBackdropTheme().copyWith(
                 backgroundColor: Colors.black,
                 alpha: 100,
               ),
