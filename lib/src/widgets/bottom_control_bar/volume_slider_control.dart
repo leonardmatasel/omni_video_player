@@ -90,6 +90,7 @@ class _VolumeSliderControlState extends State<VolumeSliderControl> {
                   child: Container(
                     height: 100,
                     width: 36,
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
                     decoration:
                         theme.menus.menuDecoration ??
                         BoxDecoration(
