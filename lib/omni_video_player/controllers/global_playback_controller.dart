@@ -53,12 +53,13 @@ class GlobalPlaybackController extends ChangeNotifier {
   /// Plays a video controller, pausing any previous one first.
   Future<void> requestPlay(OmniPlaybackController controller) async {
     await _lock.synchronized(() async {
-      if (_currentVideoPlaying != controller) {
-        try {
-          await _currentVideoPlaying?.pause(useGlobalController: false);
-          _currentVideoPlaying = controller;
-        } catch (_) {}
+      if (_currentVideoPlaying != null && _currentVideoPlaying != controller) {
+        await _currentVideoPlaying!
+            .pause(useGlobalController: false)
+            .catchError((e) => debugPrint('Failed to pause previous player: $e'));
       }
+
+      _currentVideoPlaying = controller;
 
       if (_currentVolume > 0) {
         controller.unMute();
@@ -68,8 +69,6 @@ class GlobalPlaybackController extends ChangeNotifier {
       await controller.play(useGlobalController: false);
 
       await WakelockPlus.enable();
-
-      _currentVideoPlaying = controller;
       notifyListeners();
     });
   }

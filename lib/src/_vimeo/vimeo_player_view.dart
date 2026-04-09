@@ -34,7 +34,6 @@ class VimeoPlayerView extends StatelessWidget {
     required this.videoId,
     required this.controller,
     required this.preferredQualities,
-    required this.autoPlay,
   }) : assert(videoId.isNotEmpty, 'videoId cannot be empty!');
 
   /// The Vimeo video ID to be played.
@@ -48,8 +47,6 @@ class VimeoPlayerView extends StatelessWidget {
   ///
   /// This is required to access internal controls and state.
   final VimeoController controller;
-
-  final bool autoPlay;
 
   @override
   Widget build(BuildContext context) {
@@ -77,8 +74,6 @@ class VimeoPlayerView extends StatelessWidget {
         onWebViewCreated: (controller) {
           this.controller.setWebViewController(controller);
         },
-        onLoadStart: (_, _) => controller.isReady = false,
-        onLoadStop: (_, _) => controller.isReady = false,
         onProgressChanged: (controller, progress) =>
             this.controller.isBuffering = progress != 100,
       ),
@@ -148,7 +143,7 @@ class VimeoPlayerView extends StatelessWidget {
     return 'https://player.vimeo.com/video/$videoId?'
         'autoplay=${false}'
         '&max_quality=${preferredQualities.first.qualityString}'
-        '&loop=${true}'
+        '&loop=${false}'
         '&portrait=${false}'
         '&muted=${false}'
         '&title=${false}'
@@ -161,10 +156,10 @@ class VimeoPlayerView extends StatelessWidget {
   void _manageVimeoPlayerEvent(String event) {
     switch (event) {
       case 'onReady':
+        // Setting isReady=true drains the action queue, which executes any
+        // mute/play calls that were made before the WebView was ready
+        // (e.g. from autoMuteOnStart + autoPlay via _handleVisibilityChanged).
         controller.isReady = true;
-        if (controller.hasStarted && autoPlay) {
-          controller.play();
-        }
         break;
       case 'onPlay':
         controller.isPlaying = true;
@@ -176,6 +171,8 @@ class VimeoPlayerView extends StatelessWidget {
         break;
       case 'onFinish':
         controller.isPlaying = false;
+        controller.isSeeking = false;
+        controller.stopPositionTimer();
         break;
       case 'onSeek':
         controller.isSeeking = false;

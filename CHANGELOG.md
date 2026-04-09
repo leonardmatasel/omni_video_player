@@ -1,3 +1,14 @@
+# 3.9.1
+
+🛠 **Fix**
+
+* Fixed **replay race condition** on all player types (YouTube, Vimeo, WebM, network).
+  - `replay()` now runs sequentially (`pause → seekTo(0) → play`) instead of in parallel, preventing the video from stalling at position 0 with the wrong button state.
+
+* Fixed **`autoMuteOnStart` + `autoPlay` ignored on Vimeo mobile**.
+  - `play()`, `mute()`, `unMute()`, and `volume` setter now use `_executeOrQueue` so deferred actions are correctly applied once the WebView is ready.
+  - Fixed a bug where the volume setter was passing the old value (`$volume`) instead of the new value (`$value`) to the JS player.
+
 # 3.9.0
 
 ✨ **New Features**

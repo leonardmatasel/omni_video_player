@@ -313,7 +313,7 @@ class _OmniVideoPlayerControlsOverlayState
         onStartInteraction: onStartInteraction,
         onEndInteraction: onEndInteraction,
       ),
-      if (ctrl.isSeeking)
+      if (ctrl.isSeeking && !ctrl.isFinished)
         Positioned.fill(
           child: Align(
             alignment: Alignment.center,

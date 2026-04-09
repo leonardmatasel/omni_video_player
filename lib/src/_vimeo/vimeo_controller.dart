@@ -30,6 +30,7 @@ class VimeoController extends OmniPlaybackController {
   bool _isReady = false;
   Duration _currentPosition = Duration.zero;
 
+
   @override
   final Duration duration;
   Timer? _positionTimer;
@@ -42,7 +43,7 @@ class VimeoController extends OmniPlaybackController {
 
   bool _isSeeking = false;
   bool _isFullScreen = false;
-  bool _hasStarted = true;
+  bool _hasStarted = false;
   bool _isBuffering = true;
   bool _hasError = false;
   final GlobalPlaybackController? _globalController;
@@ -206,11 +207,13 @@ class VimeoController extends OmniPlaybackController {
   @override
   Future<void> play({bool useGlobalController = true}) async {
     hasStarted = true;
-    if (useGlobalController && _globalController != null) {
-      return await _globalController.requestPlay(this);
-    } else {
-      await _evaluate("player.play();");
-    }
+    _executeOrQueue(() {
+      if (useGlobalController && _globalController != null) {
+        _globalController.requestPlay(this);
+      } else {
+        _evaluate("player.play();");
+      }
+    });
   }
 
   @override
@@ -224,11 +227,9 @@ class VimeoController extends OmniPlaybackController {
 
   @override
   Future<void> replay({bool useGlobalController = true}) async {
-    await Future.wait([
-      pause(useGlobalController: useGlobalController),
-      seekTo(Duration.zero),
-      play(useGlobalController: useGlobalController),
-    ]);
+    await pause(useGlobalController: useGlobalController);
+    await seekTo(Duration.zero);
+    await play(useGlobalController: useGlobalController);
   }
 
   @override
@@ -236,8 +237,8 @@ class VimeoController extends OmniPlaybackController {
 
   @override
   set volume(double value) {
-    _evaluate("player.setVolume($volume);");
     _volume = value;
+    _executeOrQueue(() => _evaluate("player.setVolume($value);"));
     notifyListeners();
   }
 
@@ -249,12 +250,15 @@ class VimeoController extends OmniPlaybackController {
     _previousVolume = _volume;
     _volume = 0;
     _globalController?.setCurrentVolume(0);
+    _executeOrQueue(() => _evaluate("player.setVolume(0);"));
   }
 
   @override
   void unMute() {
-    _volume = _previousVolume;
-    _globalController?.setCurrentVolume(_previousVolume);
+    final restoredVolume = _previousVolume == 0 ? 1.0 : _previousVolume;
+    _volume = restoredVolume;
+    _globalController?.setCurrentVolume(restoredVolume);
+    _executeOrQueue(() => _evaluate("player.setVolume($restoredVolume);"));
   }
 
   @override

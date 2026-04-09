@@ -53,7 +53,6 @@ class VimeoInitializer implements IOmniVideoPlayerInitializerStrategy {
             controller: controller,
             preferredQualities:
                 options.videoSourceConfiguration.preferredQualities,
-            autoPlay: options.videoSourceConfiguration.autoPlay,
           ),
           Container(color: Colors.transparent),
         ],

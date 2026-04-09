@@ -314,11 +314,9 @@ class WebmVideoWebViewController extends OmniPlaybackController {
 
   @override
   Future<void> replay({bool useGlobalController = true}) async {
-    await Future.wait([
-      pause(useGlobalController: useGlobalController),
-      seekTo(Duration.zero),
-      play(useGlobalController: useGlobalController),
-    ]);
+    await pause(useGlobalController: useGlobalController);
+    await seekTo(Duration.zero);
+    await play(useGlobalController: useGlobalController);
   }
 
   @override
