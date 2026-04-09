@@ -6,7 +6,7 @@
 *.swp
 .buildlog/
 .history
-
+.claude
 
 
 # Flutter repo-specific
