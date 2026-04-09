@@ -10,7 +10,7 @@ screenshots:
     path: assets/logo_square.png
 
 environment:
-  sdk: ">=3.10.0 <4.0.0"
+  sdk: ">=3.9.0 <4.0.0"
   flutter: ">=3.38.0"
 
 platforms:
