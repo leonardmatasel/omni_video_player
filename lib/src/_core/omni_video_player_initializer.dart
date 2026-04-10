@@ -152,6 +152,27 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
       }
     } catch (e, st) {
       debugPrint('Video initialization error: $e\n$st');
+
+      // Check for hardware decoder memory exhaustion (common on Android)
+      final errorStr = e.toString().toLowerCase();
+      if (errorStr.contains('no_memory') ||
+          errorStr.contains('codec') ||
+          errorStr.contains('0xfffffff4')) {
+        debugPrint(
+          'OmniVideoPlayer: Potential hardware decoder exhaustion detected. Attempting to release all resources...',
+        );
+        await widget.globalController?.releaseAllResources();
+
+        // One-time retry after cleanup if we haven't reached max retries
+        if (_errorRetryCount < _maxRetries) {
+          _errorRetryCount++;
+          debugPrint(
+            'OmniVideoPlayer: Retrying initialization after cleanup...',
+          );
+          return _initializePlayer();
+        }
+      }
+
       _hasError = true;
     } finally {
       if (mounted) setState(() => _isLoading = false);

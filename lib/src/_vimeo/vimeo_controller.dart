@@ -30,7 +30,6 @@ class VimeoController extends OmniPlaybackController {
   bool _isReady = false;
   Duration _currentPosition = Duration.zero;
 
-
   @override
   final Duration duration;
   Timer? _positionTimer;
@@ -73,6 +72,7 @@ class VimeoController extends OmniPlaybackController {
     this.globalKeyPlayer,
     this.options,
   ) {
+    _globalController?.registerController(this);
     _executeOrQueue(() {
       seekTo(initialPosition, skipHasPlaybackStarted: true);
       if (initialVolume != null) {
@@ -359,6 +359,7 @@ class VimeoController extends OmniPlaybackController {
 
   @override
   void dispose() {
+    _globalController?.unregisterController(this);
     _positionTimer?.cancel();
     super.dispose();
   }

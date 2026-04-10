@@ -18,12 +18,48 @@ class GlobalPlaybackController extends ChangeNotifier {
   OmniPlaybackController? _currentVideoPlaying;
   double _currentVolume = 1.0;
 
+  /// A list of all active controllers to manage resources globally.
+  final List<OmniPlaybackController> _allControllers = [];
+
   OmniPlaybackController? get currentVideoPlaying => _currentVideoPlaying;
   double get currentVolume => _currentVolume;
   bool get isMute => _currentVolume == 0;
 
   GlobalPlaybackController._internal() {
     _initVolumeListener();
+  }
+
+  /// Registers a controller to be tracked globally.
+  void registerController(OmniPlaybackController controller) {
+    if (!_allControllers.contains(controller)) {
+      _allControllers.add(controller);
+    }
+  }
+
+  /// Unregisters a controller from global tracking.
+  void unregisterController(OmniPlaybackController controller) {
+    _allControllers.remove(controller);
+  }
+
+  /// Releases all resources by disposing of all tracked controllers.
+  /// Useful for handling "NO_MEMORY" or "CodecException" errors on Android.
+  Future<void> releaseAllResources() async {
+    await _lock.synchronized(() async {
+      final controllersToDispose = List<OmniPlaybackController>.from(
+        _allControllers,
+      );
+      for (final controller in controllersToDispose) {
+        try {
+          controller.dispose();
+        } catch (e) {
+          debugPrint('Error during forced dispose: $e');
+        }
+      }
+      _allControllers.clear();
+      _currentVideoPlaying = null;
+      await WakelockPlus.disable();
+      notifyListeners();
+    });
   }
 
   Future<void> _initVolumeListener() async {
@@ -56,7 +92,9 @@ class GlobalPlaybackController extends ChangeNotifier {
       if (_currentVideoPlaying != null && _currentVideoPlaying != controller) {
         await _currentVideoPlaying!
             .pause(useGlobalController: false)
-            .catchError((e) => debugPrint('Failed to pause previous player: $e'));
+            .catchError(
+              (e) => debugPrint('Failed to pause previous player: $e'),
+            );
       }
 
       _currentVideoPlaying = controller;

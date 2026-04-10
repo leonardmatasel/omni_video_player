@@ -1,3 +1,12 @@
+# 3.9.2
+
+✨ **New Features**
+
+* **Hardware Decoder Auto-Recovery:** 
+  - Added a global tracking system for `OmniPlaybackController` instances.
+  - Implemented automatic cleanup and retry logic when Android reports `NO_MEMORY` or `CodecException` (error `0xfffffff4`).
+  - Added `releaseAllResources()` to `GlobalPlaybackController` to force-dispose all active players in critical memory situations.
+
 # 3.9.1
 
 🛠 **Fix**

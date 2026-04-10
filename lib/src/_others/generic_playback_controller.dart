@@ -203,6 +203,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     if (initialPlaybackSpeed != null) {
       setPlaybackSpeed(initialPlaybackSpeed);
     }
+    _globalController?.registerController(this);
     videoController.addListener(_onControllerUpdate);
     audioController?.addListener(_onControllerUpdate);
   }
@@ -543,6 +544,7 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   @override
   Future<void> dispose() async {
+    _globalController?.unregisterController(this);
     _stopProgressTimer();
     _isDisposed = true;
     super.dispose();

@@ -68,6 +68,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
     _isLive = isLive;
     _videoId = videoId;
     _globalController = globalController;
+    _globalController?.registerController(this);
     _eventHandler = YouTubeWebViewEventHandler(this, options, callbacks);
   }
 
@@ -153,6 +154,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
   /// Disposes the resources created by [YoutubePlayerController].
   @override
   Future<void> dispose() async {
+    _globalController?.unregisterController(this);
     isDisposed = true;
     super.dispose();
   }

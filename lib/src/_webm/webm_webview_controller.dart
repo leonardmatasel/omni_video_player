@@ -64,6 +64,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
     _duration = duration;
     _isLive = isLive;
     _globalController = globalController;
+    _globalController?.registerController(this);
     _eventHandler = WebmVideoWebViewEventHandler(this, options, callbacks);
   }
 
@@ -115,6 +116,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
 
   @override
   Future<void> dispose() async {
+    _globalController?.unregisterController(this);
     isDisposed = true;
     super.dispose();
   }
