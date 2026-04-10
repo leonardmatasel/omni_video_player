@@ -12,6 +12,7 @@ import 'package:omni_video_player/src/controllers/global_volume_synchronizer.dar
 import 'package:omni_video_player/src/_core/utils/omni_video_player_initializer_factory.dart';
 import 'package:omni_video_player/src/_core/omni_video_player_error_view.dart';
 import 'package:omni_video_player/src/_core/omni_video_player_thumbnail.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../omni_video_player/models/video_source_configuration.dart';
 import '../_vimeo/model/vimeo_video_info.dart';
@@ -196,7 +197,25 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
     final aspectRatio = _calculateAspectRatio();
 
     if (_isLoading) return _buildLoadingView(theme, aspectRatio);
-    if (_hasError || _controller == null) return _buildErrorView(theme);
+
+    // Se il controller è nullo o è stato distrutto (es. dal global release),
+    // usiamo VisibilityDetector per reinizializzare quando riappare a schermo.
+    if (_hasError || _controller == null || _controller!.isDisposed) {
+      return VisibilityDetector(
+        key: Key('video_visibility_retry_${_sourceConfig.hashCode}'),
+        onVisibilityChanged: (info) {
+          if (info.visibleFraction > 0.1 &&
+              !_isLoading &&
+              (_controller == null || _controller!.isDisposed)) {
+            debugPrint(
+              'OmniVideoPlayer: Re-initializing disposed/error player on visibility',
+            );
+            refresh();
+          }
+        },
+        child: _buildErrorView(theme),
+      );
+    }
 
     final player = widget.buildPlayer(context, _controller!, _thumbnail);
     return _buildWithVolumeSync(player);

@@ -41,8 +41,6 @@ class YouTubeWebViewController extends OmniPlaybackController {
   late final GlobalPlaybackController? _globalController;
   GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer;
 
-  bool isDisposed = false;
-
   InAppWebViewController? _webViewController;
   InAppWebViewController? get webViewController => _webViewController;
 
@@ -151,11 +149,16 @@ class YouTubeWebViewController extends OmniPlaybackController {
     );
   }
 
+  @override
+  bool get isDisposed => _isDisposed;
+
+  bool _isDisposed = false;
+
   /// Disposes the resources created by [YoutubePlayerController].
   @override
   Future<void> dispose() async {
+    _isDisposed = true;
     _globalController?.unregisterController(this);
-    isDisposed = true;
     super.dispose();
   }
 

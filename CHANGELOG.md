@@ -1,3 +1,14 @@
+# 3.9.3
+
+✨ **New Features & Bug Fixes**
+
+* **Improved Resource Management:**
+  - Added `isDisposed` check to all controllers to prevent `ChangeNotifier` errors after disposal.
+  - Enhanced `OmniVideoPlayerView` to safely handle controller disposal and listener removal.
+* **Auto-Reinitialization:**
+  - Added `VisibilityDetector` to `OmniVideoPlayerInitializer` to automatically re-initialize players that were disposed or failed when they become visible again.
+  - This ensures a seamless user experience when scrolling back to a video after a global memory cleanup.
+
 # 3.9.2
 
 ✨ **New Features**

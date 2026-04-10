@@ -41,7 +41,9 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
   @override
   void initState() {
     super.initState();
-    controller.addListener(_onControllerUpdated);
+    if (!controller.isDisposed) {
+      controller.addListener(_onControllerUpdated);
+    }
   }
 
   void _onControllerUpdated() {
@@ -170,8 +172,10 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
 
   @override
   void dispose() {
-    controller.removeListener(_onControllerUpdated);
-    controller.dispose();
+    if (!controller.isDisposed) {
+      controller.removeListener(_onControllerUpdated);
+      controller.dispose();
+    }
     super.dispose();
   }
 }

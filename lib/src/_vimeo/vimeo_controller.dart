@@ -358,7 +358,13 @@ class VimeoController extends OmniPlaybackController {
   }
 
   @override
+  bool get isDisposed => _isDisposed;
+
+  bool _isDisposed = false;
+
+  @override
   void dispose() {
+    _isDisposed = true;
     _globalController?.unregisterController(this);
     _positionTimer?.cancel();
     super.dispose();

@@ -40,8 +40,6 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   late final GlobalPlaybackController? _globalController;
   GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer;
 
-  bool isDisposed = false;
-
   InAppWebViewController? _webViewController;
   InAppWebViewController? get webViewController => _webViewController;
 
@@ -115,9 +113,14 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   }
 
   @override
+  bool get isDisposed => _isDisposed;
+
+  bool _isDisposed = false;
+
+  @override
   Future<void> dispose() async {
+    _isDisposed = true;
     _globalController?.unregisterController(this);
-    isDisposed = true;
     super.dispose();
   }
 

@@ -172,6 +172,9 @@ abstract class OmniPlaybackController with ChangeNotifier {
   /// - [videoSourceConfiguration] defines the new source (e.g., Vimeo, YouTube, Network).
   void loadVideoSource(VideoSourceConfiguration videoSourceConfiguration);
 
+  /// Returns `true` if this controller has been disposed and can no longer be used.
+  bool get isDisposed;
+
   /// Whether the video player widget is fully visible within the viewport.
   ///
   /// - Returns `true` if the entire player is currently visible on screen.

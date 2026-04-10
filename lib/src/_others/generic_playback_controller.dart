@@ -543,6 +543,9 @@ class GenericPlaybackController extends OmniPlaybackController {
   }
 
   @override
+  bool get isDisposed => _isDisposed;
+
+  @override
   Future<void> dispose() async {
     _globalController?.unregisterController(this);
     _stopProgressTimer();
