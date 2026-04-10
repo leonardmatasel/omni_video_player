@@ -24,10 +24,9 @@ class VideoPlaybackController extends VideoPlayerController {
     super.url, {
     this.isLive = false,
     mixWithOthers = false,
-    Map<String, String> httpHeaders = const <String, String>{},
+    super.httpHeaders,
   }) : super.networkUrl(
          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: mixWithOthers),
-         httpHeaders: httpHeaders,
        );
 
   /// Creates a controller for an asset video.
