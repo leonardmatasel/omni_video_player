@@ -237,6 +237,7 @@ class VimeoController extends OmniPlaybackController {
 
   @override
   set volume(double value) {
+    if (isDisposed) return;
     _volume = value;
     _executeOrQueue(() => _evaluate("player.setVolume($value);"));
     notifyListeners();

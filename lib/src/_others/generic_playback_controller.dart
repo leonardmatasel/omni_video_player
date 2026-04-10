@@ -634,6 +634,7 @@ class GenericPlaybackController extends OmniPlaybackController {
   Duration get duration => _duration;
 
   set duration(Duration value) {
+    if (isDisposed) return;
     _duration = value;
     notifyListeners();
   }
@@ -655,6 +656,7 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   @override
   set volume(double value) {
+    if (isDisposed) return;
     videoController.setVolume(value);
     audioController?.setVolume(value);
   }

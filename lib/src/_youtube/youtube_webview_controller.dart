@@ -414,6 +414,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
 
   @override
   set volume(double value) {
+    if (isDisposed) return;
     if (kIsWeb || Platform.isAndroid) {
       _evaluate('player.setVolume(${value * 100})');
     }

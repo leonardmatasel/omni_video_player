@@ -1,3 +1,12 @@
+# 3.9.4
+
+✨ **Stability & Bug Fixes**
+
+* **Safe Disposal Handling:**
+  - Added comprehensive `isDisposed` guards to all controller setters (`volume`, `duration`, `playing`, etc.) to prevent "ChangeNotifier used after being disposed" crashes during global resource cleanup.
+  - Improved `GlobalVolumeSynchronizer` to safely ignore disposed controllers during global volume updates.
+  - Added safety checks for JavaScript evaluation in WebView-based controllers after disposal.
+
 # 3.9.3
 
 ✨ **New Features & Bug Fixes**

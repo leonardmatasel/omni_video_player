@@ -143,6 +143,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   List<OmniVideoQuality>? get availableVideoQualities =>
       _availableVideoQualities;
   set availableVideoQualities(List<OmniVideoQuality>? value) {
+    if (isDisposed) return;
     _availableVideoQualities = value;
     notifyListeners();
   }
@@ -150,6 +151,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   @override
   OmniVideoQuality? get currentVideoQuality => _currentVideoQuality;
   set currentVideoQuality(OmniVideoQuality? value) {
+    if (isDisposed) return;
     _currentVideoQuality = value;
     notifyListeners();
   }
@@ -164,6 +166,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   bool get isSeeking => _isSeeking;
   @override
   set isSeeking(bool value) {
+    if (isDisposed) return;
     _isSeeking = value;
     if (!value) callbacks.onSeekEnd?.call(currentPosition);
     notifyListeners();
@@ -178,6 +181,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   @override
   Duration get currentPosition => _currentPosition;
   set currentPosition(Duration value) {
+    if (isDisposed) return;
     if (value > duration && duration != Duration.zero) return;
     _currentPosition = value;
     notifyListeners();
@@ -186,6 +190,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   @override
   Duration get duration => _duration;
   set duration(Duration value) {
+    if (isDisposed) return;
     _duration = value;
     notifyListeners();
   }
@@ -193,6 +198,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   @override
   bool get hasError => _hasError;
   set hasError(bool value) {
+    if (isDisposed) return;
     _hasError = value;
     notifyListeners();
   }
@@ -200,6 +206,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   @override
   bool get hasStarted => _hasStarted;
   set hasStarted(bool value) {
+    if (isDisposed) return;
     _hasStarted = value;
     notifyListeners();
   }
@@ -207,6 +214,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   @override
   bool get isBuffering => _isBuffering;
   set isBuffering(bool value) {
+    if (isDisposed) return;
     _isBuffering = value;
     notifyListeners();
   }
@@ -220,6 +228,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   @override
   bool get isFullScreen => _isFullScreen;
   set isFullScreen(bool value) {
+    if (isDisposed) return;
     _isFullScreen = value;
     notifyListeners();
   }
@@ -227,6 +236,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   @override
   bool get isLive => _isLive;
   set isLive(bool value) {
+    if (isDisposed) return;
     _isLive = value;
     notifyListeners();
   }
@@ -234,6 +244,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   @override
   bool get isPlaying => _isPlaying;
   set isPlaying(bool value) {
+    if (isDisposed) return;
     _isPlaying = value;
     notifyListeners();
   }
@@ -241,6 +252,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   @override
   bool get isReady => _isReady;
   set isReady(bool value) {
+    if (isDisposed) return;
     _isReady = value;
     notifyListeners();
   }
@@ -329,6 +341,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
 
   @override
   set volume(double value) {
+    if (isDisposed) return;
     _evaluate('setVolume($value)');
     _volume = value;
     notifyListeners();
@@ -372,6 +385,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
 
   @override
   Future<void> setPlaybackSpeed(double speed) async {
+    if (isDisposed) return;
     if (speed <= 0) return;
     _playbackSpeed = speed;
     _evaluate('setPlaybackRate($speed)');
@@ -387,6 +401,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   bool get isFullyVisible => _isFullyVisible;
   @override
   set isFullyVisible(bool value) {
+    if (isDisposed) return;
     _isFullyVisible = value;
     notifyListeners();
   }
