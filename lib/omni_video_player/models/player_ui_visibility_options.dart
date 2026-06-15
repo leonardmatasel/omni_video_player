@@ -144,6 +144,21 @@ class PlayerUIVisibilityOptions {
   /// Defaults to `false`.
   final bool enableZoom;
 
+  /// Whether to show the next/previous navigation buttons in playlist mode.
+  ///
+  /// Defaults to `true`.
+  final bool showPlaylistNavigationButtons;
+
+  /// Whether to show the "Up Next" auto-advance overlay when a video finishes.
+  ///
+  /// Defaults to `true`.
+  final bool showAutoAdvanceOverlay;
+
+  /// Whether to show the playlist panel in fullscreen/landscape mode.
+  ///
+  /// Defaults to `true`.
+  final bool showPlaylistPanelInFullscreen;
+
   /// Creates a new instance of [PlayerUIVisibilityOptions].
   ///
   /// All options default to `true` except:
@@ -182,6 +197,9 @@ class PlayerUIVisibilityOptions {
     this.showScrubbingThumbnailPreview = true,
     this.fitVideoToBounds = true,
     this.enableZoom = false,
+    this.showPlaylistNavigationButtons = true,
+    this.showAutoAdvanceOverlay = true,
+    this.showPlaylistPanelInFullscreen = true,
   });
 
   /// Returns a copy of this [PlayerUIVisibilityOptions] with
@@ -219,6 +237,9 @@ class PlayerUIVisibilityOptions {
     bool? showScrubbingThumbnailPreview,
     bool? fitVideoToBounds,
     bool? enableZoom,
+    bool? showPlaylistNavigationButtons,
+    bool? showAutoAdvanceOverlay,
+    bool? showPlaylistPanelInFullscreen,
   }) {
     return PlayerUIVisibilityOptions(
       showSeekBar: showSeekBar ?? this.showSeekBar,
@@ -273,6 +294,12 @@ class PlayerUIVisibilityOptions {
           showScrubbingThumbnailPreview ?? this.showScrubbingThumbnailPreview,
       fitVideoToBounds: fitVideoToBounds ?? this.fitVideoToBounds,
       enableZoom: enableZoom ?? this.enableZoom,
+      showPlaylistNavigationButtons:
+          showPlaylistNavigationButtons ?? this.showPlaylistNavigationButtons,
+      showAutoAdvanceOverlay:
+          showAutoAdvanceOverlay ?? this.showAutoAdvanceOverlay,
+      showPlaylistPanelInFullscreen:
+          showPlaylistPanelInFullscreen ?? this.showPlaylistPanelInFullscreen,
     );
   }
 }

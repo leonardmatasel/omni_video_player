@@ -286,6 +286,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
   @override
   bool get isFullScreen => _isFullScreen;
 
+  @override
   set isFullScreen(bool value) {
     _isFullScreen = value;
     notifyListeners();
@@ -315,6 +316,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
 
   @override
   Future<void> pause({bool useGlobalController = true}) async {
+    if (isDisposed) return;
     if (useGlobalController && _globalController != null && !isFullScreen) {
       return await _globalController.requestPause();
     } else {
@@ -324,6 +326,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
 
   @override
   Future<void> play({bool useGlobalController = true}) async {
+    if (isDisposed) return;
     _hasStarted = true;
     if (useGlobalController && _globalController != null && !isFullScreen) {
       return await _globalController.requestPlay(this);
@@ -340,6 +343,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
     Duration position, {
     skipHasPlaybackStarted = false,
   }) async {
+    if (isDisposed) return;
     if (isLive) {
       isSeeking = false;
       return;
@@ -372,15 +376,13 @@ class YouTubeWebViewController extends OmniPlaybackController {
     void Function(bool p1)? onToggle,
   }) async {
     if (isFullScreen) {
-      isFullScreen = false;
-      notifyListeners();
-      onToggle?.call(false);
       Navigator.of(context).pop();
     } else {
       wasPlayingBeforeGoOnFullScreen = isPlaying;
       isFullScreen = true;
       notifyListeners();
       onToggle?.call(true);
+      GlobalPlaybackController().wasLastVideoFullscreen = true;
 
       // FIX LIVE: Se il video è una live e stava riproducendo, forziamo
       // un play dopo mezzo secondo per evitare che il cambio rotta lo congeli.
@@ -399,11 +401,19 @@ class YouTubeWebViewController extends OmniPlaybackController {
           },
         ),
       );
+
+      isFullScreen = false;
+      notifyListeners();
+      onToggle?.call(false);
+      if (!isFinished) {
+        GlobalPlaybackController().wasLastVideoFullscreen = false;
+      }
     }
   }
 
   @override
   Future<void> replay({bool useGlobalController = true}) async {
+    if (isDisposed) return;
     await pause(useGlobalController: useGlobalController);
     await seekTo(Duration.zero);
     await play(useGlobalController: useGlobalController);

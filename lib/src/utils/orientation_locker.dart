@@ -18,6 +18,8 @@ import 'package:flutter/services.dart';
 ///   child: YourVideoPlayer(),
 /// )
 /// ```
+import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
+
 class OrientationLocker extends StatefulWidget {
   final Orientation orientation;
   final bool enableOrientationLock;
@@ -52,11 +54,31 @@ class _OrientationLockerState extends State<OrientationLocker> {
   }
 
   @override
+  void didUpdateWidget(covariant OrientationLocker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.enableOrientationLock &&
+        (widget.orientation != oldWidget.orientation ||
+            widget.enableOrientationLock != oldWidget.enableOrientationLock)) {
+      SystemChrome.setPreferredOrientations([
+        if (widget.orientation == Orientation.portrait) ...[
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ] else ...[
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ],
+      ]);
+    }
+  }
+
+  @override
   void dispose() {
     if (widget.enableOrientationLock) {
-      SystemChrome.setPreferredOrientations(
-        [],
-      ); // empty list mean system default
+      if (!GlobalPlaybackController().wasLastVideoFullscreen) {
+        SystemChrome.setPreferredOrientations(
+          [],
+        ); // empty list mean system default
+      }
     }
     super.dispose();
   }

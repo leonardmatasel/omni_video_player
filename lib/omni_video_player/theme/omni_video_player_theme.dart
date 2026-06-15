@@ -168,6 +168,15 @@ class VideoPlayerColorScheme {
   /// Icon color for the selected quality checkmark.
   final Color menuIconSelected;
 
+  /// Highlight color for the currently playing playlist item.
+  final Color playlistItemActive;
+
+  /// Background color for playlist panel items.
+  final Color playlistItemBackground;
+
+  /// Background color for the "Up Next" auto-advance overlay.
+  final Color autoAdvanceOverlay;
+
   const VideoPlayerColorScheme({
     this.active = Colors.redAccent,
     this.thumb,
@@ -188,6 +197,9 @@ class VideoPlayerColorScheme {
     this.volumeOverlayBackground = const Color(0xFF212121),
     this.volumeColorActiveSlider = Colors.white,
     this.volumeColorInactiveSlider = Colors.grey,
+    this.playlistItemActive = Colors.redAccent,
+    this.playlistItemBackground = const Color(0xFF1A1A1A),
+    this.autoAdvanceOverlay = const Color(0xCC000000),
   });
 
   /// Creates a copy of this color scheme overriding
@@ -212,6 +224,9 @@ class VideoPlayerColorScheme {
     Color? volumeOverlayBackground,
     Color? volumeColorActiveSlider,
     Color? volumeColorInactiveSlider,
+    Color? playlistItemActive,
+    Color? playlistItemBackground,
+    Color? autoAdvanceOverlay,
   }) {
     return VideoPlayerColorScheme(
       active: active ?? this.active,
@@ -236,6 +251,12 @@ class VideoPlayerColorScheme {
           volumeColorActiveSlider ?? this.volumeColorActiveSlider,
       volumeColorInactiveSlider:
           volumeColorInactiveSlider ?? this.volumeColorInactiveSlider,
+      playlistItemActive:
+          playlistItemActive ?? this.playlistItemActive,
+      playlistItemBackground:
+          playlistItemBackground ?? this.playlistItemBackground,
+      autoAdvanceOverlay:
+          autoAdvanceOverlay ?? this.autoAdvanceOverlay,
     );
   }
 }
@@ -317,6 +338,12 @@ class VideoPlayerIconTheme {
   /// Icon used for the playback speed change button.
   final IconData playbackSpeedButton;
 
+  /// Icon used for skipping to the next video in a playlist.
+  final IconData skipNext;
+
+  /// Icon used for skipping to the previous video in a playlist.
+  final IconData skipPrevious;
+
   const VideoPlayerIconTheme({
     this.exitFullScreen = Icons.fullscreen_exit,
     this.fullScreen = Icons.fullscreen,
@@ -334,6 +361,8 @@ class VideoPlayerIconTheme {
     this.qualityChangeButton = Icons.high_quality,
     this.qualitySelectedCheck = Icons.check,
     this.playbackSpeedButton = Icons.speed,
+    this.skipNext = Icons.skip_next_rounded,
+    this.skipPrevious = Icons.skip_previous_rounded,
   });
 
   /// Creates a copy of this icon theme with selective overrides.
@@ -354,6 +383,8 @@ class VideoPlayerIconTheme {
     IconData? qualityChangeButton,
     IconData? qualitySelectedCheck,
     IconData? playbackSpeedButton,
+    IconData? skipNext,
+    IconData? skipPrevious,
   }) {
     return VideoPlayerIconTheme(
       exitFullScreen: exitFullScreen ?? this.exitFullScreen,
@@ -372,6 +403,8 @@ class VideoPlayerIconTheme {
       qualityChangeButton: qualityChangeButton ?? this.qualityChangeButton,
       qualitySelectedCheck: qualitySelectedCheck ?? this.qualitySelectedCheck,
       playbackSpeedButton: playbackSpeedButton ?? this.playbackSpeedButton,
+      skipNext: skipNext ?? this.skipNext,
+      skipPrevious: skipPrevious ?? this.skipPrevious,
     );
   }
 }
@@ -460,6 +493,15 @@ class VideoPlayerAccessibilityTheme {
   /// Semantic label for the replay button when the video has finished.
   final String replayButtonLabel;
 
+  /// Semantic label for the next track button in playlist mode.
+  final String nextTrackLabel;
+
+  /// Semantic label for the previous track button in playlist mode.
+  final String previousTrackLabel;
+
+  /// Semantic label for the playlist panel.
+  final String playlistLabel;
+
   const VideoPlayerAccessibilityTheme({
     this.playButtonLabel = 'Play video',
     this.pauseButtonLabel = 'Pause video',
@@ -471,6 +513,9 @@ class VideoPlayerAccessibilityTheme {
     this.playbackSpeedButtonLabel = 'Change playback speed',
     this.controlsVisibleLabel = 'Controls visible',
     this.replayButtonLabel = 'Replay video',
+    this.nextTrackLabel = 'Next video',
+    this.previousTrackLabel = 'Previous video',
+    this.playlistLabel = 'Playlist',
   });
 
   /// Returns a copy overriding only the provided fields.
@@ -485,6 +530,9 @@ class VideoPlayerAccessibilityTheme {
     String? playbackSpeedButtonLabel,
     String? controlsVisibleLabel,
     String? replayButtonLabel,
+    String? nextTrackLabel,
+    String? previousTrackLabel,
+    String? playlistLabel,
   }) {
     return VideoPlayerAccessibilityTheme(
       playButtonLabel: playButtonLabel ?? this.playButtonLabel,
@@ -500,6 +548,9 @@ class VideoPlayerAccessibilityTheme {
           playbackSpeedButtonLabel ?? this.playbackSpeedButtonLabel,
       controlsVisibleLabel: controlsVisibleLabel ?? this.controlsVisibleLabel,
       replayButtonLabel: replayButtonLabel ?? this.replayButtonLabel,
+      nextTrackLabel: nextTrackLabel ?? this.nextTrackLabel,
+      previousTrackLabel: previousTrackLabel ?? this.previousTrackLabel,
+      playlistLabel: playlistLabel ?? this.playlistLabel,
     );
   }
 }

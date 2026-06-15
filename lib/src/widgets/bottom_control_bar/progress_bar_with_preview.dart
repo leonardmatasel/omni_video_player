@@ -43,6 +43,20 @@ class _ProgressBarWithPreviewState extends State<ProgressBarWithPreview> {
   @override
   void initState() {
     super.initState();
+    _initPreviewController();
+  }
+
+  @override
+  void didUpdateWidget(covariant ProgressBarWithPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      _initPreviewController();
+    }
+  }
+
+  void _initPreviewController() {
+    _previewController?.dispose();
+    _previewController = null;
     if (widget.controller.videoUrl != null) {
       _previewController = VideoPlayerController.networkUrl(
         widget.controller.videoUrl!,

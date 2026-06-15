@@ -100,6 +100,7 @@ abstract class OmniPlaybackController with ChangeNotifier {
 
   /// Whether the player is currently in fullscreen mode.
   bool get isFullScreen;
+  set isFullScreen(bool value);
 
   /// The current playback position.
   Duration get currentPosition;

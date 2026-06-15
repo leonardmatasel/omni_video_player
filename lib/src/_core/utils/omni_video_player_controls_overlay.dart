@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
+import 'package:omni_video_player/omni_video_player/models/custom_overlay_layer.dart';
 import 'package:omni_video_player/omni_video_player/models/player_ui_visibility_options.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
@@ -323,9 +324,12 @@ class _OmniVideoPlayerControlsOverlayState
       Positioned.fill(child: _buildCenterButton(isButtonVisible)),
     ];
 
-    // Add custom overlay layers from configuration
-    for (final overlay
-        in widget.configuration.customPlayerWidgets.customOverlayLayers) {
+    // Add custom overlay layers from configuration sorted by level
+    final sortedOverlays = List<CustomOverlayLayer>.from(
+      widget.configuration.customPlayerWidgets.customOverlayLayers,
+    )..sort((a, b) => a.level.compareTo(b.level));
+
+    for (final overlay in sortedOverlays) {
       if (overlay.ignoreOverlayControlsVisibility || areOverlayVisible) {
         final aspectRatio =
             widget
@@ -333,8 +337,9 @@ class _OmniVideoPlayerControlsOverlayState
                 .playerUIVisibilityOptions
                 .customAspectRatioNormal ??
             (ctrl.size.width / ctrl.size.height);
+        final insertIndex = overlay.level.clamp(0, layers.length);
         layers.insert(
-          overlay.level,
+          insertIndex,
           Positioned.fill(
             child: AspectRatio(
               aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,

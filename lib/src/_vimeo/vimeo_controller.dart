@@ -188,6 +188,14 @@ class VimeoController extends OmniPlaybackController {
   bool get isFullScreen => _isFullScreen;
 
   @override
+  set isFullScreen(bool value) {
+    if (_isFullScreen != value) {
+      _isFullScreen = value;
+      notifyListeners();
+    }
+  }
+
+  @override
   Duration get currentPosition => _currentPosition;
 
   set currentPosition(Duration value) {
@@ -196,7 +204,7 @@ class VimeoController extends OmniPlaybackController {
   }
 
   @override
-  bool get isFinished => duration == currentPosition;
+  bool get isFinished => hasStarted == true && duration == currentPosition;
 
   @override
   int get rotationCorrection => 0;
@@ -206,6 +214,7 @@ class VimeoController extends OmniPlaybackController {
 
   @override
   Future<void> play({bool useGlobalController = true}) async {
+    if (isDisposed) return;
     hasStarted = true;
     _executeOrQueue(() {
       if (useGlobalController && _globalController != null) {
@@ -218,6 +227,7 @@ class VimeoController extends OmniPlaybackController {
 
   @override
   Future<void> pause({bool useGlobalController = true}) async {
+    if (isDisposed) return;
     if (useGlobalController && _globalController != null) {
       return await _globalController.requestPause();
     } else {
@@ -227,6 +237,7 @@ class VimeoController extends OmniPlaybackController {
 
   @override
   Future<void> replay({bool useGlobalController = true}) async {
+    if (isDisposed) return;
     await pause(useGlobalController: useGlobalController);
     await seekTo(Duration.zero);
     await play(useGlobalController: useGlobalController);
@@ -267,6 +278,7 @@ class VimeoController extends OmniPlaybackController {
     Duration position, {
     skipHasPlaybackStarted = false,
   }) async {
+    if (isDisposed) return;
     if (position <= duration) {
       wasPlayingBeforeSeek = isPlaying;
 
@@ -293,14 +305,12 @@ class VimeoController extends OmniPlaybackController {
     void Function(bool)? onToggle,
   }) async {
     if (_isFullScreen) {
-      _isFullScreen = false;
-      notifyListeners();
-      onToggle?.call(false);
       Navigator.of(context).pop();
     } else {
       _isFullScreen = true;
       notifyListeners();
       onToggle?.call(true);
+      GlobalPlaybackController().wasLastVideoFullscreen = true;
 
       await Navigator.push(
         context,
@@ -311,6 +321,13 @@ class VimeoController extends OmniPlaybackController {
           },
         ),
       );
+
+      _isFullScreen = false;
+      notifyListeners();
+      onToggle?.call(false);
+      if (!isFinished) {
+        GlobalPlaybackController().wasLastVideoFullscreen = false;
+      }
     }
   }
 

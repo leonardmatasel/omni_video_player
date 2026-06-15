@@ -41,6 +41,16 @@ class _GlobalVolumeSynchronizerState extends State<GlobalVolumeSynchronizer> {
   }
 
   @override
+  void didUpdateWidget(covariant GlobalVolumeSynchronizer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      if (!widget.controller.isDisposed) {
+        widget.controller.volume = _globalPlaybackController.currentVolume;
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _removeListener();
     super.dispose();

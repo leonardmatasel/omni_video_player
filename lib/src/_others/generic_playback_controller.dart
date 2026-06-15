@@ -360,6 +360,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     Duration position, {
     skipHasPlaybackStarted = false,
   }) async {
+    if (isDisposed) return;
     if (position > duration) return;
 
     if (callbacks.onSeekRequest != null &&
@@ -486,6 +487,7 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   @override
   Future<void> play({bool useGlobalController = true}) async {
+    if (isDisposed) return;
     _hasStarted = true;
 
     if (useGlobalController && _globalController != null) {
@@ -497,6 +499,7 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   @override
   Future<void> pause({bool useGlobalController = true}) async {
+    if (isDisposed) return;
     if (useGlobalController && _globalController != null) {
       return await _globalController.requestPause();
     } else {
@@ -510,6 +513,7 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   @override
   Future<void> setPlaybackSpeed(double speed) async {
+    if (isDisposed) return;
     if (speed <= 0) {
       throw ArgumentError('Playback speed must be greater than 0');
     }
@@ -537,6 +541,7 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   @override
   Future<void> replay({bool useGlobalController = true}) async {
+    if (isDisposed) return;
     await pause(useGlobalController: useGlobalController);
     await seekTo(Duration.zero);
     await play(useGlobalController: useGlobalController);
@@ -620,6 +625,14 @@ class GenericPlaybackController extends OmniPlaybackController {
   @override
   bool get isFullScreen => _isFullScreen;
 
+  @override
+  set isFullScreen(bool value) {
+    if (_isFullScreen != value) {
+      _isFullScreen = value;
+      notifyListeners();
+    }
+  }
+
   /// Returns the current playback position of the video.
   @override
   Duration get currentPosition => videoController.value.position;
@@ -627,7 +640,9 @@ class GenericPlaybackController extends OmniPlaybackController {
   /// Returns true if the video playback has reached the end.
   @override
   bool get isFinished =>
-      (currentPosition.inSeconds >= duration.inSeconds) && !isLive;
+      hasStarted == true &&
+      (currentPosition.inSeconds >= duration.inSeconds) &&
+      !isLive;
 
   /// Returns the total duration of the video.
   @override
@@ -700,6 +715,7 @@ class GenericPlaybackController extends OmniPlaybackController {
       _isFullScreen = true;
       notifyListeners();
       onToggle?.call(true);
+      GlobalPlaybackController().wasLastVideoFullscreen = true;
 
       await Navigator.push(
         context,
@@ -716,6 +732,9 @@ class GenericPlaybackController extends OmniPlaybackController {
       _isFullScreen = false;
       notifyListeners();
       onToggle?.call(false);
+      if (!isFinished) {
+        GlobalPlaybackController().wasLastVideoFullscreen = false;
+      }
     }
   }
 

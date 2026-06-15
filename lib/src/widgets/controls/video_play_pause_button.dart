@@ -84,6 +84,21 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
     controller.addListener(_updateIconAnimation);
   }
 
+  @override
+  void didUpdateWidget(covariant VideoPlayPauseButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_updateIconAnimation);
+      widget.controller.addListener(_updateIconAnimation);
+      _hasCalledOnFinish = false;
+      if (controller.isPlaying) {
+        _iconAnimationController.forward();
+      } else {
+        _iconAnimationController.reverse();
+      }
+    }
+  }
+
   /// Syncs the animation with the controller's playback state.
   ///
   /// Additionally, calls [widget.onFinished] once when the video finishes.

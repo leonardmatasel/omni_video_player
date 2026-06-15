@@ -17,6 +17,8 @@ class GlobalPlaybackController extends ChangeNotifier {
 
   OmniPlaybackController? _currentVideoPlaying;
   double _currentVolume = 1.0;
+  bool _wasLastVideoFullscreen = false;
+  bool _isFullscreenRouteOpen = false;
 
   /// A list of all active controllers to manage resources globally.
   final List<OmniPlaybackController> _allControllers = [];
@@ -24,6 +26,18 @@ class GlobalPlaybackController extends ChangeNotifier {
   OmniPlaybackController? get currentVideoPlaying => _currentVideoPlaying;
   double get currentVolume => _currentVolume;
   bool get isMute => _currentVolume == 0;
+  bool get wasLastVideoFullscreen => _wasLastVideoFullscreen;
+  bool get isFullscreenRouteOpen => _isFullscreenRouteOpen;
+
+  set wasLastVideoFullscreen(bool value) {
+    _wasLastVideoFullscreen = value;
+    notifyListeners();
+  }
+
+  set isFullscreenRouteOpen(bool value) {
+    _isFullscreenRouteOpen = value;
+    notifyListeners();
+  }
 
   GlobalPlaybackController._internal() {
     _initVolumeListener();
@@ -33,6 +47,10 @@ class GlobalPlaybackController extends ChangeNotifier {
   void registerController(OmniPlaybackController controller) {
     if (!_allControllers.contains(controller)) {
       _allControllers.add(controller);
+    }
+    if (_isFullscreenRouteOpen) {
+      _currentVideoPlaying = controller;
+      notifyListeners();
     }
   }
 

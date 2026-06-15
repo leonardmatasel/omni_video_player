@@ -7,6 +7,8 @@ import 'package:omni_video_player/src/utils/orientation_locker.dart';
 import 'package:omni_video_player/src/_core/utils/omni_video_player_viewport.dart';
 import 'package:omni_video_player/src/_core/utils/omni_video_player_controls_overlay.dart';
 
+import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
+
 /// A full-screen video player widget that:
 /// - Locks the screen orientation based on video ratio/rotation.
 /// - Enters immersive full-screen mode (hiding system overlays).
@@ -34,19 +36,53 @@ class OmniVideoPlayerFullscreen extends StatefulWidget {
 }
 
 class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
-  late final double _effectiveAspectRatio;
+  late OmniPlaybackController _currentController;
 
   @override
   void initState() {
     super.initState();
     _enterFullscreenMode();
-    _effectiveAspectRatio = _computeAspectRatio();
+    GlobalPlaybackController().isFullscreenRouteOpen = true;
+    _currentController = GlobalPlaybackController().currentVideoPlaying ?? widget.controller;
+    if (!_currentController.isDisposed) {
+      _currentController.isFullScreen = true;
+      _currentController.addListener(_onVideoStateChanged);
+    }
+    GlobalPlaybackController().addListener(_onGlobalPlaybackChanged);
+  }
+
+  void _onGlobalPlaybackChanged() {
+    final newController = GlobalPlaybackController().currentVideoPlaying;
+    if (newController != null && newController != _currentController) {
+      if (!_currentController.isDisposed) {
+        _currentController.removeListener(_onVideoStateChanged);
+        _currentController.isFullScreen = false;
+      }
+      _currentController = newController;
+      if (!_currentController.isDisposed) {
+        _currentController.isFullScreen = true;
+        _currentController.addListener(_onVideoStateChanged);
+      }
+      if (mounted) setState(() {});
+    }
+  }
+
+  void _onVideoStateChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
     _exitFullscreenMode();
-    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    GlobalPlaybackController().isFullscreenRouteOpen = false;
+    GlobalPlaybackController().removeListener(_onGlobalPlaybackChanged);
+    if (!_currentController.isDisposed) {
+      _currentController.removeListener(_onVideoStateChanged);
+      _currentController.isFullScreen = false;
+    }
+    if (!GlobalPlaybackController().wasLastVideoFullscreen) {
+      SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    }
     super.dispose();
   }
 
@@ -65,9 +101,9 @@ class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
   }
 
   /// Computes the video aspect ratio considering rotation or user override.
-  double _computeAspectRatio() {
-    final rotation = widget.controller.rotationCorrection;
-    final size = widget.controller.size;
+  double _computeAspectRatio(OmniPlaybackController controller) {
+    final rotation = controller.rotationCorrection;
+    final size = controller.size;
 
     // User override takes priority.
     final customRatio = widget
@@ -97,9 +133,12 @@ class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
     final shouldLockOrientation =
         widget.configuration.playerUIVisibilityOptions.enableOrientationLock;
 
+    final activeController = _currentController;
     final preferredOrientation =
         widget.configuration.playerUIVisibilityOptions.fullscreenOrientation ??
-        _getOrientationFromVideoSize();
+        _getOrientationFromVideoSize(activeController);
+
+    final aspectRatio = _computeAspectRatio(activeController);
 
     return OrientationLocker(
       enableOrientationLock: shouldLockOrientation,
@@ -111,15 +150,15 @@ class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
             horizontal: 8,
             vertical: 16,
           ),
-          controller: widget.controller,
+          controller: activeController,
           configuration: widget.configuration,
           callbacks: widget.callbacks,
           child: Align(
             alignment: Alignment.center,
             child: OmniVideoPlayerViewport(
-              controller: widget.controller,
+              controller: activeController,
               isFullScreenDisplay: true,
-              aspectRatio: _effectiveAspectRatio,
+              aspectRatio: aspectRatio,
             ),
           ),
         ),
@@ -129,8 +168,8 @@ class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
 
   /// Determines orientation preference (portrait/landscape)
   /// based on the video dimensions when not explicitly provided.
-  Orientation _getOrientationFromVideoSize() {
-    final size = widget.controller.size;
+  Orientation _getOrientationFromVideoSize(OmniPlaybackController controller) {
+    final size = controller.size;
     return size.height > size.width
         ? Orientation.portrait
         : Orientation.landscape;

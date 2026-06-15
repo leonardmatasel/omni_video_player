@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
-import 'package:omni_video_player/src/_youtube/youtube_webview_controller.dart';
+import 'package:omni_video_player/src/_core/omni_video_player_fullscreen.dart';
 import 'package:omni_video_player/src/navigation/route_aware_listener.dart';
 import 'package:omni_video_player/src/_core/utils/omni_video_player_viewport.dart';
 import 'package:omni_video_player/src/utils/conditional_parent.dart';
@@ -38,16 +39,96 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
   VideoPlayerConfiguration get config => widget.configuration;
   VideoPlayerCallbacks get callbacks => widget.callbacks;
 
+  Orientation? _lastOrientation;
+
   @override
   void initState() {
     super.initState();
     if (!controller.isDisposed) {
       controller.addListener(_onControllerUpdated);
     }
+    // When the fullscreen route is already open (e.g. playlist advance in
+    // fullscreen, or wasLastVideoFullscreen), the VisibilityDetector behind
+    // the route may never fire with visible fraction > 0.  Trigger autoplay
+    // directly so the new video starts without user interaction.
+    _autoPlayIfFullscreenOpen();
+  }
+
+  @override
+  void didUpdateWidget(covariant OmniVideoPlayerView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      if (!oldWidget.controller.isDisposed) {
+        oldWidget.controller.removeListener(_onControllerUpdated);
+      }
+      if (!widget.controller.isDisposed) {
+        widget.controller.addListener(_onControllerUpdated);
+      }
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final orientation = MediaQuery.of(context).orientation;
+    if (_lastOrientation != null && _lastOrientation != orientation) {
+      _handleOrientationChanged(orientation);
+    }
+    _lastOrientation = orientation;
+  }
+
+  void _handleOrientationChanged(Orientation orientation) {
+    final isFullscreenOpen = GlobalPlaybackController().isFullscreenRouteOpen;
+
+    if (orientation == Orientation.landscape && !isFullscreenOpen) {
+      if (!controller.isDisposed) {
+        controller.switchFullScreenMode(
+          context,
+          pageBuilder: (context) => OmniVideoPlayerTheme(
+            data: config.playerTheme,
+            child: OmniVideoPlayerFullscreen(
+              controller: controller,
+              configuration: config,
+              callbacks: callbacks,
+            ),
+          ),
+        );
+      }
+    } else if (orientation == Orientation.portrait && isFullscreenOpen) {
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+    }
   }
 
   void _onControllerUpdated() {
     if (mounted) setState(() {});
+  }
+
+  /// Triggers autoplay when the fullscreen route is already open.
+  ///
+  /// The [VisibilityDetector] callback may never fire for a widget that
+  /// starts fully occluded (behind the fullscreen route).  This method
+  /// schedules a post-frame check so the fullscreen flag is guaranteed
+  /// to be set, and then starts playback + optional auto-mute exactly
+  /// as [_handleVisibilityChanged] would.
+  void _autoPlayIfFullscreenOpen() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || controller.isDisposed) return;
+
+      final isFullscreenOpen = GlobalPlaybackController().isFullscreenRouteOpen;
+      if (!isFullscreenOpen) return;
+
+      if (!controller.hasStarted &&
+          config.videoSourceConfiguration.autoMuteOnStart) {
+        controller.mute();
+      }
+
+      if (!controller.hasStarted &&
+          config.videoSourceConfiguration.autoPlay) {
+        controller.play();
+      }
+    });
   }
 
   @override
@@ -124,22 +205,24 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
     final visibleFraction = info.visibleFraction;
     controller.isFullyVisible = visibleFraction == 1;
 
+    final isFullscreenOpen = GlobalPlaybackController().isFullscreenRouteOpen;
+
     if (visibleFraction == 0 &&
         config.videoSourceConfiguration.pauseWhenOutOfView &&
         controller.isPlaying &&
-        (!controller.isFullScreen || controller is YouTubeWebViewController)) {
+        !isFullscreenOpen) {
       controller.pause(useGlobalController: false);
     }
 
     if (!controller.hasStarted &&
         config.videoSourceConfiguration.autoMuteOnStart &&
-        visibleFraction == 1) {
+        (visibleFraction > 0.5 || isFullscreenOpen)) {
       controller.mute();
     }
 
     if (!controller.hasStarted &&
         config.videoSourceConfiguration.autoPlay &&
-        visibleFraction == 1) {
+        (visibleFraction > 0.5 || isFullscreenOpen)) {
       controller.play();
     }
   }

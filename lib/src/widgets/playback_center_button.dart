@@ -56,6 +56,15 @@ class _PlaybackCenterButtonState extends State<PlaybackCenterButton> {
     widget.controller.addListener(_update);
   }
 
+  @override
+  void didUpdateWidget(covariant PlaybackCenterButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_update);
+      widget.controller.addListener(_update);
+    }
+  }
+
   void _update() {
     setState(() {});
   }

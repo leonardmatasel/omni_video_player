@@ -102,6 +102,14 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
     return true;
   }
 
+  void _onManualRetry() {
+    setState(() {
+      _errorRetryCount = 0;
+      _resetState();
+    });
+    _initializePlayer();
+  }
+
   void _resetState() {
     _controller = null;
     _isLoading = true;
@@ -134,21 +142,28 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
 
       if (_controller != null) {
         _startReadyTimeout(_controller!);
-        if (widget
-            .configuration
-            .videoSourceConfiguration
-            .autoFullScreenAtStart) {
-          _controller!.switchFullScreenMode(
-            context,
-            pageBuilder: (context) => OmniVideoPlayerTheme(
-              data: widget.configuration.playerTheme,
-              child: OmniVideoPlayerFullscreen(
-                controller: _controller!,
-                configuration: widget.configuration,
-                callbacks: widget.callbacks,
+        final shouldEnterFullscreen = (widget
+                .configuration
+                .videoSourceConfiguration
+                .autoFullScreenAtStart ||
+            GlobalPlaybackController().wasLastVideoFullscreen) &&
+            !GlobalPlaybackController().isFullscreenRouteOpen;
+
+        if (shouldEnterFullscreen) {
+          Future.delayed(Duration.zero, () {
+            if (!mounted || _controller == null || _controller!.isDisposed) return;
+            _controller!.switchFullScreenMode(
+              context,
+              pageBuilder: (context) => OmniVideoPlayerTheme(
+                data: widget.configuration.playerTheme,
+                child: OmniVideoPlayerFullscreen(
+                  controller: _controller!,
+                  configuration: widget.configuration,
+                  callbacks: widget.callbacks,
+                ),
               ),
-            ),
-          );
+            );
+          });
         }
       }
     } catch (e, st) {
@@ -297,7 +312,9 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
         borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
         child:
             widget.configuration.customPlayerWidgets.errorPlaceholder ??
-            const OmniVideoPlayerErrorView(),
+            OmniVideoPlayerErrorView(
+              onRetry: _onManualRetry,
+            ),
       ),
     );
   }
