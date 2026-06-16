@@ -122,11 +122,13 @@ class VideoPlayerColorScheme {
   /// Background color of the video thumbnail display.
   final Color backgroundThumbnail;
 
-  /// Color of the play/pause icon.
-  final Color? playPauseIcon;
+  /// Color of the control button icons (play/pause, replay, loader, skip,
+  /// playlist prev/next).
+  final Color? controlButtonIcon;
 
-  /// Background color behind the play/pause icon.
-  final Color playPauseBackground;
+  /// Background color behind the control buttons (play/pause, replay, loader,
+  /// skip, playlist prev/next).
+  final Color controlButtonBackground;
 
   /// Color of the live indicator badge (optional).
   final Color? liveIndicator;
@@ -174,8 +176,8 @@ class VideoPlayerColorScheme {
     this.inactive = Colors.grey,
     this.activeGradient,
     this.backgroundThumbnail = Colors.transparent,
-    this.playPauseIcon = Colors.white,
-    this.playPauseBackground = Colors.black,
+    this.controlButtonIcon = Colors.white,
+    this.controlButtonBackground = Colors.black,
     this.liveIndicator = Colors.red,
     this.icon = Colors.white,
     this.backgroundError = Colors.black,
@@ -197,8 +199,8 @@ class VideoPlayerColorScheme {
     Color? thumb,
     Color? inactive,
     Color? backgroundThumbnail,
-    Color? playPauseIcon,
-    Color? playPauseBackground,
+    Color? controlButtonIcon,
+    Color? controlButtonBackground,
     Color? liveIndicator,
     Color? icon,
     Color? backgroundError,
@@ -218,8 +220,9 @@ class VideoPlayerColorScheme {
       thumb: thumb ?? this.thumb,
       inactive: inactive ?? this.inactive,
       backgroundThumbnail: backgroundThumbnail ?? this.backgroundThumbnail,
-      playPauseIcon: playPauseIcon ?? this.playPauseIcon,
-      playPauseBackground: playPauseBackground ?? this.playPauseBackground,
+      controlButtonIcon: controlButtonIcon ?? this.controlButtonIcon,
+      controlButtonBackground:
+          controlButtonBackground ?? this.controlButtonBackground,
       liveIndicator: liveIndicator ?? this.liveIndicator,
       icon: icon ?? this.icon,
       backgroundError: backgroundError ?? this.backgroundError,
@@ -317,6 +320,12 @@ class VideoPlayerIconTheme {
   /// Icon used for the playback speed change button.
   final IconData playbackSpeedButton;
 
+  /// Icon used to skip to the next track in a playlist.
+  final IconData skipNext;
+
+  /// Icon used to skip to the previous track in a playlist.
+  final IconData skipPrevious;
+
   const VideoPlayerIconTheme({
     this.exitFullScreen = Icons.fullscreen_exit,
     this.fullScreen = Icons.fullscreen,
@@ -334,6 +343,8 @@ class VideoPlayerIconTheme {
     this.qualityChangeButton = Icons.high_quality,
     this.qualitySelectedCheck = Icons.check,
     this.playbackSpeedButton = Icons.speed,
+    this.skipNext = Icons.skip_next_rounded,
+    this.skipPrevious = Icons.skip_previous_rounded,
   });
 
   /// Creates a copy of this icon theme with selective overrides.
@@ -354,6 +365,8 @@ class VideoPlayerIconTheme {
     IconData? qualityChangeButton,
     IconData? qualitySelectedCheck,
     IconData? playbackSpeedButton,
+    IconData? skipNext,
+    IconData? skipPrevious,
   }) {
     return VideoPlayerIconTheme(
       exitFullScreen: exitFullScreen ?? this.exitFullScreen,
@@ -372,6 +385,8 @@ class VideoPlayerIconTheme {
       qualityChangeButton: qualityChangeButton ?? this.qualityChangeButton,
       qualitySelectedCheck: qualitySelectedCheck ?? this.qualitySelectedCheck,
       playbackSpeedButton: playbackSpeedButton ?? this.playbackSpeedButton,
+      skipNext: skipNext ?? this.skipNext,
+      skipPrevious: skipPrevious ?? this.skipPrevious,
     );
   }
 }
@@ -460,6 +475,12 @@ class VideoPlayerAccessibilityTheme {
   /// Semantic label for the replay button when the video has finished.
   final String replayButtonLabel;
 
+  /// Semantic label for the button that skips to the next track.
+  final String nextTrackLabel;
+
+  /// Semantic label for the button that skips to the previous track.
+  final String previousTrackLabel;
+
   const VideoPlayerAccessibilityTheme({
     this.playButtonLabel = 'Play video',
     this.pauseButtonLabel = 'Pause video',
@@ -471,6 +492,8 @@ class VideoPlayerAccessibilityTheme {
     this.playbackSpeedButtonLabel = 'Change playback speed',
     this.controlsVisibleLabel = 'Controls visible',
     this.replayButtonLabel = 'Replay video',
+    this.nextTrackLabel = 'Next video',
+    this.previousTrackLabel = 'Previous video',
   });
 
   /// Returns a copy overriding only the provided fields.
@@ -485,6 +508,8 @@ class VideoPlayerAccessibilityTheme {
     String? playbackSpeedButtonLabel,
     String? controlsVisibleLabel,
     String? replayButtonLabel,
+    String? nextTrackLabel,
+    String? previousTrackLabel,
   }) {
     return VideoPlayerAccessibilityTheme(
       playButtonLabel: playButtonLabel ?? this.playButtonLabel,
@@ -500,6 +525,8 @@ class VideoPlayerAccessibilityTheme {
           playbackSpeedButtonLabel ?? this.playbackSpeedButtonLabel,
       controlsVisibleLabel: controlsVisibleLabel ?? this.controlsVisibleLabel,
       replayButtonLabel: replayButtonLabel ?? this.replayButtonLabel,
+      nextTrackLabel: nextTrackLabel ?? this.nextTrackLabel,
+      previousTrackLabel: previousTrackLabel ?? this.previousTrackLabel,
     );
   }
 }

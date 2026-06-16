@@ -113,7 +113,7 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: theme.colors.playPauseBackground.withAlpha(100),
+            color: theme.colors.controlButtonBackground.withAlpha(100),
             borderRadius: BorderRadius.circular(200),
           ),
           child: AnimatedSwitcher(
@@ -130,7 +130,8 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
                           theme.icons.replay,
                           key: const ValueKey('replay'),
                           color:
-                              theme.colors.playPauseIcon ?? theme.colors.icon,
+                              theme.colors.controlButtonIcon ??
+                              theme.colors.icon,
                           size: 32,
                         )
                         : null
@@ -138,7 +139,8 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
                       key: const ValueKey('play_pause'),
                       icon: theme.icons.playPause,
                       progress: _iconAnimationController,
-                      color: theme.colors.playPauseIcon ?? theme.colors.icon,
+                      color:
+                          theme.colors.controlButtonIcon ?? theme.colors.icon,
                       size: 32,
                     ),
           ),

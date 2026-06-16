@@ -175,12 +175,49 @@ void dispose() {
 
 <br>
 
+### Playlist
+
+Play an ordered queue of videos with on-video previous/next buttons. Set `autoAdvance` to move to the next video automatically when one finishes, and `loop` to wrap around the ends:
+
+```dart
+OmniVideoPlaylist(
+  playlistConfiguration: PlaylistConfiguration(
+    autoAdvance: true,
+    loop: true,
+    items: [
+      VideoSourceConfiguration.youtube(
+        videoUrl: Uri.parse('https://www.youtube.com/watch?v=djV11Xbc914'),
+      ),
+      VideoSourceConfiguration.youtube(
+        videoUrl: Uri.parse('https://www.youtube.com/watch?v=Zi_XLOBDo_Y'),
+      ),
+      VideoSourceConfiguration.youtube(
+        videoUrl: Uri.parse('https://www.youtube.com/watch?v=fJ9rUzIMcZQ'),
+      ),
+    ],
+  ),
+  playerConfiguration: VideoPlayerConfiguration(
+    videoSourceConfiguration: VideoSourceConfiguration.youtube(
+      videoUrl: Uri.parse('https://www.youtube.com/watch?v=djV11Xbc914'),
+    ),
+  ),
+  callbacks: VideoPlayerCallbacks(),
+  playlistCallbacks: PlaylistCallbacks(
+    onVideoChanged: (index) => debugPrint('Playlist: now at $index'),
+    onPlaylistCompleted: () => debugPrint('Playlist: completed'),
+  ),
+)
+
+```
+
+<br>
+
 ## 🔮 Roadmap
 
 | Feature | Description | Status |
 | --- | --- | --- |
 | **Picture-in-Picture** | Play in floating overlay (OS level). | 🏗️ Researching |
-| **Playlist Support** | Queue system for multiple videos. | 🔜 Planned |
+| **Playlist Support** | Queue system for multiple videos. | ✅ (4.0.0) |
 | **Download Mode** | Cache management for offline viewing. | 🔜 Planned |
 | **Cast Support** | Google Cast & AirPlay integration. | 🔜 Planned |
 

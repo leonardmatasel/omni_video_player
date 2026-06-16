@@ -9,5 +9,9 @@ export 'omni_video_player/models/video_source_type.dart';
 export 'omni_video_player/theme/omni_video_player_theme.dart';
 export 'omni_video_player/widgets/omni_video_player.dart';
 export 'omni_video_player/models/custom_overlay_layer.dart';
+export 'omni_video_player/controllers/omni_playlist_controller.dart';
+export 'omni_video_player/models/playlist_configuration.dart';
+export 'omni_video_player/models/playlist_callbacks.dart';
+export 'omni_video_player/widgets/omni_video_playlist.dart';
 export 'src/_core/omni_video_player_initializer.dart'
     show OmniVideoPlayerInitializerState;

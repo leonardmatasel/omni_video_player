@@ -18,13 +18,13 @@ class AnimatedSkipIndicator extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: theme.colors.playPauseBackground.withAlpha(100),
+        color: theme.colors.controlButtonBackground.withAlpha(100),
         borderRadius: BorderRadius.circular(200),
       ),
       child: Icon(
         _getSkipIcon(skipDirection, skipSeconds, theme.icons),
         size: 36,
-        color: theme.colors.playPauseIcon ?? theme.colors.icon,
+        color: theme.colors.controlButtonIcon ?? theme.colors.icon,
       ),
     );
   }

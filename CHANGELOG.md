@@ -1,3 +1,16 @@
+# 4.0.0
+
+🎬 **Playlist**
+
+* New `OmniVideoPlaylist` widget with `OmniPlaylistController`, `PlaylistConfiguration`, and `PlaylistCallbacks`.
+* Plays an ordered queue of videos with on-video previous/next buttons. Optional `autoAdvance` (advance automatically when a video finishes) and `loop` (wrap around the ends).
+* Purely additive to single-video behaviour. Also adds value equality to `VideoSourceConfiguration`.
+
+🎨 **Theming (breaking)**
+
+* **BREAKING:** Renamed `VideoPlayerColorScheme.playPauseBackground` → `controlButtonBackground` and `playPauseIcon` → `controlButtonIcon`. These colors are shared by the play/pause, replay, loader and skip-indicator buttons, and now the playlist prev/next buttons too. Migration: rename these parameters in your `VideoPlayerColorScheme(...)` / `.copyWith(...)` calls.
+* Playlist prev/next buttons are fully themeable, consistent with the other control buttons: colors (`controlButtonBackground`/`controlButtonIcon`), icons (`VideoPlayerIconTheme.skipPrevious`/`skipNext`), and accessibility labels (`VideoPlayerAccessibilityTheme.previousTrackLabel`/`nextTrackLabel`).
+
 # 3.9.4
 
 ✨ **Stability & Bug Fixes**

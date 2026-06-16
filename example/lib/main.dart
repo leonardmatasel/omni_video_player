@@ -2,6 +2,7 @@ import 'package:example/tabs/asset_link.dart';
 import 'package:example/tabs/file_video.dart';
 import 'package:example/tabs/m3u8_network_link.dart';
 import 'package:example/tabs/network_link.dart';
+import 'package:example/tabs/playlist.dart';
 import 'package:example/tabs/vimeo.dart';
 import 'package:example/tabs/webm_network_link.dart';
 import 'package:example/tabs/yt.dart';
@@ -13,7 +14,7 @@ void main() {
   runApp(
     MaterialApp(
       home: DefaultTabController(
-        length: 9,
+        length: 10,
         child: Scaffold(
           appBar: AppBar(
             title: const Text('Omni Video Players'),
@@ -31,6 +32,7 @@ void main() {
                 Tab(text: 'WEBM Network Link'),
                 Tab(text: 'Asset Link'),
                 Tab(text: 'File video'),
+                Tab(text: 'Playlist'),
               ],
             ),
           ),
@@ -45,6 +47,7 @@ void main() {
               WebmNetworkLink(),
               AssetLink(),
               FileVideo(),
+              Playlist(),
             ],
           ),
         ),

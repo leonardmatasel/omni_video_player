@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
 
@@ -396,4 +396,62 @@ class VideoSourceConfiguration {
       httpHeaders: httpHeaders ?? this.httpHeaders,
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is VideoSourceConfiguration &&
+        other.videoUrl == videoUrl &&
+        other.videoId == videoId &&
+        other.videoDataSource == videoDataSource &&
+        other.videoFile == videoFile &&
+        other.videoSourceType == videoSourceType &&
+        other.autoPlay == autoPlay &&
+        other.initialPosition == initialPosition &&
+        other.initialVolume == initialVolume &&
+        other.initialPlaybackSpeed == initialPlaybackSpeed &&
+        listEquals(other.availablePlaybackSpeed, availablePlaybackSpeed) &&
+        other.autoMuteOnStart == autoMuteOnStart &&
+        listEquals(other.preferredQualities, preferredQualities) &&
+        other.allowSeeking == allowSeeking &&
+        other.timeoutDuration == timeoutDuration &&
+        listEquals(other.availableQualities, availableQualities) &&
+        other.enableYoutubeWebViewFallback == enableYoutubeWebViewFallback &&
+        other.forceYoutubeWebViewOnly == forceYoutubeWebViewOnly &&
+        other.synchronizeMuteAcrossPlayers == synchronizeMuteAcrossPlayers &&
+        other.keepAlive == keepAlive &&
+        other.pauseWhenOutOfView == pauseWhenOutOfView &&
+        other.autoFullScreenAtStart == autoFullScreenAtStart &&
+        mapEquals(other.httpHeaders, httpHeaders);
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+        videoUrl,
+        videoId,
+        videoDataSource,
+        videoFile,
+        videoSourceType,
+        autoPlay,
+        initialPosition,
+        initialVolume,
+        initialPlaybackSpeed,
+        Object.hashAll(availablePlaybackSpeed),
+        autoMuteOnStart,
+        Object.hashAll(preferredQualities),
+        allowSeeking,
+        timeoutDuration,
+        availableQualities == null ? null : Object.hashAll(availableQualities!),
+        enableYoutubeWebViewFallback,
+        forceYoutubeWebViewOnly,
+        synchronizeMuteAcrossPlayers,
+        keepAlive,
+        pauseWhenOutOfView,
+        autoFullScreenAtStart,
+        httpHeaders == null
+            ? null
+            : Object.hashAllUnordered(
+                httpHeaders!.entries.map((e) => Object.hash(e.key, e.value)),
+              ),
+      ]);
 }
