@@ -1,3 +1,11 @@
+# 4.0.2
+
+🐛 **Bug Fixes — fullscreen orientation (#75)**
+
+* Leaving fullscreen no longer forces **all** orientations, which previously overrode an app-wide lock such as `SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])`.
+* Added `PlayerUIVisibilityOptions.restoreOrientationsAfterFullscreen`: set it to your app's orientations (e.g. `[DeviceOrientation.portraitUp]`) and they are reapplied automatically when the player exits fullscreen.
+* Default is `null`, which keeps the previous behavior (restore all orientations) — non-breaking.
+
 # 4.0.1
 
 🐛 **Bug Fixes — kids/restricted YouTube playback**

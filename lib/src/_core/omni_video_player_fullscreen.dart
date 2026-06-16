@@ -46,7 +46,15 @@ class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
   @override
   void dispose() {
     _exitFullscreenMode();
-    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    // Restore the app's orientations on exit. Flutter has no getter for the
+    // orientations the app had set before fullscreen, so unless the caller
+    // tells us which ones to restore we fall back to all orientations
+    // (previous behavior). See issue #75.
+    SystemChrome.setPreferredOrientations(
+      widget.configuration.playerUIVisibilityOptions
+              .restoreOrientationsAfterFullscreen ??
+          DeviceOrientation.values,
+    );
     super.dispose();
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Configuration options to control the visibility of various UI components
 /// in the video player interface.
@@ -115,6 +116,19 @@ class PlayerUIVisibilityOptions {
   /// portrait if height > width, otherwise landscape.
   final Orientation? fullscreenOrientation;
 
+  /// Device orientations to restore when leaving fullscreen.
+  ///
+  /// Flutter provides no way to read the preferred orientations your app had
+  /// set before entering fullscreen, so when this is `null` (the default) the
+  /// player restores **all** orientations ([DeviceOrientation.values]) on exit.
+  /// This overrides an app-wide lock such as
+  /// `SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])`.
+  ///
+  /// Set this to the orientations your app uses (for example
+  /// `[DeviceOrientation.portraitUp]`) to have them reapplied automatically
+  /// when the player exits fullscreen.
+  final List<DeviceOrientation>? restoreOrientationsAfterFullscreen;
+
   /// Whether to always show the bottom control bar,
   /// even when the video is paused or hasn't started yet.
   final bool alwaysShowBottomControlsBar;
@@ -179,6 +193,7 @@ class PlayerUIVisibilityOptions {
     this.customAspectRatioNormal,
     this.customAspectRatioFullScreen,
     this.fullscreenOrientation,
+    this.restoreOrientationsAfterFullscreen,
     this.showScrubbingThumbnailPreview = true,
     this.fitVideoToBounds = true,
     this.enableZoom = false,
@@ -216,6 +231,7 @@ class PlayerUIVisibilityOptions {
     double? customAspectRatioNormal,
     double? customAspectRatioFullScreen,
     Orientation? fullscreenOrientation,
+    List<DeviceOrientation>? restoreOrientationsAfterFullscreen,
     bool? showScrubbingThumbnailPreview,
     bool? fitVideoToBounds,
     bool? enableZoom,
@@ -260,6 +276,9 @@ class PlayerUIVisibilityOptions {
           customAspectRatioFullScreen ?? this.customAspectRatioFullScreen,
       fullscreenOrientation:
           fullscreenOrientation ?? this.fullscreenOrientation,
+      restoreOrientationsAfterFullscreen:
+          restoreOrientationsAfterFullscreen ??
+          this.restoreOrientationsAfterFullscreen,
       showPlayPauseReplayButton:
           showPlayPauseReplayButton ?? this.showPlayPauseReplayButton,
       showBottomControlsBarOnEndedFullscreen:
