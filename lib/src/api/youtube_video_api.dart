@@ -8,6 +8,16 @@ import 'package:http/http.dart' as http;
 import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
+class _ManifestResult {
+  final StreamManifest manifest;
+  final bool usedRestrictedFallback;
+
+  const _ManifestResult({
+    required this.manifest,
+    required this.usedRestrictedFallback,
+  });
+}
+
 /// Represents the URLs for both video and audio streams.
 class YouTubeStreamUrls {
   final String videoStreamUrl;
@@ -101,10 +111,12 @@ class YouTubeService {
       debugPrint(
         'Fetching YouTube video and audio streams with youtube_explode_dart...',
       );
-      final StreamManifest manifest = await retry(
+      final _ManifestResult manifestResult = await retry(
         () => _getQuietManifest(videoId),
         timeout: timeout,
       );
+      final StreamManifest manifest = manifestResult.manifest;
+      final bool preferMuxOnly = manifestResult.usedRestrictedFallback;
 
       // Filter video streams based on codec compatibility
       // working with videoPlayer: [avc1, av01, mp4a]
@@ -118,7 +130,8 @@ class YouTubeService {
           .toList();
 
       // bug of video_player iOS reference: https://github.com/flutter/flutter/issues/126760
-      if (videoStreams.isEmpty || !Platform.isIOS) {
+      // Restricted/kids videos (default-client manifest) only play muxed streams.
+      if (!preferMuxOnly && (videoStreams.isEmpty || !Platform.isIOS)) {
         videoStreams = manifest.streams.whereType<VideoStreamInfo>().where((
           VideoStreamInfo it,
         ) {
@@ -223,29 +236,34 @@ class YouTubeService {
         throw Exception('No compatible YouTube video streams found.');
       }
 
+      final selectedVideo = availableVideoStreams.first;
+      final isMuxed =
+          (selectedVideo['videoCodec'] as String).contains('mp4a');
+
       debugPrint(
-        "Youtube video stream: ${availableVideoStreams.first['quality']} ${availableVideoStreams.first['videoCodec']} ${availableVideoStreams.first['size']} MB ${availableVideoStreams.first['bitrate']} ${availableVideoStreams.first['framerate']}",
+        "Youtube video stream${preferMuxOnly ? ' (restricted/mux)' : ''}: "
+        "${selectedVideo['quality']} ${selectedVideo['videoCodec']} "
+        "${selectedVideo['size']} MB ${selectedVideo['bitrate']} ${selectedVideo['framerate']}",
       );
 
-      if (availableAudioStreams.isEmpty) {
+      if (availableAudioStreams.isEmpty && !isMuxed) {
         throw Exception('No compatible YouTube audio streams found.');
       }
 
-      debugPrint(
-        "Youtube audio stream: ${availableAudioStreams.first['bitrate']} ${availableAudioStreams.first['audioCodec']} ${availableAudioStreams.first['size']} MB",
-      );
+      if (isMuxed) {
+        debugPrint('Youtube audio stream: muxed in video');
+      } else {
+        debugPrint(
+          "Youtube audio stream: ${availableAudioStreams.first['bitrate']} ${availableAudioStreams.first['audioCodec']} ${availableAudioStreams.first['size']} MB",
+        );
+      }
 
       return YouTubeStreamUrls(
-        videoStreamUrl: availableVideoStreams.isNotEmpty
-            ? availableVideoStreams.first['url'] as String
-            : '',
-        audioStreamUrl:
-            availableAudioStreams.isNotEmpty &&
-                !availableVideoStreams.first['videoCodec'].contains('mp4a')
+        videoStreamUrl: selectedVideo['url'] as String,
+        audioStreamUrl: !isMuxed && availableAudioStreams.isNotEmpty
             ? availableAudioStreams.first['url'] as String
             : null,
-        currentQuality:
-            availableVideoStreams.first['quality'] as OmniVideoQuality,
+        currentQuality: selectedVideo['quality'] as OmniVideoQuality,
         videoQualityUrls: filteredQualityMap,
       );
     }();
@@ -348,13 +366,39 @@ class YouTubeService {
     );
   }
 
-  static Future<StreamManifest> _getQuietManifest(VideoId videoId) {
+  static Future<_ManifestResult> _getQuietManifest(VideoId videoId) {
     return runZoned(
-      () => yt!.videos.streamsClient.getManifest(
-        videoId,
-        // FIX BUG youtube_explode_dart of 23/09/25 https://github.com/Hexer10/youtube_explode_dart/issues/361
-        ytClients: [YoutubeApiClient.androidVr],
-      ),
+      () async {
+        try {
+          final manifest = await yt!.videos.streamsClient.getManifest(
+            videoId,
+            // FIX BUG youtube_explode_dart of 23/09/25 https://github.com/Hexer10/youtube_explode_dart/issues/361
+            ytClients: [YoutubeApiClient.androidVr],
+          );
+          return _ManifestResult(
+            manifest: manifest,
+            usedRestrictedFallback: false,
+          );
+        } catch (e) {
+          // Transient/network failures must NOT trigger the mux-only fallback:
+          // let the outer retry() try androidVr again, otherwise a normal video
+          // would be silently downgraded to ~360p muxed on a single network blip.
+          if (e is SocketException ||
+              e is TimeoutException ||
+              e is http.ClientException) {
+            rethrow;
+          }
+          debugPrint(
+            'Omni manifest: androidVr failed, trying default clients ($e)',
+          );
+          final manifest =
+              await yt!.videos.streamsClient.getManifest(videoId);
+          return _ManifestResult(
+            manifest: manifest,
+            usedRestrictedFallback: true,
+          );
+        }
+      },
       zoneSpecification: ZoneSpecification(
         print: (self, parent, zone, line) {
           if (line.toLowerCase().contains('retry')) return;

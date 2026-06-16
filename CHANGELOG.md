@@ -1,3 +1,12 @@
+# 4.0.1
+
+🐛 **Bug Fixes — kids/restricted YouTube playback**
+
+* When the `androidVr` manifest fails (kids/restricted videos), fall back to the default InnerTube clients and keep **muxed** streams only (~360p), avoiding the HTTP 403 that adaptive video+audio streams return in ExoPlayer for these videos.
+* Skip the "no audio streams" error when the selected muxed stream already includes `mp4a` audio.
+* Transient/network failures on the `androidVr` manifest are no longer treated as restricted: they are retried instead of triggering the mux-only fallback, so normal videos are never silently downgraded to 360p on a single network blip.
+* Normal videos are unchanged: `androidVr` manifest with the existing Android/iOS stream selection (720p+ on Android).
+
 # 4.0.0
 
 🎬 **Playlist**
