@@ -30,12 +30,19 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
     final videoInfo = await YouTubeService.getVideoYoutubeDetails(videoId);
     final isLiveStream = videoInfo?.isLive ?? false;
 
-    try {
-      final streamData = isLiveStream
-          ? await _fetchLiveStream(videoId)
-          : await _fetchOnDemandStream(videoId);
+    // YouTube live streams can't be played natively: getHttpLiveStreamUrl's HLS
+    // segments always return 403 (googlevideo session/PoToken access control —
+    // upstream Hexer10/youtube_explode_dart#373, still open). The WebView/iframe
+    // plays live reliably, so route live straight there instead of attempting
+    // the native HLS path that always 403s and only falls back after a delay.
+    if (isLiveStream) {
+      return _initializeWebViewFallback(videoId, true);
+    }
 
-      final controller = await _buildController(streamData, isLiveStream);
+    try {
+      final streamData = await _fetchOnDemandStream(videoId);
+
+      final controller = await _buildController(streamData, false);
 
       _maybeFixDuration(controller, streamData.videoUrl.toString());
       _registerSharedPlayer(controller);
@@ -51,9 +58,9 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
         rethrow;
       }
 
-      if (sourceConfig.enableYoutubeWebViewFallback) {
+      if (sourceConfig.youtubeWebView.enableFallback) {
         debugPrint("Fallback: switching to WebView mode...");
-        return _initializeWebViewFallback(videoId, isLiveStream);
+        return _initializeWebViewFallback(videoId, false);
       }
 
       final refreshed = await config.globalKeyInitializer.currentState
@@ -66,14 +73,6 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
   // ----------------------------------------------------------
   // 🎥 Stream Fetchers
   // ----------------------------------------------------------
-
-  Future<_YouTubeStreamData> _fetchLiveStream(VideoId id) async {
-    final url = await YouTubeService.fetchLiveStreamUrl(
-      id,
-      sourceConfig.timeoutDuration,
-    );
-    return _YouTubeStreamData(videoUrl: Uri.parse(url));
-  }
 
   Future<_YouTubeStreamData> _fetchOnDemandStream(VideoId id) async {
     final urls = await YouTubeService.fetchVideoAndAudioUrlsCached(

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:omni_video_player/omni_video_player/models/omni_video_quality.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
+import 'package:omni_video_player/omni_video_player/models/youtube_web_view_configuration.dart';
 
 /// Configuration object used to initialize video playback.
 ///
@@ -120,26 +121,8 @@ class VideoSourceConfiguration {
   /// If not specified, all qualities are considered available.
   final List<OmniVideoQuality>? availableQualities;
 
-  /// Whether to automatically fallback to a WebView-based YouTube player
-  /// if native playback initialization fails.
-  ///
-  /// This is especially useful because `youtube_explode_dart`, the package used
-  /// to extract YouTube stream URLs, can occasionally break due to changes in
-  /// YouTube's encryption or internal APIs. When this occurs, native stream playback may fail.
-  ///
-  /// Enabling this fallback allows playback to continue using a standard embedded
-  /// YouTube WebView, ensuring more robust behavior even if native stream extraction fails.
-  ///
-  /// Defaults to `true`.
-  final bool enableYoutubeWebViewFallback;
-
-  /// Forces the use of the WebView player for YouTube, skipping native stream initialization.
-  ///
-  /// This can be useful in scenarios where native playback via `youtube_explode_dart`
-  /// is known to fail or is not desired.
-  ///
-  /// Defaults to `false`.
-  final bool forceYoutubeWebViewOnly;
+  /// YouTube WebView player flags (force/fallback/native-controls).
+  final YoutubeWebViewConfiguration youtubeWebView;
 
   /// Synchronizes the mute state across all video players controlled globally.
   ///
@@ -186,8 +169,7 @@ class VideoSourceConfiguration {
     this.availableQualities,
     this.allowSeeking = true,
     this.keepAlive = false,
-    this.enableYoutubeWebViewFallback = true,
-    this.forceYoutubeWebViewOnly = false,
+    this.youtubeWebView = const YoutubeWebViewConfiguration(),
     this.synchronizeMuteAcrossPlayers = true,
     this.timeoutDuration = const Duration(seconds: 6),
     this.pauseWhenOutOfView = true,
@@ -239,8 +221,7 @@ class VideoSourceConfiguration {
       OmniVideoQuality.medium480,
     ],
     List<OmniVideoQuality>? availableQualities,
-    bool enableYoutubeWebViewFallback = true,
-    bool forceYoutubeWebViewOnly = false,
+    YoutubeWebViewConfiguration webView = const YoutubeWebViewConfiguration(),
   }) {
     _validatePreferredQualities(
       preferred: preferredQualities,
@@ -252,8 +233,7 @@ class VideoSourceConfiguration {
       videoSourceType: VideoSourceType.youtube,
       preferredQualities: preferredQualities,
       availableQualities: availableQualities,
-      enableYoutubeWebViewFallback: enableYoutubeWebViewFallback,
-      forceYoutubeWebViewOnly: forceYoutubeWebViewOnly,
+      youtubeWebView: webView,
     );
   }
 
@@ -352,8 +332,7 @@ class VideoSourceConfiguration {
     Duration? timeoutDuration,
     List<OmniVideoQuality>? preferredQualities,
     List<OmniVideoQuality>? availableQualities,
-    bool? enableYoutubeWebViewFallback,
-    bool? forceYoutubeWebViewOnly,
+    YoutubeWebViewConfiguration? youtubeWebView,
     bool? keepAlive,
     bool? pauseWhenOutOfView,
     bool? autoFullScreenAtStart,
@@ -383,10 +362,7 @@ class VideoSourceConfiguration {
       availableQualities: newAvailable,
       allowSeeking: allowSeeking ?? this.allowSeeking,
       timeoutDuration: timeoutDuration ?? this.timeoutDuration,
-      enableYoutubeWebViewFallback:
-          enableYoutubeWebViewFallback ?? this.enableYoutubeWebViewFallback,
-      forceYoutubeWebViewOnly:
-          forceYoutubeWebViewOnly ?? this.forceYoutubeWebViewOnly,
+      youtubeWebView: youtubeWebView ?? this.youtubeWebView,
       synchronizeMuteAcrossPlayers:
           synchronizeMuteAcrossPlayers ?? this.synchronizeMuteAcrossPlayers,
       keepAlive: keepAlive ?? this.keepAlive,
@@ -416,8 +392,7 @@ class VideoSourceConfiguration {
         other.allowSeeking == allowSeeking &&
         other.timeoutDuration == timeoutDuration &&
         listEquals(other.availableQualities, availableQualities) &&
-        other.enableYoutubeWebViewFallback == enableYoutubeWebViewFallback &&
-        other.forceYoutubeWebViewOnly == forceYoutubeWebViewOnly &&
+        other.youtubeWebView == youtubeWebView &&
         other.synchronizeMuteAcrossPlayers == synchronizeMuteAcrossPlayers &&
         other.keepAlive == keepAlive &&
         other.pauseWhenOutOfView == pauseWhenOutOfView &&
@@ -442,8 +417,7 @@ class VideoSourceConfiguration {
         allowSeeking,
         timeoutDuration,
         availableQualities == null ? null : Object.hashAll(availableQualities!),
-        enableYoutubeWebViewFallback,
-        forceYoutubeWebViewOnly,
+        youtubeWebView,
         synchronizeMuteAcrossPlayers,
         keepAlive,
         pauseWhenOutOfView,

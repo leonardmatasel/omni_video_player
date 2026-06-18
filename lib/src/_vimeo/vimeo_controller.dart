@@ -238,8 +238,13 @@ class VimeoController extends OmniPlaybackController {
   @override
   set volume(double value) {
     if (isDisposed) return;
-    _volume = value;
-    _executeOrQueue(() => _evaluate("player.setVolume($value);"));
+    // Vimeo's player.setVolume() throws "Volume should be a number between 0
+    // and 1." for any out-of-range value. Clamp defensively so a stray value
+    // (e.g. a 0-100 level leaked in from another player via the shared global
+    // volume) can never break the player and spin the onError/refresh loop.
+    final clamped = value.isNaN ? 0.0 : value.clamp(0.0, 1.0).toDouble();
+    _volume = clamped;
+    _executeOrQueue(() => _evaluate("player.setVolume($clamped);"));
     notifyListeners();
   }
 
@@ -362,6 +367,20 @@ class VimeoController extends OmniPlaybackController {
   bool get isDisposed => _isDisposed;
 
   bool _isDisposed = false;
+
+  /// Swallows notifications once disposed.
+  ///
+  /// Several state setters (e.g. [currentPosition]) and the async tail of
+  /// [seekTo] can run after the controller has been disposed — for instance
+  /// when an `onError`-triggered refresh tears down the player while a queued
+  /// `seekTo` is still awaiting its WebView call. Without this guard those
+  /// paths hit `ChangeNotifier.notifyListeners()` on a disposed notifier and
+  /// throw "A VimeoController was used after being disposed.".
+  @override
+  void notifyListeners() {
+    if (_isDisposed) return;
+    super.notifyListeners();
+  }
 
   @override
   void dispose() {

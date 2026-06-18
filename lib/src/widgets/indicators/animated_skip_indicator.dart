@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
+import 'package:omni_video_player/src/widgets/opaque_control_surfaces.dart';
 
 class AnimatedSkipIndicator extends StatelessWidget {
   const AnimatedSkipIndicator({
@@ -18,7 +19,9 @@ class AnimatedSkipIndicator extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: theme.colors.controlButtonBackground.withAlpha(100),
+        color: OpaqueControlSurfaces.of(context)
+            ? theme.colors.controlButtonBackground
+            : theme.colors.controlButtonBackground.withAlpha(100),
         borderRadius: BorderRadius.circular(200),
       ),
       child: Icon(

@@ -32,7 +32,7 @@ class OmniVideoPlayerInitializerFactory {
 
     switch (sourceType) {
       case VideoSourceType.youtube:
-        if (sourceConfig.forceYoutubeWebViewOnly) {
+        if (sourceConfig.youtubeWebView.forceWebViewOnly) {
           return YouTubeWebViewInitializer(
             config: config,
             globalController: globalController,

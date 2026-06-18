@@ -1,13 +1,13 @@
 name: omni_video_player
 description: "A Flutter widget for playing videos from YouTube, Vimeo, assets, and network sources — fully customizable and easy to integrate."
-version: 4.0.2
+version: 5.0.0
 homepage: https://github.com/leonardmatasel/omni_video_player
 repository: https://github.com/leonardmatasel/omni_video_player
 issue_tracker: https://github.com/leonardmatasel/omni_video_player/issues
 
 screenshots:
   - description: "A unified Flutter video player for YouTube, Vimeo, assets, and network sources."
-    path: assets/logo_square.png
+    path: assets/screenshot.png
 
 environment:
   sdk: ">=3.10.0 <4.0.0"
@@ -32,14 +32,14 @@ dependencies:
   # Forziamo il minimo a 2.9.5 finché video_player non aggiorna il proprio vincolo. [https://github.com/androidx/media/issues/2860]
   video_player_android: ^2.9.5
   wakelock_plus: ^1.4.0
-  synchronized: ^3.4.0
+  synchronized: ^3.4.0+1
 
   visibility_detector: ^0.4.0+2
-  volume_controller: ^3.4.2
+  volume_controller: ^3.5.0
   http: ^1.6.0
   web: ^1.1.1
 
-  youtube_explode_dart: ^3.0.5
+  youtube_explode_dart: ^3.1.0
 
   flutter_inappwebview: ^6.1.5
 
@@ -48,7 +48,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  dartdoc: ^9.0.0
+  dartdoc: ^9.0.2
 
 flutter:
   assets:

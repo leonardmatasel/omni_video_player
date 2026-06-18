@@ -92,8 +92,6 @@ class _VideoScreenState extends State<VideoScreen> {
                     OmniVideoQuality.medium360,
                     OmniVideoQuality.low144,
                   ],
-                  enableYoutubeWebViewFallback: true,
-                  forceYoutubeWebViewOnly: false,
                 ).copyWith(
                   autoPlay: false,
                   initialPosition: Duration.zero,

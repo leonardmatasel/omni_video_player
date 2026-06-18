@@ -9,6 +9,7 @@ import 'package:omni_video_player/omni_video_player/theme/omni_video_player_them
 import 'package:omni_video_player/src/utils/conditional_parent.dart';
 import 'package:omni_video_player/src/widgets/playback_controls_visibility_manager.dart';
 import 'package:omni_video_player/src/widgets/playback_center_button.dart';
+import 'package:omni_video_player/src/widgets/opaque_control_surfaces.dart';
 import 'package:omni_video_player/src/widgets/bottom_control_bar/gradient_bottom_control_bar.dart';
 import 'package:omni_video_player/src/widgets/bottom_control_bar/video_playback_control_bar.dart';
 import '../../widgets/indicators/animated_skip_indicator.dart';
@@ -58,6 +59,10 @@ class _OmniVideoPlayerControlsOverlayState
   double _scale = 1.0;
   double _baseScale = 1.0;
   Offset _offset = Offset.zero;
+
+  /// Native-mode tap detection: pointer-down position, used to tell a tap from
+  /// a drag in the [Listener] that toggles controls without consuming the touch.
+  Offset? _nativeTapDownPosition;
 
   @override
   void initState() {
@@ -178,6 +183,7 @@ class _OmniVideoPlayerControlsOverlayState
               (context, areControlsVisible, toggle, pauseTimer, resumeTimer) {
                 final ctrl = widget.controller;
                 final opts = widget.configuration.playerUIVisibilityOptions;
+                final bool native = widget.controller.usesNativeCenterControls;
 
                 final areOverlayVisible = _shouldShowOverlay(
                   areControlsVisible,
@@ -217,21 +223,33 @@ class _OmniVideoPlayerControlsOverlayState
                       if (!areControlsVisible) toggle();
                     },
                     child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () {
-                        setState(
-                          () => _tapState = _TapInteractionState.singleTap,
-                        );
-                        toggle();
-                      },
-                      onDoubleTap: () {
-                        setState(() => _tapState = _TapInteractionState.idle);
-                        toggle();
-                      },
+                      behavior: native
+                          ? HitTestBehavior.deferToChild
+                          : HitTestBehavior.opaque,
+                      onTap: native
+                          ? null
+                          : () {
+                              setState(
+                                () =>
+                                    _tapState = _TapInteractionState.singleTap,
+                              );
+                              toggle();
+                            },
+                      onDoubleTap: native
+                          ? null
+                          : () {
+                              setState(
+                                () => _tapState = _TapInteractionState.idle,
+                              );
+                              toggle();
+                            },
                       onVerticalDragUpdate: onVerticalDragUpdateEnable
                           ? _handleVerticalDrag
                           : null,
-                      child: Stack(children: layers),
+                      child: OpaqueControlSurfaces(
+                        opaque: widget.controller.requiresOpaqueControlButtons,
+                        child: Stack(children: layers),
+                      ),
                     ),
                   ),
                 );
@@ -252,6 +270,7 @@ class _OmniVideoPlayerControlsOverlayState
     required VoidCallback onEndInteraction,
   }) {
     final ctrl = widget.controller;
+    final bool native = widget.controller.usesNativeCenterControls;
 
     final player = ConditionalParent(
       wrapWith: (ctx, child) => GestureDetector(
@@ -303,8 +322,28 @@ class _OmniVideoPlayerControlsOverlayState
         wrapWhen: _getAspectRatio() < 1,
         child: Align(alignment: Alignment.center, child: player),
       ),
+      // Native mode: observe taps over the video to toggle our controls WITHOUT
+      // consuming them. A translucent [Listener] doesn't enter the gesture
+      // arena, so the touch still reaches the interactive iframe (YouTube's
+      // native play/pause/double-tap keep working). It sits ABOVE the iframe but
+      // BELOW the bottom bar / center button, so taps on those aren't toggles.
+      if (native)
+        Positioned.fill(
+          child: Listener(
+            behavior: HitTestBehavior.translucent,
+            onPointerDown: (e) => _nativeTapDownPosition = e.position,
+            onPointerUp: (e) {
+              final down = _nativeTapDownPosition;
+              _nativeTapDownPosition = null;
+              if (down != null && (e.position - down).distance < 20) {
+                toggleVisibility();
+              }
+            },
+            child: const SizedBox.expand(),
+          ),
+        ),
       Container(color: Colors.transparent, height: 50),
-      _buildDoubleTapZones(),
+      if (!native) _buildDoubleTapZones(),
       Positioned.fill(
         child: Align(alignment: Alignment.center, child: _buildSkipIndicator()),
       ),
@@ -440,6 +479,11 @@ class _OmniVideoPlayerControlsOverlayState
     OmniPlaybackController ctrl,
     PlayerUIVisibilityOptions opts,
   ) {
+    if (ctrl.usesNativeCenterControls) {
+      final atStart = !ctrl.hasStarted && ctrl.isReady && !ctrl.isBuffering;
+      final atEnd = ctrl.isFinished;
+      return atStart || atEnd;
+    }
     return ctrl.isFinished ||
         (areControlsVisible &&
             !ctrl.isBuffering &&

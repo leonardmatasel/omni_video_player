@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -406,35 +405,6 @@ class YouTubeService {
         },
       ),
     );
-  }
-
-  static Future<Size?> fetchYouTubeVideoSize(String videoId) async {
-    final url = Uri.parse(
-      'https://noembed.com/embed?url=https://www.youtube.com/watch?v=$videoId',
-    );
-
-    try {
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-
-        final width = double.tryParse(jsonData['width'].toString());
-        final height = double.tryParse(jsonData['height'].toString());
-
-        if (width != null && height != null) {
-          return Size(width, height);
-        }
-      } else {
-        debugPrint(
-          'Request of size failed with status: ${response.statusCode}',
-        );
-      }
-    } catch (e) {
-      debugPrint('Error fetching video size: $e');
-    }
-
-    return null;
   }
 
   Future<ImageProvider<Object>?> loadYoutubeThumbnail(String? url) async {

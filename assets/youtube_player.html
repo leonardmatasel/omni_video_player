@@ -25,12 +25,11 @@
             left: 0;
             width: 100% !important;
             height: 100% !important;
-            transition: opacity 0.18s ease, visibility 0.18s ease;
-        }
-
-        .embed-container iframe.hidden-player {
-            visibility: hidden;
-            opacity: 0;
+            /* The iframe is fully non-interactive: all gestures are handled by
+               the Flutter overlay (the WebView is also wrapped in IgnorePointer).
+               This stops YouTube's native player from reacting to taps/hover and
+               auto-showing its controls. */
+            pointer-events: <<pointerEvents>>;
         }
     </style>
     <title>Youtube Player</title>
@@ -45,7 +44,6 @@
 <script>
     var player;
     var progressTimer = null;
-    var isHidden = false; // variabile di stato
 
     function onYouTubeIframeAPIReady() {
         player = new YT.Player("<<playerId>>", {
@@ -60,21 +58,11 @@
         player.setSize(window.innerWidth, window.innerHeight);
     }
 
-    // Funzione unica per mostrare/nascondere
-    function setIframeHidden(hidden) {
-        if(isHidden === hidden) return; // già nello stato giusto
-        isHidden = hidden;
-        const iframe = player.getIframe();
-        if(hidden) iframe.classList.add("hidden-player");
-        else iframe.classList.remove("hidden-player");
-    }
-
     function onPlayerStateChange(e) {
         sendMessage("StateChange", e.data);
         clearInterval(progressTimer);
 
         if(e.data === YT.PlayerState.PLAYING) {
-            setIframeHidden(false); // mostra iframe
             progressTimer = setInterval(()=>{
                 try {
                     const state = { currentTime: player.getCurrentTime(), loadedFraction: player.getVideoLoadedFraction() };
@@ -85,31 +73,23 @@
     }
 
     // override play
-    async function play() {
-        setIframeHidden(true);
-        await sleep(300);
+    function play() {
         try { player.playVideo(); } catch(e){}
         return '';
     }
 
     // override seekTo
-    async function seekTo(pos, seekAhead) {
-        setIframeHidden(true);
-        await sleep(300);
+    function seekTo(pos, seekAhead) {
         try{ player.seekTo(Number(pos)||0, seekAhead); } catch(e){}
         return '';
     }
 
     // override loadById
-    async function loadById(settings) {
-        setIframeHidden(true);
-        await sleep(300);
+    function loadById(settings) {
         try{ player.loadVideoById(settings); } catch(e){}
         try{ player.playVideo(); } catch(e){}
         return '';
     }
-
-    function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
     window.onresize = function(){ try{ player.setSize(window.innerWidth, window.innerHeight); } catch(e){} };
     function sendMessage(key,data){

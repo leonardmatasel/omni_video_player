@@ -6,6 +6,7 @@ export 'omni_video_player/models/video_player_callbacks.dart';
 export 'omni_video_player/models/video_player_configuration.dart';
 export 'omni_video_player/models/video_source_configuration.dart';
 export 'omni_video_player/models/video_source_type.dart';
+export 'omni_video_player/models/youtube_web_view_configuration.dart';
 export 'omni_video_player/theme/omni_video_player_theme.dart';
 export 'omni_video_player/widgets/omni_video_player.dart';
 export 'omni_video_player/models/custom_overlay_layer.dart';

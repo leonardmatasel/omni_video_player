@@ -26,6 +26,11 @@ class VideoPlaybackController extends VideoPlayerController {
     mixWithOthers = false,
     super.httpHeaders,
   }) : super.networkUrl(
+         // YouTube live (and other live HLS) is returned as a manifest URL with
+         // no `.m3u8` extension, so ExoPlayer/AVPlayer can't infer the format
+         // and playback fails. Tell it explicitly that live streams are HLS.
+         // VOD uses progressive mp4 streams, which are auto-detected.
+         formatHint: isLive ? VideoFormat.hls : null,
          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: mixWithOthers),
        );
 

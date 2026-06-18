@@ -1,3 +1,14 @@
+# 5.0.0
+
+🎛️ **YouTube WebView controls — grouped config (BREAKING)**
+
+* YouTube WebView flags moved into `VideoSourceConfiguration.youtube(webView: YoutubeWebViewConfiguration(...))`:
+  * `forceWebViewOnly` (was `forceYoutubeWebViewOnly`), `enableFallback` (was `enableYoutubeWebViewFallback`).
+  * `useNativeControls` (**new, default `true`**): use YouTube's native play/pause + double-tap (our bottom bar stays overlaid). Set `false` for the previous fully-custom controls.
+  * `onExternalLink`: react to in-player links (Watch on YouTube, title, …) — they're always blocked.
+
+**Migration:** move `forceYoutubeWebViewOnly`/`enableYoutubeWebViewFallback` into `webView:`; set `useNativeControls: false` to keep the old custom controls.
+
 # 4.0.2
 
 🐛 **Bug Fixes — fullscreen orientation (#75)**

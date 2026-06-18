@@ -25,3 +25,8 @@ MIGRATION_GUIDE.md
 .gitignore
 .idea
 .dart_tool
+
+# Keep the published package light
+docs/
+*.iml
+assets/logo_square.png

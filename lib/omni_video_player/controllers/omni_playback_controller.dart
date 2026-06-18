@@ -113,6 +113,19 @@ abstract class OmniPlaybackController with ChangeNotifier {
   /// Degrees of rotation to apply for video orientation correction.
   int get rotationCorrection;
 
+  /// Whether control-button surfaces should be drawn opaque (no translucency).
+  ///
+  /// Returns `true` for sources rendered behind a WebView that displays its own
+  /// native controls underneath (e.g. the YouTube IFrame player), so the custom
+  /// controls fully mask them. Defaults to `false`.
+  bool get requiresOpaqueControlButtons => false;
+
+  /// Whether the player should use the source's NATIVE center play/pause
+  /// (e.g. the YouTube IFrame) instead of our custom center button. Default
+  /// `false`. When `true`, the controls overlay suppresses the custom center
+  /// button mid-playback and the tap-to-toggle over the video.
+  bool get usesNativeCenterControls => false;
+
   /// The intrinsic size (width and height) of the video.
   Size get size;
 

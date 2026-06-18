@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playlist_controller.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 import 'package:omni_video_player/src/utils/animated_fade_visibility.dart';
+import 'package:omni_video_player/src/widgets/opaque_control_surfaces.dart';
 
 /// Overlay buttons for next/previous playlist navigation.
 ///
@@ -25,9 +26,10 @@ class PlaylistNavigationOverlay extends StatelessWidget {
     final theme = OmniVideoPlayerTheme.of(context);
     final iconColor =
         theme?.colors.controlButtonIcon ?? theme?.colors.icon ?? Colors.white;
-    final backgroundColor =
-        theme?.colors.controlButtonBackground.withAlpha(100) ??
-        Colors.black.withAlpha(100);
+    final baseBackground = theme?.colors.controlButtonBackground ?? Colors.black;
+    final backgroundColor = OpaqueControlSurfaces.of(context)
+        ? baseBackground
+        : baseBackground.withAlpha(100);
 
     return AnimatedFadeVisibility(
       visible: isVisible,

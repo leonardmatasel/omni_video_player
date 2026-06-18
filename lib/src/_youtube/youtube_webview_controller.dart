@@ -29,8 +29,12 @@ class YouTubeWebViewController extends OmniPlaybackController {
   bool _isFullyVisible = false;
   bool _isLoadedVideo = false;
   bool? wasPlayingBeforeGoOnFullScreen;
-  double _volume = 100;
-  double _previousVolume = 100;
+  // Volume is tracked on a normalised 0.0-1.0 scale (the setter converts to
+  // YouTube's 0-100 API). A 0-100 initial here would leak into the shared
+  // GlobalPlaybackController and break other players (e.g. Vimeo's
+  // player.setVolume() which only accepts 0-1).
+  double _volume = 1.0;
+  double _previousVolume = 1.0;
   Duration _duration = Duration.zero;
   double _playbackSpeed = 1.0;
   Duration _currentPosition = Duration.zero;
@@ -313,6 +317,18 @@ class YouTubeWebViewController extends OmniPlaybackController {
     notifyListeners();
   }
 
+  /// Opaque control surfaces are only needed when WE draw the center
+  /// play/pause over the iframe (omni-custom mode), to mask YouTube's paused
+  /// branding underneath. In native-controls mode YouTube owns the center, so
+  /// our play/replay (shown only at start/end) keeps the normal translucency
+  /// like every other player.
+  @override
+  bool get requiresOpaqueControlButtons => !usesNativeCenterControls;
+
+  @override
+  bool get usesNativeCenterControls =>
+      options.videoSourceConfiguration.youtubeWebView.useNativeControls;
+
   @override
   Future<void> pause({bool useGlobalController = true}) async {
     if (useGlobalController && _globalController != null && !isFullScreen) {
@@ -415,10 +431,11 @@ class YouTubeWebViewController extends OmniPlaybackController {
   @override
   set volume(double value) {
     if (isDisposed) return;
+    final clamped = value.isNaN ? 0.0 : value.clamp(0.0, 1.0).toDouble();
     if (kIsWeb || Platform.isAndroid) {
-      _evaluate('player.setVolume(${value * 100})');
+      _evaluate('player.setVolume(${clamped * 100})');
     }
-    _volume = value;
+    _volume = clamped;
     notifyListeners();
   }
 

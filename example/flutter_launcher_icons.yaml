@@ -10,6 +10,9 @@ flutter_launcher_icons:
   # adaptive_icon_foreground_inset: 16
   # adaptive_icon_monochrome: "assets/icon/monochrome.png"
 
+  adaptive_icon_background: "#ffffff" # Imposta uno sfondo bianco solido (o il colore che preferisci)
+  adaptive_icon_foreground: "assets/logo_square.png" # Usa il logo senza margini vuoti in primo piano
+
   ios: true
   # image_path_ios: "assets/icon/icon.png"
   remove_alpha_ios: true
@@ -19,10 +22,10 @@ flutter_launcher_icons:
   # background_color_ios: "#ffffff"
 
   web:
-    generate: false
-    image_path: "path/to/image.png"
-    background_color: "#hexcode"
-    theme_color: "#hexcode"
+    generate: true
+    image_path: "assets/logo_square.png"
+    background_color: "#ffffff" # Cambia questo hex se vuoi uno sfondo diverso
+    theme_color: "#ffffff"
 
   windows:
     generate: false
