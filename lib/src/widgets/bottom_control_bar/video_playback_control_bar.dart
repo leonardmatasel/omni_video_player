@@ -84,12 +84,12 @@ class VideoPlaybackControlBar extends StatelessWidget {
           ),
         ),
         if (options.playerUIVisibilityOptions.showPlaybackSpeedButton &&
-            !controller.isLive)
+            !controller.state.value.isLive)
           PlaybackSpeedMenuButton(
             speedList: options.videoSourceConfiguration.availablePlaybackSpeed,
-            currentSpeed: controller.playbackSpeed,
+            currentSpeed: controller.state.value.playbackSpeed,
             onSpeedSelected: (speed) {
-              if (speed == controller.playbackSpeed) {
+              if (speed == controller.state.value.playbackSpeed) {
                 return;
               }
               controller.setPlaybackSpeed(speed);
@@ -109,13 +109,14 @@ class VideoPlaybackControlBar extends StatelessWidget {
         ///     che apre la dialog con la sola opzione "Auto".
         ///   - Se [showSwitchWhenOnlyAuto] è `false`, il bottone non viene mostrato.
         if (options.playerUIVisibilityOptions.showSwitchVideoQuality &&
-            (controller.availableVideoQualities?.isNotEmpty == true ||
+            (controller.state.value.availableVideoQualities?.isNotEmpty ==
+                    true ||
                 options.playerUIVisibilityOptions.showSwitchWhenOnlyAuto))
           VideoQualityMenuButton(
-            qualityList: controller.availableVideoQualities,
-            currentQuality: controller.currentVideoQuality,
+            qualityList: controller.state.value.availableVideoQualities,
+            currentQuality: controller.state.value.currentVideoQuality,
             onQualitySelected: (quality) {
-              if (quality == controller.currentVideoQuality) {
+              if (quality == controller.state.value.currentVideoQuality) {
                 return;
               }
               controller.switchQuality(quality);

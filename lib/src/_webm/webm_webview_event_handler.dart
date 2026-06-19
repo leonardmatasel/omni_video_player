@@ -1,3 +1,8 @@
+// WebView event machinery: it drives the controller from iframe JS events
+// (writes via concrete setters) and reads LIVE controller state for control flow,
+// which must not go through the reactive snapshot. The deprecations stay only for
+// external consumers, so this bridge file opts out of the diagnostic.
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'package:flutter/foundation.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
@@ -53,7 +58,7 @@ class WebmVideoWebViewEventHandler {
     if (sourceConfig.autoMuteOnStart) {
       controller.mute();
     } else {
-      controller.volume = sourceConfig.initialVolume;
+      controller.setVolume(sourceConfig.initialVolume);
     }
 
     // Speed

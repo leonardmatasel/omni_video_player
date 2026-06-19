@@ -29,6 +29,7 @@ class PlaybackTimeDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = OmniVideoPlayerTheme.of(context)!;
+    final s = controller.state.value;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 4.0),
@@ -41,8 +42,8 @@ class PlaybackTimeDisplay extends StatelessWidget {
             if (showCurrentTime)
               TextSpan(
                 text: VideoTimeFormatter.format(
-                  controller.currentPosition,
-                  showHours: controller.duration.inHours > 0,
+                  s.position,
+                  showHours: s.duration.inHours > 0,
                 ),
               ),
             if (showDurationTime) ...[
@@ -54,8 +55,8 @@ class PlaybackTimeDisplay extends StatelessWidget {
               ),
               TextSpan(
                 text: VideoTimeFormatter.format(
-                  controller.duration,
-                  showHours: controller.duration.inHours > 0,
+                  s.duration,
+                  showHours: s.duration.inHours > 0,
                 ),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: theme.colors.textDefault?.withValues(alpha: 0.7),

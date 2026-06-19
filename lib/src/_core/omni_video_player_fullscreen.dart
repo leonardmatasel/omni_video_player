@@ -74,8 +74,9 @@ class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
 
   /// Computes the video aspect ratio considering rotation or user override.
   double _computeAspectRatio() {
-    final rotation = widget.controller.rotationCorrection;
-    final size = widget.controller.size;
+    final s = widget.controller.state.value;
+    final rotation = s.rotationCorrection;
+    final size = s.size;
 
     // User override takes priority.
     final customRatio = widget
@@ -138,7 +139,7 @@ class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
   /// Determines orientation preference (portrait/landscape)
   /// based on the video dimensions when not explicitly provided.
   Orientation _getOrientationFromVideoSize() {
-    final size = widget.controller.size;
+    final size = widget.controller.state.value.size;
     return size.height > size.width
         ? Orientation.portrait
         : Orientation.landscape;

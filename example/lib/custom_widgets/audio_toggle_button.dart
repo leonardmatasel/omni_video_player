@@ -50,12 +50,15 @@ class AudioToggleButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = OmniVideoPlayerTheme.of(context)!;
 
-    return VideoControlIconButton(
-      onPressed: () {
-        controller.toggleMute();
-        onAudioToggled?.call(controller.volume == 0);
-      },
-      icon: controller.volume > 0 ? theme.icons.mute : theme.icons.unMute,
+    return ValueListenableBuilder<OmniVideoState>(
+      valueListenable: controller.state,
+      builder: (context, s, _) => VideoControlIconButton(
+        onPressed: () {
+          controller.toggleMute();
+          onAudioToggled?.call(s.volume == 0);
+        },
+        icon: s.volume > 0 ? theme.icons.mute : theme.icons.unMute,
+      ),
     );
   }
 }

@@ -183,7 +183,7 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
   // ⏱️ FAILSAFE: mark as error if controller not ready within timeout
   void _startReadyTimeout(OmniPlaybackController controller) {
     Future.delayed(_readyTimeout, () async {
-      if (mounted && !controller.isReady) {
+      if (mounted && !controller.state.value.isReady) {
         await refresh();
       }
     });

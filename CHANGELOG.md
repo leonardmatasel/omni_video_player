@@ -9,6 +9,9 @@
 
 **Migration:** move `forceYoutubeWebViewOnly`/`enableYoutubeWebViewFallback` into `webView:`; set `useNativeControls: false` to keep the old custom controls.
 
+* ⚡️ New `controller.state` (`ValueListenable<OmniVideoState>`): observe player state with `ValueListenableBuilder` — no more `addListener`+`setState`. The individual state getters (`isPlaying`, `currentPosition`, …) are deprecated; use `controller.state.value`.
+* 🔊 New `controller.setVolume(double)` (updates `state` automatically); the `volume` **setter** is deprecated — use `setVolume()` (removed in 6.0.0).
+
 # 4.0.2
 
 🐛 **Bug Fixes — fullscreen orientation (#75)**

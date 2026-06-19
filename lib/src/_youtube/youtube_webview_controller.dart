@@ -1,3 +1,7 @@
+// Concrete controller: implements the @Deprecated state getters and may read
+// them internally. The deprecations stay only for external consumers, so this
+// bridge file opts out of the same-package deprecation diagnostic.
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -29,6 +33,12 @@ class YouTubeWebViewController extends OmniPlaybackController {
   bool _isFullyVisible = false;
   bool _isLoadedVideo = false;
   bool? wasPlayingBeforeGoOnFullScreen;
+  // Entering/leaving fullscreen reparents the WKWebView (Hero flight between
+  // the normal and fullscreen viewports), which makes the YouTube iframe emit
+  // one or more transient `paused` events. During this short window the event
+  // handler resumes those instead of recording them as a user pause.
+  Timer? _fullscreenResumeTimer;
+  bool _resumeDuringFullscreenTransition = false;
   // Volume is tracked on a normalised 0.0-1.0 scale (the setter converts to
   // YouTube's 0-100 API). A 0-100 initial here would leak into the shared
   // GlobalPlaybackController and break other players (e.g. Vimeo's
@@ -100,6 +110,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
   }
 
   Future<void> loadVideoById({required String videoId}) async {
+    debugPrint('[OMNI-DIAG] loadVideoById("$videoId")');
     final loadData = {
       'videoId': videoId,
       'startSeconds': 0,
@@ -116,6 +127,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
     webViewController?.addJavaScriptHandler(
       handlerName: 'Ready',
       callback: (_) async {
+        debugPrint('[OMNI-DIAG] JS->Ready (isLoadedVideo=$_isLoadedVideo)');
         if (!_isLoadedVideo) {
           await loadVideoById(videoId: videoId!);
           _isLoadedVideo = true;
@@ -126,12 +138,16 @@ class YouTubeWebViewController extends OmniPlaybackController {
     webViewController?.addJavaScriptHandler(
       handlerName: 'StateChange',
       callback: (args) {
+        debugPrint('[OMNI-DIAG] JS->StateChange = ${args.first}');
         return _eventHandler.handleStateChange(args.first);
       },
     );
     webViewController?.addJavaScriptHandler(
       handlerName: 'PlayerError',
-      callback: (args) => _eventHandler.handleError(args.first),
+      callback: (args) {
+        debugPrint('[OMNI-DIAG] JS->PlayerError = ${args.first}');
+        return _eventHandler.handleError(args.first);
+      },
     );
     webViewController?.addJavaScriptHandler(
       handlerName: 'PlaybackProgress',
@@ -162,6 +178,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
   @override
   Future<void> dispose() async {
     _isDisposed = true;
+    _fullscreenResumeTimer?.cancel();
     _globalController?.unregisterController(this);
     super.dispose();
   }
@@ -181,10 +198,19 @@ class YouTubeWebViewController extends OmniPlaybackController {
   }) async {
     final varArgs = await _prepareData(data);
 
-    final result = await webViewController?.evaluateJavascript(
-      source: 'player.$functionName($varArgs);',
-    );
-    return result.toString();
+    try {
+      final result = await webViewController?.evaluateJavascript(
+        source: 'player.$functionName($varArgs);',
+      );
+      debugPrint(
+        '[OMNI-DIAG] runWithResult($functionName) -> '
+        '"$result" (${result.runtimeType})',
+      );
+      return result.toString();
+    } catch (e) {
+      debugPrint('[OMNI-DIAG] runWithResult($functionName) THREW: $e');
+      rethrow;
+    }
   }
 
   Future<void> _evaluate(String js) async {
@@ -276,6 +302,9 @@ class YouTubeWebViewController extends OmniPlaybackController {
   @override
   bool get isBuffering => _isBuffering;
   set isBuffering(bool value) {
+    if (value != _isBuffering) {
+      debugPrint('[OMNI-DIAG] isBuffering $_isBuffering -> $value');
+    }
     _isBuffering = value;
     notifyListeners();
   }
@@ -313,6 +342,9 @@ class YouTubeWebViewController extends OmniPlaybackController {
   @override
   bool get isReady => _isReady;
   set isReady(bool value) {
+    if (value != _isReady) {
+      debugPrint('[OMNI-DIAG] isReady $_isReady -> $value');
+    }
     _isReady = value;
     notifyListeners();
   }
@@ -381,6 +413,21 @@ class YouTubeWebViewController extends OmniPlaybackController {
     }
   }
 
+  /// Whether a fullscreen enter/exit just happened. During this short window
+  /// transient YouTube pause events (from the WebView being reparented during
+  /// the Hero flight) are auto-resumed instead of being recorded as a user
+  /// pause. See [_resumeDuringFullscreenTransition].
+  bool get isInFullscreenTransition => _resumeDuringFullscreenTransition;
+
+  /// Opens the resume window. Called on both fullscreen enter and exit.
+  void beginFullscreenResumeWindow() {
+    _fullscreenResumeTimer?.cancel();
+    _resumeDuringFullscreenTransition = true;
+    _fullscreenResumeTimer = Timer(const Duration(milliseconds: 1500), () {
+      _resumeDuringFullscreenTransition = false;
+    });
+  }
+
   @override
   Future<void> switchFullScreenMode(
     BuildContext context, {
@@ -388,12 +435,27 @@ class YouTubeWebViewController extends OmniPlaybackController {
     void Function(bool p1)? onToggle,
   }) async {
     if (isFullScreen) {
+      debugPrint('[OMNI-DIAG] fullscreen EXIT isPlaying=$isPlaying isReady=$isReady isLive=$isLive');
+      final wasPlaying = isPlaying;
+      if (wasPlaying) beginFullscreenResumeWindow();
       isFullScreen = false;
       notifyListeners();
       onToggle?.call(false);
       Navigator.of(context).pop();
+
+      // The reparent back to the normal viewport can leave the player wedged in
+      // BUFFERING (state 3) — which the pause-resume window (state 2 only) does
+      // not cover, so it sits on YouTube's spinner. Mirror the enter path:
+      // re-assert playback once the transition settles to unwedge it.
+      if (wasPlaying) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (!isDisposed) play(useGlobalController: false);
+        });
+      }
     } else {
       wasPlayingBeforeGoOnFullScreen = isPlaying;
+      debugPrint('[OMNI-DIAG] fullscreen ENTER wasPlaying=$wasPlayingBeforeGoOnFullScreen isReady=$isReady isLive=$isLive');
+      if (isPlaying) beginFullscreenResumeWindow();
       isFullScreen = true;
       notifyListeners();
       onToggle?.call(true);
@@ -429,7 +491,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
   double get volume => _volume;
 
   @override
-  set volume(double value) {
+  Future<void> setVolume(double value) async {
     if (isDisposed) return;
     final clamped = value.isNaN ? 0.0 : value.clamp(0.0, 1.0).toDouble();
     if (kIsWeb || Platform.isAndroid) {
@@ -448,7 +510,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
   @override
   void mute() {
     _previousVolume = _volume;
-    volume = 0;
+    setVolume(0);
     run('mute');
     _globalController?.setCurrentVolume(volume);
   }

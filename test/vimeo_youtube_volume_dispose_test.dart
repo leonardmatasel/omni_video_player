@@ -59,17 +59,17 @@ void main() {
   });
 
   group('VimeoController volume range', () {
-    test('volume setter clamps to [0, 1]', () {
+    test('setVolume clamps to [0, 1] and updates state', () async {
       final c = _vimeo();
 
       // Simulates a polluted global volume leaking in from the YouTube player
       // (YouTube used a 0-100 scale internally). Vimeo.setVolume() throws a
       // RangeError for anything outside [0, 1].
-      c.volume = 100;
-      expect(c.volume, 1.0);
+      await c.setVolume(100);
+      expect(c.state.value.volume, 1.0);
 
-      c.volume = -3;
-      expect(c.volume, 0.0);
+      await c.setVolume(-3);
+      expect(c.state.value.volume, 0.0);
 
       c.dispose();
     });
@@ -78,7 +78,7 @@ void main() {
   group('YouTubeWebViewController volume scale', () {
     test('initial volume is normalised within [0, 1]', () {
       final c = _youtube();
-      expect(c.volume, inInclusiveRange(0.0, 1.0));
+      expect(c.state.value.volume, inInclusiveRange(0.0, 1.0));
       c.dispose();
     });
 
@@ -88,7 +88,7 @@ void main() {
       c.unMute();
       // A leftover 0-100 initial would make this 100 and pollute the shared
       // global volume that other players (e.g. Vimeo) read back.
-      expect(c.volume, inInclusiveRange(0.0, 1.0));
+      expect(c.state.value.volume, inInclusiveRange(0.0, 1.0));
       c.dispose();
     });
   });

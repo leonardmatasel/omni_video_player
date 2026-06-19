@@ -1,3 +1,7 @@
+// Concrete controller: implements the @Deprecated state getters and may read
+// them internally. The deprecations stay only for external consumers, so this
+// bridge file opts out of the same-package deprecation diagnostic.
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'dart:async';
 import 'dart:io';
 
@@ -76,7 +80,7 @@ class VimeoController extends OmniPlaybackController {
     _executeOrQueue(() {
       seekTo(initialPosition, skipHasPlaybackStarted: true);
       if (initialVolume != null) {
-        volume = initialVolume;
+        setVolume(initialVolume);
       }
     });
   }
@@ -236,7 +240,7 @@ class VimeoController extends OmniPlaybackController {
   double get volume => _volume;
 
   @override
-  set volume(double value) {
+  Future<void> setVolume(double value) async {
     if (isDisposed) return;
     // Vimeo's player.setVolume() throws "Volume should be a number between 0
     // and 1." for any out-of-range value. Clamp defensively so a stray value

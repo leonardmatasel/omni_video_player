@@ -175,20 +175,50 @@ class _YouTubeWebViewPlayerViewState extends State<YouTubeWebViewPlayerView> {
           final isTrusted = trustedHosts.any(
             (h) => host == h || host.endsWith('.$h'),
           );
+          // [OMNI-DIAG] temporary TLS-decision logging (remove after debug)
+          debugPrint(
+            '[OMNI-DIAG] serverTrust host=$host '
+            '${isTrusted ? "PROCEED" : "CANCEL"}',
+          );
           return ServerTrustAuthResponse(
             action: isTrusted
                 ? ServerTrustAuthResponseAction.PROCEED
                 : ServerTrustAuthResponseAction.CANCEL,
           );
         },
-        onLoadStart: (_, _) => widget.controller.isReady = false,
-        onLoadStop: (_, _) => widget.controller.isReady = false,
+        onLoadStart: (_, url) {
+          debugPrint('[OMNI-DIAG] onLoadStart -> $url');
+          widget.controller.isReady = false;
+        },
+        onLoadStop: (_, url) {
+          debugPrint('[OMNI-DIAG] onLoadStop -> $url');
+          widget.controller.isReady = false;
+        },
+        // [OMNI-DIAG] temporary diagnostics (remove after debug)
+        onReceivedError: (_, request, error) {
+          debugPrint(
+            '[OMNI-DIAG] onReceivedError ${error.type} "${error.description}" '
+            'mainFrame=${request.isForMainFrame} -> ${request.url}',
+          );
+        },
+        onConsoleMessage: (_, consoleMessage) {
+          debugPrint(
+            '[OMNI-DIAG-JS] ${consoleMessage.messageLevel} '
+            '${consoleMessage.message}',
+          );
+        },
         onProgressChanged: (_, progress) =>
             widget.controller.isBuffering = progress != 100,
         shouldOverrideUrlLoading: (controller, navigationAction) async {
           final uri = navigationAction.request.url;
           final isMainFrame = navigationAction.isForMainFrame;
-          if (_isAllowedNavigation(uri, isMainFrame)) {
+          final allowed = _isAllowedNavigation(uri, isMainFrame);
+          // [OMNI-DIAG] temporary nav-decision logging (remove after debug)
+          debugPrint(
+            '[OMNI-DIAG] shouldOverride mainFrame=$isMainFrame '
+            '${allowed ? "ALLOW" : "CANCEL"} -> $uri',
+          );
+          if (allowed) {
             return NavigationActionPolicy.ALLOW;
           }
           if (uri != null) _webViewConfig.onExternalLink?.call(uri);
@@ -196,6 +226,7 @@ class _YouTubeWebViewPlayerViewState extends State<YouTubeWebViewPlayerView> {
         },
         onCreateWindow: (controller, createWindowAction) async {
           final uri = createWindowAction.request.url;
+          debugPrint('[OMNI-DIAG] onCreateWindow (blocked popup) -> $uri');
           if (uri != null) _webViewConfig.onExternalLink?.call(uri);
           return false; // block popups
         },

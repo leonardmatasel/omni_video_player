@@ -91,9 +91,9 @@ class _ProgressBarWithPreviewState extends State<ProgressBarWithPreview> {
 
   @override
   Widget build(BuildContext context) {
-    final position = widget.controller.currentPosition.inMilliseconds
-        .toDouble();
-    final duration = widget.controller.duration.inMilliseconds.toDouble();
+    final s = widget.controller.state.value;
+    final position = s.position.inMilliseconds.toDouble();
+    final duration = s.duration.inMilliseconds.toDouble();
     final displayValue = _dragValue ?? position;
 
     return LayoutBuilder(

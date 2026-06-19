@@ -1,3 +1,7 @@
+// Concrete controller: implements the @Deprecated state getters and may read
+// them internally. The deprecations stay only for external consumers, so this
+// bridge file opts out of the same-package deprecation diagnostic.
+// ignore_for_file: deprecated_member_use_from_same_package
 import 'dart:async';
 import 'dart:io';
 
@@ -198,7 +202,7 @@ class GenericPlaybackController extends OmniPlaybackController {
       seekTo(initialPosition, skipHasPlaybackStarted: true);
     }
     if (initialVolume != null) {
-      volume = initialVolume;
+      setVolume(initialVolume);
     }
     if (initialPlaybackSpeed != null) {
       setPlaybackSpeed(initialPlaybackSpeed);
@@ -655,7 +659,7 @@ class GenericPlaybackController extends OmniPlaybackController {
   double get volume => videoController.value.volume;
 
   @override
-  set volume(double value) {
+  Future<void> setVolume(double value) async {
     if (isDisposed) return;
     videoController.setVolume(value);
     audioController?.setVolume(value);

@@ -60,10 +60,10 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
     super.initState();
     _iconAnimationController = AnimationController(
       vsync: this,
-      value: controller.isPlaying ? 1 : 0,
+      value: controller.state.value.isPlaying ? 1 : 0,
       duration: const Duration(milliseconds: 400),
     );
-    controller.addListener(_updateIconAnimation);
+    controller.state.addListener(_updateIconAnimation);
   }
 
   /// Updates the animated icon based on playback state.
@@ -71,7 +71,7 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
     if (!mounted) return;
 
     setState(() {
-      if (controller.isPlaying) {
+      if (controller.state.value.isPlaying) {
         _iconAnimationController.forward();
       } else {
         _iconAnimationController.reverse();
@@ -81,7 +81,7 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
 
   @override
   void dispose() {
-    controller.removeListener(_updateIconAnimation);
+    controller.state.removeListener(_updateIconAnimation);
     _iconAnimationController.dispose();
     super.dispose();
   }
@@ -91,14 +91,15 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
   /// - Replays the video if it has finished and [showReplayButton] is `true`.
   /// - Otherwise, toggles between play and pause.
   void _handleTap() {
-    if (!controller.hasStarted && widget.autoMuteOnStart) {
+    final s = controller.state.value;
+    if (!s.hasStarted && widget.autoMuteOnStart) {
       controller.mute();
       controller.play();
-    } else if (controller.isFinished) {
+    } else if (s.isFinished) {
       if (!widget.showReplayButton) return;
       controller.replay();
     } else {
-      controller.isPlaying ? controller.pause() : controller.play();
+      s.isPlaying ? controller.pause() : controller.play();
     }
   }
 
@@ -116,33 +117,36 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
             color: theme.colors.controlButtonBackground.withAlpha(100),
             borderRadius: BorderRadius.circular(200),
           ),
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 600),
-            switchInCurve: Curves.easeInOut,
-            switchOutCurve: Curves.fastOutSlowIn,
-            transitionBuilder:
-                (child, animation) =>
-                    FadeTransition(opacity: animation, child: child),
-            child:
-                controller.isFinished
-                    ? widget.showReplayButton
-                        ? Icon(
-                          theme.icons.replay,
-                          key: const ValueKey('replay'),
-                          color:
-                              theme.colors.controlButtonIcon ??
-                              theme.colors.icon,
-                          size: 32,
-                        )
-                        : null
-                    : AnimatedIcon(
-                      key: const ValueKey('play_pause'),
-                      icon: theme.icons.playPause,
-                      progress: _iconAnimationController,
-                      color:
-                          theme.colors.controlButtonIcon ?? theme.colors.icon,
-                      size: 32,
-                    ),
+          child: ValueListenableBuilder<OmniVideoState>(
+            valueListenable: controller.state,
+            builder: (context, s, _) => AnimatedSwitcher(
+              duration: const Duration(milliseconds: 600),
+              switchInCurve: Curves.easeInOut,
+              switchOutCurve: Curves.fastOutSlowIn,
+              transitionBuilder:
+                  (child, animation) =>
+                      FadeTransition(opacity: animation, child: child),
+              child:
+                  s.isFinished
+                      ? widget.showReplayButton
+                          ? Icon(
+                            theme.icons.replay,
+                            key: const ValueKey('replay'),
+                            color:
+                                theme.colors.controlButtonIcon ??
+                                theme.colors.icon,
+                            size: 32,
+                          )
+                          : null
+                      : AnimatedIcon(
+                        key: const ValueKey('play_pause'),
+                        icon: theme.icons.playPause,
+                        progress: _iconAnimationController,
+                        color:
+                            theme.colors.controlButtonIcon ?? theme.colors.icon,
+                        size: 32,
+                      ),
+            ),
           ),
         ),
       ),

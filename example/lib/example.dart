@@ -33,18 +33,8 @@ class _VideoScreenState extends State<VideoScreen> {
   /// Controller that provides playback control (play, pause, etc.).
   OmniPlaybackController? _controller;
 
-  void _update() {
-    // Schedule the UI update after the current build frame completes.
-    // This prevents "setState() called during build" errors and ensures
-    // the widget rebuilds safely once the frame has finished rendering.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) setState(() {});
-    });
-  }
-
   @override
   void dispose() {
-    _controller?.removeListener(_update);
     super.dispose();
   }
 
@@ -60,10 +50,8 @@ class _VideoScreenState extends State<VideoScreen> {
             child: OmniVideoPlayer(
               // Callbacks
               callbacks: VideoPlayerCallbacks(
-                onControllerCreated: (controller) {
-                  _controller?.removeListener(_update);
-                  _controller = controller..addListener(_update);
-                },
+                onControllerCreated: (controller) =>
+                    setState(() => _controller = controller),
                 onFullScreenToggled: (isFullScreen) {},
                 onOverlayControlsVisibilityChanged: (areVisible) {},
                 onCenterControlsVisibilityChanged: (areVisible) {},
@@ -169,25 +157,24 @@ class _VideoScreenState extends State<VideoScreen> {
 
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Builder(
-              builder: (context) {
-                // If the controller isn't ready yet, show a loading spinner.
-                if (_controller == null) {
-                  return const CircularProgressIndicator();
-                }
-
-                final isPlaying = _controller!.isPlaying;
-
-                // Button that toggles playback.
-                return ElevatedButton.icon(
-                  onPressed: () {
-                    isPlaying ? _controller!.pause() : _controller!.play();
-                  },
-                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-                  label: Text(isPlaying ? 'Pause' : 'Play'),
-                );
-              },
-            ),
+            child:
+                _controller == null
+                    ? const CircularProgressIndicator()
+                    : ValueListenableBuilder<OmniVideoState>(
+                      valueListenable: _controller!.state,
+                      builder:
+                          (context, s, _) => ElevatedButton.icon(
+                            onPressed:
+                                () =>
+                                    s.isPlaying
+                                        ? _controller!.pause()
+                                        : _controller!.play(),
+                            icon: Icon(
+                              s.isPlaying ? Icons.pause : Icons.play_arrow,
+                            ),
+                            label: Text(s.isPlaying ? 'Pause' : 'Play'),
+                          ),
+                    ),
           ),
         ],
       ),

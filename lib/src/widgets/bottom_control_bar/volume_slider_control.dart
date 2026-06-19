@@ -116,10 +116,9 @@ class _VolumeSliderControlState extends State<VolumeSliderControl> {
                         child: AnimatedBuilder(
                           animation: widget.controller,
                           builder: (context, child) {
+                            final s = widget.controller.state.value;
                             final double displayVolume =
-                                widget.controller.isMuted
-                                ? 0.0
-                                : widget.controller.volume;
+                                s.isMuted ? 0.0 : s.volume;
 
                             final Color currentSliderColor =
                                 displayVolume <= 0.0
@@ -134,10 +133,11 @@ class _VolumeSliderControlState extends State<VolumeSliderControl> {
                               thumbColor: currentSliderColor,
                               inactiveColor: theme.colors.inactive,
                               onChanged: (value) {
-                                if (widget.controller.isMuted && value > 0) {
+                                if (widget.controller.state.value.isMuted &&
+                                    value > 0) {
                                   widget.onAudioToggled?.call(false);
                                 }
-                                widget.controller.volume = value;
+                                widget.controller.setVolume(value);
                               },
                             );
                           },

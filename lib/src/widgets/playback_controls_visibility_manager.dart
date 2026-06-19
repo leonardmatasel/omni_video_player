@@ -50,8 +50,8 @@ class _PlaybackControlsVisibilityManagerState
   void initState() {
     super.initState();
 
-    _isCurrentlyPlaying =
-        _controller.isPlaying && !_controller.isSeeking && _controller.isReady;
+    final s = _controller.state.value;
+    _isCurrentlyPlaying = s.isPlaying && !s.isSeeking && s.isReady;
 
     if (_isCurrentlyPlaying) {
       _restartAutoHideTimer();
@@ -61,11 +61,13 @@ class _PlaybackControlsVisibilityManagerState
   @override
   void didUpdateWidget(covariant PlaybackControlsVisibilityManager oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _handlePlaybackStateChange(_controller.isPlaying && !_controller.isSeeking);
+    final s = _controller.state.value;
+    _handlePlaybackStateChange(s.isPlaying && !s.isSeeking);
   }
 
   void _toggleVisibility() {
-    if (_controller.isFinished && _controller.isSeeking) return;
+    final s = _controller.state.value;
+    if (s.isFinished && s.isSeeking) return;
 
     final wasVisible = _areControlsVisible;
     _setControlsVisibility(!wasVisible);
