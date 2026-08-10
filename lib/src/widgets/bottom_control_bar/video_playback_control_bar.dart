@@ -76,7 +76,9 @@ class VideoPlaybackControlBar extends StatelessWidget {
             showSeekBar: options.playerUIVisibilityOptions.showSeekBar,
             customTimeDisplay:
                 options.customPlayerWidgets.customDurationDisplay,
-            allowSeeking: options.videoSourceConfiguration.allowSeeking,
+            allowSeeking:
+                options.videoSourceConfiguration.allowSeeking &&
+                controller.supportsSeek,
             customDurationDisplay:
                 options.customPlayerWidgets.customDurationDisplay,
             customRemainingTimeDisplay:

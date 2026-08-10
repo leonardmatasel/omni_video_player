@@ -3,6 +3,9 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
+        /* Disable text selection / the iOS long-press callout (copy, look up,
+           translate, transcribe/Live Text) inside the player. */
+        * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: contain; }
     </style>
@@ -49,10 +52,20 @@
         window.flutter_inappwebview.callHandler('StateChange', 'playing');
     });
 
-    // Progresso
+    // Progresso (include la durata: per i WebM diventa nota dopo, non a
+    // loadedmetadata, quindi la riportiamo di continuo per correggerla)
     player.addEventListener('timeupdate', function() {
         window.flutter_inappwebview.callHandler('PlaybackProgress', {
-            currentTime: player.currentTime
+            currentTime: player.currentTime,
+            duration: player.duration
+        });
+    });
+
+    // La durata reale può arrivare dopo l'avvio della riproduzione
+    player.addEventListener('durationchange', function() {
+        window.flutter_inappwebview.callHandler('PlaybackProgress', {
+            currentTime: player.currentTime,
+            duration: player.duration
         });
     });
 
@@ -70,6 +83,9 @@
     function play() { player.play(); }
     function pause() { player.pause(); }
     function seekTo(seconds) { player.currentTime = seconds; }
+    // Restart from the beginning by reloading the element (no seek), so replay
+    // works where seeking is unsupported (WebM on iOS). load() resets to 0.
+    function restart() { try { player.load(); player.play(); } catch (e) {} }
     function setVolume(vol) { player.volume = vol; } // 0.0 to 1.0
     function setPlaybackRate(rate) { player.playbackRate = rate; }
     function mute() { player.muted = true; }

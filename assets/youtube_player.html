@@ -3,6 +3,14 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <style>
+        /* Disable text selection / the iOS long-press callout (copy, look up,
+           translate, transcribe/Live Text) inside the player. */
+        * {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
         html, body {
             margin: 0;
             width: 100%;
@@ -50,7 +58,7 @@
             host: "https://www.youtube-nocookie.com",
             playerVars: <<playerVars>>,
             events: {
-                onReady: function(e) { handleFullScreenForMobilePlatform(); sendMessage("Ready", e); },
+                onReady: function(e) { disableCaptions(e.target); handleFullScreenForMobilePlatform(); sendMessage("Ready", e); },
                 onStateChange: onPlayerStateChange,
                 onError: function(e){ sendMessage("PlayerError", e.data); }
             }
@@ -58,9 +66,19 @@
         player.setSize(window.innerWidth, window.innerHeight);
     }
 
+    // Force captions / transcript off. cc_load_policy=0 only means "not on by
+    // default" — it does NOT override a device/account that has captions on, so
+    // we unload the captions module (YouTube can re-add it, hence also on play).
+    function disableCaptions(p) {
+        try { p.unloadModule('captions'); } catch(e){}
+        try { p.unloadModule('cc'); } catch(e){}
+        try { p.setOption('captions', 'track', {}); } catch(e){}
+    }
+
     function onPlayerStateChange(e) {
         sendMessage("StateChange", e.data);
         clearInterval(progressTimer);
+        disableCaptions(player);
 
         if(e.data === YT.PlayerState.PLAYING) {
             progressTimer = setInterval(()=>{

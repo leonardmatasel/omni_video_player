@@ -59,6 +59,9 @@ class VimeoPlayerView extends StatelessWidget {
           mediaPlaybackRequiresUserGesture: false,
           allowsInlineMediaPlayback: true,
           useHybridComposition: true,
+          // Disable text selection / the iOS text-interaction callout at the
+          // WebView level (covers the cross-origin iframe too).
+          isTextInteractionEnabled: false,
         ),
         initialData: InAppWebViewInitialData(
           data: _buildHtmlContent(),
@@ -91,6 +94,14 @@ class VimeoPlayerView extends StatelessWidget {
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <style>
+          /* Disable text selection / the iOS long-press callout (copy, look
+             up, translate, transcribe/Live Text) inside the player. */
+          * {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+          }
+
           html, body {
             margin: 0;
             padding: 0;
@@ -129,6 +140,7 @@ class VimeoPlayerView extends StatelessWidget {
           player.on('pause', () => console.log('vimeo:onPause'));
           player.on('ended', () => console.log('vimeo:onFinish'));
           player.on('seeked', () => console.log('vimeo:onSeek'));
+          player.on('timeupdate', (d) => console.log('vimeo:onTime:' + d.seconds));
           player.on('error', () => console.log('vimeo:onError'));
         </script>
       </body>
@@ -154,6 +166,13 @@ class VimeoPlayerView extends StatelessWidget {
 
   /// Handles playback-related events received from the embedded Vimeo player.
   void _manageVimeoPlayerEvent(String event) {
+    // Real playback position from the `timeupdate` event (A2): drives the
+    // position instead of a wall-clock estimate.
+    if (event.startsWith('onTime:')) {
+      final seconds = double.tryParse(event.substring('onTime:'.length));
+      if (seconds != null) controller.updatePositionFromPlayer(seconds);
+      return;
+    }
     switch (event) {
       case 'onReady':
         // Setting isReady=true drains the action queue, which executes any
@@ -172,6 +191,9 @@ class VimeoPlayerView extends StatelessWidget {
       case 'onFinish':
         controller.isPlaying = false;
         controller.isSeeking = false;
+        // Snap to the exact end so isFinished (exact-equality on Vimeo) is
+        // reliably true even though timeupdate anchors position to ~duration-ε.
+        controller.currentPosition = controller.duration;
         controller.stopPositionTimer();
         break;
       case 'onSeek':

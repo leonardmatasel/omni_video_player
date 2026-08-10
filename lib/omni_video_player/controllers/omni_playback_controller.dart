@@ -126,6 +126,12 @@ abstract class OmniPlaybackController with ChangeNotifier {
   /// button mid-playback and the tap-to-toggle over the video.
   bool get usesNativeCenterControls => false;
 
+  /// Whether seeking is supported for this source/platform. Defaults to `true`.
+  /// Returns `false` where seeking is known to be broken (e.g. WebM in a WebView
+  /// on iOS, which WebKit can't seek without freezing the decoder) so the UI can
+  /// disable the seek bar / skip gestures instead of stalling playback.
+  bool get supportsSeek => true;
+
   /// The intrinsic size (width and height) of the video.
   Size get size;
 

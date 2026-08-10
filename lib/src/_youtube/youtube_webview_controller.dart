@@ -29,6 +29,9 @@ class YouTubeWebViewController extends OmniPlaybackController {
   bool _isFullyVisible = false;
   bool _isLoadedVideo = false;
   bool? wasPlayingBeforeGoOnFullScreen;
+
+  /// Failsafe so a dropped JS state-change event can't leave the seek stuck. (B4)
+  Timer? _seekFallbackTimer;
   // Volume is tracked on a normalised 0.0-1.0 scale (the setter converts to
   // YouTube's 0-100 API). A 0-100 initial here would leak into the shared
   // GlobalPlaybackController and break other players (e.g. Vimeo's
@@ -162,8 +165,18 @@ class YouTubeWebViewController extends OmniPlaybackController {
   @override
   Future<void> dispose() async {
     _isDisposed = true;
+    _seekFallbackTimer?.cancel();
     _globalController?.unregisterController(this);
     super.dispose();
+  }
+
+  /// Swallows notifications once disposed, so async tails (e.g. the resume
+  /// after [switchFullScreenMode]'s awaited route when a playlist advanced)
+  /// can't hit a disposed ChangeNotifier and throw.
+  @override
+  void notifyListeners() {
+    if (_isDisposed) return;
+    super.notifyListeners();
   }
 
   Future<void> run(String functionName, {Map<String, dynamic>? data}) async {
@@ -181,10 +194,14 @@ class YouTubeWebViewController extends OmniPlaybackController {
   }) async {
     final varArgs = await _prepareData(data);
 
+    // Coerce the JS result to a String: WKWebView's evaluateJavaScript can't
+    // bridge a bare number and returns "unsupported type" (result null) on some
+    // iOS/simulator builds, which left getDuration unparsed and the player
+    // stuck "not ready". A String always bridges.
     final result = await webViewController?.evaluateJavascript(
-      source: 'player.$functionName($varArgs);',
+      source: 'String(player.$functionName($varArgs));',
     );
-    return result.toString();
+    return result?.toString() ?? '';
   }
 
   Future<void> _evaluate(String js) async {
@@ -232,7 +249,10 @@ class YouTubeWebViewController extends OmniPlaybackController {
   @override
   set isSeeking(bool value) {
     _isSeeking = value;
-    if (!value) callbacks.onSeekEnd?.call(currentPosition);
+    if (!value) {
+      _seekFallbackTimer?.cancel();
+      callbacks.onSeekEnd?.call(currentPosition);
+    }
     notifyListeners();
   }
 
@@ -361,23 +381,40 @@ class YouTubeWebViewController extends OmniPlaybackController {
       return;
     }
 
-    if (position <= duration) {
-      wasPlayingBeforeSeek = isPlaying;
+    // Clamp instead of bailing out (B5): the old `else` branch left [isSeeking]
+    // stuck true (only a later JS event could clear it) and the optimistic
+    // [currentPosition] below could exceed the duration.
+    if (duration > Duration.zero && position > duration) {
+      position = duration;
+    }
 
-      if (!skipHasPlaybackStarted) {
-        isSeeking = true;
-      }
+    wasPlayingBeforeSeek = isPlaying;
 
-      if (position.inMicroseconds != 0 && !skipHasPlaybackStarted) {
-        hasStarted = true;
-      }
+    if (!skipHasPlaybackStarted) {
+      isSeeking = true;
+    }
 
-      await webViewController?.evaluateJavascript(
-        source: 'seekTo(${position.inSeconds}, true);',
-      );
-      currentPosition = position;
-    } else {
-      debugPrint('Seek position exceeds duration');
+    if (position.inMicroseconds != 0 && !skipHasPlaybackStarted) {
+      hasStarted = true;
+    }
+
+    await webViewController?.evaluateJavascript(
+      source: 'seekTo(${position.inSeconds}, true);',
+    );
+    currentPosition = position;
+
+    // Failsafe: if the state-change event that clears the seek never arrives,
+    // complete it anyway so controls don't stay frozen. Cancelled by the
+    // isSeeking setter. (B4)
+    if (isSeeking) {
+      _seekFallbackTimer?.cancel();
+      _seekFallbackTimer = Timer(const Duration(seconds: 3), () {
+        if (isDisposed || !isSeeking) return;
+        isSeeking = false;
+        if (wasPlayingBeforeSeek && !isFinished) {
+          play(useGlobalController: false);
+        }
+      });
     }
   }
 
@@ -398,12 +435,11 @@ class YouTubeWebViewController extends OmniPlaybackController {
       notifyListeners();
       onToggle?.call(true);
 
-      // FIX LIVE: Se il video è una live e stava riproducendo, forziamo
-      // un play dopo mezzo secondo per evitare che il cambio rotta lo congeli.
+      // FIX LIVE: entering fullscreen can freeze a live stream on the route
+      // change. Instead of one blind 500ms play, retry until it actually
+      // resumes (bounded) so it self-corrects however long the freeze lasts. (A4)
       if (isLive && wasPlayingBeforeGoOnFullScreen == true) {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (!isDisposed) play(useGlobalController: false);
-        });
+        _ensureLivePlayingAfterRouteChange();
       }
 
       await Navigator.push(
@@ -415,6 +451,16 @@ class YouTubeWebViewController extends OmniPlaybackController {
           },
         ),
       );
+    }
+  }
+
+  /// Retries play until a live stream actually resumes after the fullscreen
+  /// route change froze it (bounded, condition-checked). (A4)
+  Future<void> _ensureLivePlayingAfterRouteChange() async {
+    for (var attempt = 0; attempt < 6; attempt++) {
+      await Future.delayed(const Duration(milliseconds: 250));
+      if (isDisposed || !isFullScreen || isPlaying) return;
+      await play(useGlobalController: false);
     }
   }
 

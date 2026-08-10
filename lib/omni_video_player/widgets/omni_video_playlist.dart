@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playlist_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/custom_overlay_layer.dart';
 import 'package:omni_video_player/omni_video_player/models/playlist_callbacks.dart';
@@ -51,6 +52,11 @@ class OmniVideoPlaylist extends StatefulWidget {
 class _OmniVideoPlaylistState extends State<OmniVideoPlaylist> {
   late final OmniPlaylistController _controller;
 
+  /// The current inner player's controller, tracked so we can exit fullscreen
+  /// before advancing (the advance disposes it, and the fullscreen route would
+  /// otherwise go black).
+  OmniPlaybackController? _currentController;
+
   /// Mirrors the inner player's center play/pause button visibility, fed by
   /// [VideoPlayerCallbacks.onCenterControlsVisibilityChanged]. Owned by this
   /// State so the nav overlay can fade in sync with that button (it is already
@@ -67,7 +73,15 @@ class _OmniVideoPlaylistState extends State<OmniVideoPlaylist> {
       callbacks: widget.playlistCallbacks,
     );
     _controller.onSourceChangeRequested = (_) {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+      // Advancing disposes the current player's controller; if it's fullscreen
+      // the fullscreen route would go black, so exit fullscreen first and show
+      // the next video in the normal view.
+      final current = _currentController;
+      if (current != null && !current.isDisposed && current.isFullScreen) {
+        Navigator.of(context).pop();
+      }
+      setState(() {});
     };
     widget.onPlaylistControllerCreated?.call(_controller);
   }
@@ -123,6 +137,10 @@ class _OmniVideoPlaylistState extends State<OmniVideoPlaylist> {
 
   VideoPlayerCallbacks _buildCallbacks() {
     return widget.callbacks.copyWith(
+      onControllerCreated: (controller) {
+        _currentController = controller;
+        widget.callbacks.onControllerCreated?.call(controller);
+      },
       onCenterControlsVisibilityChanged: (visible) {
         widget.callbacks.onCenterControlsVisibilityChanged?.call(visible);
         // This callback fires during the inner player's build; defer the

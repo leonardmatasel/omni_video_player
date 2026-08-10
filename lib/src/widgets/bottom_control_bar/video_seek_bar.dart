@@ -100,9 +100,9 @@ class VideoSeekBar extends StatelessWidget {
         bufferedPosition: _findClosestBufferedEnd(),
         showRemainingTime: showRemainingTime,
         onChangeStart: (_) {
-          if (!controller.isSeeking) {
-            controller.wasPlayingBeforeSeek = controller.isPlaying;
-          }
+          // Whether to resume after the seek comes from playback intent
+          // (set by play()/pause()), not the momentary isPlaying read which is
+          // unreliable mid-buffering. See GenericPlaybackController.play().
           if (controller.isReady) controller.isSeeking = true;
           onSeekStart?.call(controller.currentPosition);
         },

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
+import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
@@ -152,23 +153,27 @@ class _OmniVideoPlayerManagerState extends State<OmniVideoPlayerManager> {
         final customWidgets = config.customPlayerWidgets;
         final visibilityOptions = config.playerUIVisibilityOptions;
 
-        return AnimatedBuilder(
-          animation: controller,
-          builder: (context, child) {
+        // Rebuild this outer frame only when isReady/hasError change — the only
+        // things it reads. On a ~5x/sec position tick the player subtree is no
+        // longer reconstructed; the view and its controls update via their own
+        // (narrower) listeners instead. Cuts rebuild churn / jank.
+        return _ReadyErrorGate(
+          controller: controller,
+          builder: (context, isReady, hasError) {
             return Align(
               alignment: Alignment.center,
               child: Stack(
                 children: [
                   if (visibilityOptions.showLoadingWidget &&
-                      !controller.isReady &&
-                      !controller.hasError)
+                      !isReady &&
+                      !hasError)
                     Positioned.fill(
                       child: Align(
                         alignment: Alignment.center,
                         child: customWidgets.loadingWidget,
                       ),
                     ),
-                  if (!controller.hasError)
+                  if (!hasError)
                     OmniVideoPlayerView(
                       configuration: config.copyWith(
                         customPlayerWidgets: customWidgets.copyWith(
@@ -177,6 +182,12 @@ class _OmniVideoPlayerManagerState extends State<OmniVideoPlayerManager> {
                       ),
                       callbacks: callbacks,
                       controller: controller,
+                      // Uses the original config's key (attached to the
+                      // initializer); copyWith would mint a new, unattached one.
+                      onReleaseForOffView: () => config
+                          .globalKeyInitializer
+                          .currentState
+                          ?.releaseForOffView(),
                     )
                   else
                     _buildErrorPlaceholder(),
@@ -205,4 +216,62 @@ class _OmniVideoPlayerManagerState extends State<OmniVideoPlayerManager> {
           const OmniVideoPlayerErrorView(),
     );
   }
+}
+
+/// Rebuilds [builder] only when the controller's `isReady`/`hasError` change,
+/// instead of on every ~5x/sec position notification (an `AnimatedBuilder`
+/// would). The builder reads only those two flags; the player view and its
+/// controls keep updating through their own narrower listeners.
+class _ReadyErrorGate extends StatefulWidget {
+  const _ReadyErrorGate({required this.controller, required this.builder});
+
+  final OmniPlaybackController controller;
+  final Widget Function(BuildContext context, bool isReady, bool hasError)
+  builder;
+
+  @override
+  State<_ReadyErrorGate> createState() => _ReadyErrorGateState();
+}
+
+class _ReadyErrorGateState extends State<_ReadyErrorGate> {
+  late bool _ready = widget.controller.isReady;
+  late bool _error = widget.controller.hasError;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_onChange);
+  }
+
+  void _onChange() {
+    if (!mounted) return;
+    final ready = widget.controller.isReady;
+    final error = widget.controller.hasError;
+    if (ready == _ready && error == _error) return;
+    setState(() {
+      _ready = ready;
+      _error = error;
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _ReadyErrorGate oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.controller, widget.controller)) {
+      oldWidget.controller.removeListener(_onChange);
+      widget.controller.addListener(_onChange);
+      _ready = widget.controller.isReady;
+      _error = widget.controller.hasError;
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onChange);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      widget.builder(context, _ready, _error);
 }

@@ -28,6 +28,9 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   bool _isBuffering = false;
   bool _isFullyVisible = false;
 
+  /// Failsafe so a dropped `seeked` event can't leave the seek stuck. (B4)
+  Timer? _seekFallbackTimer;
+
   bool? wasPlayingBeforeGoOnFullScreen;
   double _volume = 100;
   double _previousVolume = 100;
@@ -120,8 +123,18 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   @override
   Future<void> dispose() async {
     _isDisposed = true;
+    _seekFallbackTimer?.cancel();
     _globalController?.unregisterController(this);
     super.dispose();
+  }
+
+  /// Swallows notifications once disposed, so async tails (e.g. the resume
+  /// after [switchFullScreenMode]'s awaited route when a playlist advanced)
+  /// can't hit a disposed ChangeNotifier and throw.
+  @override
+  void notifyListeners() {
+    if (_isDisposed) return;
+    super.notifyListeners();
   }
 
   // Helper per eseguire JS
@@ -168,7 +181,10 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   set isSeeking(bool value) {
     if (isDisposed) return;
     _isSeeking = value;
-    if (!value) callbacks.onSeekEnd?.call(currentPosition);
+    if (!value) {
+      _seekFallbackTimer?.cancel();
+      callbacks.onSeekEnd?.call(currentPosition);
+    }
     notifyListeners();
   }
 
@@ -222,8 +238,11 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   @override
   bool get isFinished =>
       hasStarted == true &&
-      (duration == Duration.zero ||
-          currentPosition.inSeconds >= (duration.inSeconds - 1));
+      // Only "finished" once a real duration is known (> the 1s placeholder /
+      // 0 that WebM reports before metadata resolves) — otherwise it read as
+      // finished immediately and the replay button showed the whole time.
+      duration > const Duration(seconds: 1) &&
+      currentPosition.inSeconds >= (duration.inSeconds - 1);
 
   @override
   bool get isFullScreen => _isFullScreen;
@@ -279,24 +298,48 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   @override
   int get rotationCorrection => 0;
 
+  /// WebKit can't seek WebM in a WebView on iOS without freezing the decoder,
+  /// so seeking is disabled there (the UI hides the seek bar / skip gestures).
+  @override
+  bool get supportsSeek => !Platform.isIOS;
+
   @override
   Future<void> seekTo(
     Duration position, {
     skipHasPlaybackStarted = false,
   }) async {
-    if (position <= duration) {
-      wasPlayingBeforeSeek = isPlaying;
-      if (!skipHasPlaybackStarted) isSeeking = true;
-      if (position.inMicroseconds != 0 && !skipHasPlaybackStarted) {
-        hasStarted = true;
-      }
+    // No-op where seeking is unsupported (WebM on iOS): a seek freezes the
+    // decoder, so never issue one — belt-and-suspenders with the disabled UI.
+    if (!supportsSeek) return;
 
-      // HTML5 usa secondi floating point
-      double seconds = position.inMilliseconds / 1000.0;
-      await _evaluate('seekTo($seconds)');
-      currentPosition = position;
-    } else {
-      debugPrint('Seek position exceeds duration');
+    // Clamp instead of bailing out (B5): the old `else` branch left [isSeeking]
+    // stuck true and the optimistic [currentPosition] could exceed duration.
+    if (duration > Duration.zero && position > duration) {
+      position = duration;
+    }
+
+    wasPlayingBeforeSeek = isPlaying;
+    if (!skipHasPlaybackStarted) isSeeking = true;
+    if (position.inMicroseconds != 0 && !skipHasPlaybackStarted) {
+      hasStarted = true;
+    }
+
+    // HTML5 usa secondi floating point
+    double seconds = position.inMilliseconds / 1000.0;
+    await _evaluate('seekTo($seconds)');
+    currentPosition = position;
+
+    // Failsafe: if the 'seeked' event never arrives, complete the seek anyway
+    // so controls don't stay frozen. Cancelled by the isSeeking setter. (B4)
+    if (isSeeking) {
+      _seekFallbackTimer?.cancel();
+      _seekFallbackTimer = Timer(const Duration(seconds: 3), () {
+        if (isDisposed || !isSeeking) return;
+        isSeeking = false;
+        if (wasPlayingBeforeSeek && !isFinished) {
+          play(useGlobalController: false);
+        }
+      });
     }
   }
 
@@ -331,6 +374,12 @@ class WebmVideoWebViewController extends OmniPlaybackController {
 
   @override
   Future<void> replay({bool useGlobalController = true}) async {
+    // Where seeking is unsupported (WebM on iOS), seekTo(0) is a no-op, so
+    // replay by reloading the element from the start ("rebuild everything").
+    if (!supportsSeek) {
+      await _evaluate('restart()');
+      return;
+    }
     await pause(useGlobalController: useGlobalController);
     await seekTo(Duration.zero);
     await play(useGlobalController: useGlobalController);

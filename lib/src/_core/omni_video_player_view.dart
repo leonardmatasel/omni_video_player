@@ -3,7 +3,6 @@ import 'package:omni_video_player/omni_video_player/controllers/omni_playback_co
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
-import 'package:omni_video_player/src/_youtube/youtube_webview_controller.dart';
 import 'package:omni_video_player/src/navigation/route_aware_listener.dart';
 import 'package:omni_video_player/src/_core/utils/omni_video_player_viewport.dart';
 import 'package:omni_video_player/src/utils/conditional_parent.dart';
@@ -22,11 +21,16 @@ class OmniVideoPlayerView extends StatefulWidget {
   final VideoPlayerCallbacks callbacks;
   final OmniPlaybackController controller;
 
+  /// Invoked when the player is fully out of view and should release its
+  /// controller to free the native decoder (see initializer's off-view path).
+  final VoidCallback? onReleaseForOffView;
+
   const OmniVideoPlayerView({
     super.key,
     required this.controller,
     required this.configuration,
     required this.callbacks,
+    this.onReleaseForOffView,
   });
 
   @override
@@ -46,8 +50,45 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
     }
   }
 
+  @override
+  void didUpdateWidget(covariant OmniVideoPlayerView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If the controller instance is swapped without this State being recreated,
+    // move the listener and dispose the old controller so it doesn't leak its
+    // native decoder (the State otherwise only cleans up in dispose()).
+    if (!identical(oldWidget.controller, controller)) {
+      oldWidget.controller.removeListener(_onControllerUpdated);
+      if (!oldWidget.controller.isDisposed) oldWidget.controller.dispose();
+      if (!controller.isDisposed) controller.addListener(_onControllerUpdated);
+    }
+  }
+
+  // Snapshot of only the coarse controller properties this widget's own build
+  // reads. The dynamic children (viewport, controls overlay, seek bar) already
+  // rebuild via their own AnimatedBuilders, so a full setState here on every
+  // ~5x/sec position tick just wastes frame budget and causes jank. (S1)
+  bool _lastReady = false;
+  Size _lastSize = Size.zero;
+  bool _lastStarted = false;
+  bool _lastFinished = false;
+
   void _onControllerUpdated() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    final ready = controller.isReady;
+    final size = controller.size;
+    final started = controller.hasStarted;
+    final finished = controller.isFinished;
+    if (ready == _lastReady &&
+        size == _lastSize &&
+        started == _lastStarted &&
+        finished == _lastFinished) {
+      return;
+    }
+    _lastReady = ready;
+    _lastSize = size;
+    _lastStarted = started;
+    _lastFinished = finished;
+    setState(() {});
   }
 
   @override
@@ -126,9 +167,17 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
 
     if (visibleFraction == 0 &&
         config.videoSourceConfiguration.pauseWhenOutOfView &&
-        controller.isPlaying &&
-        (!controller.isFullScreen || controller is YouTubeWebViewController)) {
-      controller.pause(useGlobalController: false);
+        !controller.isFullScreen) {
+      final src = config.videoSourceConfiguration;
+      // Default: fully release the controller off-screen to free the native
+      // decoder/heap; it re-initializes at the same position on return. Keep
+      // the old pause-only behavior when the caller opted to keep the player
+      // alive or for live streams (which can't resume at a position).
+      if (!src.keepAlive && !controller.isLive) {
+        widget.onReleaseForOffView?.call();
+      } else if (controller.isPlaying) {
+        controller.pause(useGlobalController: false);
+      }
     }
 
     if (!controller.hasStarted &&

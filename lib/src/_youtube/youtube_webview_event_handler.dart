@@ -23,6 +23,10 @@ class YouTubeWebViewEventHandler {
     this.callbacks,
   );
 
+  /// Guards against overlapping [_initializeControllerFromYouTube] runs, since
+  /// `handleStateChange` keeps firing while the duration is still unset.
+  bool _initializing = false;
+
   // -------------------------------------
   // 🎬 STATE CHANGE
   // -------------------------------------
@@ -68,34 +72,52 @@ class YouTubeWebViewEventHandler {
       controller.duration == Duration.zero;
 
   Future<void> _initializeControllerFromYouTube() async {
-    controller
-      ..isReady = false
-      ..hasStarted = false;
-    controller.pause(useGlobalController: false);
+    if (_initializing) return;
+    _initializing = true;
+    try {
+      controller
+        ..isReady = false
+        ..hasStarted = false;
+      controller.pause(useGlobalController: false);
 
-    final durationResult = await controller.runWithResult("getDuration");
-    final durationSeconds = double.tryParse(durationResult)?.round();
+      int? durationSeconds;
+      if (!controller.isLive) {
+        // getDuration returns undefined/0 until the player has loaded its
+        // metadata. Instead of giving up on the first call, poll a few times
+        // while it finishes loading; only then complete initialization.
+        for (var attempt = 0; attempt < 8; attempt++) {
+          if (controller.isDisposed) return;
+          final durationResult = await controller.runWithResult("getDuration");
+          durationSeconds = double.tryParse(durationResult)?.round();
+          if (durationSeconds != null && durationSeconds > 0) break;
+          await Future.delayed(const Duration(milliseconds: 400));
+        }
+        if (durationSeconds == null || durationSeconds <= 0) {
+          // Still not available; a later state change will retry.
+          return;
+        }
+      }
 
-    if (!controller.isLive &&
-        (durationSeconds == null || durationSeconds <= 0)) {
-      return;
+      if (controller.isDisposed) return;
+
+      if (controller.isLive) {
+        // Per i live non c'è una durata fissa calcolabile accuratamente
+        controller.duration = Duration(seconds: 10000000);
+      } else {
+        controller.duration = Duration(seconds: (durationSeconds ?? 0) - 2);
+      }
+
+      final sourceConfig = configuration.videoSourceConfiguration;
+
+      // Apply initial playback settings
+      await _applyInitialSettings(sourceConfig);
+
+      // Notify callback
+      callbacks.onControllerCreated?.call(controller);
+      controller.isReady = true;
+    } finally {
+      _initializing = false;
     }
-
-    if (controller.isLive) {
-      // Per i live non c'è una durata fissa calcolabile accuratamente
-      controller.duration = Duration(seconds: 10000000);
-    } else {
-      controller.duration = Duration(seconds: (durationSeconds ?? 0) - 2);
-    }
-
-    final sourceConfig = configuration.videoSourceConfiguration;
-
-    // Apply initial playback settings
-    await _applyInitialSettings(sourceConfig);
-
-    // Notify callback
-    callbacks.onControllerCreated?.call(controller);
-    controller.isReady = true;
   }
 
   Future<void> _applyInitialSettings(
@@ -123,10 +145,21 @@ class YouTubeWebViewEventHandler {
     // Control autoplay and visibility
     if (!sourceConfig.autoPlay ||
         (!controller.isFullyVisible && !controller.hasStarted)) {
-      controller
-        ..pause(useGlobalController: false)
-        ..isPlaying = false
-        ..hasStarted = false;
+      // Init can finish late (the duration poll runs while the player loads).
+      // If playback already kicked off in the meantime (user tap or autoplay),
+      // don't clobber it with the initial pause. YT state 1 = playing,
+      // 3 = buffering (a play was requested and is loading) — skip in both.
+      final state = double.tryParse(
+        (await controller.runWithResult('getPlayerState')).trim(),
+      )?.round();
+      const youTubePlaying = 1;
+      const youTubeBuffering = 3;
+      if (state != youTubePlaying && state != youTubeBuffering) {
+        controller
+          ..pause(useGlobalController: false)
+          ..isPlaying = false
+          ..hasStarted = false;
+      }
     }
   }
 

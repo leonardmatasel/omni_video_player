@@ -74,6 +74,8 @@ class _WebmVideoWebViewPlayerViewState
           allowsAirPlayForMediaPlayback: true,
           allowsPictureInPictureMediaPlayback: true,
           allowBackgroundAudioPlaying: false,
+          // Disable text selection / the iOS text-interaction callout.
+          isTextInteractionEnabled: false,
         ),
         onWebViewCreated: (webViewController) {
           widget.controller.setWebViewController(webViewController);

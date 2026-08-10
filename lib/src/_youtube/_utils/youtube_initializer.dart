@@ -51,6 +51,10 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
       return controller;
     } catch (error, _) {
       YouTubeService.yt = YoutubeExplode();
+      // Drop the cached (now-failing) stream URLs so any retry / refresh /
+      // playback-error recovery re-extracts fresh ones instead of reusing the
+      // 403ing URL for the rest of the cache TTL. (#78)
+      YouTubeService.evict(videoId);
 
       debugPrint("YouTube initialization error: $error");
 
@@ -63,10 +67,11 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
         return _initializeWebViewFallback(videoId, false);
       }
 
-      final refreshed = await config.globalKeyInitializer.currentState
-          ?.refresh();
-      if (refreshed != true) rethrow;
-      return null;
+      // No WebView fallback: rethrow so the initializer handles the retry via
+      // its normal path (error view + visibility-retry / ready-timeout), which
+      // re-extracts fresh URLs thanks to the cache eviction above. Avoids a
+      // fragile recursive refresh() re-entering _initializePlayer from here.
+      rethrow;
     }
   }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
@@ -62,14 +64,68 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
 
   bool _isLoading = true;
   bool _hasError = false;
+
+  /// Budget for init/playback/network recovery attempts.
   int _errorRetryCount = 0;
+
+  /// Separate budget for hardware-decoder exhaustion retries, so a couple of
+  /// decoder blips don't silently burn the network/playback recovery budget.
+  int _decoderRetryCount = 0;
+
+  /// Guards against re-entrant recovery while a playback-error refresh is in
+  /// flight (the controller keeps notifying `hasError` until it is replaced).
+  bool _recovering = false;
+
+  /// Position where the last playback error happened. The retry budget is
+  /// restored only once playback advances well past it (proof the source now
+  /// serves that region), so a server that fails every seek can't reset the
+  /// budget on the brief ready→error flicker and loop forever.
+  Duration _lastErrorPosition = Duration.zero;
+
+  /// True while the controller has been released because the player scrolled
+  /// out of view; it re-initializes when it returns on screen.
+  bool _releasedOffView = false;
+
+  /// Cancelable failsafe timer (A5): fires [refresh] if the controller never
+  /// becomes ready. Cancelled once it is ready, on reset, and on dispose so it
+  /// can't fire against a stale controller.
+  Timer? _readyTimeoutTimer;
 
   late VideoSourceConfiguration _sourceConfig =
       widget.configuration.videoSourceConfiguration;
 
   static const int _maxRetries = 2;
+  static const int _maxDecoderRetries = 2;
   static const Duration _retryDelay = Duration(milliseconds: 250);
   static const Duration _readyTimeout = Duration(seconds: 30);
+
+  /// Shorter readiness watchdog for iframe/WebView-backed sources (YouTube
+  /// WebView, Vimeo, WebM): their load can silently stall on a transient
+  /// SSL/network blip with no error event, so retry the load sooner instead of
+  /// sitting on the loader for 30s. Native sources are already ready when the
+  /// timer is armed (initialize() is awaited), so this never fires for them.
+  static const Duration _webViewReadyTimeout = Duration(seconds: 15);
+
+  Duration get _readyTimeoutForSource {
+    switch (_sourceConfig.videoSourceType) {
+      case VideoSourceType.youtube:
+      case VideoSourceType.vimeo:
+      case VideoSourceType.network:
+        return _webViewReadyTimeout;
+      case VideoSourceType.asset:
+      case VideoSourceType.file:
+        return _readyTimeout;
+    }
+  }
+
+  /// How far playback must advance past [_lastErrorPosition] before the retry
+  /// budget is restored. Deliberately generous: a chronically-failing stream
+  /// (errors every few seconds) would otherwise play just past a small
+  /// threshold, refund the budget, error, recover… forever. Requiring sustained
+  /// playback means a single transient blip still refunds (plays on fine) while
+  /// a stream that can't hold 10s exhausts the budget and stops at the error
+  /// view instead of churning re-inits.
+  static const Duration _healthyProgress = Duration(seconds: 10);
 
   // 🧩 INIT
   @override
@@ -103,6 +159,8 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
   }
 
   void _resetState() {
+    _readyTimeoutTimer?.cancel();
+    _controller?.removeListener(_onControllerStateChanged);
     _controller = null;
     _isLoading = true;
     _hasError = false;
@@ -126,13 +184,30 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
         widget.globalController,
       );
 
-      _thumbnail = await _loadThumbnail();
-      if (mounted) setState(() {});
+      // Load the thumbnail in parallel with controller init so a slow thumbnail
+      // fetch (YouTube/Vimeo network image) never delays playback. It's only a
+      // loading placeholder, so show it as soon as it's ready. (L2)
+      unawaited(
+        _loadThumbnail()
+            .then((thumb) {
+              // Set it whenever it resolves (not only while still loading): for
+              // WebView sources init finishes before the network thumbnail
+              // arrives, so gating on _isLoading dropped it entirely.
+              if (mounted && thumb != null && _thumbnail == null) {
+                setState(() => _thumbnail = thumb);
+              }
+            })
+            // The thumbnail is a best-effort placeholder: a fetch failure must
+            // not surface as an unhandled async error (it used to be inside the
+            // init try/catch).
+            .catchError((_) {}),
+      );
 
       _controller = await initStrategy.initialize();
       if (!mounted) return;
 
       if (_controller != null) {
+        _controller!.addListener(_onControllerStateChanged);
         _startReadyTimeout(_controller!);
         if (widget
             .configuration
@@ -164,9 +239,9 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
         );
         await widget.globalController?.releaseAllResources();
 
-        // One-time retry after cleanup if we haven't reached max retries
-        if (_errorRetryCount < _maxRetries) {
-          _errorRetryCount++;
+        // Retry after cleanup on its own budget (see [_decoderRetryCount]).
+        if (_decoderRetryCount < _maxDecoderRetries) {
+          _decoderRetryCount++;
           debugPrint(
             'OmniVideoPlayer: Retrying initialization after cleanup...',
           );
@@ -182,11 +257,100 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
 
   // ⏱️ FAILSAFE: mark as error if controller not ready within timeout
   void _startReadyTimeout(OmniPlaybackController controller) {
-    Future.delayed(_readyTimeout, () async {
-      if (mounted && !controller.isReady) {
-        await refresh();
+    _readyTimeoutTimer?.cancel();
+    _readyTimeoutTimer = Timer(_readyTimeoutForSource, () {
+      // Only refresh a *truly* stuck load. If playback already advanced, the
+      // player is working even when `isReady` lags (e.g. a WebView whose
+      // getDuration is slow to resolve) — recreating it would kill a playing
+      // video, so leave it be.
+      if (mounted &&
+          !controller.isReady &&
+          controller.currentPosition <= Duration.zero) {
+        refresh();
       }
     });
+  }
+
+  // ♻️ PLAYBACK-ERROR RECOVERY
+  /// Reacts to the controller flagging `hasError` *after* a successful init
+  /// (e.g. a source/range error during a seek). The init-time [refresh] retry
+  /// never covered this case, so the error latched and the player was stuck on
+  /// the error view forever. Here we re-initialize at the last position so
+  /// playback resumes where it failed, bounded by [_maxRetries].
+  void _onControllerStateChanged() {
+    if (!mounted) return;
+    final controller = _controller;
+    if (controller == null || controller.isDisposed) return;
+
+    // Ready → cancel the failsafe timeout so it can't refresh a healthy player. (A5)
+    if (controller.isReady) _readyTimeoutTimer?.cancel();
+
+    // Bug 7 (timer-free): restore the retry budgets only once playback has
+    // advanced past where it last failed — real proof the source recovered,
+    // driven by the controller's own notifications (no polling timer). A server
+    // that fails every seek re-inits at the error position and never advances,
+    // so the budget stays spent and [_maxRetries] still bounds the loop.
+    if (controller.isReady &&
+        !controller.hasError &&
+        !_recovering &&
+        (_errorRetryCount != 0 || _decoderRetryCount != 0) &&
+        controller.currentPosition > _lastErrorPosition + _healthyProgress) {
+      _errorRetryCount = 0;
+      _decoderRetryCount = 0;
+    }
+
+    if (_isLoading || _hasError || _recovering || !controller.hasError) return;
+    _recoverFromPlaybackError(controller);
+  }
+
+  Future<void> _recoverFromPlaybackError(
+    OmniPlaybackController controller,
+  ) async {
+    _recovering = true;
+    _lastErrorPosition = controller.currentPosition;
+    // Resume where playback failed; falls back to Duration.zero if unknown.
+    _sourceConfig = _sourceConfig.copyWith(
+      initialPosition: controller.currentPosition,
+    );
+    await refresh();
+    _recovering = false;
+  }
+
+  // 📴 OFF-VIEW RELEASE
+  /// Frees the native decoder/heap when the player scrolls fully out of view.
+  /// Nulling the controller unmounts the player subtree, whose
+  /// [OmniVideoPlayerView.dispose] disposes and unregisters it. The player
+  /// re-initializes at the same position when it returns on screen (see
+  /// [build]/[_reinitAfterOffView]) — this path never touches the error budget.
+  void releaseForOffView() {
+    if (!mounted || _isLoading || _recovering || _releasedOffView) return;
+    final controller = _controller;
+    if (controller == null || controller.isDisposed) return;
+    // Resume where it left off when the player comes back on screen.
+    _sourceConfig = _sourceConfig.copyWith(
+      initialPosition: controller.currentPosition,
+    );
+    setState(() {
+      controller.removeListener(_onControllerStateChanged);
+      _controller = null;
+      _releasedOffView = true;
+    });
+  }
+
+  Future<void> _reinitAfterOffView() async {
+    if (!mounted || !_releasedOffView) return;
+    setState(() {
+      _releasedOffView = false;
+      _resetState();
+    });
+    await _initializePlayer();
+  }
+
+  @override
+  void dispose() {
+    _readyTimeoutTimer?.cancel();
+    _controller?.removeListener(_onControllerStateChanged);
+    super.dispose();
   }
 
   // 🎨 UI BUILD
@@ -197,6 +361,21 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
     final aspectRatio = _calculateAspectRatio();
 
     if (_isLoading) return _buildLoadingView(theme, aspectRatio);
+
+    // Released because scrolled off-screen: show the lightweight loading
+    // placeholder (not the error view) and re-initialize on return. Its own
+    // path so off-view cycles never consume the error retry budget.
+    if (_releasedOffView) {
+      return VisibilityDetector(
+        key: Key('video_offview_${_sourceConfig.hashCode}'),
+        onVisibilityChanged: (info) {
+          if (info.visibleFraction > 0.1 && _releasedOffView && !_isLoading) {
+            _reinitAfterOffView();
+          }
+        },
+        child: _buildLoadingView(theme, aspectRatio),
+      );
+    }
 
     // Se il controller è nullo o è stato distrutto (es. dal global release),
     // usiamo VisibilityDetector per reinizializzare quando riappare a schermo.

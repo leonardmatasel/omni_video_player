@@ -21,10 +21,12 @@ class WebmVideoWebViewEventHandler {
   Future<void> handleReady(Object? data) async {
     controller.isReady = true;
 
-    // Parsa la durata se arriva dal JS
+    // Parsa la durata se arriva dal JS. Per i WebM a loadedmetadata è spesso
+    // 0/Infinity/NaN (la durata reale arriva dopo, via PlaybackProgress):
+    // non sovrascrivere con un valore non valido, o seek bar/replay impazziscono.
     if (data != null && data is Map<String, dynamic>) {
       final durationSec = data['duration'];
-      if (durationSec != null && durationSec is num) {
+      if (durationSec is num && durationSec.isFinite && durationSec > 0) {
         controller.duration = Duration(
           milliseconds: (durationSec * 1000).toInt(),
         );
@@ -120,6 +122,17 @@ class WebmVideoWebViewEventHandler {
       controller.currentPosition = Duration(
         milliseconds: (currentSec * 1000).toInt(),
       );
+    }
+
+    // The real WebM duration usually only becomes known after playback starts,
+    // so keep correcting it here (drives the seek bar, total time, and the
+    // end/replay state that were stuck because duration stayed 0).
+    final durationSec = data['duration'];
+    if (durationSec is num && durationSec.isFinite && durationSec > 0) {
+      final newDuration = Duration(milliseconds: (durationSec * 1000).toInt());
+      if (controller.duration != newDuration) {
+        controller.duration = newDuration;
+      }
     }
   }
 

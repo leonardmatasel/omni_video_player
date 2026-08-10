@@ -9,6 +9,19 @@
 
 **Migration:** move `forceYoutubeWebViewOnly`/`enableYoutubeWebViewFallback` into `webView:`; set `useNativeControls: false` to keep the old custom controls.
 
+🐛 **Bug Fixes — playback reliability (#82, #78)**
+
+* Videos now resume correctly after seeking, instead of stalling or getting stuck on an error (#82).
+* YouTube and Vimeo recover on their own from the random "sometimes it plays, sometimes it doesn't" failures — no more restarting the app (#78).
+* Smoother playback, faster loading, and less memory use when videos scroll off screen.
+* YouTube in WebView now loads reliably, no longer pauses itself on the first play, and captions stay off.
+* WebM videos now show the correct duration and progress bar (no more stuck at `00:00` or a permanent replay button).
+* Playlists in fullscreen: fixed the freeze/black screen and the flickering next/previous buttons when changing video.
+* Fullscreen controls now respect the notch / safe area.
+* Text selection inside the video players is disabled.
+
+**Note:** WebM seeking is disabled on iOS (the system can't seek WebM without freezing); it still works on Android.
+
 # 4.0.2
 
 🐛 **Bug Fixes — fullscreen orientation (#75)**

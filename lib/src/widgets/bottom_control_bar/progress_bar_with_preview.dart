@@ -43,6 +43,10 @@ class _ProgressBarWithPreviewState extends State<ProgressBarWithPreview> {
   @override
   void initState() {
     super.initState();
+    // Only spin up the (second, hidden) preview decoder when the scrubbing
+    // preview is actually shown. Otherwise it doubled the native decoders and
+    // HTTP range-requests on the same source for no visible benefit.
+    if (!widget.showScrubbingThumbnailPreview) return;
     if (widget.controller.videoUrl != null) {
       _previewController = VideoPlayerController.networkUrl(
         widget.controller.videoUrl!,

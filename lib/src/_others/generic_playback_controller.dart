@@ -55,6 +55,13 @@ class GenericPlaybackController extends OmniPlaybackController {
   bool _isFullScreen = false;
   bool _hasStarted = false;
   bool _isDisposed = false;
+
+  /// Monotonic token so a newer [seekTo] supersedes an older in-flight one
+  /// instead of their async steps interleaving into incoherent state. (B1)
+  int _seekGeneration = 0;
+
+  /// Guards against re-entrant [switchQuality] while a swap is in flight. (B3)
+  bool _switchingQuality = false;
   final GlobalPlaybackController? _globalController;
   double _previousVolume = 1.0;
   bool _isNotifyPending = false;
@@ -287,41 +294,55 @@ class GenericPlaybackController extends OmniPlaybackController {
     final newUrl = qualityUrls![newQuality];
     if (newUrl == null) return;
 
-    final wasPlaying = isPlaying;
-    final currentPos = currentPosition;
+    // Guard against a re-entrant switch racing on [videoController]. (B3)
+    if (_switchingQuality) return;
+    _switchingQuality = true;
+    try {
+      final wasPlaying = isPlaying;
+      final currentPos = currentPosition;
+      // Preserve the CURRENT volume/mute across the swap. Using _previousVolume
+      // (the unmute-restore value) left the new videoController's volume — and
+      // therefore isMuted / the mute button — out of sync with the actual sound
+      // (the audioController isn't swapped).
+      final currentVolume = videoController.value.volume;
 
-    await pause(useGlobalController: false);
+      await pause(useGlobalController: false);
 
-    final newController = VideoPlaybackController.uri(
-      newUrl,
-      isLive: isLive,
-      httpHeaders: httpHeaders ?? const <String, String>{},
-    );
-    await newController.initialize();
+      final newController = VideoPlaybackController.uri(
+        newUrl,
+        isLive: isLive,
+        httpHeaders: httpHeaders ?? const <String, String>{},
+      );
+      await newController.initialize();
+      if (_isDisposed) {
+        await newController.dispose();
+        return;
+      }
 
-    videoController.removeListener(_onControllerUpdate);
+      // Swap atomically: detach old, point [videoController] at the new one,
+      // then attach — so [_onControllerUpdate] never reads a half-swapped or
+      // already-disposed controller. (B3)
+      final old = videoController;
+      old.removeListener(_onControllerUpdate);
+      videoController = newController;
+      videoController.addListener(_onControllerUpdate);
+      currentVideoQuality = newQuality;
 
-    newController.addListener(_onControllerUpdate);
+      sharedPlayerNotifier.value = Hero(
+        tag: globalKeyPlayer,
+        child: VideoPlayer(key: GlobalKey(), newController),
+      );
 
-    currentVideoQuality = newQuality;
+      videoController.setVolume(currentVolume);
+      await old.dispose();
 
-    sharedPlayerNotifier.value = Hero(
-      tag: globalKeyPlayer,
-      child: VideoPlayer(key: GlobalKey(), newController),
-    );
+      await seekTo(currentPos);
+      if (wasPlaying) await play(useGlobalController: false);
 
-    await videoController.dispose();
-
-    videoController = newController;
-    videoController.setVolume(_previousVolume);
-
-    await seekTo(currentPos);
-
-    if (wasPlaying) {
-      await play(useGlobalController: false);
+      notifyListeners();
+    } finally {
+      _switchingQuality = false;
     }
-
-    notifyListeners();
   }
 
   void _onControllerUpdate() {
@@ -360,7 +381,17 @@ class GenericPlaybackController extends OmniPlaybackController {
     Duration position, {
     skipHasPlaybackStarted = false,
   }) async {
-    if (position > duration) return;
+    // Latest-wins: a newer seekTo supersedes this one so their async steps
+    // can't interleave into an incoherent pause/resume. (B1)
+    final int seekGen = ++_seekGeneration;
+    bool superseded() => _isDisposed || seekGen != _seekGeneration;
+
+    // Clamp instead of bailing out: an early `return` here left [isSeeking]
+    // stuck at true forever (controls frozen, no resume) whenever the target
+    // landed past the end — e.g. dragging to the very end, or a recovery seek.
+    if (duration > Duration.zero && position > duration) {
+      position = duration;
+    }
 
     if (callbacks.onSeekRequest != null &&
         !callbacks.onSeekRequest!(position)) {
@@ -384,36 +415,43 @@ class GenericPlaybackController extends OmniPlaybackController {
       videoController.pause(),
       if (audioController != null) audioController!.pause(),
     ]);
+    if (superseded()) return;
 
     // 2. SEEK VIDEO
     await videoController.seekTo(position);
+    if (superseded()) return;
 
-    // 3. ATTESA STABILIZZAZIONE VIDEO
-    await Future.delayed(const Duration(milliseconds: 100));
+    // 3. Wait for the seek to actually land (condition, not a fixed delay), so
+    //    audio aligns to the real landed position. (A1)
+    await _waitUntil(
+      () =>
+          (videoController.value.position - position).abs() <=
+              const Duration(milliseconds: 400) &&
+          !videoController.isActuallyBuffering,
+      timeout: const Duration(milliseconds: 500),
+      step: const Duration(milliseconds: 20),
+    );
+    if (superseded()) return;
     final Duration actualVideoPosition = videoController.value.position;
     _lastVideoPosition = actualVideoPosition;
 
-    // 4. SEEK AUDIO
+    // 4. SEEK AUDIO to the real landed position (the resume path waits for the
+    //    audio buffer, so no fixed delay is needed here).
     if (audioController != null) {
       await audioController!.seekTo(actualVideoPosition);
-      // Wait per i seek lunghi: diamo tempo all'audio di capire che deve caricare nuovi dati
-      await Future.delayed(const Duration(milliseconds: 100));
+      if (superseded()) return;
     }
 
     callbacks.onSeekEnd?.call(actualVideoPosition);
 
-    // 5. RIPRESA
+    // 5. RESUME through play() so it honors the single-active-player rule via
+    //    the global controller instead of racing it. (B2)
+    if (superseded()) return;
     if (wasPlayingBeforeSeek && !isFinished) {
-      await _resumeSynchronized();
+      await play();
     } else {
       isSeeking = false;
       notifyListeners();
-    }
-
-    if (wasPlayingBeforeSeek) {
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (!_isDisposed) isSeeking = false;
-      });
     }
   }
 
@@ -437,11 +475,18 @@ class GenericPlaybackController extends OmniPlaybackController {
     if (audioController != null) {
       await audioController!.play();
 
-      // Doppio controllo per essere sicuri
+      // If the audio didn't start, wait on the condition (not a fixed delay)
+      // and retry once while the video is actually playing. (A3)
       if (!audioController!.value.isPlaying) {
-        await Future.delayed(const Duration(milliseconds: 150));
-        // Riprova solo se il video sta effettivamente andando
-        if (videoController.value.isPlaying) {
+        await _waitUntil(
+          () =>
+              audioController!.value.isPlaying ||
+              !videoController.value.isPlaying,
+          timeout: const Duration(milliseconds: 400),
+          step: const Duration(milliseconds: 30),
+        );
+        if (videoController.value.isPlaying &&
+            !audioController!.value.isPlaying) {
           await audioController!.play();
         }
       }
@@ -450,6 +495,21 @@ class GenericPlaybackController extends OmniPlaybackController {
     isSeeking = false;
     notifyListeners();
     _startProgressTimer();
+  }
+
+  /// Polls [condition] every [step] until it holds or [timeout] elapses. Used
+  /// to replace fixed `Future.delayed` waits with condition-based ones so state
+  /// transitions don't depend on a guessed duration. (A1/A3)
+  Future<void> _waitUntil(
+    bool Function() condition, {
+    Duration timeout = const Duration(seconds: 10),
+    Duration step = const Duration(milliseconds: 50),
+  }) async {
+    var elapsed = Duration.zero;
+    while (elapsed < timeout && !condition() && !_isDisposed) {
+      await Future.delayed(step);
+      elapsed += step;
+    }
   }
 
   // Helper per aspettare il video
@@ -487,6 +547,10 @@ class GenericPlaybackController extends OmniPlaybackController {
   @override
   Future<void> play({bool useGlobalController = true}) async {
     _hasStarted = true;
+    // User intent = playing. This is the source of truth for whether a seek
+    // should resume, instead of the momentary (and buffering-unreliable)
+    // [isPlaying] read taken at drag start.
+    _wasPlayingBeforeSeek = true;
 
     if (useGlobalController && _globalController != null) {
       return await _globalController.requestPlay(this);
@@ -497,6 +561,9 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   @override
   Future<void> pause({bool useGlobalController = true}) async {
+    // User intent = paused (see [play]).
+    _wasPlayingBeforeSeek = false;
+
     if (useGlobalController && _globalController != null) {
       return await _globalController.requestPause();
     } else {
@@ -561,6 +628,17 @@ class GenericPlaybackController extends OmniPlaybackController {
 
     await videoController.dispose();
     await audioController?.dispose();
+  }
+
+  /// Swallows notifications once disposed. Async tails (e.g. the resume after
+  /// [switchFullScreenMode]'s awaited route, or a pending seek) can run after
+  /// the controller is disposed — e.g. advancing a playlist while fullscreen is
+  /// open disposes this controller, and the route's `notifyListeners()` then
+  /// hit a disposed ChangeNotifier and threw ("used after being disposed").
+  @override
+  void notifyListeners() {
+    if (_isDisposed) return;
+    super.notifyListeners();
   }
 
   // ---------------------------------------------------------------------------
@@ -713,6 +791,9 @@ class GenericPlaybackController extends OmniPlaybackController {
         ),
       );
 
+      // The controller may have been disposed while fullscreen was open (e.g. a
+      // playlist advanced to the next video); don't touch its state then.
+      if (_isDisposed) return;
       _isFullScreen = false;
       notifyListeners();
       onToggle?.call(false);

@@ -33,6 +33,9 @@ class VimeoController extends OmniPlaybackController {
   @override
   final Duration duration;
   Timer? _positionTimer;
+
+  /// Failsafe so a dropped `seeked` event can't leave the seek stuck. (B4)
+  Timer? _seekFallbackTimer;
   @override
   final Size size;
 
@@ -173,7 +176,10 @@ class VimeoController extends OmniPlaybackController {
   @override
   set isSeeking(bool value) {
     _isSeeking = value;
-    if (!value) callbacks.onSeekEnd?.call(currentPosition);
+    if (!value) {
+      _seekFallbackTimer?.cancel();
+      callbacks.onSeekEnd?.call(currentPosition);
+    }
     notifyListeners();
   }
 
@@ -272,22 +278,40 @@ class VimeoController extends OmniPlaybackController {
     Duration position, {
     skipHasPlaybackStarted = false,
   }) async {
-    if (position <= duration) {
-      wasPlayingBeforeSeek = isPlaying;
+    // Clamp instead of throwing (B5): a seek past the end used to throw and
+    // leave [isSeeking] stuck true; now it just seeks to the end.
+    if (duration > Duration.zero && position > duration) {
+      position = duration;
+    }
 
-      if (!skipHasPlaybackStarted) {
-        isSeeking = true;
-        pause();
-      }
+    // Write the field directly: the public setter no-ops while `isSeeking` is
+    // already true (set by the seek bar's onChangeStart), which would leave the
+    // resume-after-seek decision stuck at a stale value and the video paused.
+    _wasPlayingBeforeSeek = isPlaying;
 
-      if (position.inMicroseconds != 0 && !skipHasPlaybackStarted) {
-        hasStarted = true;
-      }
+    if (!skipHasPlaybackStarted) {
+      isSeeking = true;
+      pause();
+    }
 
-      await _evaluate("player.setCurrentTime(${position.inSeconds});");
-      currentPosition = position;
-    } else {
-      throw ArgumentError('Seek position exceeds duration');
+    if (position.inMicroseconds != 0 && !skipHasPlaybackStarted) {
+      hasStarted = true;
+    }
+
+    await _evaluate("player.setCurrentTime(${position.inSeconds});");
+    currentPosition = position;
+
+    // Failsafe: if the 'seeked' event never arrives, complete the seek anyway
+    // so controls don't stay frozen. Cancelled by the isSeeking setter. (B4)
+    if (isSeeking) {
+      _seekFallbackTimer?.cancel();
+      _seekFallbackTimer = Timer(const Duration(seconds: 3), () {
+        if (_isDisposed || !isSeeking) return;
+        isSeeking = false;
+        if (wasPlayingBeforeSeek && !isFinished) {
+          play(useGlobalController: false);
+        }
+      });
     }
   }
 
@@ -340,7 +364,10 @@ class VimeoController extends OmniPlaybackController {
         final elapsed = now.difference(_lastTickTime!);
         _lastTickTime = now;
 
-        final newPosition = _currentPosition + elapsed;
+        // Only smooth the gaps BETWEEN real `timeupdate` events, scaled by the
+        // playback speed. [updatePositionFromPlayer] re-anchors to the real
+        // player position so this estimate can't drift. (A2)
+        final newPosition = _currentPosition + elapsed * _playbackSpeed;
 
         if (newPosition > duration) {
           _currentPosition = duration;
@@ -353,6 +380,17 @@ class VimeoController extends OmniPlaybackController {
         notifyListeners();
       }
     });
+  }
+
+  /// Anchors [currentPosition] to the real position reported by Vimeo's
+  /// `timeupdate` event, correcting any drift from the between-updates
+  /// estimator in [startPositionTimer]. (A2)
+  void updatePositionFromPlayer(double seconds) {
+    if (_isDisposed) return;
+    _lastTickTime = DateTime.now();
+    final pos = Duration(milliseconds: (seconds * 1000).round());
+    _currentPosition = pos > duration ? duration : pos;
+    notifyListeners();
   }
 
   void stopPositionTimer() {
@@ -387,6 +425,7 @@ class VimeoController extends OmniPlaybackController {
     _isDisposed = true;
     _globalController?.unregisterController(this);
     _positionTimer?.cancel();
+    _seekFallbackTimer?.cancel();
     super.dispose();
   }
 

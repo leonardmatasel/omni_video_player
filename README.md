@@ -39,7 +39,7 @@ Stop juggling multiple packages for different video sources. **omni_video_player
 | **Network (.mp4/etc)** | ✅       | ✅   | -                                      | ✅   | Standard streaming.                               |
 | **Assets/Files**       | ✅       | ✅   | -                                      | ✅   | Local storage & bundle support.                   |
 | **AVI**                | ✅       | ❌   | -                                      | ✅   | Not supported on iOS (OS limitation).             |
-| **WebM**               | ✅       | ❌   | ✅                                      | ✅   | **Requires WebView on iOS** (no native support).  |
+| **WebM**               | ✅       | ❌   | ✅                                      | ✅   | **Requires WebView on iOS** (no native support); **seeking is disabled on iOS** (WebKit can't seek WebM without freezing). |
 
 <br>
 
@@ -238,6 +238,10 @@ On Android, we can handle separate Audio and Video streams provided by the API, 
 
 * **The iOS Limitation:** The native iOS player struggles to synchronize separate Audio/Video tracks without pre-loading the entire file (causing huge delays).
 * **The Result:** On iOS, we must use a "muxed" stream (combined audio/video). The YouTube API currently provides only **one muxed stream at 360p**. Therefore, quality selection is disabled on iOS as there are no other combined streams available to switch to.
+
+### Why can't I seek WebM videos on iOS?
+
+WebM has no native iOS support, so it plays through a WebView. WebKit, however, cannot seek a WebM stream without freezing the decoder (the frame stalls and can't recover). To avoid a broken state, **seeking is disabled for WebM on iOS**: the seek bar and skip gestures are turned off, while play/pause and duration work normally. WebM seeking works on Android (native playback).
 
 <br>
 

@@ -70,8 +70,23 @@ class HlsVideoApi {
 
   static Future<bool> isHlsUri(
     Uri uri, {
-    Map<String, String>? httpHeaders, // <-- ADDED
+    Map<String, String>? httpHeaders,
   }) async {
+    // Fast path: decide from the URL extension with no network round-trip, so a
+    // plain .mp4 (or an obvious .m3u8) starts loading immediately instead of
+    // waiting on a blocking HEAD request. `uri.path` excludes the query string,
+    // so tokens like `?sig=...` don't defeat the check.
+    final path = uri.path.toLowerCase();
+    if (path.endsWith('.m3u8') || path.endsWith('.m3u')) return true;
+    if (path.endsWith('.mp4') ||
+        path.endsWith('.m4v') ||
+        path.endsWith('.mov') ||
+        path.endsWith('.webm') ||
+        path.endsWith('.mkv')) {
+      return false;
+    }
+
+    // Ambiguous extension: fall back to the content-type HEAD check.
     try {
       final response = await http.head(uri, headers: httpHeaders);
       final contentType = response.headers['content-type'] ?? '';

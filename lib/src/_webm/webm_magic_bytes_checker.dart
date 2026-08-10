@@ -15,8 +15,22 @@ class WebmMagicBytesChecker {
   }
 
   static Future<bool> isNetworkWebm(String url) async {
+    // Fast path: decide from the URL extension with no network round-trip.
+    // `uri.path` excludes the query string, so tokens like `?sig=...` don't
+    // defeat the check. Only sniff the magic bytes when the extension is
+    // inconclusive (e.g. an extensionless streaming URL).
+    final path = (Uri.tryParse(url)?.path ?? url).toLowerCase();
+    if (path.endsWith('.webm') || path.endsWith('.mkv')) return true;
+    if (path.endsWith('.mp4') ||
+        path.endsWith('.m4v') ||
+        path.endsWith('.mov') ||
+        path.endsWith('.m3u8') ||
+        path.endsWith('.m3u')) {
+      return false;
+    }
+
     try {
-      // Facciamo una richiesta "Range" per scaricare solo i primi 4 byte
+      // Range request: download only the first 4 bytes to read the signature.
       final response = await http.get(
         Uri.parse(url),
         headers: {'Range': 'bytes=0-3'},

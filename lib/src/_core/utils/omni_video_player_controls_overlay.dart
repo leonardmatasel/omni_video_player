@@ -30,6 +30,7 @@ class OmniVideoPlayerControlsOverlay extends StatefulWidget {
     required this.configuration,
     required this.callbacks,
     this.playerBarPadding = const EdgeInsets.only(right: 8, left: 8, top: 16),
+    this.isFullScreenDisplay = false,
   });
 
   final OmniPlaybackController controller;
@@ -37,6 +38,12 @@ class OmniVideoPlayerControlsOverlay extends StatefulWidget {
   final VideoPlayerConfiguration configuration;
   final VideoPlayerCallbacks callbacks;
   final EdgeInsets playerBarPadding;
+
+  /// Whether this overlay belongs to the fullscreen route. In fullscreen the
+  /// normal-view overlay is still mounted behind the route, so both would fire
+  /// visibility callbacks with their own (independent) auto-hide state. Only the
+  /// active display — the one matching [controller.isFullScreen] — should report.
+  final bool isFullScreenDisplay;
 
   @override
   State<OmniVideoPlayerControlsOverlay> createState() =>
@@ -196,12 +203,18 @@ class _OmniVideoPlayerControlsOverlayState
                   opts,
                 );
 
-                widget.callbacks.onCenterControlsVisibilityChanged?.call(
-                  isButtonVisible,
-                );
-                widget.callbacks.onOverlayControlsVisibilityChanged?.call(
-                  areOverlayVisible,
-                );
+                // Only the active display reports visibility: in fullscreen the
+                // normal-view overlay is still mounted behind the route and
+                // would otherwise fight the fullscreen overlay, thrashing the
+                // value (e.g. playlist prev/next buttons pulsing on/off).
+                if (widget.isFullScreenDisplay == ctrl.isFullScreen) {
+                  widget.callbacks.onCenterControlsVisibilityChanged?.call(
+                    isButtonVisible,
+                  );
+                  widget.callbacks.onOverlayControlsVisibilityChanged?.call(
+                    areOverlayVisible,
+                  );
+                }
 
                 final layers = _buildOverlayLayers(
                   theme: theme,
@@ -343,7 +356,7 @@ class _OmniVideoPlayerControlsOverlayState
           ),
         ),
       Container(color: Colors.transparent, height: 50),
-      if (!native) _buildDoubleTapZones(),
+      if (!native && ctrl.supportsSeek) _buildDoubleTapZones(),
       Positioned.fill(
         child: Align(alignment: Alignment.center, child: _buildSkipIndicator()),
       ),
@@ -377,7 +390,14 @@ class _OmniVideoPlayerControlsOverlayState
           Positioned.fill(
             child: AspectRatio(
               aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
-              child: overlay.widget,
+              // In fullscreen the overlay covers the whole screen, so inset it
+              // to the safe area — otherwise buttons (e.g. playlist prev/next)
+              // sit under the notch / Dynamic Island. Not applied when embedded:
+              // the player isn't at a screen edge there and a parent has usually
+              // already consumed the inset.
+              child: ctrl.isFullScreen
+                  ? SafeArea(child: overlay.widget)
+                  : overlay.widget,
             ),
           ),
         );

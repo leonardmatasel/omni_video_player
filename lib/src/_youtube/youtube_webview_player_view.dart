@@ -151,6 +151,10 @@ class _YouTubeWebViewPlayerViewState extends State<YouTubeWebViewPlayerView> {
           useShouldOverrideUrlLoading: true,
           supportMultipleWindows: false,
           javaScriptCanOpenWindowsAutomatically: false,
+          // Disable text selection / the iOS text-interaction callout
+          // (copy, look up, translate, transcribe) at the WebView level, so it
+          // also covers the cross-origin iframe that CSS can't reach.
+          isTextInteractionEnabled: false,
         ),
         onWebViewCreated: (webViewController) {
           widget.controller.setWebViewController(webViewController);

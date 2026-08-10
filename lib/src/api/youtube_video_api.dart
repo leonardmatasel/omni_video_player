@@ -74,6 +74,15 @@ class YouTubeService {
     return urls;
   }
 
+  /// Drops any cached stream URLs for [videoId] so the next fetch re-extracts
+  /// fresh googlevideo URLs. Called when a stream fails (e.g. HTTP 403): those
+  /// URLs are ephemeral and IP/session-bound, so a cached one that starts
+  /// failing would otherwise keep failing for the whole cache TTL — the reason
+  /// "restarting the app sometimes fixes it" (a restart clears this cache).
+  static void evict(VideoId videoId) {
+    _cache.remove(videoId.value);
+  }
+
   /// Fetches the HLS URL for a live YouTube stream.
   /// Errors from the underlying `youtube_explode_dart` are rethrown
   /// and should be handled by the caller. No internal logging is performed.

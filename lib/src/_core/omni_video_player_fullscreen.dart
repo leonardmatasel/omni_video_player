@@ -115,6 +115,7 @@ class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
       child: Material(
         color: Colors.black,
         child: OmniVideoPlayerControlsOverlay(
+          isFullScreenDisplay: true,
           playerBarPadding: const EdgeInsets.symmetric(
             horizontal: 8,
             vertical: 16,
