@@ -13,7 +13,7 @@ body:
       label: Prerequisites
       description: Please ensure you have checked the following before submitting.
       options:
-        - label: I have read the [FAQ](https://github.com/leonardmatasel/omni_video_player?tab=readme-ov-file#-faq) and confirmed my issue is not a known limitation (e.g. iOS YouTube Quality, "Made for Kids" videos).
+        - label: I have read the [FAQ](https://github.com/leonardmatasel/omni_video_player?tab=readme-ov-file#-faq) and confirmed my issue is not a known limitation.
           required: true
   - type: textarea
     id: description
