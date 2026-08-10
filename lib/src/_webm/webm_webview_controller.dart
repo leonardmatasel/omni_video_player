@@ -1,7 +1,3 @@
-// Concrete controller: implements the @Deprecated state getters and may read
-// them internally. The deprecations stay only for external consumers, so this
-// bridge file opts out of the same-package deprecation diagnostic.
-// ignore_for_file: deprecated_member_use_from_same_package
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -344,7 +340,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   double get volume => _volume;
 
   @override
-  Future<void> setVolume(double value) async {
+  set volume(double value) {
     if (isDisposed) return;
     _evaluate('setVolume($value)');
     _volume = value;
@@ -360,7 +356,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   @override
   void mute() {
     _previousVolume = _volume;
-    setVolume(0);
+    volume = 0;
     _evaluate('mute()');
     _globalController?.setCurrentVolume(volume);
   }

@@ -39,8 +39,7 @@ class OmniVideoPlayerViewport extends StatelessWidget {
       builder: (context, _) {
         final player = controller.sharedPlayerNotifier.value;
 
-        final shouldRender =
-            isFullScreenDisplay == controller.state.value.isFullScreen;
+        final shouldRender = isFullScreenDisplay == controller.isFullScreen;
 
         return AspectRatio(
           aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,

@@ -71,7 +71,7 @@ class VideoSeekBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return controller.state.value.isLive
+    return controller.isLive
         ? (showLiveIndicator ? _buildLiveIndicator() : const SizedBox.shrink())
         : (showSeekBar
               ? ExcludeSemantics(
@@ -95,23 +95,23 @@ class VideoSeekBar extends StatelessWidget {
   Widget _buildSeekBar() =>
       customSeekBar ??
       SeekBar(
-        position: controller.state.value.position,
-        duration: controller.state.value.duration,
+        position: controller.currentPosition,
+        duration: controller.duration,
         bufferedPosition: _findClosestBufferedEnd(),
         showRemainingTime: showRemainingTime,
         onChangeStart: (_) {
-          if (!controller.state.value.isSeeking) {
-            controller.wasPlayingBeforeSeek = controller.state.value.isPlaying;
+          if (!controller.isSeeking) {
+            controller.wasPlayingBeforeSeek = controller.isPlaying;
           }
-          if (controller.state.value.isReady) controller.isSeeking = true;
-          onSeekStart?.call(controller.state.value.position);
+          if (controller.isReady) controller.isSeeking = true;
+          onSeekStart?.call(controller.currentPosition);
         },
         onChangeEnd: (value) {
           controller.seekTo(value);
-          onSeekEnd?.call(controller.state.value.position);
+          onSeekEnd?.call(controller.currentPosition);
         },
         onChanged: (_) {
-          if (controller.state.value.isReady) controller.isSeeking = true;
+          if (controller.isReady) controller.isSeeking = true;
         },
         showCurrentTime: showCurrentTime,
         showDurationTime: showDurationTime,
@@ -125,9 +125,8 @@ class VideoSeekBar extends StatelessWidget {
 
   /// Returns the end of the buffered range closest to the current position.
   Duration? _findClosestBufferedEnd() {
-    final buffered = controller.state.value.buffered;
-    if (buffered.isEmpty) return null;
-    return buffered
+    if (controller.buffered.isEmpty) return null;
+    return controller.buffered
         .reduce(
           (a, b) => _timeDifference(a.start) < _timeDifference(b.start) ? a : b,
         )
@@ -136,6 +135,5 @@ class VideoSeekBar extends StatelessWidget {
 
   /// Calculates the absolute difference from the current position.
   int _timeDifference(Duration start) =>
-      (start.inMilliseconds - controller.state.value.position.inMilliseconds)
-          .abs();
+      (start.inMilliseconds - controller.currentPosition.inMilliseconds).abs();
 }

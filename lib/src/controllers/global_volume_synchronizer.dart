@@ -52,7 +52,7 @@ class _GlobalVolumeSynchronizerState extends State<GlobalVolumeSynchronizer> {
   void _initGlobalVolumeSync() {
     _listener = () {
       if (!widget.controller.isDisposed) {
-        widget.controller.setVolume(_globalPlaybackController.currentVolume);
+        widget.controller.volume = _globalPlaybackController.currentVolume;
       }
     };
 

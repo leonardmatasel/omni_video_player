@@ -85,7 +85,7 @@ class _OmniVideoPlayerControlsOverlayState
         widget.configuration.playerUIVisibilityOptions.customAspectRatioNormal;
     if (customRatio != null) return customRatio;
 
-    final size = widget.controller.state.value.size;
+    final size = widget.controller.size;
     return size.width / size.height;
   }
 
@@ -96,31 +96,30 @@ class _OmniVideoPlayerControlsOverlayState
     final isBackward = direction == SkipDirection.backward;
     final opts = widget.configuration.playerUIVisibilityOptions;
     final ctrl = widget.controller;
-    final s = ctrl.state.value;
 
     if ((isBackward && !opts.enableBackwardGesture) ||
         (!isBackward && !opts.enableForwardGesture) ||
-        s.isFinished ||
-        !s.hasStarted) {
+        ctrl.isFinished ||
+        !ctrl.hasStarted) {
       return;
     }
 
     int nextSkip = _calculateNextSkip(direction);
 
     final newPosition = isBackward
-        ? s.position - Duration(seconds: nextSkip)
-        : s.position + Duration(seconds: nextSkip);
+        ? ctrl.currentPosition - Duration(seconds: nextSkip)
+        : ctrl.currentPosition + Duration(seconds: nextSkip);
 
     // Prevent seeking beyond video limits.
-    if (newPosition < Duration.zero || newPosition > s.duration) return;
+    if (newPosition < Duration.zero || newPosition > ctrl.duration) return;
 
-    if (!s.isSeeking) ctrl.wasPlayingBeforeSeek = s.isPlaying;
-    if (s.isReady) ctrl.isSeeking = true;
+    if (!ctrl.isSeeking) ctrl.wasPlayingBeforeSeek = ctrl.isPlaying;
+    if (ctrl.isReady) ctrl.isSeeking = true;
 
     // Manually clamp Duration between 0 and controller.duration
     final clampedPosition = newPosition < Duration.zero
         ? Duration.zero
-        : (newPosition > s.duration ? s.duration : newPosition);
+        : (newPosition > ctrl.duration ? ctrl.duration : newPosition);
 
     ctrl.seekTo(clampedPosition);
     _showSkip(direction, nextSkip);
@@ -170,7 +169,7 @@ class _OmniVideoPlayerControlsOverlayState
     final opts = widget.configuration.playerUIVisibilityOptions;
     final onVerticalDragUpdateEnable =
         opts.enableExitFullscreenOnVerticalSwipe &&
-        widget.controller.state.value.isFullScreen &&
+        widget.controller.isFullScreen &&
         _scale == 1;
 
     return AnimatedBuilder(
@@ -271,7 +270,6 @@ class _OmniVideoPlayerControlsOverlayState
     required VoidCallback onEndInteraction,
   }) {
     final ctrl = widget.controller;
-    final s = ctrl.state.value;
     final bool native = widget.controller.usesNativeCenterControls;
 
     final player = ConditionalParent(
@@ -354,7 +352,7 @@ class _OmniVideoPlayerControlsOverlayState
         onStartInteraction: onStartInteraction,
         onEndInteraction: onEndInteraction,
       ),
-      if (s.isSeeking && !s.isFinished)
+      if (ctrl.isSeeking && !ctrl.isFinished)
         Positioned.fill(
           child: Align(
             alignment: Alignment.center,
@@ -373,7 +371,7 @@ class _OmniVideoPlayerControlsOverlayState
                 .configuration
                 .playerUIVisibilityOptions
                 .customAspectRatioNormal ??
-            (s.size.width / s.size.height);
+            (ctrl.size.width / ctrl.size.height);
         layers.insert(
           overlay.level,
           Positioned.fill(
@@ -465,15 +463,14 @@ class _OmniVideoPlayerControlsOverlayState
     OmniPlaybackController ctrl,
     PlayerUIVisibilityOptions opts,
   ) {
-    final s = ctrl.state.value;
-    return ((s.isPlaying || s.isSeeking) &&
+    return ((ctrl.isPlaying || ctrl.isSeeking) &&
             opts.showVideoBottomControlsBar &&
             areControlsVisible &&
             !_isInDoubleTapState) ||
         opts.alwaysShowBottomControlsBar ||
-        (opts.showBottomControlsBarOnPause && !s.isPlaying) ||
-        (s.isFullScreen &&
-            s.isFinished &&
+        (opts.showBottomControlsBarOnPause && !ctrl.isPlaying) ||
+        (ctrl.isFullScreen &&
+            ctrl.isFinished &&
             opts.showBottomControlsBarOnEndedFullscreen);
   }
 
@@ -482,18 +479,17 @@ class _OmniVideoPlayerControlsOverlayState
     OmniPlaybackController ctrl,
     PlayerUIVisibilityOptions opts,
   ) {
-    final s = ctrl.state.value;
     if (ctrl.usesNativeCenterControls) {
-      final atStart = !s.hasStarted && s.isReady && !s.isBuffering;
-      final atEnd = s.isFinished;
+      final atStart = !ctrl.hasStarted && ctrl.isReady && !ctrl.isBuffering;
+      final atEnd = ctrl.isFinished;
       return atStart || atEnd;
     }
-    return s.isFinished ||
+    return ctrl.isFinished ||
         (areControlsVisible &&
-            !s.isBuffering &&
-            !s.isSeeking &&
-            s.isReady &&
-            !(s.isFinished && !opts.showReplayButton) &&
+            !ctrl.isBuffering &&
+            !ctrl.isSeeking &&
+            ctrl.isReady &&
+            !(ctrl.isFinished && !opts.showReplayButton) &&
             !_isInDoubleTapState);
   }
 

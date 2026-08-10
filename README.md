@@ -149,35 +149,28 @@ This demo showcases **everything the library supports**: quality switching, sour
 
 ### Reactive UI with Controller
 
-The controller exposes one reactive `state` — a `ValueListenable<OmniVideoState>`.
-Rebuild with `ValueListenableBuilder` (no `addListener`/`setState`), and drive
-playback with action methods. Every action updates `state` automatically.
+Control the player from anywhere in your widget tree:
 
 ```dart
 OmniPlaybackController? _controller;
 
+// Listen to state changes (play/pause, buffering, etc.)
+void _onUpdate() => setState(() {});
+
 OmniVideoPlayer(
   callbacks: VideoPlayerCallbacks(
-    onControllerCreated: (c) => setState(() => _controller = c),
+    onControllerCreated: (controller) {
+      _controller = controller..addListener(_onUpdate);
+    },
   ),
 );
 
-// Rebuild only this subtree when the player state changes:
-ValueListenableBuilder<OmniVideoState>(
-  valueListenable: _controller!.state,
-  builder: (context, state, _) => IconButton(
-    icon: Icon(state.isPlaying ? Icons.pause : Icons.play_arrow),
-    onPressed: () => state.isPlaying ? _controller!.pause() : _controller!.play(),
-  ),
-);
+@override
+void dispose() {
+  _controller?.removeListener(_onUpdate);
+  super.dispose();
+}
 
-// One-off synchronous read:
-final position = _controller!.state.value.position;
-
-// Actions (each refreshes `state`):
-_controller!.seekTo(const Duration(seconds: 30));
-_controller!.setVolume(0.5);
-_controller!.setPlaybackSpeed(1.5);
 ```
 
 <br>

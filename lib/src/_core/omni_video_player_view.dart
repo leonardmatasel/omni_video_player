@@ -75,7 +75,7 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
             Positioned.fill(
               child: Center(child: _buildThumbnailPreview(theme, aspectRatio)),
             ),
-          if (!controller.state.value.isReady)
+          if (!controller.isReady)
             Positioned.fill(
               child: Center(child: config.customPlayerWidgets.loadingWidget),
             ),
@@ -89,7 +89,7 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
         config.playerUIVisibilityOptions.customAspectRatioNormal;
     if (customRatio != null) return customRatio;
 
-    final size = controller.state.value.size;
+    final size = controller.size;
     return size.width / size.height;
   }
 
@@ -122,27 +122,22 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
     if (!mounted) return;
 
     final visibleFraction = info.visibleFraction;
-    // `isFullyVisible` is the controller's visibility INPUT (the player feeds it
-    // in); it has no non-deprecated write path through the abstract type, so the
-    // sole writer opts out here while readers use `state.value.isFullyVisible`.
-    // ignore: deprecated_member_use_from_same_package
     controller.isFullyVisible = visibleFraction == 1;
 
-    final s = controller.state.value;
     if (visibleFraction == 0 &&
         config.videoSourceConfiguration.pauseWhenOutOfView &&
-        s.isPlaying &&
-        (!s.isFullScreen || controller is YouTubeWebViewController)) {
+        controller.isPlaying &&
+        (!controller.isFullScreen || controller is YouTubeWebViewController)) {
       controller.pause(useGlobalController: false);
     }
 
-    if (!s.hasStarted &&
+    if (!controller.hasStarted &&
         config.videoSourceConfiguration.autoMuteOnStart &&
         visibleFraction == 1) {
       controller.mute();
     }
 
-    if (!s.hasStarted &&
+    if (!controller.hasStarted &&
         config.videoSourceConfiguration.autoPlay &&
         visibleFraction == 1) {
       controller.play();
@@ -153,10 +148,9 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
     final showAtStart = config.playerUIVisibilityOptions.showThumbnailAtStart;
     final hasThumbnail = config.customPlayerWidgets.thumbnail != null;
 
-    final s = controller.state.value;
     return hasThumbnail &&
         showAtStart &&
-        (!s.hasStarted || s.isFinished);
+        (!controller.hasStarted || controller.isFinished);
   }
 
   Widget _buildThumbnailPreview(

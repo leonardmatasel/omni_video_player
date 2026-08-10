@@ -79,7 +79,7 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
     super.initState();
     _iconAnimationController = AnimationController(
       vsync: this,
-      value: controller.state.value.isPlaying ? 1 : 0,
+      value: controller.isPlaying ? 1 : 0,
       duration: const Duration(milliseconds: 400),
     );
     controller.addListener(_updateIconAnimation);
@@ -92,21 +92,20 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
     if (!mounted) return;
 
     setState(() {
-      final s = controller.state.value;
-      if (s.isPlaying) {
+      if (controller.isPlaying) {
         _iconAnimationController.forward();
       } else {
         _iconAnimationController.reverse();
       }
 
       // Trigger the onFinish callback once when video finishes
-      if (s.isFinished && !_hasCalledOnFinish) {
+      if (controller.isFinished && !_hasCalledOnFinish) {
         _hasCalledOnFinish = true;
         widget.onFinished?.call();
       }
 
       // Reset the flag if video starts again
-      if (!s.isFinished && _hasCalledOnFinish) {
+      if (!controller.isFinished && _hasCalledOnFinish) {
         _hasCalledOnFinish = false;
       }
     });
@@ -126,25 +125,23 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
   /// - Replay the video if it is finished.
   /// - Toggle between play and pause.
   void _handleTap() {
-    final s = controller.state.value;
-    if (!s.isReady) return;
-    if (!s.hasStarted && widget.autoMuteOnStart) {
+    if (!controller.isReady) return;
+    if (!controller.hasStarted && widget.autoMuteOnStart) {
       controller.mute();
       controller.play();
-    } else if (s.isFinished) {
+    } else if (controller.isFinished) {
       if (!widget.showReplayButton) return;
       controller.replay();
       widget.onReplay?.call(); // Trigger replay callback
     } else {
-      s.isPlaying ? controller.pause() : controller.play();
+      controller.isPlaying ? controller.pause() : controller.play();
     }
   }
 
   String _accessibilityLabel(OmniVideoPlayerThemeData theme) {
-    final s = controller.state.value;
-    if (s.isFinished && widget.showReplayButton) {
+    if (controller.isFinished && widget.showReplayButton) {
       return theme.accessibility.replayButtonLabel;
-    } else if (s.isPlaying) {
+    } else if (controller.isPlaying) {
       return theme.accessibility.pauseButtonLabel;
     } else {
       return theme.accessibility.playButtonLabel;
@@ -174,7 +171,7 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
             switchOutCurve: Curves.fastOutSlowIn,
             transitionBuilder: (child, animation) =>
                 FadeTransition(opacity: animation, child: child),
-            child: controller.state.value.isFinished
+            child: controller.isFinished
                 ? widget.showReplayButton
                       ? Icon(
                           theme.icons.replay,
