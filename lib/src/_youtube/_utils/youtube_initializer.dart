@@ -49,7 +49,7 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
 
       callbacks.onControllerCreated?.call(controller);
       return controller;
-    } catch (error, _) {
+    } catch (error) {
       YouTubeService.yt = YoutubeExplode();
       // Drop the cached (now-failing) stream URLs so any retry / refresh /
       // playback-error recovery re-extracts fresh ones instead of reusing the

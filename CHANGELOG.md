@@ -1,3 +1,9 @@
+# 5.0.1
+
+🧹 **Static analysis**
+
+* Removed an unused catch stack-trace variable so the package passes pub.dev static analysis cleanly.
+
 # 5.0.0
 
 🎛️ **YouTube WebView controls — grouped config (BREAKING)**
@@ -19,8 +25,6 @@
 * Playlists in fullscreen: fixed the freeze/black screen and the flickering next/previous buttons when changing video.
 * Fullscreen controls now respect the notch / safe area.
 * Text selection inside the video players is disabled.
-
-**Note:** WebM seeking is disabled on iOS (the system can't seek WebM without freezing); it still works on Android.
 
 # 4.0.2
 
