@@ -304,8 +304,14 @@ class YouTubeWebViewController extends OmniPlaybackController {
   bool get isFinished =>
       !isLive &&
       hasStarted == true &&
-      (duration == Duration.zero ||
-          currentPosition.inSeconds >= (duration.inSeconds - 1));
+      // Only "finished" once a real duration is known (> the 1s placeholder /
+      // 0 that the player reports before the duration poll resolves) — same
+      // guard as the WebM controller. The Ready handler's play() sets
+      // hasStarted before the poll completes, so without this the replay
+      // button replaced the play button on load and taps couldn't start
+      // playback.
+      duration > const Duration(seconds: 1) &&
+      currentPosition.inSeconds >= (duration.inSeconds - 1);
 
   @override
   bool get isFullScreen => _isFullScreen;
