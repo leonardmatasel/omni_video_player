@@ -28,5 +28,6 @@ MIGRATION_GUIDE.md
 
 # Keep the published package light
 docs/
+CLAUDE.md
 *.iml
 assets/logo_square.png
