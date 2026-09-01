@@ -39,6 +39,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
   double _volume = 1.0;
   double _previousVolume = 1.0;
   Duration _duration = Duration.zero;
+  bool _hasKnownDuration = false;
   double _playbackSpeed = 1.0;
   Duration _currentPosition = Duration.zero;
   OmniVideoQuality? _currentVideoQuality;
@@ -273,10 +274,23 @@ class YouTubeWebViewController extends OmniPlaybackController {
 
   @override
   Duration get duration => _duration;
+
+  /// Assigning marks the duration as known; the constructor's placeholder
+  /// bypasses this by writing `_duration` directly.
   set duration(Duration value) {
+    _hasKnownDuration = true;
     _duration = value;
     notifyListeners();
   }
+
+  /// `YouTubeWebViewInitializer` seeds a one-second placeholder while the
+  /// duration poll runs, and the handler's `play()` sets `hasStarted` before it
+  /// resolves. A value-based check cannot tell that placeholder from a real
+  /// duration — and it would have to, because the handler stores
+  /// `getDuration() - 2`, so a genuine 3s video also measures exactly one
+  /// second. Only the assignment knows. (GitHub #84)
+  @override
+  bool get hasKnownDuration => _hasKnownDuration;
 
   @override
   bool get hasError => _hasError;

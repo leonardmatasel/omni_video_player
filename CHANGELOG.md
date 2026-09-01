@@ -18,6 +18,7 @@
 
 * `copyWith` dropped `videoFile`, so `.file(...).copyWith(...)` always crashed on init.
 * YouTube live could hang on the loading spinner when the metadata lookup was blocked.
+* YouTube in WebView could show the replay button instead of play on load, with taps unable to start playback, because the placeholder duration counted as "finished" (#84).
 
 # 5.0.1
 

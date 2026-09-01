@@ -29,7 +29,7 @@ VimeoController _vimeo({required Duration duration}) => VimeoController.create(
 );
 
 YouTubeWebViewController _youtube({
-  required Duration duration,
+  Duration duration = const Duration(seconds: 1),
   bool isLive = false,
 }) => YouTubeWebViewController.fromVideoId(
   videoId: '123',
@@ -148,9 +148,10 @@ void main() {
 
   group('isFinished — YouTube allarga la tolleranza a un secondo', () {
     test('è finito un secondo prima della fine', () {
-      final c = _youtube(duration: const Duration(seconds: 100))
-        ..hasStarted = true
-        ..currentPosition = const Duration(milliseconds: 99000);
+      final c = _youtube()..hasStarted = true;
+
+      c.duration = const Duration(seconds: 100); // la strada del duration poll
+      c.currentPosition = const Duration(milliseconds: 99000);
 
       // L'iframe arrotonda la durata e la posizione non raggiunge l'ultimo
       // fotogramma: la tolleranza larga è deliberata, non una svista.
@@ -158,11 +159,40 @@ void main() {
     });
 
     test('non è finito due secondi prima della fine', () {
-      final c = _youtube(duration: const Duration(seconds: 100))
-        ..hasStarted = true
-        ..currentPosition = const Duration(seconds: 98);
+      final c = _youtube()..hasStarted = true;
+
+      c.duration = const Duration(seconds: 100);
+      c.currentPosition = const Duration(seconds: 98);
 
       expect(c.isFinished, isFalse);
+    });
+  });
+
+  group('isFinished — YouTube riconosce la durata solo dal duration poll', () {
+    test('con il solo placeholder del costruttore non è mai finito', () {
+      final c = _youtube()
+        ..hasStarted = true
+        ..currentPosition = Duration.zero;
+
+      // GitHub #84: il Ready handler chiama play() prima che il poll risolva,
+      // quindi hasStarted è true mentre la durata è ancora il segnaposto da 1s.
+      // Con la tolleranza di un secondo la soglia diventa zero, e il player
+      // risultava finito a posizione zero: pulsante replay al posto di play, e
+      // nessun tap capace di far partire la riproduzione.
+      expect(c.isFinished, isFalse);
+    });
+
+    test('un video da 3 secondi finisce comunque', () {
+      final c = _youtube()..hasStarted = true;
+
+      // L'handler memorizza getDuration() - 2, quindi un video reale da 3s
+      // misura esattamente un secondo: indistinguibile per valore dal
+      // segnaposto, e il motivo per cui la durata nota è un flag e non un
+      // confronto.
+      c.duration = const Duration(seconds: 1);
+      c.currentPosition = const Duration(seconds: 1);
+
+      expect(c.isFinished, isTrue);
     });
   });
 
