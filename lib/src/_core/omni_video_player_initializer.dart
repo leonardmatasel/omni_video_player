@@ -414,20 +414,25 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
     );
   }
 
-  double _calculateAspectRatio() {
+  /// The normal-mode aspect ratio, or null while it is still unknown: no
+  /// [PlayerUIVisibilityOptions.customAspectRatioNormal] and no controller yet.
+  double? _calculateAspectRatio() {
     final customRatio =
         widget.configuration.playerUIVisibilityOptions.customAspectRatioNormal;
 
     if (customRatio != null) return customRatio;
-    if (_controller != null) {
-      final size = _controller!.size;
-      return size.width / size.height;
-    }
-    return 16 / 9;
+
+    final size = _controller?.size;
+    if (size == null) return null;
+
+    final ratio = size.width / size.height;
+
+    // A zero height yields NaN, which is not a ratio anything can lay out with.
+    return ratio > 0 ? ratio : null;
   }
 
   // 🧩 UI COMPONENTS
-  Widget _buildLoadingView(OmniVideoPlayerThemeData theme, double aspectRatio) {
+  Widget _buildLoadingView(OmniVideoPlayerThemeData theme, double? aspectRatio) {
     final showThumbnail =
         widget.configuration.playerUIVisibilityOptions.showThumbnailAtStart;
 
@@ -441,7 +446,9 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
           Align(
             alignment: Alignment.center,
             child: AspectRatio(
-              aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
+              // A thumbnail is an image: it needs a box even before the real
+              // ratio is known.
+              aspectRatio: aspectRatio ?? 16 / 9,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
                 child: VideoPlayerThumbnail(
@@ -457,12 +464,18 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
         if (widget.configuration.playerUIVisibilityOptions.showLoadingWidget)
           Align(
             alignment: Alignment.center,
-            child: AspectRatio(
-              aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
-              child: Center(
-                child: widget.configuration.customPlayerWidgets.loadingWidget,
-              ),
-            ),
+            // Box the loader against the video only once the ratio is real.
+            // Guessing 16/9 letterboxes a full-bleed custom loader on a
+            // portrait video; a centred spinner looks the same either way.
+            child: aspectRatio == null
+                ? widget.configuration.customPlayerWidgets.loadingWidget
+                : AspectRatio(
+                    aspectRatio: aspectRatio,
+                    child: Center(
+                      child:
+                          widget.configuration.customPlayerWidgets.loadingWidget,
+                    ),
+                  ),
           ),
       ],
     );

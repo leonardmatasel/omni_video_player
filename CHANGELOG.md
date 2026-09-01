@@ -1,3 +1,9 @@
+# 5.1.1
+
+🐛 **A custom loading widget is no longer letterboxed**
+
+* `loadingWidget` was boxed into a guessed `16/9` while the aspect ratio was still unknown, so a full-bleed loader came out the wrong shape on a portrait video. It now fills the player until the real ratio is known; a centred spinner is unaffected.
+
 # 5.1.0
 
 🔊 **Several muted players at once**
