@@ -104,8 +104,37 @@ abstract class OmniPlaybackController with ChangeNotifier {
   /// The current playback position.
   Duration get currentPosition;
 
+  /// The position at or past which playback counts as finished.
+  ///
+  /// The default gives up the last 200ms, but never more than the last tenth of
+  /// the media: a fixed amount would call a 300ms clip finished a third of the
+  /// way in. Backends whose reported position is coarser override this with
+  /// their own finish line rather than adjusting a shared number — see the
+  /// YouTube controller, where the position arrives quantised to whole seconds.
+  Duration get finishedThreshold {
+    const slack = Duration(milliseconds: 200);
+    return duration - (slack < duration * 0.1 ? slack : duration * 0.1);
+  }
+
+  /// Whether [duration] is the real duration of the media rather than a
+  /// placeholder waiting for metadata.
+  ///
+  /// [isFinished] stays `false` while this is `false`: without a real duration
+  /// there is nothing to compare against. Backends that learn the duration from
+  /// an asynchronous event override this — a placeholder cannot be told apart
+  /// from a genuinely short video by looking at its value.
+  bool get hasKnownDuration => duration > Duration.zero;
+
   /// Whether playback has reached the end of the video.
-  bool get isFinished;
+  ///
+  /// Compares [Duration]s, deliberately: comparing whole seconds reports a
+  /// 1.96s video as finished at 1.0s, and a sub-second video as finished at
+  /// position zero — which also composites the thumbnail over the still-playing
+  /// video, since its visibility reads this getter.
+  bool get isFinished {
+    if (isLive || !hasStarted || !hasKnownDuration) return false;
+    return currentPosition >= finishedThreshold;
+  }
 
   /// The total duration of the video.
   Duration get duration;

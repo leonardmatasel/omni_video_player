@@ -69,8 +69,6 @@ class VideoPlayerConfiguration {
   ///
   /// - [videoSourceConfiguration]: Defines how the video is loaded and played.
   ///
-  /// - [globalPlaybackControlSettings]: Controls global playback interactions like exclusive playback and mute sync.
-  ///
   /// - [playerUIVisibilityOptions]: Flags that toggle visibility of player UI elements like seek bar, buttons, etc.
   ///
   /// - [playerTheme]: Theming configuration for colors, padding, typography, and overlays.

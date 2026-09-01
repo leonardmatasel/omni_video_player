@@ -33,7 +33,6 @@ class VideoPlayPauseButton extends StatefulWidget {
     required this.autoMuteOnStart,
     required this.showReplayButton,
     this.onReplay,
-    this.onFinished,
   });
 
   /// The controller that manages video playback and notifies state changes.
@@ -56,11 +55,6 @@ class VideoPlayPauseButton extends StatefulWidget {
   /// Called only if [showReplayButton] is `true` and the video has finished playing.
   final VoidCallback? onReplay;
 
-  /// Callback triggered when the video finishes playing.
-  ///
-  /// This callback is called **once** when the video reaches the end.
-  final VoidCallback? onFinished;
-
   @override
   State<VideoPlayPauseButton> createState() => _VideoPlayPauseButtonState();
 }
@@ -68,9 +62,6 @@ class VideoPlayPauseButton extends StatefulWidget {
 class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
     with SingleTickerProviderStateMixin {
   late final AnimationController _iconAnimationController;
-
-  /// Tracks whether [onFinished] has already been called to avoid multiple triggers.
-  bool _hasCalledOnFinish = false;
 
   OmniPlaybackController get controller => widget.controller;
 
@@ -86,8 +77,6 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
   }
 
   /// Syncs the animation with the controller's playback state.
-  ///
-  /// Additionally, calls [widget.onFinished] once when the video finishes.
   void _updateIconAnimation() {
     if (!mounted) return;
 
@@ -96,17 +85,6 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
         _iconAnimationController.forward();
       } else {
         _iconAnimationController.reverse();
-      }
-
-      // Trigger the onFinish callback once when video finishes
-      if (controller.isFinished && !_hasCalledOnFinish) {
-        _hasCalledOnFinish = true;
-        widget.onFinished?.call();
-      }
-
-      // Reset the flag if video starts again
-      if (!controller.isFinished && _hasCalledOnFinish) {
-        _hasCalledOnFinish = false;
       }
     });
   }

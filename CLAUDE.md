@@ -41,7 +41,8 @@ passa allo stadio seguente e lo esegue senza chiedermi conferma. Ti fermi a
 chiedere **solo** in questi casi, che sono tutti quelli previsti:
 
 - la pausa per il `/clear` fra lo stadio 4 e il 5, che devo fare io;
-- una skill gated (`disable-model-invocation`, es. `/to-spec`): dimmi di lanciarla io;
+- una skill gated (`disable-model-invocation`): dimmi di lanciarla io. Nella catena
+  oggi non ce n'è nessuna: `/to-spec` è stata sbloccata;
 - una decisione che spetta a me: grilling, scelte di prodotto, un ticket `prototype`,
   due decisioni già prese che si contraddicono;
 - un'azione distruttiva, o che esce dal repo e dalla mia macchina (release inclusa).
@@ -58,6 +59,9 @@ dipendenze.
    comportamento a voce, scrivilo nel ticket come **confermato dal dev, non misurato**.
    Vale doppio qui: un bug di playback si conferma su device reale, e quello lo faccio io.
 2. `/to-spec` — collassa le decisioni della mappa in una spec (in `.scratch/<effort>/spec.md`).
+   Parte in automatico appena la mappa è pulita: il gate `disable-model-invocation` è
+   stato rimosso il 2026-08-31. Se `setup-matt-pocock-skills` reinstalla la skill il gate
+   torna: in quel caso fermati e dimmi di lanciarla.
 3. `superpowers:writing-plans` — piano in `docs/superpowers/plans/`.
 4. `superpowers:subagent-driven-development` — esecuzione del piano.
    Include già la review per-task (spec + qualità) su subagent isolati: non
@@ -94,11 +98,16 @@ Regole valide per tutta la catena, non negoziabili:
 - Sempre alla chiusura, prima del riepilogo: rileggi le Decisions-so-far della mappa
   e proponimi la promozione ad ADR (`docs/adr/` via `domain-modeling`) delle decisioni
   **durevoli**, quelle che valgono oltre questo effort. Proponi, non scrivere: scelgo io
-  quali. Il resto resta in `.scratch/`, che non va cancellato né pulito.
+  quali. **Se nessuna decisione merita davvero un ADR, l'ADR non si scrive**: un effort
+  che non lascia niente di durevole è un esito normale, non una casella da riempire.
+- Chiuso l'effort, `.scratch/<effort>/` si cancella: mappa, spec e ticket sono
+  impalcatura, servono a produrre il codice e non si committano. Quello che deve
+  sopravvivere è già nel codice, nel `CHANGELOG.md` o in un ADR — se non lo è, non
+  sopravvive. Il piano in `docs/superpowers/plans/` segue la stessa sorte.
 - Prerequisito degli stadi 1-2: `docs/agents/issue-tracker.md` (già presente).
 
-Questo file e `docs/agents/` sono **versionati** nel repo: niente `.git/info/exclude`.
-Lo stesso vale per quello che la catena produce — `.scratch/`, `docs/superpowers/`,
-`docs/adr/` — che va committato come il resto (il commit lo faccio io, vedi la regola
-sopra). Fuori dal pacchetto pubblicato ci resta comunque: `docs/` e `CLAUDE.md` sono
-in `.pubignore`.
+Questo file, `docs/agents/` e gli ADR in `docs/adr/` sono **versionati** nel repo:
+niente `.git/info/exclude`, e il commit lo faccio io (vedi la regola sopra). Fuori dal
+pacchetto pubblicato ci restano comunque: `docs/` e `CLAUDE.md` sono in `.pubignore`.
+L'impalcatura della catena — `.scratch/` e `docs/superpowers/` — **non** si committa e
+si cancella a fine effort.

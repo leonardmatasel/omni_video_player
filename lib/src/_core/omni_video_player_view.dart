@@ -84,6 +84,11 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
         finished == _lastFinished) {
       return;
     }
+    // Once per playback: the rising edge of isFinished, seen from the single
+    // view that exists per player. Fullscreen mounts a second controls overlay
+    // over the same controller, so a flag living on the overlay fired twice.
+    if (finished && !_lastFinished) callbacks.onFinished?.call();
+
     _lastReady = ready;
     _lastSize = size;
     _lastStarted = started;

@@ -88,7 +88,6 @@ class _PlaybackCenterButtonState extends State<PlaybackCenterButton> {
         autoMuteOnStart:
             widget.configuration.videoSourceConfiguration.autoMuteOnStart,
         onReplay: widget.callbacks.onReplay,
-        onFinished: widget.callbacks.onFinished,
       ),
     );
   }

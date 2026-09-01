@@ -16,10 +16,17 @@ class GlobalVolumeSynchronizer extends StatefulWidget {
   final Widget child;
   final OmniPlaybackController controller;
 
+  /// Whether the caller asked for a specific initial volume.
+  ///
+  /// When `true` the initial sync is skipped: the requested volume survives, and
+  /// only later changes to the shared volume are followed.
+  final bool preserveInitialVolume;
+
   const GlobalVolumeSynchronizer({
     super.key,
     required this.child,
     required this.controller,
+    required this.preserveInitialVolume,
   });
 
   @override
@@ -56,10 +63,9 @@ class _GlobalVolumeSynchronizerState extends State<GlobalVolumeSynchronizer> {
       }
     };
 
-    // Initial sync
-    if (!widget.controller.isDisposed) {
-      widget.controller.volume = _globalPlaybackController.currentVolume;
-    }
+    // Initial sync — skipped when the caller asked for a volume: this push used
+    // to throw away `initialVolume` one frame after creation.
+    if (!widget.preserveInitialVolume) _listener!();
 
     // Listen for future updates
     _globalPlaybackController.addListener(_listener!);

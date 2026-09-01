@@ -1,3 +1,24 @@
+# 5.1.0
+
+🔊 **Several muted players at once**
+
+* Muted players no longer pause each other, so a list of short muted loops animates together. Exclusive playback still applies, but only among **audible** players — a single video with sound is unchanged.
+* The wakelock is held only while a player is audible or fullscreen.
+
+⏱️ **"Finished" is now correct, on all four backends**
+
+* `isFinished` compares durations instead of whole seconds: a 1.96s video no longer reports finished at 1.0s, nor a sub-second one from position zero. A `thumbnail` therefore stops covering a still-playing video.
+* `onFinished` fires once per playback at the real end and re-arms, so it can count loops — fullscreen used to fire it twice.
+
+🔈 **`initialVolume` survives**
+
+* No longer overwritten by the shared volume, and starting playback no longer changes it. Omit it to follow the shared volume; `hasExplicitVolume` tells the two apart.
+
+🐛 **Fixes**
+
+* `copyWith` dropped `videoFile`, so `.file(...).copyWith(...)` always crashed on init.
+* YouTube live could hang on the loading spinner when the metadata lookup was blocked.
+
 # 5.0.1
 
 🧹 **Static analysis**

@@ -129,10 +129,11 @@ class WebmVideoWebViewEventHandler {
     // end/replay state that were stuck because duration stayed 0).
     final durationSec = data['duration'];
     if (durationSec is num && durationSec.isFinite && durationSec > 0) {
-      final newDuration = Duration(milliseconds: (durationSec * 1000).toInt());
-      if (controller.duration != newDuration) {
-        controller.duration = newDuration;
-      }
+      // Assegna sempre: il setter dedup, e una durata identica al placeholder
+      // (un video reale da un secondo) va comunque marcata come nota.
+      controller.duration = Duration(
+        milliseconds: (durationSec * 1000).toInt(),
+      );
     }
   }
 

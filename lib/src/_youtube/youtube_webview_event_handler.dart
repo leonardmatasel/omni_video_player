@@ -93,8 +93,23 @@ class YouTubeWebViewEventHandler {
           await Future.delayed(const Duration(milliseconds: 400));
         }
         if (durationSeconds == null || durationSeconds <= 0) {
-          // Still not available; a later state change will retry.
-          return;
+          // No fixed duration after three seconds of polling means there is no
+          // fixed duration: this is a live stream that reached us misclassified,
+          // because `isLive` is decided by a metadata lookup upstream
+          // (`youtube_initializer.dart`) that yields `false` whenever it fails —
+          // a blocked youtube_explode_dart request, for instance.
+          //
+          // Returning here left `isReady` false forever: the "a later state
+          // change will retry" this used to rely on never arrives, because the
+          // player sits at UNSTARTED and YouTube only emits another state change
+          // once something calls play. The result was a permanent spinner.
+          //
+          // ponytail: inferred from the poll rather than read from
+          // `getVideoData().isLive`, which would mean parsing a JSON blob back
+          // through the JS bridge. If a genuinely broken on-demand video ever
+          // lands here it gets a live-styled player instead of a spinner, which
+          // is the better of the two; read the flag properly if that shows up.
+          controller.isLive = true;
         }
       }
 

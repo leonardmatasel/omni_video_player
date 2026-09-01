@@ -79,7 +79,10 @@ class VideoPlayerCallbacks {
 
   /// Called when the video reaches the end of playback.
   ///
-  /// This callback is triggered **once per video finish**.
+  /// Fires once per playback, at the real end of the media — including in
+  /// fullscreen, where two control overlays are alive over the same controller.
+  /// It re-arms when playback restarts, so it can drive a "play N times"
+  /// counter.
   final VoidCallback? onFinished;
 
   /// Called when the user presses the replay button after the video has finished.

@@ -401,14 +401,17 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
   }
 
   Widget _buildWithVolumeSync(Widget child) {
-    final shouldSync = widget
-        .configuration
-        .videoSourceConfiguration
-        .synchronizeMuteAcrossPlayers;
+    final source = widget.configuration.videoSourceConfiguration;
 
-    if (!shouldSync || _controller == null) return child;
+    if (!source.synchronizeMuteAcrossPlayers || _controller == null) {
+      return child;
+    }
 
-    return GlobalVolumeSynchronizer(controller: _controller!, child: child);
+    return GlobalVolumeSynchronizer(
+      controller: _controller!,
+      preserveInitialVolume: source.hasExplicitVolume,
+      child: child,
+    );
   }
 
   double _calculateAspectRatio() {

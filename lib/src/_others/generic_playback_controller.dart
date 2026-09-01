@@ -702,11 +702,6 @@ class GenericPlaybackController extends OmniPlaybackController {
   @override
   Duration get currentPosition => videoController.value.position;
 
-  /// Returns true if the video playback has reached the end.
-  @override
-  bool get isFinished =>
-      (currentPosition.inSeconds >= duration.inSeconds) && !isLive;
-
   /// Returns the total duration of the video.
   @override
   Duration get duration => _duration;
@@ -749,7 +744,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     _previousVolume = videoController.value.volume;
     videoController.setVolume(0);
     audioController?.setVolume(0);
-    _globalController?.setCurrentVolume(0);
+    _globalController?.setCurrentVolume(0, source: this);
   }
 
   /// Restores the previous volume level.
@@ -758,7 +753,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     double tmpVolume = _previousVolume == 0 ? 1 : _previousVolume;
     videoController.setVolume(tmpVolume);
     audioController?.setVolume(tmpVolume);
-    _globalController?.setCurrentVolume(tmpVolume);
+    _globalController?.setCurrentVolume(tmpVolume, source: this);
   }
 
   /// Opens or closes the fullscreen playback mode.

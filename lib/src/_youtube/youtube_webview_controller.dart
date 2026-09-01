@@ -300,12 +300,12 @@ class YouTubeWebViewController extends OmniPlaybackController {
     notifyListeners();
   }
 
+  /// The IFrame reports the position quantised to whole seconds and rounds the
+  /// duration, so the last reported position before the end can be a full
+  /// second short. This is not slack proportional to length — a five-second
+  /// video needs exactly as much of it as a five-minute one.
   @override
-  bool get isFinished =>
-      !isLive &&
-      hasStarted == true &&
-      (duration == Duration.zero ||
-          currentPosition.inSeconds >= (duration.inSeconds - 1));
+  Duration get finishedThreshold => duration - const Duration(seconds: 1);
 
   @override
   bool get isFullScreen => _isFullScreen;
@@ -481,6 +481,12 @@ class YouTubeWebViewController extends OmniPlaybackController {
     if (kIsWeb || Platform.isAndroid) {
       _evaluate('player.setVolume(${clamped * 100})');
     }
+    // The IFrame boots muted — `'mute': 1` in youtube_webview_player_view.dart,
+    // which the autoplay policy requires — and keeps mute as a flag independent
+    // of the level, so `setVolume` alone leaves the player silent. Reconciling
+    // it here covers every writer at once: initial settings, the volume slider
+    // and GlobalVolumeSynchronizer all route through this setter.
+    _evaluate(clamped > 0 ? 'player.unMute()' : 'player.mute()');
     _volume = clamped;
     notifyListeners();
   }
@@ -496,14 +502,14 @@ class YouTubeWebViewController extends OmniPlaybackController {
     _previousVolume = _volume;
     volume = 0;
     run('mute');
-    _globalController?.setCurrentVolume(volume);
+    _globalController?.setCurrentVolume(volume, source: this);
   }
 
   @override
   void unMute() {
     volume = _previousVolume == 0 ? 1 : _previousVolume;
     run('unMute');
-    _globalController?.setCurrentVolume(volume);
+    _globalController?.setCurrentVolume(volume, source: this);
   }
 
   @override

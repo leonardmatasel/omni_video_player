@@ -202,9 +202,6 @@ class VimeoController extends OmniPlaybackController {
   }
 
   @override
-  bool get isFinished => duration == currentPosition;
-
-  @override
   int get rotationCorrection => 0;
 
   @override
@@ -261,7 +258,7 @@ class VimeoController extends OmniPlaybackController {
   void mute() {
     _previousVolume = _volume;
     _volume = 0;
-    _globalController?.setCurrentVolume(0);
+    _globalController?.setCurrentVolume(0, source: this);
     _executeOrQueue(() => _evaluate("player.setVolume(0);"));
   }
 
@@ -269,7 +266,7 @@ class VimeoController extends OmniPlaybackController {
   void unMute() {
     final restoredVolume = _previousVolume == 0 ? 1.0 : _previousVolume;
     _volume = restoredVolume;
-    _globalController?.setCurrentVolume(restoredVolume);
+    _globalController?.setCurrentVolume(restoredVolume, source: this);
     _executeOrQueue(() => _evaluate("player.setVolume($restoredVolume);"));
   }
 

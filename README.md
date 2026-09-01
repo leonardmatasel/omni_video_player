@@ -212,6 +212,18 @@ OmniVideoPlaylist(
 
 <br>
 
+## 🔊 Multiple Players on Screen
+
+Only one **audible** player plays at a time: starting an audible player pauses the audible one before it. Muted players sit outside that rule — any number of them play together, and unmuting one makes it join the rule, pausing whoever was audible at that moment. Muting a playing video releases it from the rule without stopping it.
+
+A player holds the wakelock while it is **audible or fullscreen**, so a list of decorative muted loops does not keep the device awake, while a video you muted and kept watching full screen still does.
+
+For a row or list of muted looping videos, set `autoPlay: true` and `autoMuteOnStart: true`, and leave `pauseWhenOutOfView` at its default: playback starts when the player is fully visible and stops when it scrolls away. `onFinished` fires once at the real end of every playback and re-arms afterwards, so it can drive a "play N times" counter.
+
+A player given an explicit `initialVolume` keeps it. The shared volume no longer overwrites it when the player is created, and later changes to the shared volume still reach it unless `synchronizeMuteAcrossPlayers` is `false`. When both are set, `autoMuteOnStart` wins and `initialVolume` becomes the level the player returns to once unmuted.
+
+<br>
+
 ## 🔮 Roadmap
 
 | Feature | Description | Status |

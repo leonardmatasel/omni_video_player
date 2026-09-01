@@ -35,6 +35,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   double _volume = 100;
   double _previousVolume = 100;
   Duration _duration = Duration.zero;
+  bool _hasKnownDuration = false;
   double _playbackSpeed = 1.0;
   Duration _currentPosition = Duration.zero;
   OmniVideoQuality? _currentVideoQuality;
@@ -205,8 +206,13 @@ class WebmVideoWebViewController extends OmniPlaybackController {
 
   @override
   Duration get duration => _duration;
+
+  /// Assigning marks the duration as known; the constructor's placeholder
+  /// bypasses this by writing `_duration` directly.
   set duration(Duration value) {
     if (isDisposed) return;
+    _hasKnownDuration = true;
+    if (_duration == value) return;
     _duration = value;
     notifyListeners();
   }
@@ -235,14 +241,11 @@ class WebmVideoWebViewController extends OmniPlaybackController {
     notifyListeners();
   }
 
+  /// The initializer seeds a one-second placeholder while the metadata is
+  /// pending, so the duration counts as known only once the JS side has sent
+  /// one — a value-based check would reject a genuinely sub-second video.
   @override
-  bool get isFinished =>
-      hasStarted == true &&
-      // Only "finished" once a real duration is known (> the 1s placeholder /
-      // 0 that WebM reports before metadata resolves) — otherwise it read as
-      // finished immediately and the replay button showed the whole time.
-      duration > const Duration(seconds: 1) &&
-      currentPosition.inSeconds >= (duration.inSeconds - 1);
+  bool get hasKnownDuration => _hasKnownDuration;
 
   @override
   bool get isFullScreen => _isFullScreen;
@@ -407,14 +410,14 @@ class WebmVideoWebViewController extends OmniPlaybackController {
     _previousVolume = _volume;
     volume = 0;
     _evaluate('mute()');
-    _globalController?.setCurrentVolume(volume);
+    _globalController?.setCurrentVolume(volume, source: this);
   }
 
   @override
   void unMute() {
     volume = _previousVolume == 0 ? 1 : _previousVolume;
     _evaluate('unMute()');
-    _globalController?.setCurrentVolume(volume);
+    _globalController?.setCurrentVolume(volume, source: this);
   }
 
   @override

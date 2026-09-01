@@ -57,7 +57,7 @@ import 'package:omni_video_player/omni_video_player/models/youtube_web_view_conf
 ///
 /// - [autoPlay]: Whether playback should start automatically (default: false).
 /// - [initialPosition]: The initial playback position (default: Duration.zero).
-/// - [initialVolume]: Initial volume level between 0.0 and 1.0 (default: 1.0).
+/// - [initialVolume]: Initial volume level between 0.0 and 1.0. Omit it to follow the shared volume (default: 1.0).
 /// - [initialPlaybackSpeed]: The initial playback speed for the video (default: 1.0).
 /// - [autoMuteOnStart]: Whether playback should start muted (default: false).
 /// - [preferredQualities]: Preferred video quality levels (default: [OmniVideoQuality.medium480]).
@@ -86,8 +86,25 @@ class VideoSourceConfiguration {
   /// The initial playback position.
   final Duration initialPosition;
 
-  /// Initial volume level (range 0.0 to 1.0).
-  final double initialVolume;
+  /// The volume the caller asked for, or `null` to follow the shared volume.
+  ///
+  /// The single field behind [initialVolume] and [hasExplicitVolume], so the
+  /// value and the intent behind it cannot drift apart.
+  final double? _requestedVolume;
+
+  /// Initial volume level (range 0.0 to 1.0), `1.0` when the caller did not ask
+  /// for one.
+  ///
+  /// See [hasExplicitVolume]: whether this value was asked for or defaulted is
+  /// what decides if the global volume may overwrite it.
+  double get initialVolume => _requestedVolume ?? 1.0;
+
+  /// Whether [initialVolume] was asked for by the caller.
+  ///
+  /// When `true`, [GlobalVolumeSynchronizer] leaves the volume alone on its
+  /// initial sync and only propagates later changes — a player created silent
+  /// stays silent instead of being raised to the shared volume one frame later.
+  bool get hasExplicitVolume => _requestedVolume != null;
 
   /// The initial playback speed for the video.
   ///
@@ -101,6 +118,9 @@ class VideoSourceConfiguration {
   final List<double> availablePlaybackSpeed;
 
   /// Whether playback should start muted.
+  ///
+  /// Takes precedence over [initialVolume] when both are set: the player starts
+  /// muted, and [initialVolume] is the level it returns to once unmuted.
   final bool autoMuteOnStart;
 
   /// Preferred video quality levels in order of preference.
@@ -127,8 +147,13 @@ class VideoSourceConfiguration {
   /// Synchronizes the mute state across all video players controlled globally.
   ///
   /// When `true`, muting or unmuting one video will apply the same mute state to
-  /// all other videos using the global playback controller.
+  /// all other videos using the global playback controller, and a player adopts
+  /// the shared volume when it is created — unless the caller asked for an
+  /// [initialVolume], which always wins (see [hasExplicitVolume]).
   ///
+  /// This does **not** govern which player may play. Only one *audible* player
+  /// plays at a time whatever this is set to, and muted players never pause each
+  /// other.
   final bool synchronizeMuteAcrossPlayers;
 
   /// Keeps the video controller alive even when the widget is removed from the tree.
@@ -161,7 +186,7 @@ class VideoSourceConfiguration {
     this.httpHeaders,
     this.autoPlay = false,
     this.initialPosition = Duration.zero,
-    this.initialVolume = 1.0,
+    double? initialVolume,
     this.initialPlaybackSpeed = 1.0,
     this.availablePlaybackSpeed = const [0.5, 1.0, 1.25, 1.5, 2.0],
     this.autoMuteOnStart = false,
@@ -174,7 +199,7 @@ class VideoSourceConfiguration {
     this.timeoutDuration = const Duration(seconds: 6),
     this.pauseWhenOutOfView = true,
     this.autoFullScreenAtStart = false,
-  });
+  }) : _requestedVolume = initialVolume;
 
   /// Factory constructor for Vimeo videos.
   ///
@@ -318,8 +343,9 @@ class VideoSourceConfiguration {
 
   /// Returns a new instance of [VideoSourceConfiguration] with updated common playback fields.
   ///
-  /// The parameters that distinguish the video source ([videoUrl], [videoId], [videoDataSource], [videoSourceType])
-  /// **cannot be modified** here to maintain consistency.
+  /// The parameters that distinguish the video source ([videoUrl], [videoId],
+  /// [videoDataSource], [videoFile], [videoSourceType]) **cannot be modified**
+  /// here to maintain consistency — they are carried over unchanged.
   VideoSourceConfiguration copyWith({
     bool? autoPlay,
     Duration? initialPosition,
@@ -350,10 +376,11 @@ class VideoSourceConfiguration {
       videoUrl: videoUrl,
       videoId: videoId,
       videoDataSource: videoDataSource,
+      videoFile: videoFile,
       videoSourceType: videoSourceType,
       autoPlay: autoPlay ?? this.autoPlay,
       initialPosition: initialPosition ?? this.initialPosition,
-      initialVolume: initialVolume ?? this.initialVolume,
+      initialVolume: initialVolume ?? _requestedVolume,
       initialPlaybackSpeed: initialPlaybackSpeed ?? this.initialPlaybackSpeed,
       availablePlaybackSpeed:
           availablePlaybackSpeed ?? this.availablePlaybackSpeed,
@@ -384,7 +411,7 @@ class VideoSourceConfiguration {
         other.videoSourceType == videoSourceType &&
         other.autoPlay == autoPlay &&
         other.initialPosition == initialPosition &&
-        other.initialVolume == initialVolume &&
+        other._requestedVolume == _requestedVolume &&
         other.initialPlaybackSpeed == initialPlaybackSpeed &&
         listEquals(other.availablePlaybackSpeed, availablePlaybackSpeed) &&
         other.autoMuteOnStart == autoMuteOnStart &&
@@ -402,30 +429,30 @@ class VideoSourceConfiguration {
 
   @override
   int get hashCode => Object.hashAll([
-        videoUrl,
-        videoId,
-        videoDataSource,
-        videoFile,
-        videoSourceType,
-        autoPlay,
-        initialPosition,
-        initialVolume,
-        initialPlaybackSpeed,
-        Object.hashAll(availablePlaybackSpeed),
-        autoMuteOnStart,
-        Object.hashAll(preferredQualities),
-        allowSeeking,
-        timeoutDuration,
-        availableQualities == null ? null : Object.hashAll(availableQualities!),
-        youtubeWebView,
-        synchronizeMuteAcrossPlayers,
-        keepAlive,
-        pauseWhenOutOfView,
-        autoFullScreenAtStart,
-        httpHeaders == null
-            ? null
-            : Object.hashAllUnordered(
-                httpHeaders!.entries.map((e) => Object.hash(e.key, e.value)),
-              ),
-      ]);
+    videoUrl,
+    videoId,
+    videoDataSource,
+    videoFile,
+    videoSourceType,
+    autoPlay,
+    initialPosition,
+    _requestedVolume,
+    initialPlaybackSpeed,
+    Object.hashAll(availablePlaybackSpeed),
+    autoMuteOnStart,
+    Object.hashAll(preferredQualities),
+    allowSeeking,
+    timeoutDuration,
+    availableQualities == null ? null : Object.hashAll(availableQualities!),
+    youtubeWebView,
+    synchronizeMuteAcrossPlayers,
+    keepAlive,
+    pauseWhenOutOfView,
+    autoFullScreenAtStart,
+    httpHeaders == null
+        ? null
+        : Object.hashAllUnordered(
+            httpHeaders!.entries.map((e) => Object.hash(e.key, e.value)),
+          ),
+  ]);
 }

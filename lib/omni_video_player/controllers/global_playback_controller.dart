@@ -30,15 +30,29 @@ class GlobalPlaybackController extends ChangeNotifier {
   }
 
   /// Registers a controller to be tracked globally.
+  ///
+  /// Also subscribes [_syncWakelock] to the controller's own
+  /// `notifyListeners()`, which is what makes the wakelock react to state the
+  /// global controller doesn't drive itself — a fullscreen toggle, or
+  /// `isPlaying` flipping true later once a WebView backend's async `play()`
+  /// call actually lands.
   void registerController(OmniPlaybackController controller) {
     if (!_allControllers.contains(controller)) {
       _allControllers.add(controller);
+      controller.addListener(_syncWakelock);
     }
   }
 
   /// Unregisters a controller from global tracking.
+  ///
+  /// Re-evaluates the wakelock on the way out: a player is normally disposed
+  /// directly by its widget, without passing through [requestPause], so this is
+  /// the only chance to release a wakelock the departing player was the last one
+  /// to deserve.
   void unregisterController(OmniPlaybackController controller) {
+    controller.removeListener(_syncWakelock);
     _allControllers.remove(controller);
+    _syncWakelock();
   }
 
   /// Releases all resources by disposing of all tracked controllers.
@@ -57,7 +71,7 @@ class GlobalPlaybackController extends ChangeNotifier {
       }
       _allControllers.clear();
       _currentVideoPlaying = null;
-      await WakelockPlus.disable();
+      await _syncWakelock();
       notifyListeners();
     });
   }
@@ -81,45 +95,116 @@ class GlobalPlaybackController extends ChangeNotifier {
     super.dispose();
   }
 
-  void setCurrentVolume(double volume) {
+  /// Records the shared volume level, and — when [source] is given — lets that
+  /// player enter or leave exclusivity according to its new volume.
+  ///
+  /// The exclusivity update runs unawaited, because this method is `void` and
+  /// its callers are the synchronous `mute()`/`unMute()`. The cost is that while
+  /// another operation holds the lock, [currentVideoPlaying] settles a moment
+  /// after `mute()` returns rather than immediately.
+  void setCurrentVolume(double volume, {OmniPlaybackController? source}) {
     _currentVolume = volume;
     notifyListeners();
+    if (source != null) {
+      handleVolumeChanged(source).catchError(
+        (e) =>
+            debugPrint('Failed to update exclusivity after volume change: $e'),
+      );
+    }
   }
 
-  /// Plays a video controller, pausing any previous one first.
+  /// Plays a controller, pausing the current **audible** player first.
+  ///
+  /// Exclusivity protects the device's audio, so it applies only among audible
+  /// players: a muted one starts without pausing anyone and never becomes
+  /// [currentVideoPlaying], which is what lets a screen full of muted loops
+  /// animate together.
+  ///
+  /// The volume is deliberately untouched here. Forcing an unmute on this path
+  /// made a player created with `initialVolume: 0` audible; keeping the volume
+  /// is [GlobalVolumeSynchronizer]'s job.
   Future<void> requestPlay(OmniPlaybackController controller) async {
     await _lock.synchronized(() async {
-      if (_currentVideoPlaying != null && _currentVideoPlaying != controller) {
-        await _currentVideoPlaying!
-            .pause(useGlobalController: false)
-            .catchError(
-              (e) => debugPrint('Failed to pause previous player: $e'),
-            );
+      if (controller.isMuted) {
+        await controller.play(useGlobalController: false);
+        await _syncWakelock();
+        return;
       }
 
-      _currentVideoPlaying = controller;
-
-      if (_currentVolume > 0) {
-        controller.unMute();
-      } else if (_currentVolume == 0) {
-        controller.mute();
-      }
+      await _claimExclusivity(controller);
       await controller.play(useGlobalController: false);
 
-      await WakelockPlus.enable();
+      await _syncWakelock();
       notifyListeners();
     });
   }
 
-  /// Pauses the current video and disables wakelock.
+  /// Hands exclusivity to [controller], pausing whoever held it.
+  ///
+  /// Caller must already hold [_lock].
+  Future<void> _claimExclusivity(OmniPlaybackController controller) async {
+    if (_currentVideoPlaying != null && _currentVideoPlaying != controller) {
+      await _currentVideoPlaying!
+          .pause(useGlobalController: false)
+          .catchError((e) => debugPrint('Failed to pause previous player: $e'));
+    }
+    _currentVideoPlaying = controller;
+  }
+
+  /// Moves [controller] in or out of exclusivity after its volume changed.
+  ///
+  /// Audibility is evaluated when it matters, not fixed at construction: a
+  /// player the user unmutes mid-playback joins exclusivity and pauses the
+  /// current audible one, and muting the current player releases it without
+  /// stopping it.
+  Future<void> handleVolumeChanged(OmniPlaybackController controller) async {
+    await _lock.synchronized(() async {
+      if (controller.isMuted) {
+        if (_currentVideoPlaying != controller) return;
+        _currentVideoPlaying = null;
+      } else {
+        if (_currentVideoPlaying == controller) return;
+        await _claimExclusivity(controller);
+      }
+
+      await _syncWakelock();
+      notifyListeners();
+    });
+  }
+
+  /// Memoised so [_syncWakelock] only touches the platform channel on a real
+  /// transition — every registered controller notifies on each position
+  /// update, and without this the wakelock listener would hammer the channel
+  /// on every frame instead of once per play/pause/mute/fullscreen change.
+  bool _wakelockHeld = false;
+
+  /// Keeps the wakelock on while some player deserves to hold the screen awake.
+  ///
+  /// Audible players do, and so do fullscreen ones — muting a video you are
+  /// watching full screen should not let the display go to sleep. A wall of
+  /// decorative muted loops does not.
+  ///
+  /// Best-effort: a platform that refuses the wakelock must not take playback
+  /// down with it.
+  Future<void> _syncWakelock() async {
+    final shouldHold = _allControllers.any(
+      (c) => !c.isDisposed && c.isPlaying && (!c.isMuted || c.isFullScreen),
+    );
+    if (shouldHold == _wakelockHeld) return;
+    _wakelockHeld = shouldHold;
+    await (shouldHold ? WakelockPlus.enable() : WakelockPlus.disable())
+        .catchError((e) => debugPrint('Failed to update wakelock: $e'));
+  }
+
+  /// Pauses the current audible video and releases the wakelock if nobody else
+  /// needs it.
   Future<void> requestPause() async {
     await _lock.synchronized(() async {
       final player = _currentVideoPlaying;
 
-      await WakelockPlus.disable();
       await player?.pause(useGlobalController: false);
-
       _currentVideoPlaying = null;
+      await _syncWakelock();
       notifyListeners();
     });
   }

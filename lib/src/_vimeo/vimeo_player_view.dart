@@ -191,8 +191,8 @@ class VimeoPlayerView extends StatelessWidget {
       case 'onFinish':
         controller.isPlaying = false;
         controller.isSeeking = false;
-        // Snap to the exact end so isFinished (exact-equality on Vimeo) is
-        // reliably true even though timeupdate anchors position to ~duration-ε.
+        // Snap to the exact end so isFinished is reliably true even though
+        // timeupdate anchors position to ~duration-ε.
         controller.currentPosition = controller.duration;
         controller.stopPositionTimer();
         break;
