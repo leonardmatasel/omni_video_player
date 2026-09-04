@@ -37,4 +37,21 @@ void main() {
     ).copyWith(autoPlay: true);
     expect(asset.videoDataSource, 'assets/v.mp4');
   });
+
+  test('copyWith porta dietro mixWithOthers', () {
+    final url = Uri.parse('https://example.com/loop.mp4');
+
+    // Senza questo il player prende l'audio focus, e su Android ExoPlayer
+    // mette in pausa ogni altro player nel momento in cui uno lo ottiene.
+    expect(
+      VideoSourceConfiguration.network(videoUrl: url).mixWithOthers,
+      isFalse,
+    );
+    expect(
+      VideoSourceConfiguration.network(
+        videoUrl: url,
+      ).copyWith(mixWithOthers: true).mixWithOthers,
+      isTrue,
+    );
+  });
 }

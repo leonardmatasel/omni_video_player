@@ -7,7 +7,10 @@ class LoaderIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = OmniVideoPlayerTheme.of(context)!;
+    // This is the default loadingWidget, so it can be built outside the
+    // player: without a theme it falls back to a bare spinner.
+    final theme = OmniVideoPlayerTheme.of(context);
+    if (theme == null) return const CircularProgressIndicator();
 
     return Container(
       padding: const EdgeInsets.all(20),

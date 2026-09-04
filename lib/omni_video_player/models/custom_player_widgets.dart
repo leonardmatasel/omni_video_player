@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/models/custom_overlay_layer.dart';
+import 'package:omni_video_player/src/widgets/indicators/loader_indicator.dart';
 
 /// Defines custom UI components for the video player, allowing you to override
 /// default widgets like loading indicators, error placeholders, and control bar elements.
@@ -10,7 +11,7 @@ import 'package:omni_video_player/omni_video_player/models/custom_overlay_layer.
 class CustomPlayerWidgets {
   /// Widget displayed while the video player is initializing or buffering.
   ///
-  /// Defaults to a centered [CircularProgressIndicator].
+  /// Defaults to the player's own loader, a spinner on a translucent chip.
   final Widget loadingWidget;
 
   /// Widget displayed when an error occurs during playback initialization or runtime.
@@ -80,7 +81,7 @@ class CustomPlayerWidgets {
   /// Creates a new instance of [CustomPlayerWidgets] with optional overrides
   /// for all supported customizations.
   const CustomPlayerWidgets({
-    this.loadingWidget = const CircularProgressIndicator(),
+    this.loadingWidget = const LoaderIndicator(),
     this.errorPlaceholder,
     this.bottomControlsBar,
     this.leadingBottomButtons = const [],

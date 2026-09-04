@@ -131,7 +131,19 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
   @override
   void initState() {
     super.initState();
+    widget.globalController?.addListener(_onGlobalControllerChanged);
     _initializePlayer();
+  }
+
+  /// A release from outside (see [GlobalPlaybackController.releaseAllResources])
+  /// disposes our controller, and a disposed controller notifies nobody: this
+  /// is the only way the recovery path in [build] gets to run.
+  ///
+  /// An initialization in flight is left alone: it publishes its own state when
+  /// it lands, and that state is a live controller.
+  void _onGlobalControllerChanged() {
+    if (!mounted || _isLoading) return;
+    if (_controller?.isDisposed ?? false) setState(() {});
   }
 
   // 🔄 PUBLIC REFRESH
@@ -234,16 +246,12 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
       if (errorStr.contains('no_memory') ||
           errorStr.contains('codec') ||
           errorStr.contains('0xfffffff4')) {
-        debugPrint(
-          'OmniVideoPlayer: Potential hardware decoder exhaustion detected. Attempting to release all resources...',
-        );
-        await widget.globalController?.releaseAllResources();
-
-        // Retry after cleanup on its own budget (see [_decoderRetryCount]).
+        // A decoder error is this player's business: retry on its own
+        // budget, then fall back to its own error placeholder.
         if (_decoderRetryCount < _maxDecoderRetries) {
           _decoderRetryCount++;
           debugPrint(
-            'OmniVideoPlayer: Retrying initialization after cleanup...',
+            'OmniVideoPlayer: decoder error, retrying initialization...',
           );
           return _initializePlayer();
         }
@@ -349,6 +357,7 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
   @override
   void dispose() {
     _readyTimeoutTimer?.cancel();
+    widget.globalController?.removeListener(_onGlobalControllerChanged);
     _controller?.removeListener(_onControllerStateChanged);
     super.dispose();
   }
@@ -377,8 +386,8 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
       );
     }
 
-    // Se il controller è nullo o è stato distrutto (es. dal global release),
-    // usiamo VisibilityDetector per reinizializzare quando riappare a schermo.
+    // A null or disposed controller (e.g. after a global release) is
+    // re-initialized as soon as it is on screen.
     if (_hasError || _controller == null || _controller!.isDisposed) {
       return VisibilityDetector(
         key: Key('video_visibility_retry_${_sourceConfig.hashCode}'),
@@ -432,7 +441,10 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
   }
 
   // 🧩 UI COMPONENTS
-  Widget _buildLoadingView(OmniVideoPlayerThemeData theme, double? aspectRatio) {
+  Widget _buildLoadingView(
+    OmniVideoPlayerThemeData theme,
+    double? aspectRatio,
+  ) {
     final showThumbnail =
         widget.configuration.playerUIVisibilityOptions.showThumbnailAtStart;
 
@@ -472,8 +484,10 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
                 : AspectRatio(
                     aspectRatio: aspectRatio,
                     child: Center(
-                      child:
-                          widget.configuration.customPlayerWidgets.loadingWidget,
+                      child: widget
+                          .configuration
+                          .customPlayerWidgets
+                          .loadingWidget,
                     ),
                   ),
           ),

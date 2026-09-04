@@ -1,3 +1,25 @@
+# 6.0.0
+
+⚠️ **Breaking changes**
+
+* `OmniPlaybackController.dispose()` now returns `Future<void>`. Await it when you need the video's resources freed before doing something else, such as opening a camera. Custom implementations must change their signature.
+* On Android only one video plays at a time, muted or not. On iOS and web muted videos still play together.
+* On Android, a video with sound no longer stops the audio of other apps.
+* `CustomPlayerWidgets.loadingWidget` now defaults to the player's own loader instead of a plain `CircularProgressIndicator`.
+
+🐛 **Fixes**
+
+* On Android `replay()` rewound the video but never started it again. It now restarts right away, even on a big 4K video.
+* Dragging the progress bar no longer makes the video jump through every position you pass over.
+* When one video failed, every other player on screen was closed too, and they did not come back. Now only the failing one is affected: it retries, then shows its `errorPlaceholder`.
+* The spinner shown during a seek now uses your `loadingWidget` and respects `showLoadingWidget`. So do the two WebView players and the initial loading state.
+
+🎛️ **New**
+
+* `isReplaying` on the controller: `true` while the video is restarting. Use it to avoid offering a "tap to restart" on a restart already under way.
+* `PlayerUIVisibilityOptions.showSeekingIndicator` (default `true`): hides the seek spinner alone.
+* `GlobalPlaybackController` is now exported. Call `releaseAllResources()` on it to give the device's video resources back, before opening a camera for example; the players on screen come back on their own afterwards.
+
 # 5.1.1
 
 🐛 **A custom loading widget is no longer letterboxed**

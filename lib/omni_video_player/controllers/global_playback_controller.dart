@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -58,22 +58,27 @@ class GlobalPlaybackController extends ChangeNotifier {
   /// Releases all resources by disposing of all tracked controllers.
   /// Useful for handling "NO_MEMORY" or "CodecException" errors on Android.
   Future<void> releaseAllResources() async {
-    await _lock.synchronized(() async {
-      final controllersToDispose = List<OmniPlaybackController>.from(
-        _allControllers,
-      );
-      for (final controller in controllersToDispose) {
-        try {
-          controller.dispose();
-        } catch (e) {
-          debugPrint('Error during forced dispose: $e');
-        }
-      }
+    // Clearing the current player inside the lock is what keeps dispose() away
+    // from requestPause(), which takes this same non-reentrant lock.
+    final controllersToDispose = await _lock.synchronized(() {
+      final toDispose = List<OmniPlaybackController>.from(_allControllers);
       _allControllers.clear();
       _currentVideoPlaying = null;
-      await _syncWakelock();
-      notifyListeners();
+      return toDispose;
     });
+
+    // Awaited, and outside the lock: the native decoder only comes back when
+    // dispose() completes, and callers release to hand it to something else.
+    for (final controller in controllersToDispose) {
+      try {
+        await controller.dispose();
+      } catch (e) {
+        debugPrint('Error during forced dispose: $e');
+      }
+    }
+
+    await _syncWakelock();
+    notifyListeners();
   }
 
   Future<void> _initVolumeListener() async {
@@ -113,19 +118,23 @@ class GlobalPlaybackController extends ChangeNotifier {
     }
   }
 
-  /// Plays a controller, pausing the current **audible** player first.
+  /// Plays a controller, pausing the current player first.
   ///
   /// Exclusivity protects the device's audio, so it applies only among audible
   /// players: a muted one starts without pausing anyone and never becomes
   /// [currentVideoPlaying], which is what lets a screen full of muted loops
   /// animate together.
   ///
+  /// Except on Android, where it protects the hardware decoders too: they are
+  /// few, shared with the camera and with every other app, and a wall of muted
+  /// loops exhausts them. There one player plays at a time, muted or not.
+  ///
   /// The volume is deliberately untouched here. Forcing an unmute on this path
   /// made a player created with `initialVolume: 0` audible; keeping the volume
   /// is [GlobalVolumeSynchronizer]'s job.
   Future<void> requestPlay(OmniPlaybackController controller) async {
     await _lock.synchronized(() async {
-      if (controller.isMuted) {
+      if (controller.isMuted && !_mutedPlayersAreExclusive) {
         await controller.play(useGlobalController: false);
         await _syncWakelock();
         return;
@@ -138,6 +147,11 @@ class GlobalPlaybackController extends ChangeNotifier {
       notifyListeners();
     });
   }
+
+  /// Whether a muted player takes part in exclusivity: only on Android, where
+  /// the scarce resource is the hardware decoder and not the audio.
+  static bool get _mutedPlayersAreExclusive =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
   /// Hands exclusivity to [controller], pausing whoever held it.
   ///

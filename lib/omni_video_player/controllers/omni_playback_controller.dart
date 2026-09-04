@@ -25,6 +25,14 @@ abstract class OmniPlaybackController with ChangeNotifier {
   /// Restarts the video from the beginning.
   Future<void> replay({bool useGlobalController = true});
 
+  /// Releases the controller and the native resources behind it.
+  ///
+  /// Async on purpose: on Android the hardware decoder only comes back when the
+  /// returned future completes, so callers freeing it for something else must
+  /// await this.
+  @override
+  Future<void> dispose();
+
   /// Toggles the mute state between muted and unmuted.
   void toggleMute();
 
@@ -94,6 +102,14 @@ abstract class OmniPlaybackController with ChangeNotifier {
 
   /// Whether the player is actively seeking to a position.
   bool get isSeeking;
+
+  /// Whether a [replay] is in flight: from the call until playback has really
+  /// resumed, which on Android means rebuilding the player first.
+  ///
+  /// A player in this state is not stopped — it is on its way back — so a UI
+  /// that offers "tap to restart" should stay out of the way while it is true.
+  /// Backends that restart instantly never report it.
+  bool get isReplaying => false;
 
   /// Whether playback has started at least once.
   bool get hasStarted;

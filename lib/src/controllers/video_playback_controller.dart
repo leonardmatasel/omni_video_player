@@ -9,6 +9,11 @@ import 'package:video_player/video_player.dart';
 /// and optionally delegates [play] / [pause] to a [GlobalVideoPlayerManager]
 /// to enforce a single active video at a time.
 class VideoPlaybackController extends VideoPlayerController {
+  /// Android is the platform this class bends for: it never takes audio focus,
+  /// and its commands have to be spaced out.
+  static bool get _isAndroid =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
   /// Whether the controller is still mounted (not yet disposed).
   bool _mounted = true;
 
@@ -23,7 +28,7 @@ class VideoPlaybackController extends VideoPlayerController {
   VideoPlaybackController.uri(
     super.url, {
     this.isLive = false,
-    mixWithOthers = false,
+    bool mixWithOthers = false,
     super.httpHeaders,
   }) : super.networkUrl(
          // YouTube live (and other live HLS) is returned as a manifest URL with
@@ -31,7 +36,11 @@ class VideoPlaybackController extends VideoPlayerController {
          // and playback fails. Tell it explicitly that live streams are HLS.
          // VOD uses progressive mp4 streams, which are auto-detected.
          formatHint: isLive ? VideoFormat.hls : null,
-         videoPlayerOptions: VideoPlayerOptions(mixWithOthers: mixWithOthers),
+         // Audio focus is exclusive on Android: whoever takes it makes
+         // ExoPlayer pause every other player, muted or not.
+         videoPlayerOptions: VideoPlayerOptions(
+           mixWithOthers: mixWithOthers || _isAndroid,
+         ),
        );
 
   /// Creates a controller for an asset video.
@@ -46,14 +55,60 @@ class VideoPlaybackController extends VideoPlayerController {
   VideoPlaybackController.file(super.file, {this.isLive = false})
     : super.file();
 
-  @override
-  Future<void> play() async {
-    if (_mounted) await super.play();
+  /// Breathing room between two platform commands. ExoPlayer drops a `play`
+  /// issued on the heels of a `seekTo` — the video rewinds and never resumes.
+  /// AVPlayer and the web element don't, so they pay nothing for it.
+  static Duration get _commandGap =>
+      _isAndroid ? const Duration(milliseconds: 20) : Duration.zero;
+
+  Future<void> _commands = Future<void>.value();
+
+  /// Runs [command] after every command already queued, then waits [_commandGap].
+  ///
+  /// The mounted guard lives *inside* the closure: a command waiting its turn
+  /// would otherwise fire on a controller disposed while it queued.
+  ///
+  /// Nothing here times out: the queue exists so that commands land in the
+  /// order they were issued, and a deadline would break exactly that. A
+  /// platform call that never answers does hold up the ones behind it — a
+  /// player in that state is gone, and the way back is to rebuild it.
+  Future<void> _enqueue(Future<void> Function() command) {
+    final next = _commands.then((_) async {
+      if (!_mounted) return;
+      await command();
+      final gap = _commandGap;
+      if (_mounted && gap > Duration.zero) await Future<void>.delayed(gap);
+    });
+    // A failed command must not wedge the queue for everyone behind it.
+    _commands = next.catchError((_) {});
+
+    return next;
   }
 
   @override
-  Future<void> pause() async {
-    if (_mounted) await super.pause();
+  Future<void> play() => _enqueue(super.play);
+
+  @override
+  Future<void> pause() => _enqueue(super.pause);
+
+  /// The seek still waiting its turn, and the future its callers hold.
+  Duration? _queuedSeek;
+  Future<void>? _queuedSeekResult;
+
+  @override
+  Future<void> seekTo(Duration position) {
+    // A drag on the progress bar fires a burst of seeks: the one still waiting
+    // is replaced rather than queued behind, or playback walks through every
+    // intermediate position, always trailing the finger.
+    _queuedSeek = position;
+
+    return _queuedSeekResult ??= _enqueue(() {
+      final target = _queuedSeek ?? position;
+      _queuedSeek = null;
+      _queuedSeekResult = null;
+
+      return super.seekTo(target);
+    });
   }
 
   /// Returns a more reliable buffering state on Android for non‑live videos.
@@ -89,6 +144,8 @@ class VideoPlaybackController extends VideoPlayerController {
   @override
   Future<void> dispose() {
     _mounted = false;
+    _queuedSeek = null;
+    _queuedSeekResult = null;
     return super.dispose();
   }
 }

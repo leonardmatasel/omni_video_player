@@ -26,6 +26,11 @@ class PlayerUIVisibilityOptions {
   /// Whether to show the loading widget during buffering.
   final bool showLoadingWidget;
 
+  /// Whether to show the spinner drawn over the video while a seek is in
+  /// flight. Turn it off for decorative loops, where a seek is a restart the
+  /// viewer never asked for and the spinner reads as a flicker.
+  final bool showSeekingIndicator;
+
   /// Whether to display an error placeholder widget if playback fails.
   final bool showErrorPlaceholder;
 
@@ -170,6 +175,7 @@ class PlayerUIVisibilityOptions {
     this.showRemainingTime = true,
     this.showLiveIndicator = true,
     this.showLoadingWidget = true,
+    this.showSeekingIndicator = true,
     this.showErrorPlaceholder = true,
     this.showReplayButton = true,
     this.showThumbnailAtStart = true,
@@ -208,6 +214,7 @@ class PlayerUIVisibilityOptions {
     bool? showRemainingTime,
     bool? showLiveIndicator,
     bool? showLoadingWidget,
+    bool? showSeekingIndicator,
     bool? showErrorPlaceholder,
     bool? showReplayButton,
     bool? showThumbnailAtStart,
@@ -243,6 +250,7 @@ class PlayerUIVisibilityOptions {
       showRemainingTime: showRemainingTime ?? this.showRemainingTime,
       showLiveIndicator: showLiveIndicator ?? this.showLiveIndicator,
       showLoadingWidget: showLoadingWidget ?? this.showLoadingWidget,
+      showSeekingIndicator: showSeekingIndicator ?? this.showSeekingIndicator,
       showErrorPlaceholder: showErrorPlaceholder ?? this.showErrorPlaceholder,
       showReplayButton: showReplayButton ?? this.showReplayButton,
       showThumbnailAtStart: showThumbnailAtStart ?? this.showThumbnailAtStart,

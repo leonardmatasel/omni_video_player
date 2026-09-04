@@ -13,7 +13,6 @@ import 'package:omni_video_player/src/widgets/opaque_control_surfaces.dart';
 import 'package:omni_video_player/src/widgets/bottom_control_bar/gradient_bottom_control_bar.dart';
 import 'package:omni_video_player/src/widgets/bottom_control_bar/video_playback_control_bar.dart';
 import '../../widgets/indicators/animated_skip_indicator.dart';
-import '../../widgets/indicators/loader_indicator.dart';
 
 /// Overlay widget managing playback controls, gestures, and skip indicators.
 ///
@@ -365,11 +364,13 @@ class _OmniVideoPlayerControlsOverlayState
         onStartInteraction: onStartInteraction,
         onEndInteraction: onEndInteraction,
       ),
-      if (ctrl.isSeeking && !ctrl.isFinished)
+      if (widget.configuration.playerUIVisibilityOptions.showLoadingWidget &&
+          widget.configuration.playerUIVisibilityOptions.showSeekingIndicator &&
+          ctrl.isSeeking)
         Positioned.fill(
           child: Align(
             alignment: Alignment.center,
-            child: const LoaderIndicator(),
+            child: widget.configuration.customPlayerWidgets.loadingWidget,
           ),
         ),
       Positioned.fill(child: _buildCenterButton(isButtonVisible)),
@@ -504,7 +505,7 @@ class _OmniVideoPlayerControlsOverlayState
       final atEnd = ctrl.isFinished;
       return atStart || atEnd;
     }
-    return ctrl.isFinished ||
+    return (ctrl.isFinished && !ctrl.isSeeking) ||
         (areControlsVisible &&
             !ctrl.isBuffering &&
             !ctrl.isSeeking &&

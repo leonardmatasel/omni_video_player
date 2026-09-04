@@ -121,7 +121,8 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
             Positioned.fill(
               child: Center(child: _buildThumbnailPreview(theme, aspectRatio)),
             ),
-          if (!controller.isReady)
+          if (config.playerUIVisibilityOptions.showLoadingWidget &&
+              !controller.isReady)
             Positioned.fill(
               child: Center(child: config.customPlayerWidgets.loadingWidget),
             ),

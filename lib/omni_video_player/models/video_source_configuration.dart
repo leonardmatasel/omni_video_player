@@ -173,6 +173,11 @@ class VideoSourceConfiguration {
   /// Whether the player should automatically switch to fullscreen mode when initialization is complete.
   final bool autoFullScreenAtStart;
 
+  /// Whether this player lets other audio keep playing instead of taking audio
+  /// focus. On Android taking focus pauses every other player, so a muted
+  /// decorative loop must set this to `true` to coexist with the others.
+  final bool mixWithOthers;
+
   /// Optional HTTP headers (e.g., for authentication) to send with the video request.
   final Map<String, String>? httpHeaders;
 
@@ -199,6 +204,7 @@ class VideoSourceConfiguration {
     this.timeoutDuration = const Duration(seconds: 6),
     this.pauseWhenOutOfView = true,
     this.autoFullScreenAtStart = false,
+    this.mixWithOthers = false,
   }) : _requestedVolume = initialVolume;
 
   /// Factory constructor for Vimeo videos.
@@ -361,6 +367,7 @@ class VideoSourceConfiguration {
     YoutubeWebViewConfiguration? youtubeWebView,
     bool? keepAlive,
     bool? pauseWhenOutOfView,
+    bool? mixWithOthers,
     bool? autoFullScreenAtStart,
     Map<String, String>? httpHeaders,
   }) {
@@ -394,6 +401,7 @@ class VideoSourceConfiguration {
           synchronizeMuteAcrossPlayers ?? this.synchronizeMuteAcrossPlayers,
       keepAlive: keepAlive ?? this.keepAlive,
       pauseWhenOutOfView: pauseWhenOutOfView ?? this.pauseWhenOutOfView,
+      mixWithOthers: mixWithOthers ?? this.mixWithOthers,
       autoFullScreenAtStart:
           autoFullScreenAtStart ?? this.autoFullScreenAtStart,
       httpHeaders: httpHeaders ?? this.httpHeaders,
@@ -423,6 +431,7 @@ class VideoSourceConfiguration {
         other.synchronizeMuteAcrossPlayers == synchronizeMuteAcrossPlayers &&
         other.keepAlive == keepAlive &&
         other.pauseWhenOutOfView == pauseWhenOutOfView &&
+        other.mixWithOthers == mixWithOthers &&
         other.autoFullScreenAtStart == autoFullScreenAtStart &&
         mapEquals(other.httpHeaders, httpHeaders);
   }
@@ -448,6 +457,7 @@ class VideoSourceConfiguration {
     synchronizeMuteAcrossPlayers,
     keepAlive,
     pauseWhenOutOfView,
+    mixWithOthers,
     autoFullScreenAtStart,
     httpHeaders == null
         ? null

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player.dart';
-import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/src/_core/utils/omni_video_player_initializer_factory.dart';
 import 'package:omni_video_player/src/_youtube/youtube_webview_controller.dart';
 import 'package:omni_video_player/src/_youtube/youtube_webview_player_view.dart';
@@ -62,7 +61,9 @@ class YouTubeWebViewInitializer implements IOmniVideoPlayerInitializerStrategy {
         child: YouTubeWebViewPlayerView(
           key: config.globalKeyPlayer,
           controller: controller,
-          customLoader: config.customPlayerWidgets.loadingWidget,
+          customLoader: config.playerUIVisibilityOptions.showLoadingWidget
+              ? config.customPlayerWidgets.loadingWidget
+              : const SizedBox.shrink(),
         ),
       );
     });

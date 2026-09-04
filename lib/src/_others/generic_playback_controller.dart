@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:omni_video_player/omni_video_player.dart';
-import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:video_player/video_player.dart';
 
 import '../controllers/audio_playback_controller.dart';
@@ -21,6 +21,7 @@ class GenericPlaybackController extends OmniPlaybackController {
   final VideoPlayerCallbacks callbacks;
   final GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer;
   final Map<String, String>? httpHeaders;
+  final bool mixWithOthers;
 
   @override
   final File? file;
@@ -61,7 +62,7 @@ class GenericPlaybackController extends OmniPlaybackController {
   int _seekGeneration = 0;
 
   /// Guards against re-entrant [switchQuality] while a swap is in flight. (B3)
-  bool _switchingQuality = false;
+  bool _swappingController = false;
   final GlobalPlaybackController? _globalController;
   double _previousVolume = 1.0;
   bool _isNotifyPending = false;
@@ -198,6 +199,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     this.currentVideoQuality,
     this.globalKeyPlayer,
     this.httpHeaders,
+    this.mixWithOthers,
   ) {
     duration = videoController.value.duration;
 
@@ -231,6 +233,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     OmniVideoQuality? currentVideoQuality,
     required GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer,
     Map<String, String>? httpHeaders,
+    bool mixWithOthers = false,
   }) async {
     final videoController =
         (type == VideoSourceType.asset && dataSource != null)
@@ -240,7 +243,7 @@ class GenericPlaybackController extends OmniPlaybackController {
         : VideoPlaybackController.uri(
             videoUrl!,
             isLive: isLive,
-            mixWithOthers: false,
+            mixWithOthers: mixWithOthers,
             httpHeaders: httpHeaders ?? const <String, String>{},
           );
 
@@ -280,6 +283,7 @@ class GenericPlaybackController extends OmniPlaybackController {
       currentVideoQuality,
       globalKeyPlayer,
       httpHeaders,
+      mixWithOthers,
     );
   }
 
@@ -295,8 +299,8 @@ class GenericPlaybackController extends OmniPlaybackController {
     if (newUrl == null) return;
 
     // Guard against a re-entrant switch racing on [videoController]. (B3)
-    if (_switchingQuality) return;
-    _switchingQuality = true;
+    if (_swappingController) return;
+    _swappingController = true;
     try {
       final wasPlaying = isPlaying;
       final currentPos = currentPosition;
@@ -308,45 +312,66 @@ class GenericPlaybackController extends OmniPlaybackController {
 
       await pause(useGlobalController: false);
 
-      final newController = VideoPlaybackController.uri(
-        newUrl,
-        isLive: isLive,
-        httpHeaders: httpHeaders ?? const <String, String>{},
-      );
-      await newController.initialize();
-      if (_isDisposed) {
-        await newController.dispose();
-        return;
-      }
-
-      // Swap atomically: detach old, point [videoController] at the new one,
-      // then attach — so [_onControllerUpdate] never reads a half-swapped or
-      // already-disposed controller. (B3)
-      final old = videoController;
-      old.removeListener(_onControllerUpdate);
-      videoController = newController;
-      videoController.addListener(_onControllerUpdate);
+      if (!await _swapVideoController(newUrl, volume: currentVolume)) return;
       currentVideoQuality = newQuality;
-
-      sharedPlayerNotifier.value = Hero(
-        tag: globalKeyPlayer,
-        child: VideoPlayer(key: GlobalKey(), newController),
-      );
-
-      videoController.setVolume(currentVolume);
-      await old.dispose();
 
       await seekTo(currentPos);
       if (wasPlaying) await play(useGlobalController: false);
 
       notifyListeners();
     } finally {
-      _switchingQuality = false;
+      _swappingController = false;
     }
   }
 
+  /// Replaces the native player with a fresh one on the same [url], at zero.
+  ///
+  /// Returns false if this controller was disposed meanwhile. The caller holds
+  /// the [_swappingController] lock and decides position and playback.
+  Future<bool> _swapVideoController(Uri url, {required double volume}) async {
+    final newController = VideoPlaybackController.uri(
+      url,
+      isLive: isLive,
+      mixWithOthers: mixWithOthers,
+      httpHeaders: httpHeaders ?? const <String, String>{},
+    );
+    await newController.initialize();
+    if (_isDisposed) {
+      await newController.dispose();
+
+      return false;
+    }
+
+    // Swap atomically: detach old, point [videoController] at the new one,
+    // then attach — so [_onControllerUpdate] never reads a half-swapped or
+    // already-disposed controller. (B3)
+    final old = videoController;
+    old.removeListener(_onControllerUpdate);
+    videoController = newController;
+    videoController.addListener(_onControllerUpdate);
+
+    sharedPlayerNotifier.value = Hero(
+      tag: globalKeyPlayer,
+      child: VideoPlayer(key: GlobalKey(), newController),
+    );
+
+    videoController.setVolume(volume);
+    await old.dispose();
+
+    return true;
+  }
+
+  /// Whether a replay rebuilds the player instead of seeking back to zero.
+  ///
+  /// On Android the flush behind a seek can take tens of seconds on a heavy
+  /// stream (4K HDR HEVC); a fresh player starts over with no flush at all.
+  static bool get _replayRebuildsPlayer =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
   void _onControllerUpdate() {
     if (_isDisposed) return;
+
+    if (_isReplaying && videoController.value.isPlaying) _isReplaying = false;
 
     if (duration != videoController.value.duration) {
       duration = videoController.value.duration;
@@ -512,22 +537,19 @@ class GenericPlaybackController extends OmniPlaybackController {
     }
   }
 
-  // Helper per aspettare il video
-  Future<void> _waitForBuffer(VideoPlayerController controller) async {
-    final int timeoutMs = 10000;
-    final int stepMs = 100;
-    int elapsed = 0;
+  /// How long a resume waits for the buffer before starting anyway.
+  ///
+  /// Deliberately short: [isSeeking] stays true for all of it, so anything
+  /// reading that flag sees a seek that has long landed. ExoPlayer buffers on
+  /// its own regardless.
+  static const _bufferWait = Duration(seconds: 2);
 
-    while (elapsed < timeoutMs) {
-      if (!controller.value.isBuffering && controller.value.isInitialized) {
-        break;
-      }
-      await Future.delayed(Duration(milliseconds: stepMs));
-      elapsed += stepMs;
-    }
-  }
+  Future<void> _waitForBuffer(VideoPlayerController controller) => _waitUntil(
+    () => !controller.value.isBuffering && controller.value.isInitialized,
+    timeout: _bufferWait,
+    step: const Duration(milliseconds: 100),
+  );
 
-  // Helper specifico per aspettare l'audio
   Future<void> _waitForAudioBuffer() async {
     final int timeoutMs = 10000;
     final int stepMs = 100;
@@ -602,11 +624,51 @@ class GenericPlaybackController extends OmniPlaybackController {
     notifyListeners();
   }
 
+  bool _isReplaying = false;
+
+  @override
+  bool get isReplaying => _isReplaying;
+
   @override
   Future<void> replay({bool useGlobalController = true}) async {
+    _isReplaying = true;
+    notifyListeners();
+
     await pause(useGlobalController: useGlobalController);
-    await seekTo(Duration.zero);
+
+    final url = videoUrl;
+    if (_replayRebuildsPlayer && url != null && !_swappingController) {
+      _swappingController = true;
+      // Rebuilding means an initialize: without this the UI sits on the
+      // replay button, frozen, until playback comes back.
+      isSeeking = true;
+      try {
+        if (!await _swapVideoController(
+          url,
+          volume: videoController.value.volume,
+        )) {
+          // The rebuild failed: close the window here, or it stays open
+          // forever on a player that will never resume.
+          _isReplaying = false;
+
+          return;
+        }
+      } finally {
+        _swappingController = false;
+        isSeeking = false;
+      }
+    } else {
+      await seekTo(Duration.zero);
+    }
+
     await play(useGlobalController: useGlobalController);
+
+    // If the play already landed the window closes here; otherwise
+    // [_onControllerUpdate] closes it as soon as the platform reports it.
+    if (isPlaying) {
+      _isReplaying = false;
+      notifyListeners();
+    }
   }
 
   @override
@@ -614,6 +676,7 @@ class GenericPlaybackController extends OmniPlaybackController {
 
   @override
   Future<void> dispose() async {
+    _isReplaying = false;
     _globalController?.unregisterController(this);
     _stopProgressTimer();
     _isDisposed = true;

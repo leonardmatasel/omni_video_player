@@ -1,7 +1,9 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:omni_video_player/omni_video_player.dart';
-import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/src/_webm/webm_webview_controller.dart';
 
 import 'support/platform_channel_stubs.dart';
@@ -51,6 +53,37 @@ class _RecordingController extends WebmVideoWebViewController {
       calls.add('pause');
 }
 
+/// Una dispose che non finisce finché non si apre il cancello: serve a vedere
+/// se releaseAllResources la aspetta davvero.
+class _SlowDisposeController extends WebmVideoWebViewController {
+  _SlowDisposeController(this.gate)
+    : super(
+        duration: const Duration(seconds: 10),
+        isLive: false,
+        size: const Size(640, 360),
+        callbacks: const VideoPlayerCallbacks(),
+        options: VideoPlayerConfiguration(
+          videoSourceConfiguration: VideoSourceConfiguration.network(
+            videoUrl: Uri.parse('https://example.com/v.webm'),
+          ),
+        ),
+        videoUrlStr: 'https://example.com/v.webm',
+        globalKeyPlayer: GlobalKey<OmniVideoPlayerInitializerState>(),
+        isFile: false,
+        globalController: null,
+      );
+
+  final Completer<void> gate;
+  bool disposed = false;
+
+  @override
+  Future<void> dispose() async {
+    await gate.future;
+    disposed = true;
+    await super.dispose();
+  }
+}
+
 void main() {
   setUp(() async {
     stubVolumeControllerChannel();
@@ -58,7 +91,10 @@ void main() {
     await GlobalPlaybackController().requestPause();
   });
 
-  test('due player muti riproducono insieme', () async {
+  test('due player muti riproducono insieme, fuori da Android', () async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    addTearDown(() => debugDefaultTargetPlatformOverride = null);
+
     final global = GlobalPlaybackController();
     final first = _RecordingController(volume: 0);
     final second = _RecordingController(volume: 0);
@@ -72,13 +108,36 @@ void main() {
     expect(second.calls, ['play']);
   });
 
-  test('un player muto non diventa il player corrente', () async {
+  test(
+    'un player muto non diventa il player corrente, fuori da Android',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+
+      final global = GlobalPlaybackController();
+      final muted = _RecordingController(volume: 0);
+
+      await global.requestPlay(muted);
+
+      expect(global.currentVideoPlaying, isNull);
+    },
+  );
+
+  test('su Android anche i muti si escludono a vicenda', () async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    addTearDown(() => debugDefaultTargetPlatformOverride = null);
+
     final global = GlobalPlaybackController();
-    final muted = _RecordingController(volume: 0);
+    final first = _RecordingController(volume: 0);
+    final second = _RecordingController(volume: 0);
 
-    await global.requestPlay(muted);
+    await global.requestPlay(first);
+    await global.requestPlay(second);
 
-    expect(global.currentVideoPlaying, isNull);
+    // La' la risorsa scarsa e' il decoder hardware, non l'audio.
+    expect(first.calls, ['play', 'pause']);
+    expect(second.calls, ['play']);
+    expect(global.currentVideoPlaying, same(second));
   });
 
   test('un player audibile mette in pausa l\'audibile precedente', () async {
@@ -94,16 +153,22 @@ void main() {
     expect(global.currentVideoPlaying, same(second));
   });
 
-  test('un player audibile non mette in pausa i muti', () async {
-    final global = GlobalPlaybackController();
-    final muted = _RecordingController(volume: 0);
-    final audible = _RecordingController(volume: 1);
+  test(
+    'un player audibile non mette in pausa i muti, fuori da Android',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
 
-    await global.requestPlay(muted);
-    await global.requestPlay(audible);
+      final global = GlobalPlaybackController();
+      final muted = _RecordingController(volume: 0);
+      final audible = _RecordingController(volume: 1);
 
-    expect(muted.calls, ['play']);
-  });
+      await global.requestPlay(muted);
+      await global.requestPlay(audible);
+
+      expect(muted.calls, ['play']);
+    },
+  );
 
   test('avviare la riproduzione non tocca il volume', () async {
     final global = GlobalPlaybackController();
@@ -182,5 +247,27 @@ void main() {
       isTrue,
       reason: 'nessun tentativo verso WakelockPlus dopo il fullscreen',
     );
+  });
+
+  test('releaseAllResources aspetta che ogni dispose sia finita', () async {
+    final global = GlobalPlaybackController();
+    final gate = Completer<void>();
+    final slow = _SlowDisposeController(gate);
+    global.registerController(slow);
+
+    var released = false;
+    unawaited(global.releaseAllResources().then((_) => released = true));
+    await pumpEventQueue();
+
+    // Il decoder nativo torna disponibile solo quando la dispose e' completata:
+    // chi apre la fotocamera subito dopo lo troverebbe ancora occupato.
+    expect(slow.disposed, isFalse);
+    expect(released, isFalse);
+
+    gate.complete();
+    await pumpEventQueue();
+
+    expect(slow.disposed, isTrue);
+    expect(released, isTrue);
   });
 }

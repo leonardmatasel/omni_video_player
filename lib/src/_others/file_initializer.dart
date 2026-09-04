@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:omni_video_player/omni_video_player.dart';
-import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/src/_others/generic_playback_controller.dart';
 import 'package:omni_video_player/src/_core/utils/omni_video_player_initializer_factory.dart';
 import 'package:video_player/video_player.dart' show VideoPlayer;
