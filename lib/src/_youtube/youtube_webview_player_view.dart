@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show Factory;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -34,7 +36,10 @@ class _YouTubeWebViewPlayerViewState extends State<YouTubeWebViewPlayerView> {
     if (uri == null) return true;
     final scheme = uri.scheme;
     // Initial / in-memory loads.
-    if (scheme.isEmpty || scheme == 'data' || scheme == 'about' || scheme == 'blob') {
+    if (scheme.isEmpty ||
+        scheme == 'data' ||
+        scheme == 'about' ||
+        scheme == 'blob') {
       return true;
     }
     final host = uri.host;
@@ -123,8 +128,17 @@ class _YouTubeWebViewPlayerViewState extends State<YouTubeWebViewPlayerView> {
 
     final native = widget.controller.usesNativeCenterControls;
     return IgnorePointer(
-      ignoring: !native, // native mode: iframe interactive (YouTube handles taps)
+      ignoring:
+          !native, // native mode: iframe interactive (YouTube handles taps)
       child: InAppWebView(
+        // Native mode the iframe is live, and a platform view left to itself
+        // claims every touch. Hand it the taps it needs (play/pause, YouTube's
+        // double-tap) and nothing else, so a pinch stays with Flutter.
+        gestureRecognizers: native
+            ? <Factory<OneSequenceGestureRecognizer>>{
+                Factory(() => TapGestureRecognizer()),
+              }
+            : null,
         initialData: InAppWebViewInitialData(
           data: _htmlContent!,
           encoding: 'utf-8',

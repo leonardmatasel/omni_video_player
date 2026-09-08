@@ -114,6 +114,7 @@ class _VideoScreenState extends State<VideoScreen> {
                   ),
                 ),
                 playerUIVisibilityOptions: PlayerUIVisibilityOptions().copyWith(
+                  enableZoom: true,
                   showSeekBar: true,
                   showCurrentTime: true,
                   showDurationTime: true,

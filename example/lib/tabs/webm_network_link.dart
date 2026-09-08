@@ -22,6 +22,7 @@ class WebmNetworkLink extends StatelessWidget {
               ),
             ),
             playerUIVisibilityOptions: PlayerUIVisibilityOptions(
+              enableZoom: true,
               useSafeAreaForBottomControls: true,
               showPlaybackSpeedButton: true,
             ),

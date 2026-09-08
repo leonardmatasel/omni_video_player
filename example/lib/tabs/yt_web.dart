@@ -35,9 +35,12 @@ class YTWeb extends StatelessWidget {
                 OmniVideoQuality.high720,
                 OmniVideoQuality.medium480,
               ],
-              webView: const YoutubeWebViewConfiguration(forceWebViewOnly: true),
+              webView: const YoutubeWebViewConfiguration(
+                forceWebViewOnly: true,
+              ),
             ),
             playerUIVisibilityOptions: PlayerUIVisibilityOptions().copyWith(
+              enableZoom: true,
               useSafeAreaForBottomControls: true,
               showPlaybackSpeedButton: true,
             ),

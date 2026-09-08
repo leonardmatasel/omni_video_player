@@ -37,6 +37,9 @@ class Playlist extends StatelessWidget {
                 'https://www.youtube.com/watch?v=djV11Xbc914',
               ),
             ),
+            playerUIVisibilityOptions: PlayerUIVisibilityOptions(
+              enableZoom: true,
+            ),
             playerTheme: OmniVideoPlayerThemeData().copyWith(
               colors: VideoPlayerColorScheme().copyWith(
                 controlButtonBackground: Colors.deepPurple,

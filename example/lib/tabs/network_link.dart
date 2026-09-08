@@ -22,6 +22,7 @@ class NetworkLink extends StatelessWidget {
             playerUIVisibilityOptions: PlayerUIVisibilityOptions(
               useSafeAreaForBottomControls: true,
               showPlaybackSpeedButton: true,
+              enableZoom: true,
             ),
             customPlayerWidgets: CustomPlayerWidgets().copyWith(
               loadingWidget: CircularProgressIndicator(color: Colors.white),

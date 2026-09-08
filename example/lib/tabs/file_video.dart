@@ -59,6 +59,7 @@ class _FileVideoState extends State<FileVideo> {
                                 videoFile: _videoFile!,
                               ),
                           playerUIVisibilityOptions: PlayerUIVisibilityOptions(
+                            enableZoom: true,
                             useSafeAreaForBottomControls: true,
                             showPlaybackSpeedButton: true,
                           ),

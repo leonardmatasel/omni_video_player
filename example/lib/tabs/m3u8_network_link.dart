@@ -22,6 +22,7 @@ class M3u8NetworkLink extends StatelessWidget {
               ),
             ),
             playerUIVisibilityOptions: PlayerUIVisibilityOptions(
+              enableZoom: true,
               useSafeAreaForBottomControls: true,
               showPlaybackSpeedButton: true,
             ),

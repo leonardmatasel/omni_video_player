@@ -238,6 +238,12 @@ class _OmniVideoPlayerControlsOverlayState
                       behavior: native
                           ? HitTestBehavior.deferToChild
                           : HitTestBehavior.opaque,
+                      // Zoom lives here and not on the video: the double-tap
+                      // zones above it are opaque (on web a translucent zone
+                      // lets the tap fall through to the HTML element), so a
+                      // recognizer under them never reaches the gesture arena.
+                      onScaleStart: opts.enableZoom ? _onScaleStart : null,
+                      onScaleUpdate: opts.enableZoom ? _onScaleUpdate : null,
                       onTap: native
                           ? null
                           : () {
@@ -285,38 +291,10 @@ class _OmniVideoPlayerControlsOverlayState
     final bool native = widget.controller.usesNativeCenterControls;
 
     final player = ConditionalParent(
-      wrapWith: (ctx, child) => GestureDetector(
-        onScaleStart: (details) {
-          _baseScale = _scale;
-        },
-        onScaleUpdate: (details) {
-          setState(() {
-            // --- ZOOM ---
-            _scale = (_baseScale * details.scale).clamp(1.0, 5.0);
-
-            // --- PAN SOLO SE ZOOM > 1 ---
-            if (_scale > 1.0) {
-              _offset += details.focalPointDelta;
-
-              // limiti del pan:
-              final maxX = (context.size!.width * (_scale - 1)) / 2;
-              final maxY = (context.size!.height * (_scale - 1)) / 2;
-
-              _offset = Offset(
-                _offset.dx.clamp(-maxX, maxX),
-                _offset.dy.clamp(-maxY, maxY),
-              );
-            } else {
-              // quando torni a 1x rimetti centrato
-              _offset = Offset.zero;
-            }
-          });
-        },
-        child: ClipRect(
-          child: Transform.translate(
-            offset: _offset,
-            child: Transform.scale(scale: _scale, child: child),
-          ),
+      wrapWith: (ctx, child) => ClipRect(
+        child: Transform.translate(
+          offset: _offset,
+          child: Transform.scale(scale: _scale, child: child),
         ),
       ),
       wrapWhen: widget.configuration.playerUIVisibilityOptions.enableZoom,
@@ -517,6 +495,26 @@ class _OmniVideoPlayerControlsOverlayState
   bool get _isInDoubleTapState =>
       _tapState == _TapInteractionState.doubleTapForward ||
       _tapState == _TapInteractionState.doubleTapBackward;
+
+  void _onScaleStart(ScaleStartDetails details) => _baseScale = _scale;
+
+  void _onScaleUpdate(ScaleUpdateDetails details) {
+    setState(() {
+      _scale = (_baseScale * details.scale).clamp(1.0, 5.0);
+      if (_scale == 1.0) {
+        _offset = Offset.zero;
+        return;
+      }
+      // Pan only once zoomed in, and never past the edges of the video.
+      final maxX = (context.size!.width * (_scale - 1)) / 2;
+      final maxY = (context.size!.height * (_scale - 1)) / 2;
+      _offset += details.focalPointDelta;
+      _offset = Offset(
+        _offset.dx.clamp(-maxX, maxX),
+        _offset.dy.clamp(-maxY, maxY),
+      );
+    });
+  }
 
   void _handleVerticalDrag(DragUpdateDetails details) {
     if (details.primaryDelta != null && details.primaryDelta!.abs() > 10) {

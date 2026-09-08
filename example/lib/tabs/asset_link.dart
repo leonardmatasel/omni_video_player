@@ -20,6 +20,7 @@ class AssetLink extends StatelessWidget {
               videoDataSource: 'assets/sample.mp4',
             ),
             playerUIVisibilityOptions: PlayerUIVisibilityOptions(
+              enableZoom: true,
               useSafeAreaForBottomControls: true,
               showPlaybackSpeedButton: true,
             ),

@@ -26,6 +26,7 @@ class YTLive extends StatelessWidget {
               thumbnailFit: BoxFit.fitWidth,
             ),
             playerUIVisibilityOptions: PlayerUIVisibilityOptions(
+              enableZoom: true,
               showLiveIndicator: true,
               showFullScreenButton: true,
               showGradientBottomControl: true,

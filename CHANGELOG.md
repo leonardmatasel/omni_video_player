@@ -1,3 +1,9 @@
+# 6.0.1
+
+🐛 **Fixes**
+
+* `enableZoom` works again, and now also on the WebView players (YouTube live, Vimeo) ([#85](https://github.com/leonardmatasel/omni_video_player/issues/85)).
+
 # 6.0.0
 
 ⚠️ **Breaking changes**

@@ -56,6 +56,7 @@ class _VimeoState extends State<Vimeo> {
               videoId: '1017406920',
             ).copyWith(initialVolume: 0.8),
             playerUIVisibilityOptions: PlayerUIVisibilityOptions(
+              enableZoom: true,
               useSafeAreaForBottomControls: true,
               showPlaybackSpeedButton: true,
             ),

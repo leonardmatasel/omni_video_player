@@ -57,6 +57,7 @@ class YT extends StatelessWidget {
               ],
             ),
             playerUIVisibilityOptions: PlayerUIVisibilityOptions().copyWith(
+              enableZoom: true,
               useSafeAreaForBottomControls: true,
               showPlaybackSpeedButton: true,
             ),

@@ -54,31 +54,35 @@ class VimeoPlayerView extends StatelessWidget {
     // https://github.com/pichillilorenzo/flutter_inappwebview/issues/2504
     return AnimatedBuilder(
       animation: controller,
-      builder: (BuildContext context, Widget? child) => InAppWebView(
-        initialSettings: InAppWebViewSettings(
-          mediaPlaybackRequiresUserGesture: false,
-          allowsInlineMediaPlayback: true,
-          useHybridComposition: true,
-          // Disable text selection / the iOS text-interaction callout at the
-          // WebView level (covers the cross-origin iframe too).
-          isTextInteractionEnabled: false,
+      // The iframe runs with controls=false: nothing in it is tappable, and an
+      // interactive WebView would just swallow the Flutter gestures above it.
+      builder: (BuildContext context, Widget? child) => IgnorePointer(
+        child: InAppWebView(
+          initialSettings: InAppWebViewSettings(
+            mediaPlaybackRequiresUserGesture: false,
+            allowsInlineMediaPlayback: true,
+            useHybridComposition: true,
+            // Disable text selection / the iOS text-interaction callout at the
+            // WebView level (covers the cross-origin iframe too).
+            isTextInteractionEnabled: false,
+          ),
+          initialData: InAppWebViewInitialData(
+            data: _buildHtmlContent(),
+            baseUrl: WebUri("https://player.vimeo.com"),
+          ),
+          onConsoleMessage: (controller, consoleMessage) {
+            final message = consoleMessage.message;
+            debugPrint('Vimeo event: $message');
+            if (message.startsWith('vimeo:')) {
+              _manageVimeoPlayerEvent(message.split("vimeo:")[1].trim());
+            }
+          },
+          onWebViewCreated: (controller) {
+            this.controller.setWebViewController(controller);
+          },
+          onProgressChanged: (controller, progress) =>
+              this.controller.isBuffering = progress != 100,
         ),
-        initialData: InAppWebViewInitialData(
-          data: _buildHtmlContent(),
-          baseUrl: WebUri("https://player.vimeo.com"),
-        ),
-        onConsoleMessage: (controller, consoleMessage) {
-          final message = consoleMessage.message;
-          debugPrint('Vimeo event: $message');
-          if (message.startsWith('vimeo:')) {
-            _manageVimeoPlayerEvent(message.split("vimeo:")[1].trim());
-          }
-        },
-        onWebViewCreated: (controller) {
-          this.controller.setWebViewController(controller);
-        },
-        onProgressChanged: (controller, progress) =>
-            this.controller.isBuffering = progress != 100,
       ),
     );
   }
