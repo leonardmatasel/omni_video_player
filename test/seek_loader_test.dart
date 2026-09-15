@@ -60,8 +60,7 @@ VideoPlayerConfiguration _config({
   ),
 );
 
-// Serve un ModalRoute (RouteAwareListener) e un Material ancestor (InkWell
-// dei bottoni).
+// Serve un Material ancestor (InkWell dei bottoni).
 Widget _overlay(VideoPlayerConfiguration config) => MaterialApp(
   home: Scaffold(
     body: OmniVideoPlayerTheme(

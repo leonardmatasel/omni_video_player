@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
-import 'package:omni_video_player/src/navigation/route_aware_listener.dart';
 
 class PlaybackControlsVisibilityManager extends StatefulWidget {
   final OmniPlaybackController controller;
@@ -123,18 +122,12 @@ class _PlaybackControlsVisibilityManagerState
 
   @override
   Widget build(BuildContext context) {
-    return RouteAwareListener(
-      onPopNext: (_) {
-        _setControlsVisibility(true);
-        if (_isCurrentlyPlaying) _restartAutoHideTimer();
-      },
-      child: widget.builder(
-        context,
-        _areControlsVisible,
-        _toggleVisibility,
-        _pauseAutoHideTimer,
-        _resumeAutoHideTimer,
-      ),
+    return widget.builder(
+      context,
+      _areControlsVisible,
+      _toggleVisibility,
+      _pauseAutoHideTimer,
+      _resumeAutoHideTimer,
     );
   }
 

@@ -3,7 +3,6 @@ import 'package:omni_video_player/omni_video_player/controllers/omni_playback_co
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
-import 'package:omni_video_player/src/navigation/route_aware_listener.dart';
 import 'package:omni_video_player/src/_core/utils/omni_video_player_viewport.dart';
 import 'package:omni_video_player/src/utils/conditional_parent.dart';
 import 'package:omni_video_player/src/utils/overlay_transition_switcher.dart';
@@ -152,13 +151,10 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
         child: VisibilityDetector(
           key: Key('video-visibility-${controller.hashCode}'),
           onVisibilityChanged: _handleVisibilityChanged,
-          child: RouteAwareListener(
-            onPopNext: (_) {},
-            child: OmniVideoPlayerViewport(
-              controller: controller,
-              isFullScreenDisplay: false,
-              aspectRatio: aspectRatio,
-            ),
+          child: OmniVideoPlayerViewport(
+            controller: controller,
+            isFullScreenDisplay: false,
+            aspectRatio: aspectRatio,
           ),
         ),
       ),

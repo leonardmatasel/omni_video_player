@@ -1,3 +1,9 @@
+# 6.0.2
+
+🐛 **Fixes**
+
+* A player placed outside a `ModalRoute` — in an `OverlayEntry` above the page, for instance — crashed on build with *Null check operator used on a null value*.
+
 # 6.0.1
 
 🐛 **Fixes**
