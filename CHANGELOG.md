@@ -1,3 +1,9 @@
+# 6.0.3
+
+🐛 **Fixes**
+
+* Fullscreen now paints above any `OverlayEntry` the app inserted over the route stack, so a player living in one no longer shows its old controls through fullscreen.
+
 # 6.0.2
 
 🐛 **Fixes**

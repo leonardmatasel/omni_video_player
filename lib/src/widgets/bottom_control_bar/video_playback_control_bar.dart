@@ -5,6 +5,7 @@ import 'package:omni_video_player/src/widgets/bottom_control_bar/volume_slider_c
 import 'package:omni_video_player/src/widgets/controls/fullscreen_toggle_button.dart';
 import 'package:omni_video_player/src/widgets/controls/video_quality_menu_button.dart';
 import 'package:omni_video_player/src/_core/omni_video_player_fullscreen.dart';
+import 'package:omni_video_player/src/_core/utils/fullscreen_overlay_host.dart';
 
 import '../controls/playback_speed_menu_button.dart';
 
@@ -128,12 +129,14 @@ class VideoPlaybackControlBar extends StatelessWidget {
         if (options.playerUIVisibilityOptions.showFullScreenButton)
           FullscreenToggleButton(
             controller: controller,
-            fullscreenPageBuilder: (context) => OmniVideoPlayerTheme(
-              data: options.playerTheme,
-              child: OmniVideoPlayerFullscreen(
-                controller: controller,
-                configuration: options,
-                callbacks: callbacks,
+            fullscreenPageBuilder: (context) => FullscreenOverlayHost(
+              child: OmniVideoPlayerTheme(
+                data: options.playerTheme,
+                child: OmniVideoPlayerFullscreen(
+                  controller: controller,
+                  configuration: options,
+                  callbacks: callbacks,
+                ),
               ),
             ),
             onFullscreenToggled: callbacks.onFullScreenToggled,
