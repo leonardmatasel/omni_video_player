@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/src/_core/omni_video_player_fullscreen.dart';
-import 'package:omni_video_player/src/_core/utils/fullscreen_overlay_host.dart';
+import 'package:omni_video_player/src/_core/utils/omni_video_player_viewport.dart';
 import 'package:omni_video_player/src/_webm/webm_webview_controller.dart';
 
 import 'support/platform_channel_stubs.dart';
@@ -34,15 +34,51 @@ final _config = VideoPlayerConfiguration(
   ),
 );
 
-/// Il player della app vive in una OverlayEntry sopra la route: senza il
-/// fullscreen in cima all'overlay, la entry coprirebbe il fullscreen.
-Widget _hostEntry(List<String> tapped) => GestureDetector(
-  onTap: () => tapped.add('host-entry'),
-  child: Container(color: const Color(0x88000000)),
+/// Sta per la WebView: se l'elemento viene smontato invece che spostato per
+/// GlobalKey, [mounts] cresce e la WebView vera sarebbe stata distrutta.
+class _Probe extends StatefulWidget {
+  const _Probe({super.key});
+  static int mounts = 0;
+  @override
+  State<_Probe> createState() => _ProbeState();
+}
+
+class _ProbeState extends State<_Probe> {
+  @override
+  void initState() {
+    super.initState();
+    _Probe.mounts++;
+  }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox.expand();
+}
+
+Widget _fullscreenPage(_StillController controller) => OmniVideoPlayerTheme(
+  data: OmniVideoPlayerThemeData(),
+  child: OmniVideoPlayerFullscreen(
+    controller: controller,
+    configuration: _config,
+    callbacks: const VideoPlayerCallbacks(),
+  ),
+);
+
+Widget _inlinePlayer(_StillController controller) => OmniVideoPlayerTheme(
+  data: OmniVideoPlayerThemeData(),
+  child: Material(
+    child: OmniVideoPlayerViewport(
+      controller: controller,
+      isFullScreenDisplay: false,
+      aspectRatio: 16 / 9,
+    ),
+  ),
 );
 
 void main() {
-  setUp(stubVolumeControllerChannel);
+  setUp(() {
+    stubVolumeControllerChannel();
+    _Probe.mounts = 0;
+  });
 
   testWidgets('il fullscreen si vede sopra una OverlayEntry della app', (
     tester,
@@ -60,7 +96,10 @@ void main() {
                 OverlayEntry(
                   builder: (ctx) {
                     entryContext = ctx;
-                    return _hostEntry(tapped);
+                    return GestureDetector(
+                      onTap: () => tapped.add('host-entry'),
+                      child: Container(color: const Color(0x88000000)),
+                    );
                   },
                 ),
               );
@@ -74,16 +113,7 @@ void main() {
 
     controller.switchFullScreenMode(
       entryContext,
-      pageBuilder: (_) => FullscreenOverlayHost(
-        child: OmniVideoPlayerTheme(
-          data: OmniVideoPlayerThemeData(),
-          child: OmniVideoPlayerFullscreen(
-            controller: controller,
-            configuration: _config,
-            callbacks: const VideoPlayerCallbacks(),
-          ),
-        ),
-      ),
+      pageBuilder: (_) => _fullscreenPage(controller),
     );
     await tester.pumpAndSettle();
 
@@ -93,7 +123,7 @@ void main() {
     expect(tapped, isEmpty);
     expect(find.byType(OmniVideoPlayerFullscreen), findsOneWidget);
 
-    // Uscendo, la entry della app torna a ricevere i tap e il fullscreen sparisce.
+    // Uscendo, la entry della app torna a ricevere i tap.
     Navigator.of(entryContext).pop();
     await tester.pumpAndSettle();
     expect(find.byType(OmniVideoPlayerFullscreen), findsNothing);
@@ -101,4 +131,53 @@ void main() {
     await tester.pump();
     expect(tapped, ['host-entry']);
   });
+
+  for (final inOverlay in [false, true]) {
+    final where = inOverlay ? 'in una OverlayEntry' : 'in una pagina';
+    testWidgets('il player condiviso passa al fullscreen senza rimontarsi, '
+        '$where', (tester) async {
+      final controller = _StillController();
+      final playerKey = GlobalKey();
+      controller.sharedPlayerNotifier.value = Hero(
+        tag: playerKey,
+        child: _Probe(key: playerKey),
+      );
+      late BuildContext playerContext;
+
+      Widget inline() => Builder(
+        builder: (ctx) {
+          playerContext = ctx;
+          return _inlinePlayer(controller);
+        },
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              if (!inOverlay) return inline();
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Overlay.of(
+                  context,
+                  rootOverlay: true,
+                ).insert(OverlayEntry(builder: (_) => inline()));
+              });
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(_Probe.mounts, 1);
+
+      controller.switchFullScreenMode(
+        playerContext,
+        pageBuilder: (_) => _fullscreenPage(controller),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(OmniVideoPlayerFullscreen), findsOneWidget);
+      expect(_Probe.mounts, 1, reason: 'la WebView e stata ricreata');
+    });
+  }
 }

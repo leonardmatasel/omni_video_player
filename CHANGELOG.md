@@ -1,3 +1,9 @@
+# 6.0.4
+
+🐛 **Fixes**
+
+* Fullscreen on the WebView players (YouTube, Vimeo) tore the webview down and reloaded the video, a regression of 6.0.3.
+
 # 6.0.3
 
 🐛 **Fixes**

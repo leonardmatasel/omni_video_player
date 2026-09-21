@@ -8,7 +8,6 @@ import 'package:omni_video_player/omni_video_player/models/video_player_configur
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
 import 'package:omni_video_player/src/_core/omni_video_player_fullscreen.dart';
-import 'package:omni_video_player/src/_core/utils/fullscreen_overlay_host.dart';
 import 'package:omni_video_player/src/api/vimeo_video_api.dart';
 import 'package:omni_video_player/src/api/youtube_video_api.dart';
 import 'package:omni_video_player/src/controllers/global_volume_synchronizer.dart';
@@ -228,14 +227,12 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
             .autoFullScreenAtStart) {
           _controller!.switchFullScreenMode(
             context,
-            pageBuilder: (context) => FullscreenOverlayHost(
-              child: OmniVideoPlayerTheme(
-                data: widget.configuration.playerTheme,
-                child: OmniVideoPlayerFullscreen(
-                  controller: _controller!,
-                  configuration: widget.configuration,
-                  callbacks: widget.callbacks,
-                ),
+            pageBuilder: (context) => OmniVideoPlayerTheme(
+              data: widget.configuration.playerTheme,
+              child: OmniVideoPlayerFullscreen(
+                controller: _controller!,
+                configuration: widget.configuration,
+                callbacks: widget.callbacks,
               ),
             ),
           );

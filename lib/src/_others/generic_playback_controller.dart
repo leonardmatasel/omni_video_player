@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:omni_video_player/omni_video_player.dart';
+import 'package:omni_video_player/src/_core/utils/open_fullscreen.dart';
 import 'package:video_player/video_player.dart';
 
 import '../controllers/audio_playback_controller.dart';
@@ -837,17 +838,7 @@ class GenericPlaybackController extends OmniPlaybackController {
       notifyListeners();
       onToggle?.call(true);
 
-      await Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (_, _, _) {
-            return pageBuilder!(context);
-          },
-          transitionsBuilder: (_, animation, _, Widget child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-        ),
-      );
+      await openFullscreen(context, pageBuilder!);
 
       // The controller may have been disposed while fullscreen was open (e.g. a
       // playlist advanced to the next video); don't touch its state then.

@@ -12,6 +12,7 @@ import 'package:omni_video_player/omni_video_player/models/video_player_callback
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_configuration.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_type.dart';
+import 'package:omni_video_player/src/_core/utils/open_fullscreen.dart';
 import 'package:video_player/video_player.dart';
 
 class VimeoController extends OmniPlaybackController {
@@ -328,15 +329,7 @@ class VimeoController extends OmniPlaybackController {
       notifyListeners();
       onToggle?.call(true);
 
-      await Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (_, _, _) => pageBuilder!(context),
-          transitionsBuilder: (_, animation, _, Widget child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-        ),
-      );
+      await openFullscreen(context, pageBuilder!);
     }
   }
 

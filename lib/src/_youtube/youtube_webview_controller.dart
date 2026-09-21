@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/src/_youtube/youtube_webview_event_handler.dart';
+import 'package:omni_video_player/src/_core/utils/open_fullscreen.dart';
 import 'package:video_player/video_player.dart' show DurationRange;
 
 class YouTubeWebViewController extends OmniPlaybackController {
@@ -455,15 +456,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
         _ensureLivePlayingAfterRouteChange();
       }
 
-      await Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (_, _, _) => pageBuilder!(context),
-          transitionsBuilder: (_, animation, _, Widget child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-        ),
-      );
+      await openFullscreen(context, pageBuilder!);
     }
   }
 
