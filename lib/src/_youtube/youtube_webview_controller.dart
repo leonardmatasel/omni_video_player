@@ -428,6 +428,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
     BuildContext context, {
     required Widget Function(BuildContext p1)? pageBuilder,
     void Function(bool p1)? onToggle,
+    RouteSettings? routeSettings,
   }) async {
     if (isFullScreen) {
       isFullScreen = false;
@@ -447,7 +448,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
         _ensureLivePlayingAfterRouteChange();
       }
 
-      await openFullscreen(context, pageBuilder!);
+      await openFullscreen(context, pageBuilder!, routeSettings: routeSettings);
     }
   }
 

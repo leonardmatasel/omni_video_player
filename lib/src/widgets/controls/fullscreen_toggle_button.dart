@@ -18,6 +18,7 @@ class FullscreenToggleButton extends StatelessWidget {
     required this.controller,
     required this.fullscreenPageBuilder,
     required this.onFullscreenToggled,
+    this.routeSettings,
   });
 
   /// The media playback controller that manages fullscreen state.
@@ -28,6 +29,9 @@ class FullscreenToggleButton extends StatelessWidget {
 
   /// A builder for the fullscreen player page.
   final Widget Function(BuildContext context) fullscreenPageBuilder;
+
+  /// Settings of the route fullscreen pushes.
+  final RouteSettings? routeSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +50,7 @@ class FullscreenToggleButton extends StatelessWidget {
         context,
         pageBuilder: fullscreenPageBuilder,
         onToggle: onFullscreenToggled,
+        routeSettings: routeSettings,
       ),
     );
   }

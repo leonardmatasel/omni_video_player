@@ -121,6 +121,10 @@ class PlayerUIVisibilityOptions {
   /// portrait if height > width, otherwise landscape.
   final Orientation? fullscreenOrientation;
 
+  /// Settings of the route fullscreen pushes to own pop and the back button.
+  /// Name it so a `NavigatorObserver` of yours can tell that route apart.
+  final RouteSettings? fullscreenRouteSettings;
+
   /// Device orientations to restore when leaving fullscreen.
   ///
   /// Flutter provides no way to read the preferred orientations your app had
@@ -199,6 +203,7 @@ class PlayerUIVisibilityOptions {
     this.customAspectRatioNormal,
     this.customAspectRatioFullScreen,
     this.fullscreenOrientation,
+    this.fullscreenRouteSettings,
     this.restoreOrientationsAfterFullscreen,
     this.showScrubbingThumbnailPreview = true,
     this.fitVideoToBounds = true,
@@ -238,6 +243,7 @@ class PlayerUIVisibilityOptions {
     double? customAspectRatioNormal,
     double? customAspectRatioFullScreen,
     Orientation? fullscreenOrientation,
+    RouteSettings? fullscreenRouteSettings,
     List<DeviceOrientation>? restoreOrientationsAfterFullscreen,
     bool? showScrubbingThumbnailPreview,
     bool? fitVideoToBounds,
@@ -284,6 +290,8 @@ class PlayerUIVisibilityOptions {
           customAspectRatioFullScreen ?? this.customAspectRatioFullScreen,
       fullscreenOrientation:
           fullscreenOrientation ?? this.fullscreenOrientation,
+      fullscreenRouteSettings:
+          fullscreenRouteSettings ?? this.fullscreenRouteSettings,
       restoreOrientationsAfterFullscreen:
           restoreOrientationsAfterFullscreen ??
           this.restoreOrientationsAfterFullscreen,

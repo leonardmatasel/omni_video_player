@@ -318,6 +318,7 @@ class VimeoController extends OmniPlaybackController {
     BuildContext context, {
     required Widget Function(BuildContext)? pageBuilder,
     void Function(bool)? onToggle,
+    RouteSettings? routeSettings,
   }) async {
     if (_isFullScreen) {
       _isFullScreen = false;
@@ -329,7 +330,7 @@ class VimeoController extends OmniPlaybackController {
       notifyListeners();
       onToggle?.call(true);
 
-      await openFullscreen(context, pageBuilder!);
+      await openFullscreen(context, pageBuilder!, routeSettings: routeSettings);
     }
   }
 

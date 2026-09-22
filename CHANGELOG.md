@@ -1,3 +1,9 @@
+# 6.0.7
+
+✨ **New Features**
+
+* The route fullscreen pushes to own pop and the back button can now be named, via `PlayerUIVisibilityOptions.fullscreenRouteSettings`. A `NavigatorObserver` of the app can then tell that route apart from a page of its own — to leave an overlay of its own open while fullscreen is up, for instance.
+
 # 6.0.6
 
 🐛 **Fixes**

@@ -65,10 +65,12 @@ abstract class OmniPlaybackController with ChangeNotifier {
   /// - [context] is the build context.
   /// - [pageBuilder] returns the widget to display in fullscreen.
   /// - [onToggle] is called with `true` when entering and `false` when exiting fullscreen.
+  /// - [routeSettings] names the route fullscreen pushes to own pop and the back button.
   Future<void> switchFullScreenMode(
     BuildContext context, {
     required Widget Function(BuildContext)? pageBuilder,
     void Function(bool)? onToggle,
+    RouteSettings? routeSettings,
   });
 
   // ──────────────── Playback Metadata and State ────────────────

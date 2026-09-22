@@ -137,6 +137,8 @@ class VideoPlaybackControlBar extends StatelessWidget {
               ),
             ),
             onFullscreenToggled: callbacks.onFullScreenToggled,
+            routeSettings:
+                options.playerUIVisibilityOptions.fullscreenRouteSettings,
           ),
       ],
     );

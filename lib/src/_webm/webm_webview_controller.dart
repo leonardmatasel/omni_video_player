@@ -342,6 +342,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
     BuildContext context, {
     required Widget Function(BuildContext p1)? pageBuilder,
     void Function(bool p1)? onToggle,
+    RouteSettings? routeSettings,
   }) async {
     if (isFullScreen) {
       isFullScreen = false;
@@ -354,7 +355,7 @@ class WebmVideoWebViewController extends OmniPlaybackController {
       notifyListeners();
       onToggle?.call(true);
 
-      await openFullscreen(context, pageBuilder!);
+      await openFullscreen(context, pageBuilder!, routeSettings: routeSettings);
     }
   }
 

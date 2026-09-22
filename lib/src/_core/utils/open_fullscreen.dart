@@ -6,8 +6,16 @@ import 'package:flutter/material.dart';
 /// Not the route itself: a route only paints above the route below it, so any
 /// OverlayEntry the app inserted over the route stack — a player living in one,
 /// a banner, a PiP — would cover fullscreen.
-Future<void> openFullscreen(BuildContext context, WidgetBuilder page) async {
+///
+/// [routeSettings] names that route, so a `NavigatorObserver` of the app can
+/// tell it apart from a page of its own.
+Future<void> openFullscreen(
+  BuildContext context,
+  WidgetBuilder page, {
+  RouteSettings? routeSettings,
+}) async {
   final route = PageRouteBuilder<void>(
+    settings: routeSettings,
     pageBuilder: (_, _, _) => const SizedBox.shrink(),
   );
   final entry = OverlayEntry(

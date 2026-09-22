@@ -819,6 +819,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     required Widget Function(BuildContext)? pageBuilder,
     Widget? playerAlreadyBuilt,
     void Function(bool)? onToggle,
+    RouteSettings? routeSettings,
   }) async {
     if (_isFullScreen) {
       Navigator.of(context).pop();
@@ -827,7 +828,7 @@ class GenericPlaybackController extends OmniPlaybackController {
       notifyListeners();
       onToggle?.call(true);
 
-      await openFullscreen(context, pageBuilder!);
+      await openFullscreen(context, pageBuilder!, routeSettings: routeSettings);
 
       // The controller may have been disposed while fullscreen was open (e.g. a
       // playlist advanced to the next video); don't touch its state then.

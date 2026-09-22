@@ -227,6 +227,10 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
             .autoFullScreenAtStart) {
           _controller!.switchFullScreenMode(
             context,
+            routeSettings: widget
+                .configuration
+                .playerUIVisibilityOptions
+                .fullscreenRouteSettings,
             pageBuilder: (context) => OmniVideoPlayerTheme(
               data: widget.configuration.playerTheme,
               child: OmniVideoPlayerFullscreen(
