@@ -132,6 +132,55 @@ void main() {
     expect(tapped, ['host-entry']);
   });
 
+  testWidgets('il fullscreen si vede sopra una OverlayEntry della app, '
+      'col player in pagina', (tester) async {
+    final tapped = <String>[];
+    final controller = _StillController();
+    late BuildContext playerContext;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            playerContext = context;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Overlay.of(context, rootOverlay: true).insert(
+                OverlayEntry(
+                  builder: (_) => GestureDetector(
+                    onTap: () => tapped.add('host-entry'),
+                    child: Container(color: const Color(0x88000000)),
+                  ),
+                ),
+              );
+            });
+
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+    await tester.pump();
+
+    // Qui il player sta in una route: il fullscreen va issato lo stesso, o la
+    // entry della app gli resta sopra.
+    controller.switchFullScreenMode(
+      playerContext,
+      pageBuilder: (_) => _fullscreenPage(controller),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tapAt(tester.getCenter(find.byType(MaterialApp)));
+    await tester.pump();
+
+    expect(tapped, isEmpty);
+    expect(find.byType(OmniVideoPlayerFullscreen), findsOneWidget);
+
+    // Chiudo e lascio scadere il timer dei controlli, o il test si lamenta.
+    Navigator.of(playerContext).pop();
+    await tester.pump(const Duration(seconds: 4));
+    await tester.pumpAndSettle();
+  });
+
   for (final inOverlay in [false, true]) {
     final where = inOverlay ? 'in una OverlayEntry' : 'in una pagina';
     testWidgets('il player condiviso passa al fullscreen senza rimontarsi, '

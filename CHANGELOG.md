@@ -1,3 +1,10 @@
+# 6.0.5
+
+🐛 **Fixes**
+
+* Fullscreen is now hoisted above the route stack for a player inside a page too, so an `OverlayEntry` the app put over it — a tutorial bubble, a banner, a PiP — no longer covers it.
+* The fullscreen page keeps the themes around the player, its own among them.
+
 # 6.0.4
 
 🐛 **Fixes**

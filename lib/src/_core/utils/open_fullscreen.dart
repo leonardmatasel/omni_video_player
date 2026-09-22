@@ -1,29 +1,22 @@
 import 'package:flutter/material.dart';
 
-/// Opens [page] fullscreen. A player in an OverlayEntry above the route stack
-/// would be covered by that entry, so there the page gets an entry on top and
-/// an empty route behind it keeps pop and the back button.
-Future<void> openFullscreen(BuildContext context, WidgetBuilder page) {
-  return ModalRoute.of(context) == null
-      ? _openAboveOverlay(context, page)
-      : Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (_, _, _) => page(context),
-            transitionsBuilder: (_, animation, _, child) =>
-                FadeTransition(opacity: animation, child: child),
-          ),
-        );
-}
-
-Future<void> _openAboveOverlay(BuildContext context, WidgetBuilder page) async {
+/// Opens [page] as the topmost entry of the Overlay that hosts the caller, with
+/// an empty route behind it that keeps pop and the back button.
+///
+/// Not the route itself: a route only paints above the route below it, so any
+/// OverlayEntry the app inserted over the route stack — a player living in one,
+/// a banner, a PiP — would cover fullscreen.
+Future<void> openFullscreen(BuildContext context, WidgetBuilder page) async {
   final route = PageRouteBuilder<void>(
     pageBuilder: (_, _, _) => const SizedBox.shrink(),
   );
   final entry = OverlayEntry(
     builder: (_) {
-      final child = page(context);
+      // The page is mounted under the Overlay, not under the caller: the themes
+      // around the caller, the player's own among them, have to come along.
+      final child = InheritedTheme.captureAll(context, page(context));
       final animation = route.animation;
+
       return animation == null
           ? child
           : FadeTransition(opacity: animation, child: child);
