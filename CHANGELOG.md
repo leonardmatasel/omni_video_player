@@ -1,3 +1,11 @@
+# 6.0.6
+
+🐛 **Fixes**
+
+* Sending one player fullscreen released every other player on the page: the fullscreen covers them, so they read as scrolled off-screen. They are now left alone while a fullscreen of ours is open, instead of coming back seconds later on a new controller.
+* A player coming back on a new controller left the play/pause button listening to the old one: the icon stayed on *play* while the video ran, and only caught up once the controls were hidden and shown again.
+* A controller disposed while its widgets were still mounted threw *used after being disposed* on the next rebuild, and the broken frame left the layout stuck. Listeners and notifications are now swallowed once a controller is disposed.
+
 # 6.0.5
 
 🐛 **Fixes**

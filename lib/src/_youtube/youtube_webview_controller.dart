@@ -171,15 +171,6 @@ class YouTubeWebViewController extends OmniPlaybackController {
     super.dispose();
   }
 
-  /// Swallows notifications once disposed, so async tails (e.g. the resume
-  /// after [switchFullScreenMode]'s awaited route when a playlist advanced)
-  /// can't hit a disposed ChangeNotifier and throw.
-  @override
-  void notifyListeners() {
-    if (_isDisposed) return;
-    super.notifyListeners();
-  }
-
   Future<void> run(String functionName, {Map<String, dynamic>? data}) async {
     final varArgs = await _prepareData(data);
 

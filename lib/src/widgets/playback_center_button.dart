@@ -56,6 +56,17 @@ class _PlaybackCenterButtonState extends State<PlaybackCenterButton> {
     widget.controller.addListener(_update);
   }
 
+  @override
+  void didUpdateWidget(covariant PlaybackCenterButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // A released player comes back on a new controller: the listener has to
+    // follow it, or this button stops hearing about playback.
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_update);
+      widget.controller.addListener(_update);
+    }
+  }
+
   void _update() {
     setState(() {});
   }

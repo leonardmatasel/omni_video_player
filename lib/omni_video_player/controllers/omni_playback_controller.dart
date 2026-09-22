@@ -11,6 +11,21 @@ import 'package:video_player/video_player.dart';
 /// (e.g., YouTube, Vimeo). It includes methods for controlling playback, volume, seek,
 /// fullscreen, and other media-related properties.
 abstract class OmniPlaybackController with ChangeNotifier {
+  /// Swallows listeners and notifications once disposed: a player torn down for
+  /// resources, or a host gone while fullscreen is open, leaves its widgets
+  /// mounted, and their next rebuild would trip ChangeNotifier's assert.
+  @override
+  void addListener(VoidCallback listener) {
+    if (isDisposed) return;
+    super.addListener(listener);
+  }
+
+  @override
+  void notifyListeners() {
+    if (isDisposed) return;
+    super.notifyListeners();
+  }
+
   /// Starts or resumes playback.
   ///
   /// If [useGlobalController] is `true`, a shared global instance is used for coordinated

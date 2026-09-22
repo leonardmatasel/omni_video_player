@@ -332,6 +332,9 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
   /// [build]/[_reinitAfterOffView]) — this path never touches the error budget.
   void releaseForOffView() {
     if (!mounted || _isLoading || _recovering || _releasedOffView) return;
+    // Covered by a fullscreen of ours, not scrolled away: releasing here tears
+    // down every other player on the page, and they come back seconds later.
+    if (widget.globalController?.hasFullScreenPlayer ?? false) return;
     final controller = _controller;
     if (controller == null || controller.isDisposed) return;
     // Resume where it left off when the player comes back on screen.

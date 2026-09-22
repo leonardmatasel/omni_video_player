@@ -76,6 +76,18 @@ class _VideoPlayPauseButtonState extends State<VideoPlayPauseButton>
     controller.addListener(_updateIconAnimation);
   }
 
+  @override
+  void didUpdateWidget(covariant VideoPlayPauseButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // A released player comes back on a new controller: without this the button
+    // keeps listening to the old one and its icon freezes.
+    if (oldWidget.controller != controller) {
+      oldWidget.controller.removeListener(_updateIconAnimation);
+      controller.addListener(_updateIconAnimation);
+      _updateIconAnimation();
+    }
+  }
+
   /// Syncs the animation with the controller's playback state.
   void _updateIconAnimation() {
     if (!mounted) return;

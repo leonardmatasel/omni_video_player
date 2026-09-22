@@ -694,17 +694,6 @@ class GenericPlaybackController extends OmniPlaybackController {
     await audioController?.dispose();
   }
 
-  /// Swallows notifications once disposed. Async tails (e.g. the resume after
-  /// [switchFullScreenMode]'s awaited route, or a pending seek) can run after
-  /// the controller is disposed — e.g. advancing a playlist while fullscreen is
-  /// open disposes this controller, and the route's `notifyListeners()` then
-  /// hit a disposed ChangeNotifier and threw ("used after being disposed").
-  @override
-  void notifyListeners() {
-    if (_isDisposed) return;
-    super.notifyListeners();
-  }
-
   // ---------------------------------------------------------------------------
   // GETTERS & SETTERS
   // ---------------------------------------------------------------------------

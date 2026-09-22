@@ -129,15 +129,6 @@ class WebmVideoWebViewController extends OmniPlaybackController {
     super.dispose();
   }
 
-  /// Swallows notifications once disposed, so async tails (e.g. the resume
-  /// after [switchFullScreenMode]'s awaited route when a playlist advanced)
-  /// can't hit a disposed ChangeNotifier and throw.
-  @override
-  void notifyListeners() {
-    if (_isDisposed) return;
-    super.notifyListeners();
-  }
-
   // Helper per eseguire JS
   Future<void> _evaluate(String js) async {
     if (_webViewController == null || isDisposed) return;

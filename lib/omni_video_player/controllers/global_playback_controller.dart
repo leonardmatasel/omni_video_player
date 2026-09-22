@@ -55,6 +55,13 @@ class GlobalPlaybackController extends ChangeNotifier {
     _syncWakelock();
   }
 
+  /// Whether one of the tracked players is showing fullscreen.
+  ///
+  /// A fullscreen covers the page, so the players behind it read as invisible:
+  /// this tells them apart from a player actually scrolled off-screen.
+  bool get hasFullScreenPlayer =>
+      _allControllers.any((controller) => controller.isFullScreen);
+
   /// Releases all resources by disposing of all tracked controllers.
   /// Useful for handling "NO_MEMORY" or "CodecException" errors on Android.
   Future<void> releaseAllResources() async {

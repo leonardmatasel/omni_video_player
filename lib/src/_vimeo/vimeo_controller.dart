@@ -396,20 +396,6 @@ class VimeoController extends OmniPlaybackController {
 
   bool _isDisposed = false;
 
-  /// Swallows notifications once disposed.
-  ///
-  /// Several state setters (e.g. [currentPosition]) and the async tail of
-  /// [seekTo] can run after the controller has been disposed — for instance
-  /// when an `onError`-triggered refresh tears down the player while a queued
-  /// `seekTo` is still awaiting its WebView call. Without this guard those
-  /// paths hit `ChangeNotifier.notifyListeners()` on a disposed notifier and
-  /// throw "A VimeoController was used after being disposed.".
-  @override
-  void notifyListeners() {
-    if (_isDisposed) return;
-    super.notifyListeners();
-  }
-
   @override
   Future<void> dispose() async {
     _isDisposed = true;
