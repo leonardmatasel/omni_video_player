@@ -1,3 +1,9 @@
+# 6.0.8
+
+⬆️ **Update documentation**
+
+* The README's standard example now compiles: it passes `configuration` and `callbacks`, which `OmniVideoPlayer` requires.
+
 # 6.0.7
 
 ✨ **New Features**

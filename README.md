@@ -127,9 +127,12 @@ Configure these only if your use case requires it:
 
 ```dart
 OmniVideoPlayer(
-  sourceConfiguration: VideoSourceConfiguration.youtube(
-    videoUrl: Uri.parse('https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
-    preferredQualities: [OmniVideoQuality.high720],
+  callbacks: VideoPlayerCallbacks(),
+  configuration: VideoPlayerConfiguration(
+    videoSourceConfiguration: VideoSourceConfiguration.youtube(
+      videoUrl: Uri.parse('https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
+      preferredQualities: [OmniVideoQuality.high720],
+    ),
   ),
 )
 
