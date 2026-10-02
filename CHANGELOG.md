@@ -1,3 +1,9 @@
+# 6.0.9
+
+🐛 **Fixes**
+
+* While loading, a custom thumbnail keeps its own proportions instead of a 16/9 box that cropped portrait videos.
+
 # 6.0.8
 
 ⬆️ **Update documentation**

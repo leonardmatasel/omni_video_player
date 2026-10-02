@@ -62,6 +62,13 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
   VimeoVideoInfo? _vimeoInfo;
   ImageProvider<Object>? _thumbnail;
 
+  /// Proportions of the caller's thumbnail, a frame of the video: they stand in
+  /// for its ratio until the controller knows it. Not YouTube's own thumbnail,
+  /// which is letterboxed 4:3.
+  double? _thumbnailRatio;
+  ImageStream? _thumbnailStream;
+  late final _thumbnailListener = ImageStreamListener(_onThumbnailResolved);
+
   bool _isLoading = true;
   bool _hasError = false;
 
@@ -133,6 +140,24 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
     super.initState();
     widget.globalController?.addListener(_onGlobalControllerChanged);
     _initializePlayer();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final thumbnail = widget.configuration.customPlayerWidgets.thumbnail;
+    if (thumbnail == null || _thumbnailStream != null) return;
+
+    _thumbnailStream = thumbnail.resolve(createLocalImageConfiguration(context))
+      ..addListener(_thumbnailListener);
+  }
+
+  void _onThumbnailResolved(ImageInfo info, bool _) {
+    final ratio = info.image.width / info.image.height;
+    info.dispose();
+    // One frame is enough: an animated thumbnail would rebuild on every frame.
+    _thumbnailStream?.removeListener(_thumbnailListener);
+    if (mounted) setState(() => _thumbnailRatio = ratio);
   }
 
   /// A release from outside (see [GlobalPlaybackController.releaseAllResources])
@@ -364,6 +389,7 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
   @override
   void dispose() {
     _readyTimeoutTimer?.cancel();
+    _thumbnailStream?.removeListener(_thumbnailListener);
     widget.globalController?.removeListener(_onGlobalControllerChanged);
     _controller?.removeListener(_onControllerStateChanged);
     super.dispose();
@@ -467,7 +493,7 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
             child: AspectRatio(
               // A thumbnail is an image: it needs a box even before the real
               // ratio is known.
-              aspectRatio: aspectRatio ?? 16 / 9,
+              aspectRatio: aspectRatio ?? _thumbnailRatio ?? 16 / 9,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
                 child: VideoPlayerThumbnail(
