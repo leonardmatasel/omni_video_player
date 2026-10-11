@@ -38,10 +38,16 @@ class NetworkInitializer implements IOmniVideoPlayerInitializerStrategy {
         videoSourceConfiguration.availableQualities,
         httpHeaders: videoSourceConfiguration.httpHeaders,
       );
-      currentQualityEntry = HlsVideoApi.selectBestQualityVariant(
-        qualitiesMap,
-        preferredQualities: videoSourceConfiguration.preferredQualities,
-      );
+      if (qualitiesMap.isNotEmpty) {
+        currentQualityEntry = HlsVideoApi.selectBestQualityVariant(
+          qualitiesMap,
+          preferredQualities: videoSourceConfiguration.preferredQualities,
+        );
+      } else {
+        // Media playlists have no variants; masters may also have no mapped or
+        // allowed qualities. Let the native player load the original HLS URL.
+        qualitiesMap = null;
+      }
     }
 
     GenericPlaybackController? controller;
@@ -82,7 +88,7 @@ class NetworkInitializer implements IOmniVideoPlayerInitializerStrategy {
         debugPrint(
           'Failed to initialize DefaultPlaybackController (attempt $attempts), retrying in 250ms...\n$e\n$st',
         );
-        await Future.delayed(const Duration(milliseconds: 250));
+        await Future<void>.delayed(const Duration(milliseconds: 250));
       }
     }
 
