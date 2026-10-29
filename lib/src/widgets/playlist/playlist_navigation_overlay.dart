@@ -26,7 +26,8 @@ class PlaylistNavigationOverlay extends StatelessWidget {
     final theme = OmniVideoPlayerTheme.of(context);
     final iconColor =
         theme?.colors.controlButtonIcon ?? theme?.colors.icon ?? Colors.white;
-    final baseBackground = theme?.colors.controlButtonBackground ?? Colors.black;
+    final baseBackground =
+        theme?.colors.controlButtonBackground ?? Colors.black;
     final backgroundColor = OpaqueControlSurfaces.of(context)
         ? baseBackground
         : baseBackground.withAlpha(100);

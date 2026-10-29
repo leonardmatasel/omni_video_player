@@ -13,14 +13,16 @@ class OmniPlaylistController extends ChangeNotifier {
   OmniPlaylistController({
     required PlaylistConfiguration configuration,
     PlaylistCallbacks? callbacks,
-  })  : _items = List<VideoSourceConfiguration>.from(configuration.items),
-        _currentIndex = configuration.items.isEmpty
-            ? 0
-            : configuration.initialIndex
-                .clamp(0, configuration.items.length - 1),
-        _loop = configuration.loop,
-        _autoAdvance = configuration.autoAdvance,
-        _callbacks = callbacks {
+  }) : _items = List<VideoSourceConfiguration>.from(configuration.items),
+       _currentIndex = configuration.items.isEmpty
+           ? 0
+           : configuration.initialIndex.clamp(
+               0,
+               configuration.items.length - 1,
+             ),
+       _loop = configuration.loop,
+       _autoAdvance = configuration.autoAdvance,
+       _callbacks = callbacks {
     if (configuration.items.isEmpty) {
       throw ArgumentError.value(
         configuration.items,
@@ -49,8 +51,7 @@ class OmniPlaylistController extends ChangeNotifier {
 
   bool get hasNext =>
       _loop ? _items.length > 1 : _currentIndex < _items.length - 1;
-  bool get hasPrevious =>
-      _loop ? _items.length > 1 : _currentIndex > 0;
+  bool get hasPrevious => _loop ? _items.length > 1 : _currentIndex > 0;
 
   /// Advances to the next video (wraps if looping). Returns false if none.
   bool next() {

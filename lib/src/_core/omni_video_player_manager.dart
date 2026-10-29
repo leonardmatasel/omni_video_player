@@ -309,6 +309,5 @@ class _ReadyErrorGateState extends State<_ReadyErrorGate> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      widget.builder(context, _ready, _error);
+  Widget build(BuildContext context) => widget.builder(context, _ready, _error);
 }

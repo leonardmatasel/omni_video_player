@@ -60,7 +60,9 @@ class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
     // tells us which ones to restore we fall back to all orientations
     // (previous behavior). See issue #75.
     SystemChrome.setPreferredOrientations(
-      widget.configuration.playerUIVisibilityOptions
+      widget
+              .configuration
+              .playerUIVisibilityOptions
               .restoreOrientationsAfterFullscreen ??
           DeviceOrientation.values,
     );

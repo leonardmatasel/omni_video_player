@@ -20,8 +20,8 @@ class OpaqueControlSurfaces extends InheritedWidget {
 
   /// Returns the nearest [opaque] value, or `false` when there is no ancestor.
   static bool of(BuildContext context) {
-    final inherited =
-        context.dependOnInheritedWidgetOfExactType<OpaqueControlSurfaces>();
+    final inherited = context
+        .dependOnInheritedWidgetOfExactType<OpaqueControlSurfaces>();
     return inherited?.opaque ?? false;
   }
 
