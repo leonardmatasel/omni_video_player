@@ -43,7 +43,6 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
 
       final controller = await _buildController(streamData, false);
 
-      _maybeFixDuration(controller, streamData.videoUrl.toString());
       _registerSharedPlayer(controller);
 
       callbacks.onControllerCreated?.call(controller);
@@ -119,6 +118,7 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
       globalKeyPlayer: config.globalKeyInitializer,
       qualityUrls: data.qualityUrls,
       currentVideoQuality: data.currentQuality,
+      knownDuration: _durationFromUrl(data.videoUrl),
     );
   }
 
@@ -126,17 +126,13 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
   // ⚙️ Helpers
   // ----------------------------------------------------------
 
-  void _maybeFixDuration(GenericPlaybackController controller, String url) {
-    final duration = _extractDurationFromUrl(url);
-    if (duration != null &&
-        duration != controller.videoController.value.duration.inSeconds) {
-      controller.duration = Duration(seconds: duration.toInt());
-    }
-  }
-
-  double? _extractDurationFromUrl(String url) {
-    final match = RegExp(r"dur=([\d.]+)").firstMatch(url);
-    return match != null ? double.tryParse(match.group(1)!) : null;
+  /// The real length from the stream's `dur=`: AVFoundation can report double
+  /// it on YouTube's adaptive streams (#88).
+  Duration? _durationFromUrl(Uri url) {
+    final seconds = double.tryParse(url.queryParameters['dur'] ?? '');
+    return seconds == null
+        ? null
+        : Duration(milliseconds: (seconds * 1000).round());
   }
 
   void _registerSharedPlayer(GenericPlaybackController controller) {

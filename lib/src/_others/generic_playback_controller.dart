@@ -69,6 +69,10 @@ class GenericPlaybackController extends OmniPlaybackController {
   bool _isNotifyPending = false;
 
   Duration _duration = Duration.zero;
+
+  /// The length given by the source, which wins over the native player's.
+  final Duration? _knownDuration;
+
   Timer? _progressTimer;
 
   // --- Sync Variables ---
@@ -201,8 +205,9 @@ class GenericPlaybackController extends OmniPlaybackController {
     this.globalKeyPlayer,
     this.httpHeaders,
     this.mixWithOthers,
+    this._knownDuration,
   ) {
-    duration = videoController.value.duration;
+    duration = _knownDuration ?? videoController.value.duration;
 
     if (initialPosition.inSeconds > 0) {
       seekTo(initialPosition, skipHasPlaybackStarted: true);
@@ -235,6 +240,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     required GlobalKey<OmniVideoPlayerInitializerState> globalKeyPlayer,
     Map<String, String>? httpHeaders,
     bool mixWithOthers = false,
+    Duration? knownDuration,
   }) async {
     final videoController =
         (type == VideoSourceType.asset && dataSource != null)
@@ -285,6 +291,7 @@ class GenericPlaybackController extends OmniPlaybackController {
       globalKeyPlayer,
       httpHeaders,
       mixWithOthers,
+      knownDuration,
     );
   }
 
@@ -374,9 +381,8 @@ class GenericPlaybackController extends OmniPlaybackController {
 
     if (_isReplaying && videoController.value.isPlaying) _isReplaying = false;
 
-    if (duration != videoController.value.duration) {
-      duration = videoController.value.duration;
-    }
+    final effectiveDuration = _knownDuration ?? videoController.value.duration;
+    if (duration != effectiveDuration) duration = effectiveDuration;
 
     // Gestione Macro-Buffering (Video)
     if (audioController != null && _hasStarted && !isSeeking) {
