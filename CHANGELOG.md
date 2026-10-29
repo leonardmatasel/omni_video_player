@@ -1,3 +1,9 @@
+# Unreleased
+
+🐛 **Fixes**
+
+* YouTube WebView with `useNativeControls: true`: a tap could show our progress bar without YouTube's play/pause, or the other way round. A tap on the video now shows the bar and restarts its timer, like YouTube's own controls, instead of toggling it, and a touch that slips past the WebView's tap slop moves neither of them. Without native controls a tap still toggles the bar.
+
 # 6.1.0
 
 ✨ **New Features**
