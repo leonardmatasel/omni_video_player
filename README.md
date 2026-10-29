@@ -89,6 +89,15 @@ dependencies:
 
 ```
 
+> **Beta with Swift Package Manager on iOS:** `6.2.0-beta.1` depends on `flutter_inappwebview: ^6.2.0-beta.3`, the first release with SPM support on iOS, and removes the SPM warning ([#86](https://github.com/leonardmatasel/omni_video_player/issues/86)). Install it with:
+>
+> ```yaml
+> dependencies:
+>   omni_video_player: ^6.2.0-beta.1
+> ```
+>
+> Your app then also resolves `flutter_inappwebview` to its beta. The stable release follows once `flutter_inappwebview` 6.2.0 is stable.
+
 ### 2. Platform Setup (Optional)
 
 Configure these only if your use case requires it:

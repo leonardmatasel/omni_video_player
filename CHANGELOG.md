@@ -1,3 +1,9 @@
+# 6.2.0-beta.1
+
+⬆️ **Dependencies**
+
+* `flutter_inappwebview` goes to `^6.2.0-beta.3`, its first release with Swift Package Manager support on iOS: the SPM warning is gone ([#86](https://github.com/leonardmatasel/omni_video_player/issues/86)). Every `flutter_inappwebview` package moves to its beta together, so your app resolves them to the beta too. No API changes; the stable 6.2.0 follows once `flutter_inappwebview` 6.2.0 is stable.
+
 # 6.1.0
 
 ✨ **New Features**
