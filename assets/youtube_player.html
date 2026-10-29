@@ -33,10 +33,9 @@
             left: 0;
             width: 100% !important;
             height: 100% !important;
-            /* The iframe is fully non-interactive: all gestures are handled by
-               the Flutter overlay (the WebView is also wrapped in IgnorePointer).
-               This stops YouTube's native player from reacting to taps/hover and
-               auto-showing its controls. */
+            /* Without native controls the iframe is non-interactive: the Flutter
+               overlay handles every gesture (the WebView is in IgnorePointer).
+               With native controls it receives taps, so YouTube shows its own. */
             pointer-events: <<pointerEvents>>;
         }
     </style>

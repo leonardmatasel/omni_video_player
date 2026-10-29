@@ -101,6 +101,7 @@ class PlayerUIVisibilityOptions {
   /// Duration the controls remain visible after interaction while video is playing.
   ///
   /// After this duration without interaction, controls are hidden automatically.
+  /// With YouTube's native controls keep the default: it matches theirs.
   ///
   /// Defaults to 3 seconds.
   final Duration controlsPersistenceDuration;

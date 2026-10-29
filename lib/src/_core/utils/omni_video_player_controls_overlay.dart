@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/player_ui_visibility_options.dart';
@@ -221,7 +222,6 @@ class _OmniVideoPlayerControlsOverlayState
                   theme: theme,
                   areOverlayVisible: areOverlayVisible,
                   isButtonVisible: isButtonVisible,
-                  toggleVisibility: toggle,
                   onStartInteraction: pauseTimer,
                   onEndInteraction: resumeTimer,
                 );
@@ -285,7 +285,6 @@ class _OmniVideoPlayerControlsOverlayState
     required OmniVideoPlayerThemeData theme,
     required bool areOverlayVisible,
     required bool isButtonVisible,
-    required VoidCallback toggleVisibility,
     required VoidCallback onStartInteraction,
     required VoidCallback onEndInteraction,
   }) {
@@ -315,21 +314,26 @@ class _OmniVideoPlayerControlsOverlayState
         wrapWhen: aspectRatio < 1,
         child: Align(alignment: Alignment.center, child: player),
       ),
-      // Native mode: observe taps over the video to toggle our controls WITHOUT
-      // consuming them. A translucent [Listener] doesn't enter the gesture
-      // arena, so the touch still reaches the interactive iframe (YouTube's
-      // native play/pause/double-tap keep working). It sits ABOVE the iframe but
-      // BELOW the bottom bar / center button, so taps on those aren't toggles.
+      // Native mode: observe taps over the video WITHOUT consuming them, so the
+      // iframe still gets them. Like YouTube's own controls, a tap shows the bar
+      // and restarts its timer, never hides it; the slop matches the WebView's.
       if (native)
         Positioned.fill(
           child: Listener(
             behavior: HitTestBehavior.translucent,
             onPointerDown: (e) => _nativeTapDownPosition = e.position,
+            onPointerMove: (e) {
+              final down = _nativeTapDownPosition;
+              if (down != null && (e.position - down).distance > kTouchSlop) {
+                _nativeTapDownPosition = null;
+              }
+            },
             onPointerUp: (e) {
               final down = _nativeTapDownPosition;
               _nativeTapDownPosition = null;
-              if (down != null && (e.position - down).distance < 20) {
-                toggleVisibility();
+              if (down != null && (e.position - down).distance <= kTouchSlop) {
+                onStartInteraction();
+                onEndInteraction();
               }
             },
             child: const SizedBox.expand(),
