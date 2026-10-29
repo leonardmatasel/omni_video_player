@@ -1,6 +1,18 @@
 # Unreleased
 
+✨ **New Features**
+
+* Fullscreen is no longer a jump: the video grows from its spot in the page to fullscreen while the background fades to black, then the device rotates and the system bars hide; the controls appear once it has settled. Leaving runs the same steps backwards, so the video shrinks back into its spot instead of disappearing. When the player isn't visible in the page (auto fullscreen at start, scrolled away) it fades in and out instead.
+
+⚠️ **Behaviour change**
+
+* On the YouTube WebView, webm and Vimeo players, `onFullScreenToggled(false)` now fires once the exit has finished, as it already did on native players, and `autoFullScreenAtStart` reports both toggles too.
+
 🐛 **Fixes**
+
+* The Android back button out of fullscreen left the YouTube WebView, webm and Vimeo players out of the page, with an empty box in their place.
+* After leaving fullscreen, a vertical swipe on the player in the page could throw and pop the page hosting it.
+* The YouTube WebView no longer pauses on its own while it grows into fullscreen or shrinks back.
 
 * YouTube WebView with `useNativeControls: true`: a tap could show our progress bar without YouTube's play/pause, or the other way round. A tap on the video now shows the bar and restarts its timer, like YouTube's own controls, instead of toggling it, and a touch that slips past the WebView's tap slop moves neither of them. Without native controls a tap still toggles the bar.
 

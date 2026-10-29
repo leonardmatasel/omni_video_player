@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
+import 'package:omni_video_player/omni_video_player/models/player_ui_visibility_options.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
-import 'package:omni_video_player/src/utils/orientation_locker.dart';
+import 'package:omni_video_player/src/_core/utils/open_fullscreen.dart';
 import 'package:omni_video_player/src/_core/utils/omni_video_player_viewport.dart';
 import 'package:omni_video_player/src/_core/utils/omni_video_player_controls_overlay.dart';
 
 /// A full-screen video player widget that:
-/// - Locks the screen orientation based on video ratio/rotation.
-/// - Enters immersive full-screen mode (hiding system overlays).
-/// - Restores UI overlays when closed.
+/// - Once grown, locks the orientation to the video and hides the system bars.
+/// - Gives both back before shrinking.
 /// - Displays video content with interactive controls.
 ///
 /// Works with [OmniPlaybackController] to control playback,
@@ -35,11 +35,15 @@ class OmniVideoPlayerFullscreen extends StatefulWidget {
 
 class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
   late Size _size;
+  var _systemTaken = false;
+
+  PlayerUIVisibilityOptions get _options =>
+      widget.configuration.playerUIVisibilityOptions;
 
   @override
   void initState() {
     super.initState();
-    _enterFullscreenMode();
+    onFullscreenSettled(context, enter: _takeSystem, exit: _giveSystemBack);
     _size = widget.controller.size;
     widget.controller.addListener(_onControllerUpdated);
   }
@@ -54,33 +58,47 @@ class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
   @override
   void dispose() {
     widget.controller.removeListener(_onControllerUpdated);
-    _exitFullscreenMode();
-    // Restore the app's orientations on exit. Flutter has no getter for the
-    // orientations the app had set before fullscreen, so unless the caller
-    // tells us which ones to restore we fall back to all orientations
-    // (previous behavior). See issue #75.
-    SystemChrome.setPreferredOrientations(
-      widget
-              .configuration
-              .playerUIVisibilityOptions
-              .restoreOrientationsAfterFullscreen ??
-          DeviceOrientation.values,
-    );
+    // An app's forced pop skips the exit phases.
+    _giveSystemBack();
     super.dispose();
   }
 
-  /// Hides system UI overlays (status bar, navigation bar)
-  /// to provide an immersive viewing experience.
-  void _enterFullscreenMode() {
+  /// Hides the system bars and locks the orientation; returns the one asked.
+  Orientation? _takeSystem() {
+    _systemTaken = true;
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    if (!_options.enableOrientationLock) return null;
+    final orientation =
+        _options.fullscreenOrientation ?? _getOrientationFromVideoSize();
+    SystemChrome.setPreferredOrientations(
+      orientation == Orientation.portrait
+          ? [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]
+          : [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight],
+    );
+    return orientation;
   }
 
-  /// Restores the normal system UI mode.
-  void _exitFullscreenMode() {
+  /// Gives the system bars and orientations back, once; returns the
+  /// orientation they force, if one.
+  Orientation? _giveSystemBack() {
+    if (!_systemTaken) return null;
+    _systemTaken = false;
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.manual,
       overlays: SystemUiOverlay.values,
     );
+    // Restored even without the lock. Flutter can't read the orientations the
+    // app had before fullscreen: all of them unless the app says which (#75).
+    final restore =
+        _options.restoreOrientationsAfterFullscreen ?? DeviceOrientation.values;
+    SystemChrome.setPreferredOrientations(restore);
+    bool portrait(DeviceOrientation o) =>
+        o == DeviceOrientation.portraitUp ||
+        o == DeviceOrientation.portraitDown;
+    if (restore.isEmpty) return null;
+    if (restore.every(portrait)) return Orientation.portrait;
+    if (!restore.any(portrait)) return Orientation.landscape;
+    return null;
   }
 
   /// Computes the video aspect ratio considering rotation or user override.
@@ -89,10 +107,7 @@ class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
     final size = widget.controller.size;
 
     // User override takes priority.
-    final customRatio = widget
-        .configuration
-        .playerUIVisibilityOptions
-        .customAspectRatioFullScreen;
+    final customRatio = _options.customAspectRatioFullScreen;
     if (customRatio != null) return customRatio;
 
     // Handle 90° / 270° rotation cases.
@@ -113,35 +128,24 @@ class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
   }
 
   Widget _buildFullscreenPlayer(BuildContext context) {
-    final shouldLockOrientation =
-        widget.configuration.playerUIVisibilityOptions.enableOrientationLock;
-
-    final preferredOrientation =
-        widget.configuration.playerUIVisibilityOptions.fullscreenOrientation ??
-        _getOrientationFromVideoSize();
-
-    return OrientationLocker(
-      enableOrientationLock: shouldLockOrientation,
-      orientation: preferredOrientation,
-      child: Material(
-        color: Colors.black,
-        child: OmniVideoPlayerControlsOverlay(
-          isFullScreenDisplay: true,
-          playerBarPadding: const EdgeInsets.symmetric(
-            horizontal: 8,
-            vertical: 16,
-          ),
-          controller: widget.controller,
-          configuration: widget.configuration,
-          callbacks: widget.callbacks,
-          child: Align(
-            alignment: Alignment.center,
-            child: OmniVideoPlayerViewport(
-              controller: widget.controller,
-              isFullScreenDisplay: true,
-              aspectRatio: _computeAspectRatio(),
-              videoFit: widget.configuration.playerUIVisibilityOptions.videoFit,
-            ),
+    return Material(
+      color: Colors.black,
+      child: OmniVideoPlayerControlsOverlay(
+        isFullScreenDisplay: true,
+        playerBarPadding: const EdgeInsets.symmetric(
+          horizontal: 8,
+          vertical: 16,
+        ),
+        controller: widget.controller,
+        configuration: widget.configuration,
+        callbacks: widget.callbacks,
+        child: Align(
+          alignment: Alignment.center,
+          child: OmniVideoPlayerViewport(
+            controller: widget.controller,
+            isFullScreenDisplay: true,
+            aspectRatio: _computeAspectRatio(),
+            videoFit: _options.videoFit,
           ),
         ),
       ),

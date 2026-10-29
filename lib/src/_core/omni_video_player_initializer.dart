@@ -271,6 +271,7 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
                 callbacks: widget.callbacks,
               ),
             ),
+            onToggle: widget.callbacks.onFullScreenToggled,
           );
         }
       }

@@ -321,16 +321,19 @@ class VimeoController extends OmniPlaybackController {
     RouteSettings? routeSettings,
   }) async {
     if (_isFullScreen) {
-      _isFullScreen = false;
-      notifyListeners();
-      onToggle?.call(false);
-      Navigator.of(context).pop();
+      Navigator.of(context).maybePop();
     } else {
       _isFullScreen = true;
       notifyListeners();
       onToggle?.call(true);
 
       await openFullscreen(context, pageBuilder!, routeSettings: routeSettings);
+
+      // Reset only once the route is gone, so system back takes this path too.
+      if (_isDisposed) return;
+      _isFullScreen = false;
+      notifyListeners();
+      onToggle?.call(false);
     }
   }
 

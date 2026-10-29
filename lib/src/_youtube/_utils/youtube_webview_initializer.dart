@@ -52,17 +52,14 @@ class YouTubeWebViewInitializer implements IOmniVideoPlayerInitializerStrategy {
       sourceConfig.videoUrl,
     ).then((size) => controller.size = size);
 
-    // Register hero widget after layout is complete
+    // Register the shared player after layout is complete
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.sharedPlayerNotifier.value = Hero(
-        tag: config.globalKeyPlayer,
-        child: YouTubeWebViewPlayerView(
-          key: config.globalKeyPlayer,
-          controller: controller,
-          customLoader: config.playerUIVisibilityOptions.showLoadingWidget
-              ? config.customPlayerWidgets.loadingWidget
-              : const SizedBox.shrink(),
-        ),
+      controller.sharedPlayerNotifier.value = YouTubeWebViewPlayerView(
+        key: config.globalKeyPlayer,
+        controller: controller,
+        customLoader: config.playerUIVisibilityOptions.showLoadingWidget
+            ? config.customPlayerWidgets.loadingWidget
+            : const SizedBox.shrink(),
       );
     });
 

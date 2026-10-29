@@ -44,17 +44,14 @@ class WebmVideoWebViewInitializer
       isFile: isFile,
     );
 
-    // Register hero widget after layout is complete
+    // Register the shared player after layout is complete
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.sharedPlayerNotifier.value = Hero(
-        tag: config.globalKeyPlayer,
-        child: WebmVideoWebViewPlayerView(
-          key: config.globalKeyPlayer,
-          controller: controller,
-          customLoader: config.playerUIVisibilityOptions.showLoadingWidget
-              ? config.customPlayerWidgets.loadingWidget
-              : const SizedBox.shrink(),
-        ),
+      controller.sharedPlayerNotifier.value = WebmVideoWebViewPlayerView(
+        key: config.globalKeyPlayer,
+        controller: controller,
+        customLoader: config.playerUIVisibilityOptions.showLoadingWidget
+            ? config.customPlayerWidgets.loadingWidget
+            : const SizedBox.shrink(),
       );
     });
 

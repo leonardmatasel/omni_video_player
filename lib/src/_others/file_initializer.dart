@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:omni_video_player/omni_video_player.dart';
 import 'package:omni_video_player/src/_others/generic_playback_controller.dart';
@@ -41,12 +40,9 @@ class FileInitializer implements IOmniVideoPlayerInitializerStrategy {
       globalKeyPlayer: options.globalKeyInitializer,
     );
 
-    controller.sharedPlayerNotifier.value = Hero(
-      tag: options.globalKeyPlayer,
-      child: VideoPlayer(
-        key: options.globalKeyPlayer,
-        controller.videoController,
-      ),
+    controller.sharedPlayerNotifier.value = VideoPlayer(
+      key: options.globalKeyPlayer,
+      controller.videoController,
     );
 
     callbacks.onControllerCreated?.call(controller);

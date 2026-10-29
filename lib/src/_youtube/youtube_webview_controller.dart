@@ -29,6 +29,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
   bool _isFullyVisible = false;
   bool _isLoadedVideo = false;
   bool? wasPlayingBeforeGoOnFullScreen;
+  Timer? _resizeWindow;
 
   /// Failsafe so a dropped JS state-change event can't leave the seek stuck. (B4)
   Timer? _seekFallbackTimer;
@@ -176,6 +177,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
   Future<void> dispose() async {
     _isDisposed = true;
     _seekFallbackTimer?.cancel();
+    _resizeWindow?.cancel();
     _globalController?.unregisterController(this);
     super.dispose();
   }
@@ -365,6 +367,7 @@ class YouTubeWebViewController extends OmniPlaybackController {
 
   @override
   Future<void> pause({bool useGlobalController = true}) async {
+    wasPlayingBeforeGoOnFullScreen = null;
     if (useGlobalController && _globalController != null && !isFullScreen) {
       return await _globalController.requestPause();
     } else {
@@ -440,14 +443,10 @@ class YouTubeWebViewController extends OmniPlaybackController {
     RouteSettings? routeSettings,
   }) async {
     if (isFullScreen) {
-      isFullScreen = false;
-      notifyListeners();
-      onToggle?.call(false);
-      Navigator.of(context).pop();
+      Navigator.of(context).maybePop();
     } else {
-      wasPlayingBeforeGoOnFullScreen = isPlaying;
+      ignorePausesWhileResizing();
       isFullScreen = true;
-      notifyListeners();
       onToggle?.call(true);
 
       // FIX LIVE: entering fullscreen can freeze a live stream on the route
@@ -457,8 +456,29 @@ class YouTubeWebViewController extends OmniPlaybackController {
         _ensureLivePlayingAfterRouteChange();
       }
 
-      await openFullscreen(context, pageBuilder!, routeSettings: routeSettings);
+      await openFullscreen(
+        context,
+        pageBuilder!,
+        routeSettings: routeSettings,
+        onShrink: ignorePausesWhileResizing,
+      );
+
+      // Reset only once the route is gone, so system back takes this path too.
+      if (isDisposed) return;
+      isFullScreen = false;
+      onToggle?.call(false);
     }
+  }
+
+  /// For 600 ms from the start of a fullscreen growth, a pause YouTube reports
+  /// while the WebView resizes doesn't stop a video that was playing.
+  void ignorePausesWhileResizing() {
+    wasPlayingBeforeGoOnFullScreen = isPlaying;
+    _resizeWindow?.cancel();
+    _resizeWindow = Timer(
+      const Duration(milliseconds: 600),
+      () => wasPlayingBeforeGoOnFullScreen = null,
+    );
   }
 
   /// Retries play until a live stream actually resumes after the fullscreen

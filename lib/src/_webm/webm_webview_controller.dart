@@ -354,17 +354,18 @@ class WebmVideoWebViewController extends OmniPlaybackController {
     RouteSettings? routeSettings,
   }) async {
     if (isFullScreen) {
-      isFullScreen = false;
-      notifyListeners();
-      onToggle?.call(false);
-      Navigator.of(context).pop();
+      Navigator.of(context).maybePop();
     } else {
       wasPlayingBeforeGoOnFullScreen = isPlaying;
       isFullScreen = true;
-      notifyListeners();
       onToggle?.call(true);
 
       await openFullscreen(context, pageBuilder!, routeSettings: routeSettings);
+
+      // Reset only once the route is gone, so system back takes this path too.
+      if (isDisposed) return;
+      isFullScreen = false;
+      onToggle?.call(false);
     }
   }
 

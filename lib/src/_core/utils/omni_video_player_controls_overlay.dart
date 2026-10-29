@@ -7,6 +7,7 @@ import 'package:omni_video_player/omni_video_player/models/player_ui_visibility_
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/theme/omni_video_player_theme.dart';
+import 'package:omni_video_player/src/_core/utils/open_fullscreen.dart';
 import 'package:omni_video_player/src/utils/conditional_parent.dart';
 import 'package:omni_video_player/src/widgets/playback_controls_visibility_manager.dart';
 import 'package:omni_video_player/src/widgets/playback_center_button.dart';
@@ -39,10 +40,9 @@ class OmniVideoPlayerControlsOverlay extends StatefulWidget {
   final VideoPlayerCallbacks callbacks;
   final EdgeInsets playerBarPadding;
 
-  /// Whether this overlay belongs to the fullscreen route. In fullscreen the
-  /// normal-view overlay is still mounted behind the route, so both would fire
-  /// visibility callbacks with their own (independent) auto-hide state. Only the
-  /// active display — the one matching [controller.isFullScreen] — should report.
+  /// Whether this overlay belongs to the fullscreen route. Only this one arms the
+  /// exit swipe; the inline overlay stays mounted behind it, so visibility
+  /// callbacks report only from the display matching [controller.isFullScreen].
   final bool isFullScreenDisplay;
 
   @override
@@ -178,7 +178,7 @@ class _OmniVideoPlayerControlsOverlayState
     final opts = widget.configuration.playerUIVisibilityOptions;
     final onVerticalDragUpdateEnable =
         opts.enableExitFullscreenOnVerticalSwipe &&
-        widget.controller.isFullScreen &&
+        widget.isFullScreenDisplay &&
         _scale == 1;
 
     return AnimatedBuilder(
@@ -303,17 +303,21 @@ class _OmniVideoPlayerControlsOverlayState
       child: widget.child,
     );
 
-    final layers = <Widget>[
-      ConditionalParent(
-        wrapWith: (ctx, child) => Positioned.directional(
-          textDirection: TextDirection.ltr,
-          child: Center(
-            child: AspectRatio(aspectRatio: aspectRatio, child: child),
-          ),
+    final video = ConditionalParent(
+      wrapWith: (ctx, child) => Positioned.directional(
+        textDirection: TextDirection.ltr,
+        child: Center(
+          child: AspectRatio(aspectRatio: aspectRatio, child: child),
         ),
-        wrapWhen: aspectRatio < 1,
-        child: Align(alignment: Alignment.center, child: player),
       ),
+      wrapWhen: aspectRatio < 1,
+      child: Align(alignment: Alignment.center, child: player),
+    );
+    // The fullscreen controls show up once the page has grown, and go first.
+    if (isFullscreenMoving(context)) return [video];
+
+    final layers = <Widget>[
+      video,
       // Native mode: observe taps over the video WITHOUT consuming them, so the
       // iframe still gets them. Like YouTube's own controls, a tap shows the bar
       // and restarts its timer, never hides it; the slop matches the WebView's.

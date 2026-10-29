@@ -92,12 +92,9 @@ class NetworkInitializer implements IOmniVideoPlayerInitializerStrategy {
       }
     }
 
-    controller.sharedPlayerNotifier.value = Hero(
-      tag: options.globalKeyPlayer,
-      child: VideoPlayer(
-        key: options.globalKeyPlayer,
-        controller.videoController,
-      ),
+    controller.sharedPlayerNotifier.value = VideoPlayer(
+      key: options.globalKeyPlayer,
+      controller.videoController,
     );
 
     callbacks.onControllerCreated?.call(controller);

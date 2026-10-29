@@ -140,12 +140,9 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
   }
 
   void _registerSharedPlayer(GenericPlaybackController controller) {
-    controller.sharedPlayerNotifier.value = Hero(
-      tag: config.globalKeyPlayer,
-      child: VideoPlayer(
-        key: config.globalKeyPlayer,
-        controller.videoController,
-      ),
+    controller.sharedPlayerNotifier.value = VideoPlayer(
+      key: config.globalKeyPlayer,
+      controller.videoController,
     );
   }
 

@@ -60,6 +60,7 @@ late _Controller _controller;
 Widget _overlay({
   required bool enableZoom,
   bool exitOnSwipe = false,
+  bool fullScreenDisplay = false,
   _Controller? controller,
 }) => MaterialApp(
   home: Scaffold(
@@ -71,6 +72,7 @@ Widget _overlay({
           height: 200,
           child: OmniVideoPlayerControlsOverlay(
             controller: controller ?? _controller,
+            isFullScreenDisplay: fullScreenDisplay,
             configuration: VideoPlayerConfiguration(
               videoSourceConfiguration: VideoSourceConfiguration.network(
                 videoUrl: Uri.parse('https://example.com/v.webm'),
@@ -117,7 +119,10 @@ void main() {
 
     await _pinchOut(tester);
 
-    expect(tester.getRect(find.byKey(_videoKey)).width, greaterThan(before.width));
+    expect(
+      tester.getRect(find.byKey(_videoKey)).width,
+      greaterThan(before.width),
+    );
   });
 
   testWidgets('enableZoom false leaves the video untouched', (tester) async {
@@ -129,20 +134,23 @@ void main() {
     expect(tester.getRect(find.byKey(_videoKey)).width, before.width);
   });
 
-  testWidgets('pinch still zooms in fullscreen, where the exit swipe is armed', (
-    tester,
-  ) async {
-    _controller.fullScreen = true;
-    await tester.pumpWidget(_overlay(enableZoom: true, exitOnSwipe: true));
-    final before = tester.getRect(find.byKey(_videoKey));
+  testWidgets(
+    'pinch still zooms in fullscreen, where the exit swipe is armed',
+    (tester) async {
+      _controller.fullScreen = true;
+      await tester.pumpWidget(
+        _overlay(enableZoom: true, exitOnSwipe: true, fullScreenDisplay: true),
+      );
+      final before = tester.getRect(find.byKey(_videoKey));
 
-    await _pinchOut(tester);
+      await _pinchOut(tester);
 
-    expect(
-      tester.getRect(find.byKey(_videoKey)).width,
-      greaterThan(before.width),
-    );
-  });
+      expect(
+        tester.getRect(find.byKey(_videoKey)).width,
+        greaterThan(before.width),
+      );
+    },
+  );
 
   testWidgets('pinch zooms with the controls hidden too', (tester) async {
     await tester.pumpWidget(

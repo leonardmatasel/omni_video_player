@@ -358,10 +358,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     videoController = newController;
     videoController.addListener(_onControllerUpdate);
 
-    sharedPlayerNotifier.value = Hero(
-      tag: globalKeyPlayer,
-      child: VideoPlayer(key: GlobalKey(), newController),
-    );
+    sharedPlayerNotifier.value = VideoPlayer(key: GlobalKey(), newController);
 
     videoController.setVolume(volume);
     await old.dispose();
@@ -828,7 +825,7 @@ class GenericPlaybackController extends OmniPlaybackController {
     RouteSettings? routeSettings,
   }) async {
     if (_isFullScreen) {
-      Navigator.of(context).pop();
+      Navigator.of(context).maybePop();
     } else {
       _isFullScreen = true;
       notifyListeners();
