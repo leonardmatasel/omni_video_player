@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Gate del repo: verde = exit 0. Il pacchetto e' uno solo e
+# la suite e' veloce: con o senza punto fisso gira tutto.
+set -euo pipefail
+cd "$(dirname "$0")/../.."
+flutter analyze
+flutter test

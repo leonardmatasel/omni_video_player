@@ -66,6 +66,11 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
   /// for its ratio until the controller knows it. Not YouTube's own thumbnail,
   /// which is letterboxed 4:3.
   double? _thumbnailRatio;
+
+  /// Size of the controller released off view: it holds the placeholder's box
+  /// and seeds the next WebView controller, whose own start size is a guess.
+  Size? _releasedSize;
+
   ImageStream? _thumbnailStream;
   late final _thumbnailListener = ImageStreamListener(_onThumbnailResolved);
 
@@ -188,6 +193,7 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
       _errorRetryCount++;
       if (videoSourceConfiguration != null) {
         _sourceConfig = videoSourceConfiguration;
+        _releasedSize = null;
       }
     });
 
@@ -219,6 +225,7 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
         widget.configuration,
         widget.callbacks,
         widget.globalController,
+        startSize: _releasedSize,
       );
 
       // Load the thumbnail in parallel with controller init so a slow thumbnail
@@ -370,6 +377,7 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
     _sourceConfig = _sourceConfig.copyWith(
       initialPosition: controller.currentPosition,
     );
+    if (!controller.size.isEmpty) _releasedSize = controller.size;
     setState(() {
       controller.removeListener(_onControllerStateChanged);
       _controller = null;
@@ -457,7 +465,8 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
   }
 
   /// The normal-mode aspect ratio, or null while it is still unknown: no
-  /// [PlayerUIVisibilityOptions.customAspectRatioNormal] and no controller yet.
+  /// [PlayerUIVisibilityOptions.customAspectRatioNormal], no controller size
+  /// and no [_releasedSize].
   double? _calculateAspectRatio() {
     final customRatio =
         widget.configuration.playerUIVisibilityOptions.customAspectRatioNormal;
@@ -465,12 +474,8 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
     if (customRatio != null) return customRatio;
 
     final size = _controller?.size;
-    if (size == null) return null;
-
-    final ratio = size.width / size.height;
-
-    // A zero height yields NaN, which is not a ratio anything can lay out with.
-    return ratio > 0 ? ratio : null;
+    if (size != null && !size.isEmpty) return size.aspectRatio;
+    return _releasedSize?.aspectRatio;
   }
 
   // 🧩 UI COMPONENTS
@@ -484,8 +489,10 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
     final hasThumb =
         widget.configuration.customPlayerWidgets.thumbnail != null ||
         _thumbnail != null;
+    final guessedRatio = aspectRatio ?? _thumbnailRatio ?? 16 / 9;
+    final loader = widget.configuration.customPlayerWidgets.loadingWidget;
 
-    return Stack(
+    final placeholder = Stack(
       children: [
         if (showThumbnail && hasThumb)
           Align(
@@ -493,7 +500,7 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
             child: AspectRatio(
               // A thumbnail is an image: it needs a box even before the real
               // ratio is known.
-              aspectRatio: aspectRatio ?? _thumbnailRatio ?? 16 / 9,
+              aspectRatio: guessedRatio,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(theme.shapes.borderRadius),
                 child: VideoPlayerThumbnail(
@@ -513,18 +520,21 @@ class OmniVideoPlayerInitializerState extends State<OmniVideoPlayerInitializer>
             // Guessing 16/9 letterboxes a full-bleed custom loader on a
             // portrait video; a centred spinner looks the same either way.
             child: aspectRatio == null
-                ? widget.configuration.customPlayerWidgets.loadingWidget
+                ? loader
                 : AspectRatio(
                     aspectRatio: aspectRatio,
-                    child: Center(
-                      child: widget
-                          .configuration
-                          .customPlayerWidgets
-                          .loadingWidget,
-                    ),
+                    child: Center(child: loader),
                   ),
           ),
       ],
+    );
+
+    // An unbounded height (a ListView) has no space to fill: hold the video's
+    // box, guessed until the ratio is real.
+    return LayoutBuilder(
+      builder: (_, constraints) => constraints.hasBoundedHeight
+          ? placeholder
+          : AspectRatio(aspectRatio: guessedRatio, child: placeholder),
     );
   }
 

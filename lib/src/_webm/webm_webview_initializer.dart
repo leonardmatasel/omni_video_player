@@ -15,6 +15,9 @@ class WebmVideoWebViewInitializer
   final String videoUrl;
   final bool isFile;
 
+  /// Size until the page sends `Ready`; defaults to a 16:9 placeholder.
+  final Size? startSize;
+
   const WebmVideoWebViewInitializer({
     required this.config,
     required this.sourceConfig,
@@ -22,22 +25,17 @@ class WebmVideoWebViewInitializer
     required this.videoUrl,
     required this.isFile,
     this.globalController,
+    this.startSize,
   });
 
   @override
   Future<OmniPlaybackController?> initialize() async {
-    // Nota: A differenza di YouTube API, non possiamo sapere la dimensione esatta
-    // del video prima di caricarlo nella WebView.
-    // Impostiamo una dimensione standard 16:9 come placeholder.
-    // La WebView con CSS "object-fit: contain" gestirà l'aspect ratio visivo.
-    const defaultSize = Size(1280, 720);
-
     final controller = WebmVideoWebViewController(
       duration: Duration(
         seconds: 1,
       ), // La durata verrà aggiornata dall'evento 'Ready' JS
       isLive: false, // Assumiamo false per file statici (mp4/webm)
-      size: defaultSize,
+      size: startSize ?? const Size(1280, 720),
       callbacks: callbacks,
       options: config,
       videoUrlStr: videoUrl,

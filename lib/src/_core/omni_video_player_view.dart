@@ -155,6 +155,7 @@ class _OmniVideoPlayerViewState extends State<OmniVideoPlayerView> {
             controller: controller,
             isFullScreenDisplay: false,
             aspectRatio: aspectRatio,
+            videoFit: config.playerUIVisibilityOptions.videoFit,
           ),
         ),
       ),

@@ -15,11 +15,15 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
   final GlobalPlaybackController? globalController;
   final VideoSourceConfiguration sourceConfig;
 
+  /// Start size of the WebView fallback, see [YouTubeWebViewInitializer].
+  final Size? startSize;
+
   const YouTubeInitializer({
     required this.config,
     required this.callbacks,
     required this.sourceConfig,
     this.globalController,
+    this.startSize,
   });
 
   @override
@@ -156,6 +160,7 @@ class YouTubeInitializer implements IOmniVideoPlayerInitializerStrategy {
       sourceConfig: sourceConfig,
       videoId: videoId.toString(),
       isLive: isLive,
+      startSize: startSize,
     ).initialize();
   }
 }

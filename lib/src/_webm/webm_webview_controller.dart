@@ -47,22 +47,31 @@ class WebmVideoWebViewController extends OmniPlaybackController {
   InAppWebViewController? _webViewController;
   InAppWebViewController? get webViewController => _webViewController;
 
+  Size _size;
+
   @override
-  final Size size;
+  Size get size => _size;
+
+  /// Updated with the real video size from `Ready`, so the viewport refits.
+  set size(Size value) {
+    if (value == _size) return;
+    _size = value;
+    notifyListeners();
+  }
 
   final bool isFile;
 
   WebmVideoWebViewController({
     required Duration duration, // Spesso zero all'inizio per i file web
     required bool isLive,
-    required this.size,
+    required Size size,
     required this.callbacks,
     required this.options,
     required this.videoUrlStr,
     required GlobalPlaybackController? globalController,
     required this.globalKeyPlayer,
     required this.isFile,
-  }) {
+  }) : _size = size {
     _duration = duration;
     _isLive = isLive;
     _globalController = globalController;

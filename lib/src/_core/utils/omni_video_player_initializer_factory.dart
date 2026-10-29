@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/painting.dart';
 import 'package:omni_video_player/omni_video_player/controllers/global_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
@@ -21,13 +22,15 @@ abstract class IOmniVideoPlayerInitializerStrategy {
 class OmniVideoPlayerInitializerFactory {
   /// Restituisce la strategia di inizializzazione corretta.
   /// È asincrona perché deve poter leggere i byte del file su iOS.
+  /// [startSize] sostituisce la taglia provvisoria delle WebView.
   static Future<IOmniVideoPlayerInitializerStrategy> getStrategy(
     VideoSourceType sourceType,
     VideoSourceConfiguration sourceConfig,
     VideoPlayerConfiguration config,
     VideoPlayerCallbacks callbacks,
-    GlobalPlaybackController? globalController,
-  ) async {
+    GlobalPlaybackController? globalController, {
+    Size? startSize,
+  }) async {
     final bool isIos = defaultTargetPlatform == TargetPlatform.iOS && !kIsWeb;
 
     switch (sourceType) {
@@ -38,6 +41,7 @@ class OmniVideoPlayerInitializerFactory {
             globalController: globalController,
             callbacks: callbacks,
             sourceConfig: sourceConfig,
+            startSize: startSize,
           );
         } else {
           return YouTubeInitializer(
@@ -45,6 +49,7 @@ class OmniVideoPlayerInitializerFactory {
             globalController: globalController,
             callbacks: callbacks,
             sourceConfig: sourceConfig,
+            startSize: startSize,
           );
         }
 
@@ -68,6 +73,7 @@ class OmniVideoPlayerInitializerFactory {
               callbacks,
               sourceConfig,
               sourceConfig.videoUrl!.toString(),
+              startSize: startSize,
             );
           }
         }
@@ -99,6 +105,7 @@ class OmniVideoPlayerInitializerFactory {
               sourceConfig,
               sourceConfig.videoFile!.path,
               isFile: true,
+              startSize: startSize,
             );
           }
         }
@@ -119,6 +126,7 @@ class OmniVideoPlayerInitializerFactory {
     VideoSourceConfiguration sourceConfig,
     String videoUrl, {
     bool isFile = false,
+    Size? startSize,
   }) {
     return WebmVideoWebViewInitializer(
       config: config,
@@ -127,6 +135,7 @@ class OmniVideoPlayerInitializerFactory {
       sourceConfig: sourceConfig,
       videoUrl: videoUrl,
       isFile: isFile,
+      startSize: startSize,
     );
   }
 }

@@ -167,6 +167,11 @@ class PlayerUIVisibilityOptions {
   /// Defaults to `false`.
   final bool enableZoom;
 
+  /// How the video fills the box, like [BoxFit] (default [BoxFit.contain]).
+  /// [BoxFit.cover] crops embed controls too (YouTube, Vimeo on web). YouTube,
+  /// Vimeo, webm refit once at first frame; YouTube's size is nominal, 1280 px.
+  final BoxFit videoFit;
+
   /// Creates a new instance of [PlayerUIVisibilityOptions].
   ///
   /// All options default to `true` except:
@@ -208,6 +213,7 @@ class PlayerUIVisibilityOptions {
     this.showScrubbingThumbnailPreview = true,
     this.fitVideoToBounds = true,
     this.enableZoom = false,
+    this.videoFit = BoxFit.contain,
   });
 
   /// Returns a copy of this [PlayerUIVisibilityOptions] with
@@ -248,6 +254,7 @@ class PlayerUIVisibilityOptions {
     bool? showScrubbingThumbnailPreview,
     bool? fitVideoToBounds,
     bool? enableZoom,
+    BoxFit? videoFit,
   }) {
     return PlayerUIVisibilityOptions(
       showSeekBar: showSeekBar ?? this.showSeekBar,
@@ -308,6 +315,7 @@ class PlayerUIVisibilityOptions {
           showScrubbingThumbnailPreview ?? this.showScrubbingThumbnailPreview,
       fitVideoToBounds: fitVideoToBounds ?? this.fitVideoToBounds,
       enableZoom: enableZoom ?? this.enableZoom,
+      videoFit: videoFit ?? this.videoFit,
     );
   }
 }

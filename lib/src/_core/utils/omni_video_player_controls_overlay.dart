@@ -87,8 +87,10 @@ class _OmniVideoPlayerControlsOverlayState
   }
 
   double _getAspectRatio() {
-    final customRatio =
-        widget.configuration.playerUIVisibilityOptions.customAspectRatioNormal;
+    final options = widget.configuration.playerUIVisibilityOptions;
+    final customRatio = widget.isFullScreenDisplay
+        ? options.customAspectRatioFullScreen
+        : options.customAspectRatioNormal;
     if (customRatio != null) return customRatio;
 
     final size = widget.controller.size;
@@ -289,6 +291,7 @@ class _OmniVideoPlayerControlsOverlayState
   }) {
     final ctrl = widget.controller;
     final bool native = widget.controller.usesNativeCenterControls;
+    final aspectRatio = _getAspectRatio();
 
     final player = ConditionalParent(
       wrapWith: (ctx, child) => ClipRect(
@@ -306,10 +309,10 @@ class _OmniVideoPlayerControlsOverlayState
         wrapWith: (ctx, child) => Positioned.directional(
           textDirection: TextDirection.ltr,
           child: Center(
-            child: AspectRatio(aspectRatio: _getAspectRatio(), child: child),
+            child: AspectRatio(aspectRatio: aspectRatio, child: child),
           ),
         ),
-        wrapWhen: _getAspectRatio() < 1,
+        wrapWhen: aspectRatio < 1,
         child: Align(alignment: Alignment.center, child: player),
       ),
       // Native mode: observe taps over the video to toggle our controls WITHOUT
@@ -358,12 +361,6 @@ class _OmniVideoPlayerControlsOverlayState
     for (final overlay
         in widget.configuration.customPlayerWidgets.customOverlayLayers) {
       if (overlay.ignoreOverlayControlsVisibility || areOverlayVisible) {
-        final aspectRatio =
-            widget
-                .configuration
-                .playerUIVisibilityOptions
-                .customAspectRatioNormal ??
-            (ctrl.size.width / ctrl.size.height);
         layers.insert(
           overlay.level,
           Positioned.fill(

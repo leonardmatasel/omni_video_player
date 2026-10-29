@@ -36,6 +36,7 @@ Widget _viewport(_StillController controller, double aspectRatio) =>
         controller: controller,
         isFullScreenDisplay: false,
         aspectRatio: aspectRatio,
+        videoFit: BoxFit.contain,
       ),
     );
 

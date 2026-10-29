@@ -1,3 +1,10 @@
+# Unreleased
+
+🐛 **Fixes**
+
+* YouTube without the WebView showed twice the real length on macOS, and seeking past the real end landed on a black screen. The length from the stream URL now wins over the native player's, during playback and after a quality switch ([#88](https://github.com/leonardmatasel/omni_video_player/issues/88)).
+* An HLS playlist with no usable quality variants threw a `StateError`; the player now plays the original playlist URL instead ([#87](https://github.com/leonardmatasel/omni_video_player/pull/87), thanks @amrelgendy0).
+
 # 6.0.9
 
 🐛 **Fixes**

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_callbacks.dart';
 import 'package:omni_video_player/omni_video_player/models/video_player_configuration.dart';
 import 'package:omni_video_player/omni_video_player/models/video_source_configuration.dart';
@@ -32,6 +32,7 @@ class WebmVideoWebViewEventHandler {
         );
       }
     }
+    handleVideoSize(data);
 
     // Impostazioni iniziali
     final sourceConfig = configuration.videoSourceConfiguration;
@@ -67,6 +68,17 @@ class WebmVideoWebViewEventHandler {
     // InAppWebView "mediaPlaybackRequiresUserGesture: false" aiuta molto qui.
     if (sourceConfig.autoPlay) {
       controller.play(useGlobalController: false);
+    }
+  }
+
+  /// Real `videoWidth/videoHeight` from the `Ready` payload; zero or missing
+  /// values are ignored.
+  void handleVideoSize(Object? data) {
+    if (data is! Map) return;
+    final width = data['width'];
+    final height = data['height'];
+    if (width is num && height is num && width > 0 && height > 0) {
+      controller.size = Size(width.toDouble(), height.toDouble());
     }
   }
 

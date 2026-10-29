@@ -57,19 +57,28 @@ class YouTubeWebViewController extends OmniPlaybackController {
     _initJavaScriptHandlers();
   }
 
+  Size _size;
+
   @override
-  final Size size;
+  Size get size => _size;
+
+  /// Updated when the real size arrives (oEmbed), so the viewport refits.
+  set size(Size value) {
+    if (value == _size) return;
+    _size = value;
+    notifyListeners();
+  }
 
   YouTubeWebViewController({
     required Duration duration,
     required bool isLive,
-    required this.size,
+    required Size size,
     required this.callbacks,
     required this.options,
     required String videoId,
     required GlobalPlaybackController? globalController,
     required this.globalKeyPlayer,
-  }) {
+  }) : _size = size {
     _duration = duration;
     _isLive = isLive;
     _videoId = videoId;

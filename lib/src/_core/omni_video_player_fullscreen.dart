@@ -34,17 +34,26 @@ class OmniVideoPlayerFullscreen extends StatefulWidget {
 }
 
 class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
-  late final double _effectiveAspectRatio;
+  late Size _size;
 
   @override
   void initState() {
     super.initState();
     _enterFullscreenMode();
-    _effectiveAspectRatio = _computeAspectRatio();
+    _size = widget.controller.size;
+    widget.controller.addListener(_onControllerUpdated);
+  }
+
+  // The controller notifies on every position tick: rebuild only when the
+  // size changes, e.g. the real one arriving after fullscreen opened.
+  void _onControllerUpdated() {
+    if (widget.controller.size == _size) return;
+    setState(() => _size = widget.controller.size);
   }
 
   @override
   void dispose() {
+    widget.controller.removeListener(_onControllerUpdated);
     _exitFullscreenMode();
     // Restore the app's orientations on exit. Flutter has no getter for the
     // orientations the app had set before fullscreen, so unless the caller
@@ -128,7 +137,8 @@ class _OmniVideoPlayerFullscreenState extends State<OmniVideoPlayerFullscreen> {
             child: OmniVideoPlayerViewport(
               controller: widget.controller,
               isFullScreenDisplay: true,
-              aspectRatio: _effectiveAspectRatio,
+              aspectRatio: _computeAspectRatio(),
+              videoFit: widget.configuration.playerUIVisibilityOptions.videoFit,
             ),
           ),
         ),

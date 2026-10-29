@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -81,6 +82,39 @@ class YouTubeService {
   /// "restarting the app sometimes fixes it" (a restart clears this cache).
   static void evict(VideoId videoId) {
     _cache.remove(videoId.value);
+  }
+
+  /// Size to start with before oEmbed answers: 9:16 for `/shorts/` URLs, else 16:9.
+  static Size startSize(Uri? url) => url?.path.contains('/shorts/') ?? false
+      ? const Size(720, 1280)
+      : const Size(1280, 720);
+
+  /// Real video size from YouTube oEmbed, falling back to [startSize] on any
+  /// failure. Asks with the `/shorts/` form, the only one true for Shorts too,
+  /// and up to 1280 px, the scale of [startSize].
+  static Future<Size> fetchVideoSize(
+    String videoId,
+    Uri? url, {
+    Duration timeout = const Duration(seconds: 3),
+  }) async {
+    final oembed = Uri.https('www.youtube.com', '/oembed', {
+      'url': 'https://www.youtube.com/shorts/$videoId',
+      'format': 'json',
+      'maxwidth': '1280',
+      'maxheight': '1280',
+    });
+    try {
+      final response = await http.get(oembed).timeout(timeout);
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        final width = (json['width'] as num).toDouble();
+        final height = (json['height'] as num).toDouble();
+        if (width > 0 && height > 0) return Size(width, height);
+      }
+    } catch (_) {
+      // Best-effort: undocumented endpoint, any failure keeps the start size.
+    }
+    return startSize(url);
   }
 
   /// Fetches the HLS URL for a live YouTube stream.
@@ -245,8 +279,7 @@ class YouTubeService {
       }
 
       final selectedVideo = availableVideoStreams.first;
-      final isMuxed =
-          (selectedVideo['videoCodec'] as String).contains('mp4a');
+      final isMuxed = (selectedVideo['videoCodec'] as String).contains('mp4a');
 
       debugPrint(
         "Youtube video stream${preferMuxOnly ? ' (restricted/mux)' : ''}: "
@@ -399,8 +432,7 @@ class YouTubeService {
           debugPrint(
             'Omni manifest: androidVr failed, trying default clients ($e)',
           );
-          final manifest =
-              await yt!.videos.streamsClient.getManifest(videoId);
+          final manifest = await yt!.videos.streamsClient.getManifest(videoId);
           return _ManifestResult(
             manifest: manifest,
             usedRestrictedFallback: true,

@@ -8,7 +8,14 @@ import 'package:video_player_platform_interface/video_player_platform_interface.
 class FakeVideoPlayerPlatform extends VideoPlayerPlatform {
   FakeVideoPlayerPlatform({
     this.seekLatency = const Duration(milliseconds: 30),
+    this.size = const Size(640, 360),
   });
+
+  /// The video size the players report once initialized.
+  final Size size;
+
+  /// Leaves the next players loading: `initialized` never arrives.
+  bool holdInitialized = false;
 
   /// How long a seek takes to answer. This is the command Android drops a
   /// `play` behind, so nothing interesting happens when it is instant.
@@ -41,13 +48,16 @@ class FakeVideoPlayerPlatform extends VideoPlayerPlatform {
     // nobody subscribed yet, and initialize() waits forever.
     late StreamController<VideoEvent> events;
     events = StreamController<VideoEvent>(
-      onListen: () => events.add(
-        VideoEvent(
-          eventType: VideoEventType.initialized,
-          duration: const Duration(seconds: 10),
-          size: const Size(640, 360),
-        ),
-      ),
+      onListen: () {
+        if (holdInitialized) return;
+        events.add(
+          VideoEvent(
+            eventType: VideoEventType.initialized,
+            duration: const Duration(seconds: 10),
+            size: size,
+          ),
+        );
+      },
     );
     _events.add(events);
 

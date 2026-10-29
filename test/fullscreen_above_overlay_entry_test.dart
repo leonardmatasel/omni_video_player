@@ -70,6 +70,7 @@ Widget _inlinePlayer(_StillController controller) => OmniVideoPlayerTheme(
       controller: controller,
       isFullScreenDisplay: false,
       aspectRatio: 16 / 9,
+      videoFit: BoxFit.contain,
     ),
   ),
 );

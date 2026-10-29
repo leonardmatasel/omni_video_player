@@ -11,6 +11,9 @@ import 'package:omni_video_player/src/utils/animated_blurred_circle_background.d
 import 'package:omni_video_player/src/_core/omni_video_player_initializer.dart';
 import 'package:omni_video_player/src/_core/omni_video_player_error_view.dart';
 import 'package:omni_video_player/src/_core/omni_video_player_view.dart';
+import 'package:omni_video_player/src/_core/utils/omni_video_fit.dart';
+import 'package:omni_video_player/src/api/vimeo_video_api.dart';
+import 'package:omni_video_player/src/api/youtube_video_api.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 import '../../src/_youtube/web/player_widget_interface.dart';
@@ -112,12 +115,14 @@ class _OmniVideoPlayerManagerState extends State<OmniVideoPlayerManager> {
 
   /// Builds the YouTube player for web.
   Widget _buildWebYoutubePlayer() {
-    final videoId = VideoId(
-      config.videoSourceConfiguration.videoUrl!.toString(),
-    ).toString();
+    final videoUrl = config.videoSourceConfiguration.videoUrl!;
+    final videoId = VideoId(videoUrl.toString()).toString();
 
-    return Center(
-      child: YoutubePlayerWidget(
+    return _buildWebFit(
+      videoId: videoId,
+      startSize: YouTubeService.startSize(videoUrl),
+      videoSize: () => YouTubeService.fetchVideoSize(videoId, videoUrl),
+      player: YoutubePlayerWidget(
         videoId: videoId,
         mute: widget.configuration.videoSourceConfiguration.autoMuteOnStart,
         autoPlay: widget.configuration.videoSourceConfiguration.autoPlay,
@@ -132,13 +137,45 @@ class _OmniVideoPlayerManagerState extends State<OmniVideoPlayerManager> {
 
   Widget _buildWebVimeoPlayer() {
     final videoId = config.videoSourceConfiguration.videoId;
+    const startSize = Size(640, 360);
 
-    return Center(
-      child: VimeoVideoPlayer(
-        videoId: videoId!,
+    return _buildWebFit(
+      videoId: videoId!,
+      startSize: startSize,
+      videoSize: () async {
+        final info = await VimeoVideoApi.fetchVimeoVideoInfo(videoId);
+        if (info == null) return startSize;
+        return Size(info.width.toDouble(), info.height.toDouble());
+      },
+      player: VimeoVideoPlayer(
+        videoId: videoId,
         autoPlay: config.videoSourceConfiguration.autoPlay,
         mute: config.videoSourceConfiguration.autoMuteOnStart,
       ),
+    );
+  }
+
+  /// Fits the web [player] with [PlayerUIVisibilityOptions.videoFit] in a box
+  /// of [PlayerUIVisibilityOptions.customAspectRatioNormal], or in all the
+  /// available space without it; a new [videoId] fetches its size again.
+  Widget _buildWebFit({
+    required String videoId,
+    required Size startSize,
+    required Future<Size> Function() videoSize,
+    required Widget player,
+  }) {
+    final options = config.playerUIVisibilityOptions;
+    final fit = OmniWebVideoFit(
+      key: ValueKey(videoId),
+      startSize: startSize,
+      videoSize: videoSize,
+      fit: options.videoFit,
+      child: player,
+    );
+    final ratio = options.customAspectRatioNormal;
+    if (ratio == null) return SizedBox.expand(child: fit);
+    return Center(
+      child: AspectRatio(aspectRatio: ratio, child: fit),
     );
   }
 

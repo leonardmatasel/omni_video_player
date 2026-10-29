@@ -28,7 +28,9 @@
     // Video pronto e metadati caricati (durata)
     player.addEventListener('loadedmetadata', function() {
         window.flutter_inappwebview.callHandler('Ready', {
-            duration: player.duration
+            duration: player.duration,
+            width: player.videoWidth,
+            height: player.videoHeight
         });
     });
 

@@ -41,6 +41,9 @@ dependencies:
 
   youtube_explode_dart: ^3.1.0
 
+  # Il supporto SPM su iOS c'è solo in flutter_inappwebview_ios 1.2.0-beta, che porta platform_interface 1.4.0-beta:
+  # contro quella non compilano né 6.1.5 né flutter_inappwebview_android 1.1.3. Niente beta solo su iOS: si aspetta
+  # lo stable con SPM. [https://github.com/leonardmatasel/omni_video_player/issues/86]
   flutter_inappwebview: ^6.1.5
 
 

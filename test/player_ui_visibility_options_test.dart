@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:omni_video_player/omni_video_player.dart';
@@ -22,6 +23,20 @@ void main() {
       );
       // Unrelated field is left untouched.
       expect(updated.enableOrientationLock, options.enableOrientationLock);
+    });
+  });
+
+  group('PlayerUIVisibilityOptions.videoFit', () {
+    test('defaults to contain', () {
+      expect(const PlayerUIVisibilityOptions().videoFit, BoxFit.contain);
+    });
+
+    test('copyWith overrides it and keeps it otherwise', () {
+      final cover = const PlayerUIVisibilityOptions().copyWith(
+        videoFit: BoxFit.cover,
+      );
+      expect(cover.videoFit, BoxFit.cover);
+      expect(cover.copyWith(enableZoom: true).videoFit, BoxFit.cover);
     });
   });
 }

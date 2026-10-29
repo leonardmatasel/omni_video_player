@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:omni_video_player/omni_video_player/controllers/omni_playback_controller.dart';
+import 'package:omni_video_player/src/_core/utils/omni_video_fit.dart';
 
 /// A widget that displays a video player and adapts its aspect ratio
 /// based on the video's rotation.
@@ -22,11 +23,14 @@ class OmniVideoPlayerViewport extends StatelessWidget {
 
   final double aspectRatio;
 
+  final BoxFit videoFit;
+
   const OmniVideoPlayerViewport({
     super.key,
     required this.controller,
     required this.isFullScreenDisplay,
     required this.aspectRatio,
+    required this.videoFit,
   });
 
   @override
@@ -43,8 +47,12 @@ class OmniVideoPlayerViewport extends StatelessWidget {
 
         return AspectRatio(
           aspectRatio: aspectRatio > 0 ? aspectRatio : 16 / 9,
-          child: shouldRender
-              ? (player ?? const SizedBox.shrink())
+          child: shouldRender && player != null
+              ? OmniVideoFit(
+                  size: controller.size,
+                  fit: videoFit,
+                  child: player,
+                )
               : const SizedBox.shrink(),
         );
       },
