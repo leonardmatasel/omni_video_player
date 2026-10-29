@@ -2,7 +2,7 @@
 
 Tipo: adr
 Da: gh-55-boxfit
-Stato: aperta
+Stato: accettata
 Cambia: docs/adr/ (primo ADR del repo, via domain-modeling)
 
 ## Proposta
