@@ -1,7 +1,20 @@
-# Unreleased
+# 6.1.0
+
+✨ **New Features**
+
+* `PlayerUIVisibilityOptions.videoFit` chooses how the video fills the player, like `BoxFit` on an image: `BoxFit.cover` fills the box and crops, with no bars and no stretching. It applies to every source (network, asset, file, YouTube, Vimeo, webm) on Android, iOS and web, in normal view and fullscreen, and it is computed on the video's real size ([#55](https://github.com/leonardmatasel/omni_video_player/issues/55)).
+* The YouTube WebView player and YouTube on web get the video's real aspect ratio (Shorts, 4:3) without blocking the load: they start at 16:9 (9:16 for `/shorts/` links) and refit once the ratio arrives. A webm reports its real size too.
+
+⚠️ **Behaviour change**
+
+* `videoFit` defaults to `BoxFit.contain`: with `customAspectRatioNormal` / `customAspectRatioFullScreen`, native videos are no longer stretched to the box but letterboxed, like the WebView sources already were. Use `videoFit: BoxFit.fill` for the old behaviour.
 
 🐛 **Fixes**
 
+* Fullscreen follows the video's real size when it arrives after fullscreen opened, and the controls overlay in fullscreen uses `customAspectRatioFullScreen`.
+* On web, YouTube and Vimeo honour `customAspectRatioNormal`.
+* In a parent with unbounded height (a `ListView`), the loader is centred on the thumbnail, and without a thumbnail the player keeps a 16:9 box while loading instead of collapsing to the loader's height.
+* A player released off screen keeps the video's proportions in its placeholder, and a WebView player coming back on screen restarts at the size it had.
 * YouTube without the WebView showed twice the real length on macOS, and seeking past the real end landed on a black screen. The length from the stream URL now wins over the native player's, during playback and after a quality switch ([#88](https://github.com/leonardmatasel/omni_video_player/issues/88)).
 * An HLS playlist with no usable quality variants threw a `StateError`; the player now plays the original playlist URL instead ([#87](https://github.com/leonardmatasel/omni_video_player/pull/87), thanks @amrelgendy0).
 
